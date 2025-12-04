@@ -32,8 +32,8 @@ export const getRecentMaintenances = (vehicleId, limit = 5) => {
 export const createMaintenance = (maintenanceData) => {
   try {
     const result = db.runSync(
-      `INSERT INTO maintenances (vehicleId, type, category, date, km, cost, provider, notes, photo, nextServiceKm, nextServiceDate) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO maintenances (vehicleId, type, category, date, km, cost, provider, notes, photo, nextServiceKm, nextServiceDate, completedAt) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         maintenanceData.vehicleId,
         maintenanceData.type,
@@ -46,6 +46,7 @@ export const createMaintenance = (maintenanceData) => {
         maintenanceData.photo || null,
         maintenanceData.nextServiceKm || null,
         maintenanceData.nextServiceDate || null,
+        maintenanceData.completedAt || null,
       ]
     );
     return result.lastInsertRowId;
@@ -60,7 +61,7 @@ export const updateMaintenance = (id, maintenanceData) => {
   try {
     db.runSync(
       `UPDATE maintenances 
-       SET type = ?, category = ?, date = ?, km = ?, cost = ?, provider = ?, notes = ?, photo = ?, nextServiceKm = ?, nextServiceDate = ?
+       SET type = ?, category = ?, date = ?, km = ?, cost = ?, provider = ?, notes = ?, photo = ?, nextServiceKm = ?, nextServiceDate = ?, completedAt = ?
        WHERE id = ?`,
       [
         maintenanceData.type,
@@ -73,6 +74,7 @@ export const updateMaintenance = (id, maintenanceData) => {
         maintenanceData.photo || null,
         maintenanceData.nextServiceKm || null,
         maintenanceData.nextServiceDate || null,
+        maintenanceData.completedAt || null,
         id,
       ]
     );

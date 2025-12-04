@@ -42,6 +42,14 @@ export const initDatabase = () => {
       );
     `);
 
+    // Agregar columna completedAt si no existe
+    const columns = db.getAllSync("PRAGMA table_info(maintenances);");
+    const hasCompletedAt = columns.some((col) => col.name === "completedAt");
+    if (!hasCompletedAt) {
+      db.execSync("ALTER TABLE maintenances ADD COLUMN completedAt TEXT;");
+      console.log("Columna completedAt agregada a maintenances");
+    }
+
     // Tabla de tipos de mantenimiento (configuración)
     db.execSync(`
       CREATE TABLE IF NOT EXISTS maintenance_types (
