@@ -23,6 +23,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
     removeMaintenance,
     vehicles,
     getAllMaintenances,
+    updateMaintenance,
   } = useApp();
   const { DialogComponent, showDialog } = useDialog();
   const { colors } = useTheme();
@@ -109,6 +110,10 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
       return !item.nextServiceKm && !item.nextServiceDate;
     }
   });
+
+  // Saber si el item está realizado
+  const isCompleted = (item) => !item.nextServiceKm && !item.nextServiceDate;
+
   const handleDelete = (id, type) => {
     showDialog({
       title: "Eliminar mantenimiento",
@@ -148,8 +153,43 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
   };
 
   const handleApprove = (id) => {
-    // Lógica para aprobar mantenimiento
-    console.log("Aprobar mantenimiento con ID:", id);
+    const maintenanceToApprove = maintenances.find((item) => item.id === id);
+    if (!maintenanceToApprove) return;
+    showDialog({
+      title: "Marcar como realizado",
+      message: "¿Deseas marcar este mantenimiento como realizado?",
+      type: "confirm",
+      buttons: [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Aceptar",
+          style: "default",
+          onPress: async () => {
+            const updatedMaintenance = {
+              ...maintenanceToApprove,
+              nextServiceKm: null,
+              nextServiceDate: null,
+              completedAt: new Date().toISOString(),
+            };
+            try {
+              await updateMaintenance(id, updatedMaintenance);
+              loadMaintenances();
+              showDialog({
+                title: "Realizado",
+                message: "El mantenimiento fue marcado como realizado.",
+                type: "success",
+              });
+            } catch (error) {
+              showDialog({
+                title: "Error",
+                message: "No se pudo marcar como realizado.",
+                type: "error",
+              });
+            }
+          },
+        },
+      ],
+    });
   };
 
   const renderMaintenanceItem = ({ item }) => (
@@ -191,22 +231,30 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
             gap: 10,
           }}
         >
-          <TouchableOpacity
-            onPress={() => handleEdit(item.id)}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <Ionicons name="create-outline" size={20} color={COLORS.warning} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => handleApprove(item.id)}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <Ionicons
-              name="checkmark-circle-outline"
-              size={20}
-              color={COLORS.success}
-            />
-          </TouchableOpacity>
+          {!isCompleted(item) && (
+            <>
+              <TouchableOpacity
+                onPress={() => handleEdit(item.id)}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Ionicons
+                  name="create-outline"
+                  size={20}
+                  color={COLORS.warning}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => handleApprove(item.id)}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Ionicons
+                  name="checkmark-circle-outline"
+                  size={20}
+                  color={COLORS.success}
+                />
+              </TouchableOpacity>
+            </>
+          )}
           <TouchableOpacity
             onPress={() => handleDelete(item.id, item.type)}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
@@ -291,66 +339,96 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
       </View>
 
       <View style={styles.cardFooter}>
-        <View style={styles.nextServiceHeader}>
-          <Ionicons
-            name="alert-circle-outline"
-            size={16}
-            color={COLORS.warning}
-            style={{ marginRight: 8 }}
-          />
-          <Text style={[styles.nextServiceLabel, { color: colors.text }]}>
-            Próximo servicio:
-          </Text>
-        </View>
-        <View style={styles.nextServiceInfo}>
-          {item.nextServiceKm && (
-            <View style={styles.nextServiceItem}>
+        {isCompleted(item) ? (
+          <View style={styles.nextServiceHeader}>
+            <Ionicons
+              name="checkmark-circle"
+              size={16}
+              color={COLORS.success}
+              style={{ marginRight: 8 }}
+            />
+            <Text style={[styles.nextServiceLabel, { color: colors.text }]}>
+              Realizado el:
+            </Text>
+            <Text
+              style={[
+                styles.nextServiceText,
+                { color: colors.text, marginLeft: 8 },
+              ]}
+            >
+              {item.completedAt
+                ? formatDate(item.completedAt)
+                : item.updatedAt
+                ? formatDate(item.updatedAt)
+                : "-"}
+            </Text>
+          </View>
+        ) : (
+          <>
+            <View style={styles.nextServiceHeader}>
               <Ionicons
-                name="speedometer-outline"
-                size={14}
-                color={getKmUrgencyColor(
-                  vehicle?.currentKm,
-                  item.nextServiceKm
-                )}
+                name="alert-circle-outline"
+                size={16}
+                color={COLORS.warning}
+                style={{ marginRight: 8 }}
               />
-              <Text
-                style={[
-                  styles.nextServiceText,
-                  {
-                    color: getKmUrgencyColor(
+              <Text style={[styles.nextServiceLabel, { color: colors.text }]}>
+                Próximo servicio:
+              </Text>
+            </View>
+            <View className={styles.nextServiceInfo}>
+              {item.nextServiceKm && (
+                <View style={styles.nextServiceItem}>
+                  <Ionicons
+                    name="speedometer-outline"
+                    size={14}
+                    color={getKmUrgencyColor(
                       vehicle?.currentKm,
                       item.nextServiceKm
-                    ),
-                    fontWeight: "600",
-                  },
-                ]}
-              >
-                {formatKmRemaining(vehicle?.currentKm, item.nextServiceKm) ||
-                  `A los ${formatKm(item.nextServiceKm)}`}
-              </Text>
+                    )}
+                  />
+                  <Text
+                    style={[
+                      styles.nextServiceText,
+                      {
+                        color: getKmUrgencyColor(
+                          vehicle?.currentKm,
+                          item.nextServiceKm
+                        ),
+                        fontWeight: "600",
+                      },
+                    ]}
+                  >
+                    {formatKmRemaining(
+                      vehicle?.currentKm,
+                      item.nextServiceKm
+                    ) || `A los ${formatKm(item.nextServiceKm)}`}
+                  </Text>
+                </View>
+              )}
+              {item.nextServiceDate && (
+                <View style={styles.nextServiceItem}>
+                  <Ionicons
+                    name="calendar-outline"
+                    size={14}
+                    color={getDateUrgencyColor(item.nextServiceDate)}
+                  />
+                  <Text
+                    style={[
+                      styles.nextServiceText,
+                      {
+                        color: getDateUrgencyColor(item.nextServiceDate),
+                        fontWeight: "600",
+                      },
+                    ]}
+                  >
+                    {formatDaysRemaining(item.nextServiceDate)}
+                  </Text>
+                </View>
+              )}
             </View>
-          )}
-          {item.nextServiceDate && (
-            <View style={styles.nextServiceItem}>
-              <Ionicons
-                name="calendar-outline"
-                size={14}
-                color={getDateUrgencyColor(item.nextServiceDate)}
-              />
-              <Text
-                style={[
-                  styles.nextServiceText,
-                  {
-                    color: getDateUrgencyColor(item.nextServiceDate),
-                    fontWeight: "600",
-                  },
-                ]}
-              >
-                {formatDaysRemaining(item.nextServiceDate)}
-              </Text>
-            </View>
-          )}
-        </View>
+          </>
+        )}
       </View>
     </View>
   );
