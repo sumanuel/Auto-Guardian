@@ -1,34 +1,37 @@
-import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TextInput,
-  KeyboardAvoidingView,
-  Platform,
-  Image,
-} from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
-import { useApp } from "../context/AppContext";
-import { COLORS } from "../data/constants";
-import { useTheme } from "../context/ThemeContext";
+import { useEffect, useState } from "react";
+import {
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
+import { TouchableOpacity } from "react-native-gesture-handler";
 import Button from "../components/common/Button";
 import DatePicker from "../components/common/DatePicker";
+import { useApp } from "../context/AppContext";
+import { useTheme } from "../context/ThemeContext";
+import { COLORS } from "../data/constants";
 import { useDialog } from "../hooks/useDialog";
 
 const AddMaintenanceScreen = ({ navigation, route }) => {
-  const { vehicleId, quickType } = route.params;
-  const { addMaintenance, getMaintenanceTypes, vehicles } = useApp();
+  const { vehicleId, quickType, maintenanceData } = route.params || {};
+  const { addMaintenance, updateMaintenance, getMaintenanceTypes, vehicles } =
+    useApp();
   const { DialogComponent, showDialog } = useDialog();
   const { colors } = useTheme();
 
   const vehicle = vehicles.find((v) => v.id === vehicleId);
   const [maintenanceTypes, setMaintenanceTypes] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [showOptionalFields, setShowOptionalFields] = useState(false);
+  const [showOptionalFields, setShowOptionalFields] = useState(
+    !!maintenanceData
+  );
 
   const [formData, setFormData] = useState({
     vehicleId,
@@ -56,6 +59,60 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
       }
     }
   }, [quickType]);
+
+  useEffect(() => {
+    if (maintenanceData) {
+      console.log("Loading maintenance data for editing:", maintenanceData);
+
+      // Convert date strings to Date objects with validation
+      let dateValue = new Date();
+      if (maintenanceData.date) {
+        const parsedDate = new Date(maintenanceData.date);
+        if (!isNaN(parsedDate.getTime())) {
+          dateValue = parsedDate;
+          console.log("Parsed date:", dateValue);
+        }
+      }
+
+      let nextServiceDateValue = null;
+      if (maintenanceData.nextServiceDate) {
+        const parsedNextDate = new Date(maintenanceData.nextServiceDate);
+        if (!isNaN(parsedNextDate.getTime())) {
+          nextServiceDateValue = parsedNextDate;
+          console.log("Parsed nextServiceDate:", nextServiceDateValue);
+        }
+      }
+
+      const updatedFormData = {
+        vehicleId: maintenanceData.vehicleId,
+        type: maintenanceData.type || "",
+        category: maintenanceData.category || "",
+        date: dateValue,
+        km: maintenanceData.km ? maintenanceData.km.toString() : "",
+        cost: maintenanceData.cost ? maintenanceData.cost.toString() : "",
+        provider: maintenanceData.provider || "",
+        notes: maintenanceData.notes || "",
+        photo: maintenanceData.photo || null,
+        nextServiceKm: maintenanceData.nextServiceKm
+          ? maintenanceData.nextServiceKm.toString()
+          : "",
+        nextServiceDate: nextServiceDateValue,
+      };
+
+      console.log("Setting form data:", updatedFormData);
+      setFormData(updatedFormData);
+
+      // Show optional fields if any optional data exists
+      if (
+        maintenanceData.cost ||
+        maintenanceData.provider ||
+        maintenanceData.notes ||
+        maintenanceData.photo
+      ) {
+        setShowOptionalFields(true);
+      }
+    }
+  }, [maintenanceData]);
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -176,7 +233,7 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
 
     setLoading(true);
     try {
-      const maintenanceData = {
+      const submitData = {
         ...formData,
         date: formData.date.toISOString(),
         km: formData.km ? parseInt(formData.km) : null,
@@ -189,12 +246,23 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
           : null,
       };
 
-      await addMaintenance(maintenanceData);
-      showDialog({
-        title: "Éxito",
-        message: "Mantenimiento registrado correctamente",
-        type: "success",
-      });
+      if (maintenanceData?.id) {
+        // Editing existing maintenance
+        await updateMaintenance(maintenanceData.id, submitData);
+        showDialog({
+          title: "Éxito",
+          message: "Mantenimiento actualizado correctamente",
+          type: "success",
+        });
+      } else {
+        // Creating new maintenance
+        await addMaintenance(submitData);
+        showDialog({
+          title: "Éxito",
+          message: "Mantenimiento registrado correctamente",
+          type: "success",
+        });
+      }
       navigation.goBack();
     } catch (error) {
       showDialog({
@@ -243,8 +311,10 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
                     formData.type === type.name && {
                       backgroundColor: colors.primary,
                     },
+                    maintenanceData?.id && { opacity: 0.5 },
                   ]}
-                  onPress={() => handleTypeSelect(type)}
+                  onPress={() => !maintenanceData?.id && handleTypeSelect(type)}
+                  disabled={!!maintenanceData?.id}
                 >
                   <Text
                     style={[
@@ -268,16 +338,21 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
                   borderColor: colors.border,
                   color: colors.text,
                 },
+                maintenanceData?.id && { opacity: 0.5 },
               ]}
               value={formData.type}
               onChangeText={(value) => handleInputChange("type", value)}
               placeholder="O escribe uno personalizado..."
               placeholderTextColor={colors.textSecondary}
+              editable={!maintenanceData?.id}
             />
           </View>
 
           {/* Fecha del servicio */}
           <DatePicker
+            key={`date-${
+              maintenanceData?.id || "new"
+            }-${formData.date?.getTime()}`}
             label="Fecha del servicio"
             value={formData.date}
             onChange={(date) => handleInputChange("date", date)}
@@ -286,6 +361,9 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
           {/* Próxima fecha de servicio - justo debajo de la fecha actual */}
           <View style={styles.inputGroup}>
             <DatePicker
+              key={`nextDate-${
+                maintenanceData?.id || "new"
+              }-${formData.nextServiceDate?.getTime()}`}
               label="Próximo servicio (fecha)"
               value={formData.nextServiceDate}
               onChange={(date) => handleInputChange("nextServiceDate", date)}
@@ -477,7 +555,11 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
           )}
 
           <Button
-            title="Guardar Mantenimiento"
+            title={
+              maintenanceData?.id
+                ? "Actualizar Mantenimiento"
+                : "Guardar Mantenimiento"
+            }
             onPress={handleSubmit}
             loading={loading}
             style={styles.submitButton}

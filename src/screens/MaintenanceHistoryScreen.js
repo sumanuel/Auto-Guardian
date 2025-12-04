@@ -16,7 +16,7 @@ import {
   getKmUrgencyColor,
 } from "../utils/formatUtils";
 
-const MaintenanceHistoryScreen = ({ route }) => {
+const MaintenanceHistoryScreen = ({ route, navigation }) => {
   const { vehicleId = null, sortByUrgency = false } = route.params || {};
   const {
     getVehicleMaintenances,
@@ -29,6 +29,7 @@ const MaintenanceHistoryScreen = ({ route }) => {
 
   const vehicle = vehicleId ? vehicles.find((v) => v.id === vehicleId) : null;
   const [maintenances, setMaintenances] = useState([]);
+  const [activeTab, setActiveTab] = useState("inProgress");
   const [selectedImage, setSelectedImage] = useState(null);
   const [imageModalVisible, setImageModalVisible] = useState(false);
 
@@ -46,38 +47,35 @@ const MaintenanceHistoryScreen = ({ route }) => {
     loadMaintenances();
   }, [vehicleId]);
 
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      loadMaintenances();
+    });
+    return unsubscribe;
+  }, [navigation]);
+
   const loadMaintenances = () => {
     let data;
-
     if (vehicleId) {
-      // Si hay un vehículo específico, cargar solo sus mantenimientos
       data = getVehicleMaintenances(vehicleId);
     } else {
-      // Si no hay vehículo específico, cargar todos los mantenimientos
       data = getAllMaintenances ? getAllMaintenances() : [];
     }
-
     // Si viene desde próximos mantenimientos, ordenar por urgencia
     if (sortByUrgency) {
       const now = new Date();
       const sorted = data.sort((a, b) => {
-        // Solo considerar items con próximo servicio programado
         const hasNextA = a.nextServiceKm || a.nextServiceDate;
         const hasNextB = b.nextServiceKm || b.nextServiceDate;
-
         if (!hasNextA && !hasNextB) return 0;
         if (!hasNextA) return 1;
         if (!hasNextB) return -1;
-
-        // Calcular urgencia por kilometraje
         const aKmDiff = a.nextServiceKm
           ? a.nextServiceKm - (vehicle?.currentKm || 0)
           : Infinity;
         const bKmDiff = b.nextServiceKm
           ? b.nextServiceKm - (vehicle?.currentKm || 0)
           : Infinity;
-
-        // Calcular urgencia por fecha (días restantes)
         const aDaysDiff = a.nextServiceDate
           ? Math.floor(
               (new Date(a.nextServiceDate) - now) / (1000 * 60 * 60 * 24)
@@ -88,8 +86,6 @@ const MaintenanceHistoryScreen = ({ route }) => {
               (new Date(b.nextServiceDate) - now) / (1000 * 60 * 60 * 24)
             )
           : Infinity;
-
-        // Tomar el criterio más urgente de cada mantenimiento
         const aUrgency = Math.min(
           aKmDiff >= 0 ? aKmDiff / 100 : -1000,
           aDaysDiff >= 0 ? aDaysDiff : -1000
@@ -98,15 +94,21 @@ const MaintenanceHistoryScreen = ({ route }) => {
           bKmDiff >= 0 ? bKmDiff / 100 : -1000,
           bDaysDiff >= 0 ? bDaysDiff : -1000
         );
-
         return aUrgency - bUrgency;
       });
-      setMaintenances(sorted);
-    } else {
-      setMaintenances(data);
+      data = sorted;
     }
+    setMaintenances(data);
   };
 
+  // Filtrar mantenimientos según tab activa
+  const filteredMaintenances = maintenances.filter((item) => {
+    if (activeTab === "inProgress") {
+      return item.nextServiceKm || item.nextServiceDate;
+    } else {
+      return !item.nextServiceKm && !item.nextServiceDate;
+    }
+  });
   const handleDelete = (id, type) => {
     showDialog({
       title: "Eliminar mantenimiento",
@@ -132,6 +134,22 @@ const MaintenanceHistoryScreen = ({ route }) => {
         },
       ],
     });
+  };
+
+  const handleEdit = (id) => {
+    const maintenanceToEdit = maintenances.find((item) => item.id === id);
+    if (maintenanceToEdit) {
+      navigation.navigate("AddMaintenance", {
+        vehicleId: maintenanceToEdit.vehicleId,
+        quickType: maintenanceToEdit.type,
+        maintenanceData: maintenanceToEdit, // Pass the full maintenance data for editing
+      });
+    }
+  };
+
+  const handleApprove = (id) => {
+    // Lógica para aprobar mantenimiento
+    console.log("Aprobar mantenimiento con ID:", id);
   };
 
   const renderMaintenanceItem = ({ item }) => (
@@ -165,12 +183,37 @@ const MaintenanceHistoryScreen = ({ route }) => {
             )}
           </View>
         </View>
-        <TouchableOpacity
-          onPress={() => handleDelete(item.id, item.type)}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 10,
+          }}
         >
-          <Ionicons name="trash-outline" size={20} color={COLORS.danger} />
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => handleEdit(item.id)}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <Ionicons name="create-outline" size={20} color={COLORS.warning} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => handleApprove(item.id)}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <Ionicons
+              name="checkmark-circle-outline"
+              size={20}
+              color={COLORS.success}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => handleDelete(item.id, item.type)}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <Ionicons name="trash-outline" size={20} color={COLORS.danger} />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <View style={styles.cardBody}>
@@ -211,27 +254,9 @@ const MaintenanceHistoryScreen = ({ route }) => {
           </View>
         )}
 
-        {item.provider && (
-          <View style={styles.infoRow}>
-            <Ionicons
-              name="business-outline"
-              size={16}
-              color={colors.textSecondary}
-            />
-            <Text style={[styles.infoText, { color: colors.text }]}>
-              {item.provider}
-            </Text>
-          </View>
-        )}
-
         {item.notes && (
-          <View
-            style={[
-              styles.notesContainer,
-              { backgroundColor: colors.inputBackground },
-            ]}
-          >
-            <Text style={[styles.notesLabel, { color: colors.textSecondary }]}>
+          <View style={styles.notesContainer}>
+            <Text style={[styles.notesLabel, { color: colors.text }]}>
               Notas:
             </Text>
             <Text style={[styles.notesText, { color: colors.text }]}>
@@ -240,88 +265,93 @@ const MaintenanceHistoryScreen = ({ route }) => {
           </View>
         )}
 
-        {item.photo && (
-          <TouchableOpacity
-            style={styles.photoContainer}
-            onPress={() => openImageModal(item.photo)}
-          >
-            <Image source={{ uri: item.photo }} style={styles.photoThumbnail} />
-            <View style={styles.photoOverlay}>
-              <Ionicons name="expand-outline" size={24} color="#fff" />
-              <Text style={styles.photoOverlayText}>Ver recibo</Text>
-            </View>
-          </TouchableOpacity>
+        {item.photos && item.photos.length > 0 && (
+          <View style={styles.photoContainer}>
+            <FlatList
+              data={item.photos}
+              renderItem={({ item: photo }) => (
+                <TouchableOpacity
+                  onPress={() => openImageModal(photo.uri)}
+                  activeOpacity={0.8}
+                >
+                  <Image
+                    source={{ uri: photo.uri }}
+                    style={styles.photoThumbnail}
+                    resizeMode="cover"
+                  />
+                </TouchableOpacity>
+              )}
+              keyExtractor={(photo) => photo.id}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingRight: 12 }}
+            />
+          </View>
         )}
       </View>
 
-      {(item.nextServiceKm || item.nextServiceDate) && (
-        <View
-          style={[
-            styles.cardFooter,
-            {
-              backgroundColor: colors.primary + "15",
-              borderTopColor: colors.border,
-            },
-          ]}
-        >
-          <View style={styles.nextServiceHeader}>
-            <Ionicons name="time-outline" size={16} color={colors.primary} />
-            <Text style={[styles.nextServiceLabel, { color: colors.primary }]}>
-              Próximo servicio:
-            </Text>
-          </View>
-
-          <View style={styles.nextServiceInfo}>
-            {item.nextServiceKm && (
-              <View style={styles.nextServiceItem}>
-                <Ionicons
-                  name="speedometer-outline"
-                  size={14}
-                  color={getKmUrgencyColor(
-                    vehicle?.currentKm,
-                    item.nextServiceKm
-                  )}
-                />
-                <Text
-                  style={[
-                    styles.nextServiceText,
-                    {
-                      color: getKmUrgencyColor(
-                        vehicle?.currentKm,
-                        item.nextServiceKm
-                      ),
-                      fontWeight: "600",
-                    },
-                  ]}
-                >
-                  {formatKmRemaining(vehicle?.currentKm, item.nextServiceKm) ||
-                    `A los ${formatKm(item.nextServiceKm)}`}
-                </Text>
-              </View>
-            )}
-            {item.nextServiceDate && (
-              <View style={styles.nextServiceItem}>
-                <Ionicons
-                  name="calendar-outline"
-                  size={14}
-                  color={getDateUrgencyColor(item.nextServiceDate)}
-                />
-                <Text
-                  style={[
-                    styles.nextServiceText,
-                    {
-                      color: getDateUrgencyColor(item.nextServiceDate),
-                      fontWeight: "600",
-                    },
-                  ]}
-                >
-                  {formatDaysRemaining(item.nextServiceDate)}
-                </Text>
-              </View>
-            )}
-          </View>
+      <View style={styles.cardFooter}>
+        <View style={styles.nextServiceHeader}>
+          <Ionicons
+            name="alert-circle-outline"
+            size={16}
+            color={COLORS.warning}
+            style={{ marginRight: 8 }}
+          />
+          <Text style={[styles.nextServiceLabel, { color: colors.text }]}>
+            Próximo servicio:
+          </Text>
         </View>
-      )}
+        <View style={styles.nextServiceInfo}>
+          {item.nextServiceKm && (
+            <View style={styles.nextServiceItem}>
+              <Ionicons
+                name="speedometer-outline"
+                size={14}
+                color={getKmUrgencyColor(
+                  vehicle?.currentKm,
+                  item.nextServiceKm
+                )}
+              />
+              <Text
+                style={[
+                  styles.nextServiceText,
+                  {
+                    color: getKmUrgencyColor(
+                      vehicle?.currentKm,
+                      item.nextServiceKm
+                    ),
+                    fontWeight: "600",
+                  },
+                ]}
+              >
+                {formatKmRemaining(vehicle?.currentKm, item.nextServiceKm) ||
+                  `A los ${formatKm(item.nextServiceKm)}`}
+              </Text>
+            </View>
+          )}
+          {item.nextServiceDate && (
+            <View style={styles.nextServiceItem}>
+              <Ionicons
+                name="calendar-outline"
+                size={14}
+                color={getDateUrgencyColor(item.nextServiceDate)}
+              />
+              <Text
+                style={[
+                  styles.nextServiceText,
+                  {
+                    color: getDateUrgencyColor(item.nextServiceDate),
+                    fontWeight: "600",
+                  },
+                ]}
+              >
+                {formatDaysRemaining(item.nextServiceDate)}
+              </Text>
+            </View>
+          )}
+        </View>
+      </View>
     </View>
   );
 
@@ -364,8 +394,54 @@ const MaintenanceHistoryScreen = ({ route }) => {
           </Text>
         </View>
 
+        {/* Tabs para filtrar */}
+        <View style={styles.tabsContainer}>
+          <TouchableOpacity
+            style={[
+              styles.tab,
+              activeTab === "inProgress" && styles.tabActive,
+              {
+                backgroundColor:
+                  activeTab === "inProgress"
+                    ? colors.primary
+                    : colors.cardBackground,
+              },
+            ]}
+            onPress={() => setActiveTab("inProgress")}
+          >
+            <Text
+              style={[
+                styles.tabText,
+                { color: activeTab === "inProgress" ? "#fff" : colors.text },
+              ]}
+            >
+              En curso
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.tab,
+              activeTab === "done" && styles.tabActive,
+              {
+                backgroundColor:
+                  activeTab === "done" ? colors.primary : colors.cardBackground,
+              },
+            ]}
+            onPress={() => setActiveTab("done")}
+          >
+            <Text
+              style={[
+                styles.tabText,
+                { color: activeTab === "done" ? "#fff" : colors.text },
+              ]}
+            >
+              Realizados
+            </Text>
+          </TouchableOpacity>
+        </View>
+
         <FlatList
-          data={maintenances}
+          data={filteredMaintenances}
           renderItem={renderMaintenanceItem}
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={styles.listContent}
@@ -428,6 +504,27 @@ const styles = StyleSheet.create({
     padding: 16,
     flexGrow: 1,
   },
+  tabsContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 8,
+    marginBottom: 8,
+  },
+  tab: {
+    paddingVertical: 8,
+    paddingHorizontal: 24,
+    borderRadius: 20,
+    marginHorizontal: 4,
+    elevation: 2,
+  },
+  tabActive: {
+    elevation: 4,
+  },
+  tabText: {
+    fontSize: 15,
+    fontWeight: "600",
+  },
   maintenanceCard: {
     borderRadius: 12,
     marginBottom: 16,
@@ -448,7 +545,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     flex: 1,
-    gap: 8,
+    marginRight: 8,
   },
   maintenanceType: {
     fontSize: 16,
@@ -523,19 +620,19 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 8,
-    gap: 6,
   },
   nextServiceLabel: {
     fontSize: 13,
     fontWeight: "600",
   },
   nextServiceInfo: {
-    gap: 6,
+    flexDirection: "row",
+    alignItems: "center",
   },
   nextServiceItem: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    marginRight: 8,
   },
   nextServiceText: {
     fontSize: 13,
