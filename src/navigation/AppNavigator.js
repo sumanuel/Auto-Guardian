@@ -6,6 +6,7 @@ import { Platform } from "react-native";
 import { useTheme } from "../context/ThemeContext";
 
 // Screens
+import AddExpenseScreen from "../screens/AddExpenseScreen";
 import AddMaintenanceScreen from "../screens/AddMaintenanceScreen";
 import AddVehicleScreen from "../screens/AddVehicleScreen";
 import HomeScreen from "../screens/HomeScreen";
@@ -119,6 +120,11 @@ const StatsStack = () => {
         name="InvestmentDetail"
         component={InvestmentDetailScreen}
         options={{ title: "Detalle de Inversión" }}
+      />
+      <Stack.Screen
+        name="AddExpense"
+        component={AddExpenseScreen}
+        options={{ title: "Agregar Gasto" }}
       />
       <Stack.Screen
         name="MaintenanceHistory"

@@ -50,6 +50,22 @@ export const initDatabase = () => {
       console.log("Columna completedAt agregada a maintenances");
     }
 
+    // Tabla de gastos particulares
+    db.execSync(`
+      CREATE TABLE IF NOT EXISTS expenses (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        vehicleId INTEGER NOT NULL,
+        description TEXT NOT NULL,
+        category TEXT,
+        date TEXT NOT NULL,
+        cost REAL NOT NULL,
+        notes TEXT,
+        photo TEXT,
+        createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (vehicleId) REFERENCES vehicles (id) ON DELETE CASCADE
+      );
+    `);
+
     // Tabla de tipos de mantenimiento (configuración)
     db.execSync(`
       CREATE TABLE IF NOT EXISTS maintenance_types (
