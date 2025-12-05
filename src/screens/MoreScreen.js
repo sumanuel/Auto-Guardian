@@ -1,14 +1,12 @@
-import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { COLORS } from "../data/constants";
 import { useNavigation } from "@react-navigation/native";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { useTheme } from "../context/ThemeContext";
 
 const MoreScreen = () => {
@@ -38,7 +36,8 @@ const MoreScreen = () => {
       id: 4,
       title: "Acerca de",
       icon: "information-circle-outline",
-      comingSoon: true,
+      comingSoon: false,
+      screen: "About",
     },
   ];
 

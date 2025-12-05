@@ -154,6 +154,11 @@ const MoreStack = () => {
         component={SettingsScreen}
         options={{ title: "Configuración" }}
       />
+      <Stack.Screen
+        name="About"
+        component={require("../screens/AboutScreen").default}
+        options={{ title: "Acerca de" }}
+      />
     </Stack.Navigator>
   );
 };
