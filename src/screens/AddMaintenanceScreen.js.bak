@@ -239,15 +239,12 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
         date: formData.date.toISOString(),
         km: formData.km ? parseInt(formData.km) : null,
         cost: formData.cost ? parseFloat(formData.cost) : null,
-        // Solo guardar el campo según el modo seleccionado
-        nextServiceKm:
-          maintenanceMode === "km" && formData.nextServiceKm
-            ? parseInt(formData.nextServiceKm)
-            : null,
-        nextServiceDate:
-          maintenanceMode === "date" && formData.nextServiceDate
-            ? formData.nextServiceDate.toISOString()
-            : null,
+        nextServiceKm: formData.nextServiceKm
+          ? parseInt(formData.nextServiceKm)
+          : null,
+        nextServiceDate: formData.nextServiceDate
+          ? formData.nextServiceDate.toISOString()
+          : null,
       };
 
       if (maintenanceData?.id) {
@@ -352,134 +349,77 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
             />
           </View>
 
-          {/* Radio buttons para modo de mantenimiento */}
+          {/* Fecha del servicio */}
+          <DatePicker
+            key={`date-${
+              maintenanceData?.id || "new"
+            }-${formData.date?.getTime()}`}
+            label="Fecha del servicio"
+            value={formData.date}
+            onChange={(date) => handleInputChange("date", date)}
+          />
+
+          {/* Próxima fecha de servicio - justo debajo de la fecha actual */}
           <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.text }]}>
-              ¿Cómo deseas programar el mantenimiento?
+            <DatePicker
+              key={`nextDate-${
+                maintenanceData?.id || "new"
+              }-${formData.nextServiceDate?.getTime()}`}
+              label="Próximo servicio (fecha)"
+              value={formData.nextServiceDate}
+              onChange={(date) => handleInputChange("nextServiceDate", date)}
+              minimumDate={new Date()}
+            />
+            <Text style={[styles.helperText, { color: colors.textSecondary }]}>
+              Útil para servicios por tiempo (ej: cambio de aceite cada 6 meses)
             </Text>
-            <View style={styles.radioGroup}>
-              <TouchableOpacity
-                style={styles.radioOption}
-                onPress={() => setMaintenanceMode("date")}
-              >
-                <Ionicons
-                  name={
-                    maintenanceMode === "date"
-                      ? "radio-button-on"
-                      : "radio-button-off"
-                  }
-                  size={20}
-                  color={colors.primary}
-                />
-                <Text style={[styles.radioLabel, { color: colors.text }]}>
-                  Por fecha
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.radioOption}
-                onPress={() => setMaintenanceMode("km")}
-              >
-                <Ionicons
-                  name={
-                    maintenanceMode === "km"
-                      ? "radio-button-on"
-                      : "radio-button-off"
-                  }
-                  size={20}
-                  color={colors.primary}
-                />
-                <Text style={[styles.radioLabel, { color: colors.text }]}>
-                  Por kilometraje
-                </Text>
-              </TouchableOpacity>
-            </View>
           </View>
 
-          {/* Mostrar campos según el modo seleccionado */}
-          {maintenanceMode === "date" && (
-            <>
-              {/* Fecha del servicio */}
-              <DatePicker
-                key={`date-${
-                  maintenanceData?.id || "new"
-                }-${formData.date?.getTime()}`}
-                label="Fecha del servicio"
-                value={formData.date}
-                onChange={(date) => handleInputChange("date", date)}
-              />
+          {/* Kilometraje cuando se realizó */}
+          <View style={styles.inputGroup}>
+            <Text style={[styles.label, { color: colors.text }]}>
+              Kilometraje cuando se realizó
+            </Text>
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  backgroundColor: colors.inputBackground,
+                  borderColor: colors.border,
+                  color: colors.text,
+                },
+              ]}
+              value={formData.km}
+              onChangeText={(value) => handleInputChange("km", value)}
+              placeholder="0"
+              placeholderTextColor={colors.textSecondary}
+              keyboardType="numeric"
+            />
+          </View>
 
-              {/* Próxima fecha de servicio */}
-              <View style={styles.inputGroup}>
-                <DatePicker
-                  key={`nextDate-${
-                    maintenanceData?.id || "new"
-                  }-${formData.nextServiceDate?.getTime()}`}
-                  label="Próximo servicio (fecha)"
-                  value={formData.nextServiceDate}
-                  onChange={(date) =>
-                    handleInputChange("nextServiceDate", date)
-                  }
-                  minimumDate={new Date()}
-                />
-                <Text
-                  style={[styles.helperText, { color: colors.textSecondary }]}
-                >
-                  Útil para servicios por tiempo (ej: cambio de aceite cada 6
-                  meses)
-                </Text>
-              </View>
-            </>
-          )}
-
-          {maintenanceMode === "km" && (
-            <>
-              {/* Kilometraje cuando se realizó */}
-              <View style={styles.inputGroup}>
-                <Text style={[styles.label, { color: colors.text }]}>
-                  Kilometraje cuando se realizó
-                </Text>
-                <TextInput
-                  style={[
-                    styles.input,
-                    {
-                      backgroundColor: colors.inputBackground,
-                      borderColor: colors.border,
-                      color: colors.text,
-                    },
-                  ]}
-                  value={formData.km}
-                  onChangeText={(value) => handleInputChange("km", value)}
-                  placeholder="0"
-                  placeholderTextColor={colors.textSecondary}
-                  keyboardType="numeric"
-                />
-              </View>
-
-              {/* Próximo servicio km */}
-              <View style={styles.inputGroup}>
-                <Text style={[styles.label, { color: colors.text }]}>
-                  Próximo servicio (km)
-                </Text>
-                <TextInput
-                  style={[
-                    styles.input,
-                    {
-                      backgroundColor: colors.inputBackground,
-                      borderColor: colors.border,
-                      color: colors.text,
-                    },
-                  ]}
-                  value={formData.nextServiceKm}
-                  onChangeText={(value) =>
-                    handleInputChange("nextServiceKm", value)
-                  }
-                  placeholder="0"
-                  placeholderTextColor={colors.textSecondary}
-                  keyboardType="numeric"
-                />
-              </View>
-            </>
-          )}
+          {/* Próximo servicio km - justo debajo del km actual */}
+          <View style={styles.inputGroup}>
+            <Text style={[styles.label, { color: colors.text }]}>
+              Próximo servicio (km)
+            </Text>
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  backgroundColor: colors.inputBackground,
+                  borderColor: colors.border,
+                  color: colors.text,
+                },
+              ]}
+              value={formData.nextServiceKm}
+              onChangeText={(value) =>
+                handleInputChange("nextServiceKm", value)
+              }
+              placeholder="0"
+              placeholderTextColor={colors.textSecondary}
+              keyboardType="numeric"
+            />
+          </View>
 
           {/* Botón desplegable para campos opcionales */}
           <TouchableOpacity
@@ -576,144 +516,142 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
               </View>
 
               {/* Foto */}
+                      {/* Tipos de mantenimiento predefinidos */}
+                      <View style={styles.section}>
+                        <Text style={[styles.sectionTitle, { color: colors.text }]}>Tipo de mantenimiento</Text>
+                        <ScrollView
+                          horizontal
+                          showsHorizontalScrollIndicator={false}
+                          style={styles.typesScroll}
+                        >
+                          {maintenanceTypes.map((type) => (
+                            <TouchableOpacity
+                              key={type.id}
+                              style={[
+                                styles.typeChip,
+                                {
+                                  backgroundColor: colors.inputBackground,
+                                  borderColor: colors.border,
+                                },
+                                formData.type === type.name && {
+                                  backgroundColor: colors.primary,
+                                },
+                                maintenanceData?.id && { opacity: 0.5 },
+                              ]}
+                              onPress={() => !maintenanceData?.id && handleTypeSelect(type)}
+                              disabled={!!maintenanceData?.id}
+                            >
+                              <Text
+                                style={[
+                                  styles.typeChipText,
+                                  { color: colors.text },
+                                  formData.type === type.name && styles.typeChipTextActive,
+                                ]}
+                              >
+                                {type.name}
+                              </Text>
+                            </TouchableOpacity>
+                          ))}
+                        </ScrollView>
+
+                        {/* O escribir uno personalizado */}
+                        <TextInput
+                          style={[
+                            styles.input,
+                            {
+                              backgroundColor: colors.inputBackground,
+                              borderColor: colors.border,
+                              color: colors.text,
+                            },
+                            maintenanceData?.id && { opacity: 0.5 },
+                          ]}
+                          value={formData.type}
+                          onChangeText={(value) => handleInputChange("type", value)}
+                          placeholder="O escribe uno personalizado..."
+                          placeholderTextColor={colors.textSecondary}
+                          editable={!maintenanceData?.id}
+                        />
+                      </View>
+
+                      {/* Radio buttons para modo de mantenimiento */}
+                      <View style={styles.inputGroup}>
+                        <Text style={[styles.label, { color: colors.text }]}>¿Cómo deseas programar el mantenimiento?</Text>
+                        <View style={{ flexDirection: "row", gap: 16, marginVertical: 8 }}>
+                          <TouchableOpacity
+                            style={{ flexDirection: "row", alignItems: "center" }}
+                            onPress={() => setMaintenanceMode("date")}
+                          >
+                            <Ionicons
+                              name={maintenanceMode === "date" ? "radio-button-on" : "radio-button-off"}
+                              size={20}
+                              color={colors.primary}
+                            />
+                            <Text style={{ marginLeft: 6, color: colors.text }}>Por fecha</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={{ flexDirection: "row", alignItems: "center" }}
+                            onPress={() => setMaintenanceMode("km")}
+                          >
+                            <Ionicons
+                              name={maintenanceMode === "km" ? "radio-button-on" : "radio-button-off"}
+                              size={20}
+                              color={colors.primary}
+                            />
+                            <Text style={{ marginLeft: 6, color: colors.text }}>Por kilometraje</Text>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+          {/* Mostrar campos según el modo seleccionado */}
+          {maintenanceMode === "date" && (
+            <>
+              {/* Fecha del servicio */}
+              <DatePicker
+                key={`date-${maintenanceData?.id || "new"}-${formData.date?.getTime()}`}
+                label="Fecha del servicio"
+                value={formData.date}
+                onChange={(date) => handleInputChange("date", date)}
+              />
+              {/* Próxima fecha de servicio - justo debajo de la fecha actual */}
               <View style={styles.inputGroup}>
-                <Text style={[styles.label, { color: colors.text }]}>
-                  Foto del recibo
-                </Text>
-                {formData.photo ? (
-                  <View style={styles.photoContainer}>
-                    <Image
-                      source={{ uri: formData.photo }}
-                      style={styles.photoPreview}
-                    />
-                    <View style={styles.photoActions}>
-                      <Button
-                        title="Cambiar"
-                        onPress={showImagePickerOptions}
-                        variant="outline"
-                        icon="camera"
-                        style={styles.photoButton}
-                      />
-                      <Button
-                        title="Eliminar"
-                        onPress={removePhoto}
-                        variant="outline"
-                        icon="trash-outline"
-                        style={styles.photoButton}
-                      />
-                    </View>
-                  </View>
-                ) : (
-                  <Button
-                    title="Agregar foto del recibo"
-                    onPress={showImagePickerOptions}
-                    variant="outline"
-                    icon="camera"
-                  />
-                )}
+                <DatePicker
+                  key={`nextDate-${maintenanceData?.id || "new"}-${formData.nextServiceDate?.getTime()}`}
+                  label="Próximo servicio (fecha)"
+                  value={formData.nextServiceDate}
+                  onChange={(date) => handleInputChange("nextServiceDate", date)}
+                  minimumDate={new Date()}
+                />
+                <Text style={[styles.helperText, { color: colors.textSecondary }]}>Útil para servicios por tiempo (ej: cambio de aceite cada 6 meses)</Text>
               </View>
-            </View>
+            </>
           )}
-
-          <Button
-            title={
-              maintenanceData?.id
-                ? "Actualizar Mantenimiento"
-                : "Guardar Mantenimiento"
-            }
-            onPress={handleSubmit}
-            loading={loading}
-            style={styles.submitButton}
-          />
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </DialogComponent>
-  );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  content: {
-    padding: 20,
-  },
-  vehicleName: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 20,
-  },
-  section: {
-    marginBottom: 20,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 12,
-  },
-  typesScroll: {
-    marginBottom: 12,
-  },
-  typeChip: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    marginRight: 8,
-    borderWidth: 1,
-  },
-  typeChipActive: {
-    backgroundColor: COLORS.primary,
-  },
-  typeChipText: {
-    fontSize: 14,
-  },
-  typeChipTextActive: {
-    color: "#fff",
-    fontWeight: "600",
-  },
-  inputGroup: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-  },
-  textArea: {
-    minHeight: 100,
-  },
-  radioGroup: {
-    flexDirection: "row",
-    gap: 16,
-    marginVertical: 8,
-  },
-  radioOption: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  radioLabel: {
-    marginLeft: 6,
-  },
-  photoContainer: {
-    gap: 12,
-  },
-  photoPreview: {
-    width: "100%",
-    height: 200,
-    borderRadius: 12,
-  },
-  photoActions: {
-    flexDirection: "row",
-    gap: 12,
+          {maintenanceMode === "km" && (
+            <>
+              {/* Kilometraje cuando se realizó */}
+              <View style={styles.inputGroup}>
+                <Text style={[styles.label, { color: colors.text }]}>Kilometraje cuando se realizó</Text>
+                <TextInput
+                  style={[styles.input, { backgroundColor: colors.inputBackground, borderColor: colors.border, color: colors.text }]}
+                  value={formData.km}
+                  onChangeText={(value) => handleInputChange("km", value)}
+                  placeholder="0"
+                  placeholderTextColor={colors.textSecondary}
+                  keyboardType="numeric"
+                />
+              </View>
+              {/* Próximo servicio km - justo debajo del km actual */}
+              <View style={styles.inputGroup}>
+                <Text style={[styles.label, { color: colors.text }]}>Próximo servicio (km)</Text>
+                <TextInput
+                  style={[styles.input, { backgroundColor: colors.inputBackground, borderColor: colors.border, color: colors.text }]}
+                  value={formData.nextServiceKm}
+                  onChangeText={(value) => handleInputChange("nextServiceKm", value)}
+                  placeholder="0"
+                  placeholderTextColor={colors.textSecondary}
+                  keyboardType="numeric"
+                />
+              </View>
+            </>
+          )}
   },
   photoButton: {
     flex: 1,

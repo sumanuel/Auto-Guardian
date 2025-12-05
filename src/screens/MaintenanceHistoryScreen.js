@@ -377,7 +377,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
               </Text>
             </View>
             <View className={styles.nextServiceInfo}>
-              {item.nextServiceKm && (
+              {item.nextServiceKm ? (
                 <View style={styles.nextServiceItem}>
                   <Ionicons
                     name="speedometer-outline"
@@ -405,8 +405,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
                     ) || `A los ${formatKm(item.nextServiceKm)}`}
                   </Text>
                 </View>
-              )}
-              {item.nextServiceDate && (
+              ) : item.nextServiceDate ? (
                 <View style={styles.nextServiceItem}>
                   <Ionicons
                     name="calendar-outline"
@@ -425,7 +424,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
                     {formatDaysRemaining(item.nextServiceDate)}
                   </Text>
                 </View>
-              )}
+              ) : null}
             </View>
           </>
         )}

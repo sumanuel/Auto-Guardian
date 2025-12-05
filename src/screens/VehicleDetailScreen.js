@@ -152,30 +152,33 @@ const VehicleDetailScreen = ({ navigation, route }) => {
     // Calcular información de próximo servicio
     const nextServiceInfo = [];
 
-    // Agregar info de kilometraje si existe
-    const kmInfo = formatKmRemaining(vehicle?.currentKm, item.nextServiceKm);
-    if (kmInfo) {
-      const kmRemaining = item.nextServiceKm - (vehicle?.currentKm || 0);
-      nextServiceInfo.push({
-        icon: "speedometer-outline",
-        text: kmInfo,
-        isOverdue: kmRemaining <= 0,
-        color: getKmUrgencyColor(vehicle?.currentKm, item.nextServiceKm),
-      });
-    }
-
-    // Agregar info de fecha si existe
-    const dateInfo = formatDaysRemaining(item.nextServiceDate);
-    if (dateInfo) {
-      const daysRemaining = Math.floor(
-        (new Date(item.nextServiceDate) - new Date()) / (1000 * 60 * 60 * 24)
-      );
-      nextServiceInfo.push({
-        icon: "calendar-outline",
-        text: dateInfo,
-        isOverdue: daysRemaining < 0,
-        color: getDateUrgencyColor(item.nextServiceDate),
-      });
+    // Mostrar solo el campo que tenga valor (km o fecha, no ambos)
+    if (item.nextServiceKm) {
+      // Si tiene kilometraje, mostrar solo kilometraje
+      const kmInfo = formatKmRemaining(vehicle?.currentKm, item.nextServiceKm);
+      if (kmInfo) {
+        const kmRemaining = item.nextServiceKm - (vehicle?.currentKm || 0);
+        nextServiceInfo.push({
+          icon: "speedometer-outline",
+          text: kmInfo,
+          isOverdue: kmRemaining <= 0,
+          color: getKmUrgencyColor(vehicle?.currentKm, item.nextServiceKm),
+        });
+      }
+    } else if (item.nextServiceDate) {
+      // Si tiene fecha, mostrar solo fecha
+      const dateInfo = formatDaysRemaining(item.nextServiceDate);
+      if (dateInfo) {
+        const daysRemaining = Math.floor(
+          (new Date(item.nextServiceDate) - new Date()) / (1000 * 60 * 60 * 24)
+        );
+        nextServiceInfo.push({
+          icon: "calendar-outline",
+          text: dateInfo,
+          isOverdue: daysRemaining < 0,
+          color: getDateUrgencyColor(item.nextServiceDate),
+        });
+      }
     }
 
     return (
