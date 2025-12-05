@@ -53,9 +53,9 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
       categories[category].count += 1;
     });
 
-    const categoryArray = Object.values(categories).sort(
-      (a, b) => b.total - a.total
-    );
+    const categoryArray = Object.values(categories)
+      .filter((cat) => cat.total > 0)
+      .sort((a, b) => b.total - a.total);
     setCategoryStats(categoryArray);
   }, [vehicleId, vehicles]);
 
