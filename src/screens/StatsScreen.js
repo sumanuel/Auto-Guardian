@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
+import { getAllExpenses } from "../services/expenseService";
 import { formatCurrency } from "../utils/formatUtils";
 
 const StatsScreen = ({ navigation }) => {
@@ -23,11 +24,18 @@ const StatsScreen = ({ navigation }) => {
 
   const calculateInvestment = () => {
     const allMaintenances = getAllMaintenances();
+    const allExpenses = getAllExpenses();
 
-    // Calcular total general
-    const total = allMaintenances.reduce((sum, maintenance) => {
+    // Calcular total general (mantenimientos + gastos)
+    const maintenanceTotal = allMaintenances.reduce((sum, maintenance) => {
       return sum + (maintenance.cost || 0);
     }, 0);
+
+    const expenseTotal = allExpenses.reduce((sum, expense) => {
+      return sum + (expense.cost || 0);
+    }, 0);
+
+    const total = maintenanceTotal + expenseTotal;
 
     setTotalInvestment(total);
 
@@ -37,12 +45,21 @@ const StatsScreen = ({ navigation }) => {
         const vehicleMaintenances = allMaintenances.filter(
           (m) => m.vehicleId === vehicle.id
         );
+        const vehicleExpenses = allExpenses.filter(
+          (e) => e.vehicleId === vehicle.id
+        );
 
-        const totalCost = vehicleMaintenances.reduce(
+        const maintenanceTotal = vehicleMaintenances.reduce(
           (sum, m) => sum + (m.cost || 0),
           0
         );
+        const expenseTotal = vehicleExpenses.reduce(
+          (sum, e) => sum + (e.cost || 0),
+          0
+        );
+        const totalCost = maintenanceTotal + expenseTotal;
         const maintenanceCount = vehicleMaintenances.length;
+        const expenseCount = vehicleExpenses.length;
 
         return {
           id: vehicle.id,
@@ -51,6 +68,7 @@ const StatsScreen = ({ navigation }) => {
           model: vehicle.model,
           totalCost,
           maintenanceCount,
+          expenseCount,
           photo: vehicle.photo,
         };
       })
@@ -79,7 +97,9 @@ const StatsScreen = ({ navigation }) => {
           </Text>
           <Text style={styles.totalSubtitle}>
             En {vehicleStats.reduce((sum, v) => sum + v.maintenanceCount, 0)}{" "}
-            mantenimientos
+            mantenimientos •{" "}
+            {vehicleStats.reduce((sum, v) => sum + v.expenseCount, 0)}{" "}
+            movimientos
           </Text>
         </View>
 
@@ -142,6 +162,21 @@ const StatsScreen = ({ navigation }) => {
                       {vehicle.maintenanceCount === 1
                         ? "servicio"
                         : "servicios"}
+                    </Text>
+                  </View>
+                  <View style={styles.statItem}>
+                    <Ionicons
+                      name="wallet-outline"
+                      size={16}
+                      color={colors.textSecondary}
+                    />
+                    <Text
+                      style={[styles.statText, { color: colors.textSecondary }]}
+                    >
+                      {vehicle.expenseCount}{" "}
+                      {vehicle.expenseCount === 1
+                        ? "movimiento"
+                        : "movimientos"}
                     </Text>
                   </View>
                 </View>
