@@ -2,6 +2,167 @@ import * as SQLite from "expo-sqlite";
 
 const db = SQLite.openDatabaseSync("autoguardian.db");
 
+// Insertar tipos de mantenimiento predeterminados
+const seedMaintenanceTypes = () => {
+  const types = [
+    {
+      name: "Cambio de aceite",
+      category: "Motor",
+      defaultIntervalKm: 5000,
+      defaultIntervalMonths: 6,
+      icon: "water-outline",
+    },
+    {
+      name: "Filtro de aceite",
+      category: "Motor",
+      defaultIntervalKm: 5000,
+      defaultIntervalMonths: 6,
+      icon: "funnel-outline",
+    },
+    {
+      name: "Filtro de aire",
+      category: "Motor",
+      defaultIntervalKm: 15000,
+      defaultIntervalMonths: 12,
+      icon: "build-outline",
+    },
+    {
+      name: "Bujías",
+      category: "Motor",
+      defaultIntervalKm: 30000,
+      defaultIntervalMonths: 24,
+      icon: "flash-outline",
+    },
+    {
+      name: "Pastillas de freno",
+      category: "Frenos",
+      defaultIntervalKm: 40000,
+      defaultIntervalMonths: 24,
+      icon: "build-outline",
+    },
+    {
+      name: "Líquido de frenos",
+      category: "Frenos",
+      defaultIntervalKm: 40000,
+      defaultIntervalMonths: 24,
+      icon: "droplet",
+    },
+    {
+      name: "Neumáticos",
+      category: "Neumáticos",
+      defaultIntervalKm: 50000,
+      defaultIntervalMonths: 36,
+      icon: "ellipse-outline",
+    },
+    {
+      name: "Rotación de neumáticos",
+      category: "Neumáticos",
+      defaultIntervalKm: 10000,
+      defaultIntervalMonths: 6,
+      icon: "refresh-outline",
+    },
+    {
+      name: "Alineación",
+      category: "Neumáticos",
+      defaultIntervalKm: 15000,
+      defaultIntervalMonths: 12,
+      icon: "build-outline",
+    },
+    {
+      name: "Balanceo",
+      category: "Neumáticos",
+      defaultIntervalKm: 15000,
+      defaultIntervalMonths: 12,
+      icon: "build-outline",
+    },
+    {
+      name: "Batería",
+      category: "Eléctrico",
+      defaultIntervalKm: null,
+      defaultIntervalMonths: 36,
+      icon: "battery",
+    },
+    {
+      name: "Refrigerante",
+      category: "Motor",
+      defaultIntervalKm: 40000,
+      defaultIntervalMonths: 24,
+      icon: "water-outline",
+    },
+    {
+      name: "Transmisión",
+      category: "Motor",
+      defaultIntervalKm: 60000,
+      defaultIntervalMonths: 36,
+      icon: "build-outline",
+    },
+    {
+      name: "Correa de distribución",
+      category: "Motor",
+      defaultIntervalKm: 100000,
+      defaultIntervalMonths: 60,
+      icon: "build-outline",
+    },
+    {
+      name: "Inspección general",
+      category: "General",
+      defaultIntervalKm: 10000,
+      defaultIntervalMonths: 12,
+      icon: "build-outline",
+    },
+  ];
+
+  types.forEach((type) => {
+    try {
+      db.runSync(
+        "INSERT OR IGNORE INTO maintenance_types (name, category, defaultIntervalKm, defaultIntervalMonths, icon) VALUES (?, ?, ?, ?, ?)",
+        [
+          type.name,
+          type.category,
+          type.defaultIntervalKm,
+          type.defaultIntervalMonths,
+          type.icon,
+        ]
+      );
+    } catch (error) {
+      // Ignorar si ya existe
+    }
+  });
+
+  // Migrar iconos existentes
+  migrateMaintenanceTypeIcons();
+};
+
+// Migrar iconos de tipos de mantenimiento existentes
+const migrateMaintenanceTypeIcons = () => {
+  const iconMigrations = {
+    "Cambio de aceite": "water-outline",
+    Refrigerante: "water-outline",
+    Bujías: "flash-outline",
+    "Filtro de aire": "build-outline",
+    Transmisión: "build-outline",
+    "Correa de distribución": "build-outline",
+    Alineación: "build-outline",
+    Balanceo: "build-outline",
+    "Inspección general": "build-outline",
+    "Pastillas de freno": "build-outline",
+    "Filtro de aceite": "funnel-outline",
+    "Rotación de neumáticos": "refresh-outline",
+    Neumáticos: "ellipse-outline",
+  };
+
+  try {
+    Object.entries(iconMigrations).forEach(([name, newIcon]) => {
+      db.runSync("UPDATE maintenance_types SET icon = ? WHERE name = ?", [
+        newIcon,
+        name,
+      ]);
+    });
+  } catch (error) {
+    console.log("Error migrando iconos:", error);
+  }
+};
+
 // Inicializar la base de datos
 export const initDatabase = () => {
   try {
@@ -95,134 +256,6 @@ export const initDatabase = () => {
   } catch (error) {
     console.error("❌ Error inicializando base de datos:", error);
   }
-};
-
-// Insertar tipos de mantenimiento predeterminados
-const seedMaintenanceTypes = () => {
-  const types = [
-    {
-      name: "Cambio de aceite",
-      category: "Motor",
-      defaultIntervalKm: 5000,
-      defaultIntervalMonths: 6,
-      icon: "oil-can",
-    },
-    {
-      name: "Filtro de aceite",
-      category: "Motor",
-      defaultIntervalKm: 5000,
-      defaultIntervalMonths: 6,
-      icon: "filter",
-    },
-    {
-      name: "Filtro de aire",
-      category: "Motor",
-      defaultIntervalKm: 15000,
-      defaultIntervalMonths: 12,
-      icon: "air-filter",
-    },
-    {
-      name: "Bujías",
-      category: "Motor",
-      defaultIntervalKm: 30000,
-      defaultIntervalMonths: 24,
-      icon: "lightbulb",
-    },
-    {
-      name: "Pastillas de freno",
-      category: "Frenos",
-      defaultIntervalKm: 40000,
-      defaultIntervalMonths: 24,
-      icon: "disc",
-    },
-    {
-      name: "Líquido de frenos",
-      category: "Frenos",
-      defaultIntervalKm: 40000,
-      defaultIntervalMonths: 24,
-      icon: "droplet",
-    },
-    {
-      name: "Neumáticos",
-      category: "Neumáticos",
-      defaultIntervalKm: 50000,
-      defaultIntervalMonths: 36,
-      icon: "circle",
-    },
-    {
-      name: "Rotación de neumáticos",
-      category: "Neumáticos",
-      defaultIntervalKm: 10000,
-      defaultIntervalMonths: 6,
-      icon: "rotate-cw",
-    },
-    {
-      name: "Alineación",
-      category: "Neumáticos",
-      defaultIntervalKm: 15000,
-      defaultIntervalMonths: 12,
-      icon: "align-center",
-    },
-    {
-      name: "Balanceo",
-      category: "Neumáticos",
-      defaultIntervalKm: 15000,
-      defaultIntervalMonths: 12,
-      icon: "trending-up",
-    },
-    {
-      name: "Batería",
-      category: "Eléctrico",
-      defaultIntervalKm: null,
-      defaultIntervalMonths: 36,
-      icon: "battery",
-    },
-    {
-      name: "Refrigerante",
-      category: "Motor",
-      defaultIntervalKm: 40000,
-      defaultIntervalMonths: 24,
-      icon: "thermometer",
-    },
-    {
-      name: "Transmisión",
-      category: "Motor",
-      defaultIntervalKm: 60000,
-      defaultIntervalMonths: 36,
-      icon: "settings",
-    },
-    {
-      name: "Correa de distribución",
-      category: "Motor",
-      defaultIntervalKm: 100000,
-      defaultIntervalMonths: 60,
-      icon: "link",
-    },
-    {
-      name: "Inspección general",
-      category: "General",
-      defaultIntervalKm: 10000,
-      defaultIntervalMonths: 12,
-      icon: "clipboard",
-    },
-  ];
-
-  types.forEach((type) => {
-    try {
-      db.runSync(
-        "INSERT OR IGNORE INTO maintenance_types (name, category, defaultIntervalKm, defaultIntervalMonths, icon) VALUES (?, ?, ?, ?, ?)",
-        [
-          type.name,
-          type.category,
-          type.defaultIntervalKm,
-          type.defaultIntervalMonths,
-          type.icon,
-        ]
-      );
-    } catch (error) {
-      // Ignorar si ya existe
-    }
-  });
 };
 
 export default db;

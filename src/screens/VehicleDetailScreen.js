@@ -430,7 +430,7 @@ const VehicleDetailScreen = ({ navigation, route }) => {
         )}
 
         {/* Historial reciente */}
-        {false && (
+        {true && (
           <View
             style={[
               styles.section,

@@ -29,18 +29,12 @@ const MoreScreen = () => {
     },
     {
       id: 3,
-      title: "Notificaciones",
-      icon: "notifications-outline",
-      comingSoon: true,
-    },
-    {
-      id: 4,
       title: "Exportar datos",
       icon: "cloud-download-outline",
       comingSoon: true,
     },
     {
-      id: 5,
+      id: 4,
       title: "Acerca de",
       icon: "information-circle-outline",
       comingSoon: false,

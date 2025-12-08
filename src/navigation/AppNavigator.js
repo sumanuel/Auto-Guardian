@@ -10,6 +10,7 @@ import AddContactScreen from "../screens/AddContactScreen";
 import AddExpenseScreen from "../screens/AddExpenseScreen";
 import AddMaintenanceScreen from "../screens/AddMaintenanceScreen";
 import AddVehicleScreen from "../screens/AddVehicleScreen";
+import CategoriesScreen from "../screens/CategoriesScreen";
 import ContactsScreen from "../screens/ContactsScreen";
 import HomeScreen from "../screens/HomeScreen";
 import InvestmentDetailScreen from "../screens/InvestmentDetailScreen";
@@ -161,6 +162,11 @@ const MoreStack = () => {
         name="SettingsScreen"
         component={SettingsScreen}
         options={{ title: "Configuración" }}
+      />
+      <Stack.Screen
+        name="Categories"
+        component={CategoriesScreen}
+        options={{ title: "Categorías" }}
       />
       <Stack.Screen
         name="Contacts"
