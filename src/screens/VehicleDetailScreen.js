@@ -383,7 +383,7 @@ const VehicleDetailScreen = ({ navigation, route }) => {
         </View>
 
         {/* Estadísticas */}
-        {stats && stats.totalServices > 0 && (
+        {false && stats && stats.totalServices > 0 && (
           <View
             style={[
               styles.statsSection,
@@ -430,59 +430,63 @@ const VehicleDetailScreen = ({ navigation, route }) => {
         )}
 
         {/* Historial reciente */}
-        <View
-          style={[
-            styles.section,
-            {
-              backgroundColor: colors.cardBackground,
-              shadowColor: colors.shadow,
-            },
-          ]}
-        >
-          <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>
-              Historial Reciente
-            </Text>
-          </View>
+        {false && (
+          <View
+            style={[
+              styles.section,
+              {
+                backgroundColor: colors.cardBackground,
+                shadowColor: colors.shadow,
+              },
+            ]}
+          >
+            <View style={styles.sectionHeader}>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                Historial Reciente
+              </Text>
+            </View>
 
-          {recentMaintenances.length === 0 ? (
-            <View style={styles.emptyState}>
-              <Ionicons
-                name="clipboard-outline"
-                size={40}
-                color={colors.textSecondary}
-              />
-              <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-                No hay mantenimientos registrados
-              </Text>
-              <Button
-                title="Agregar Primer Mantenimiento"
-                onPress={() =>
-                  navigation.navigate("AddMaintenance", { vehicleId })
-                }
-                style={{ marginTop: 16 }}
-              />
-            </View>
-          ) : (
-            <View style={styles.historyButtonContainer}>
-              <Text
-                style={[styles.historyCount, { color: colors.textSecondary }]}
-              >
-                {recentMaintenances.length}{" "}
-                {recentMaintenances.length === 1 ? "registro" : "registros"}
-              </Text>
-              <Button
-                title="Ver Historial Completo"
-                onPress={() => {
-                  navigation.navigate("MaintenanceHistory", {
-                    vehicleId,
-                  });
-                }}
-                variant="outline"
-              />
-            </View>
-          )}
-        </View>
+            {recentMaintenances.length === 0 ? (
+              <View style={styles.emptyState}>
+                <Ionicons
+                  name="clipboard-outline"
+                  size={40}
+                  color={colors.textSecondary}
+                />
+                <Text
+                  style={[styles.emptyText, { color: colors.textSecondary }]}
+                >
+                  No hay mantenimientos registrados
+                </Text>
+                <Button
+                  title="Agregar Primer Mantenimiento"
+                  onPress={() =>
+                    navigation.navigate("AddMaintenance", { vehicleId })
+                  }
+                  style={{ marginTop: 16 }}
+                />
+              </View>
+            ) : (
+              <View style={styles.historyButtonContainer}>
+                <Text
+                  style={[styles.historyCount, { color: colors.textSecondary }]}
+                >
+                  {recentMaintenances.length}{" "}
+                  {recentMaintenances.length === 1 ? "registro" : "registros"}
+                </Text>
+                <Button
+                  title="Ver Historial Completo"
+                  onPress={() => {
+                    navigation.navigate("MaintenanceHistory", {
+                      vehicleId,
+                    });
+                  }}
+                  variant="outline"
+                />
+              </View>
+            )}
+          </View>
+        )}
 
         {/* Botón de acción principal */}
         <View style={styles.actions}>
