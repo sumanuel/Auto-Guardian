@@ -172,7 +172,14 @@ export const getMaintenanceStats = (vehicleId) => {
 export const getMaintenanceTypes = () => {
   try {
     const types = db.getAllSync(
-      "SELECT * FROM maintenance_types ORDER BY category, name"
+      `SELECT * FROM maintenance_types 
+       ORDER BY 
+         CASE 
+           WHEN category IN ('Motor', 'Frenos', 'Neumáticos', 'Suspensión', 'Transmisión', 'Eléctrico', 'Sistema eléctrico', 'Sistema de refrigeración', 'Filtros') THEN 0 
+           ELSE 1 
+         END,
+         category, 
+         name`
     );
     return types;
   } catch (error) {

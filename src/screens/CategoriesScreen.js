@@ -1,7 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import {
-  Alert,
   FlatList,
   Modal,
   ScrollView,
@@ -12,9 +11,11 @@ import {
   View,
 } from "react-native";
 import { useTheme } from "../context/ThemeContext";
+import { useDialog } from "../hooks/useDialog";
 import {
   createMaintenanceType,
   deleteMaintenanceType,
+  getMaintenanceTypeByName,
   getMaintenanceTypes,
   isMaintenanceTypeInUse,
   updateMaintenanceType,
@@ -22,6 +23,7 @@ import {
 
 const CategoriesScreen = ({ navigation }) => {
   const { colors } = useTheme();
+  const { DialogComponent, showDialog } = useDialog();
   const [categories, setCategories] = useState([]);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [addModalVisible, setAddModalVisible] = useState(false);
@@ -38,12 +40,15 @@ const CategoriesScreen = ({ navigation }) => {
   const [newTypeMonths, setNewTypeMonths] = useState("");
   const [newTypeIcon, setNewTypeIcon] = useState("");
   const [isEditingIcon, setIsEditingIcon] = useState(false);
+  const [editError, setEditError] = useState("");
+  const [addError, setAddError] = useState("");
 
   // Iconos disponibles para tipos de mantenimiento
   const availableIcons = [
     { name: "water-outline", label: "Líquidos" },
     { name: "flash-outline", label: "Eléctrico" },
-    { name: "construct-outline", label: "Herramientas" },
+    { name: "build-outline", label: "Herramientas" },
+    { name: "construct-outline", label: "Construcción" },
     { name: "cog-outline", label: "Engranaje" },
     { name: "hardware-chip-outline", label: "Componente" },
     { name: "funnel-outline", label: "Filtro" },
@@ -76,15 +81,18 @@ const CategoriesScreen = ({ navigation }) => {
     setEditCategory(type.category || "");
     setEditKm(type.defaultIntervalKm?.toString() || "");
     setEditMonths(type.defaultIntervalMonths?.toString() || "");
-    setEditIcon(type.icon || "construct-outline");
+    setEditIcon(type.icon || "build-outline");
+    setEditError(""); // Limpiar error al abrir
     setEditModalVisible(true);
   };
 
   const handleSaveType = async () => {
     if (!selectedType || !editName.trim()) {
-      Alert.alert("Error", "El nombre es obligatorio");
+      setEditError("El nombre es obligatorio");
       return;
     }
+
+    setEditError(""); // Limpiar error anterior
 
     const kmValue = editKm.trim() ? parseInt(editKm) : null;
     const monthsValue = editMonths.trim() ? parseInt(editMonths) : null;
@@ -101,9 +109,17 @@ const CategoriesScreen = ({ navigation }) => {
       loadCategories();
       setEditModalVisible(false);
       setSelectedType(null);
+      setEditError(""); // Limpiar error al guardar exitosamente
+      setEditError(""); // Limpiar error al guardar exitosamente
     } catch (error) {
       console.error("Error actualizando tipo de mantenimiento:", error);
-      Alert.alert("Error", "No se pudo actualizar el tipo de mantenimiento");
+      setTimeout(() => {
+        showDialog({
+          title: "Error",
+          message: "No se pudo actualizar el tipo de mantenimiento",
+          type: "error",
+        });
+      }, 100);
     }
   };
 
@@ -115,6 +131,8 @@ const CategoriesScreen = ({ navigation }) => {
     setEditKm("");
     setEditMonths("");
     setEditIcon("");
+    setIsEditingIcon(false); // Limpiar estado de edición de icono
+    setEditError(""); // Limpiar error al cancelar
   };
 
   const handleDeleteType = async (type) => {
@@ -122,18 +140,19 @@ const CategoriesScreen = ({ navigation }) => {
       const inUse = await isMaintenanceTypeInUse(type.id);
 
       if (inUse) {
-        Alert.alert(
-          "No se puede eliminar",
-          `El tipo "${type.name}" está siendo usado en registros de mantenimiento y no puede ser eliminado.`,
-          [{ text: "Entendido" }]
-        );
+        showDialog({
+          title: "No se puede eliminar",
+          message: `El tipo "${type.name}" está siendo usado en registros de mantenimiento y no puede ser eliminado.`,
+          type: "warning",
+        });
         return;
       }
 
-      Alert.alert(
-        "Confirmar eliminación",
-        `¿Estás seguro de eliminar "${type.name}"?`,
-        [
+      showDialog({
+        title: "Confirmar eliminación",
+        message: `¿Estás seguro de eliminar "${type.name}"?`,
+        type: "confirm",
+        buttons: [
           { text: "Cancelar", style: "cancel" },
           {
             text: "Eliminar",
@@ -143,18 +162,23 @@ const CategoriesScreen = ({ navigation }) => {
                 await deleteMaintenanceType(type.id);
                 loadCategories();
               } catch (error) {
-                Alert.alert(
-                  "Error",
-                  "No se pudo eliminar el tipo de mantenimiento"
-                );
+                showDialog({
+                  title: "Error",
+                  message: "No se pudo eliminar el tipo de mantenimiento",
+                  type: "error",
+                });
               }
             },
           },
-        ]
-      );
+        ],
+      });
     } catch (error) {
       console.error("Error verificando tipo de mantenimiento:", error);
-      Alert.alert("Error", "No se pudo verificar el tipo de mantenimiento");
+      showDialog({
+        title: "Error",
+        message: "No se pudo verificar el tipo de mantenimiento",
+        type: "error",
+      });
     }
   };
 
@@ -177,15 +201,25 @@ const CategoriesScreen = ({ navigation }) => {
     setNewTypeCategory("");
     setNewTypeKm("");
     setNewTypeMonths("");
-    setNewTypeIcon("construct-outline");
+    setNewTypeIcon("build-outline"); // Icono de llave inglesa por defecto
+    setAddError(""); // Limpiar error al abrir
     setAddModalVisible(true);
   };
 
   const handleSaveNewType = async () => {
     if (!newTypeName.trim()) {
-      Alert.alert("Error", "El nombre es obligatorio");
+      setAddError("El nombre es obligatorio");
       return;
     }
+
+    // Verificar si ya existe un tipo con este nombre
+    const existingType = getMaintenanceTypeByName(newTypeName.trim());
+    if (existingType) {
+      setAddError("Ya existe un tipo de mantenimiento con este nombre");
+      return;
+    }
+
+    setAddError(""); // Limpiar error anterior
 
     const kmValue = newTypeKm.trim() ? parseInt(newTypeKm) : null;
     const monthsValue = newTypeMonths.trim() ? parseInt(newTypeMonths) : null;
@@ -196,14 +230,28 @@ const CategoriesScreen = ({ navigation }) => {
         category: newTypeCategory.trim() || "General",
         defaultIntervalKm: kmValue,
         defaultIntervalMonths: monthsValue,
-        icon: newTypeIcon || "construct-outline",
+        icon: newTypeIcon || "build-outline",
       });
 
       loadCategories();
       setAddModalVisible(false);
+      // Limpiar formulario después de guardar exitosamente
+      setNewTypeName("");
+      setNewTypeCategory("");
+      setNewTypeKm("");
+      setNewTypeMonths("");
+      setNewTypeIcon("");
+      setIsEditingIcon(false); // Limpiar estado de edición de icono
+      setAddError("");
     } catch (error) {
       console.error("Error creando tipo de mantenimiento:", error);
-      Alert.alert("Error", "No se pudo crear el tipo de mantenimiento");
+      setTimeout(() => {
+        showDialog({
+          title: "Error",
+          message: "No se pudo crear el tipo de mantenimiento",
+          type: "error",
+        });
+      }, 100);
     }
   };
 
@@ -214,123 +262,333 @@ const CategoriesScreen = ({ navigation }) => {
     setNewTypeKm("");
     setNewTypeMonths("");
     setNewTypeIcon("");
+    setIsEditingIcon(false); // Limpiar estado de edición de icono
+    setAddError(""); // Limpiar error al cancelar
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScrollView
-        style={styles.content}
-        contentContainerStyle={styles.scrollContent}
-      >
-        {categories.map((type) => (
-          <View
-            key={type.id}
-            style={[
-              styles.categoryCard,
-              { backgroundColor: colors.cardBackground },
-            ]}
-          >
-            <View style={styles.typeItem}>
-              <View style={styles.typeInfo}>
-                <Ionicons
-                  name={type.icon || "construct-outline"}
-                  size={24}
-                  color={colors.primary}
-                />
-                <View style={styles.typeDetails}>
-                  <Text style={[styles.typeName, { color: colors.text }]}>
-                    {type.name}
-                  </Text>
-                  <View style={styles.intervalsContainer}>
-                    <View style={styles.intervalRow}>
-                      <Ionicons
-                        name="speedometer-outline"
-                        size={14}
-                        color={colors.primary}
-                      />
-                      <Text
-                        style={[
-                          styles.intervalText,
-                          { color: colors.textSecondary },
-                        ]}
-                      >
-                        Cada {type.defaultIntervalKm?.toLocaleString()} km
-                      </Text>
-                    </View>
-                    <View style={styles.intervalRow}>
-                      <Ionicons
-                        name="calendar-outline"
-                        size={14}
-                        color={colors.primary}
-                      />
-                      <Text
-                        style={[
-                          styles.intervalText,
-                          { color: colors.textSecondary },
-                        ]}
-                      >
-                        Cada {type.defaultIntervalMonths} meses
-                      </Text>
+    <DialogComponent>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <ScrollView
+          style={styles.content}
+          contentContainerStyle={styles.scrollContent}
+        >
+          {categories.map((type) => (
+            <View
+              key={type.id}
+              style={[
+                styles.categoryCard,
+                { backgroundColor: colors.cardBackground },
+              ]}
+            >
+              <View style={styles.typeItem}>
+                <View style={styles.typeInfo}>
+                  <Ionicons
+                    name={type.icon || "build-outline"}
+                    size={24}
+                    color={colors.primary}
+                  />
+                  <View style={styles.typeDetails}>
+                    <Text style={[styles.typeName, { color: colors.text }]}>
+                      {type.name}
+                    </Text>
+                    <View style={styles.intervalsContainer}>
+                      <View style={styles.intervalRow}>
+                        <Ionicons
+                          name="speedometer-outline"
+                          size={14}
+                          color={colors.primary}
+                        />
+                        <Text
+                          style={[
+                            styles.intervalText,
+                            {
+                              color: type.defaultIntervalKm
+                                ? colors.textSecondary
+                                : "#e74c3c",
+                              fontWeight: type.defaultIntervalKm
+                                ? "normal"
+                                : "600",
+                            },
+                          ]}
+                        >
+                          {type.defaultIntervalKm
+                            ? `Cada ${type.defaultIntervalKm?.toLocaleString()} km`
+                            : "Por definir"}
+                        </Text>
+                      </View>
+                      <View style={styles.intervalRow}>
+                        <Ionicons
+                          name="calendar-outline"
+                          size={14}
+                          color={colors.primary}
+                        />
+                        <Text
+                          style={[
+                            styles.intervalText,
+                            {
+                              color: type.defaultIntervalMonths
+                                ? colors.textSecondary
+                                : "#e74c3c",
+                              fontWeight: type.defaultIntervalMonths
+                                ? "normal"
+                                : "600",
+                            },
+                          ]}
+                        >
+                          {type.defaultIntervalMonths
+                            ? `Cada ${type.defaultIntervalMonths} meses`
+                            : "Por definir"}
+                        </Text>
+                      </View>
                     </View>
                   </View>
                 </View>
+                <View style={styles.actionButtons}>
+                  <TouchableOpacity
+                    style={styles.editButton}
+                    onPress={() => handleEditType(type)}
+                  >
+                    <Ionicons
+                      name="create-outline"
+                      size={20}
+                      color={colors.primary}
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.deleteButton}
+                    onPress={() => handleDeleteType(type)}
+                  >
+                    <Ionicons name="trash-outline" size={20} color="#E53935" />
+                  </TouchableOpacity>
+                </View>
               </View>
-              <View style={styles.actionButtons}>
-                <TouchableOpacity
-                  style={styles.editButton}
-                  onPress={() => handleEditType(type)}
-                >
-                  <Ionicons
-                    name="create-outline"
-                    size={20}
-                    color={colors.primary}
-                  />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.deleteButton}
-                  onPress={() => handleDeleteType(type)}
-                >
-                  <Ionicons name="trash-outline" size={20} color="#E53935" />
+            </View>
+          ))}
+        </ScrollView>
+
+        {/* Botón flotante para agregar */}
+        <TouchableOpacity
+          style={[styles.fab, { backgroundColor: colors.primary }]}
+          onPress={handleAddType}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="add" size={30} color="#fff" />
+        </TouchableOpacity>
+
+        {/* Modal de edición */}
+        <Modal
+          visible={editModalVisible}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={handleCancelEdit}
+        >
+          <View style={styles.modalOverlay}>
+            <View
+              style={[
+                styles.modalContent,
+                { backgroundColor: colors.cardBackground },
+              ]}
+            >
+              <View style={styles.modalHeader}>
+                <Text style={[styles.modalTitle, { color: colors.text }]}>
+                  Editar Intervalos
+                </Text>
+                <TouchableOpacity onPress={handleCancelEdit}>
+                  <Ionicons name="close" size={24} color={colors.text} />
                 </TouchableOpacity>
               </View>
+
+              {selectedType && (
+                <View style={styles.modalBody}>
+                  <View style={styles.inputGroup}>
+                    <Text style={[styles.inputLabel, { color: colors.text }]}>
+                      Nombre *
+                    </Text>
+                    <TextInput
+                      style={[
+                        styles.input,
+                        {
+                          backgroundColor: colors.background,
+                          color: colors.text,
+                          borderColor: colors.border,
+                        },
+                      ]}
+                      value={editName}
+                      onChangeText={setEditName}
+                      placeholder="Ej: Cambio de aceite"
+                      placeholderTextColor={colors.textSecondary}
+                    />
+                  </View>
+
+                  <View style={styles.inputGroup}>
+                    <Text style={[styles.inputLabel, { color: colors.text }]}>
+                      Categoría
+                    </Text>
+                    <TextInput
+                      style={[
+                        styles.input,
+                        {
+                          backgroundColor: colors.background,
+                          color: colors.text,
+                          borderColor: colors.border,
+                        },
+                      ]}
+                      value={editCategory}
+                      onChangeText={setEditCategory}
+                      placeholder="Ej: Motor"
+                      placeholderTextColor={colors.textSecondary}
+                    />
+                  </View>
+
+                  <View style={styles.inputGroup}>
+                    <Text style={[styles.inputLabel, { color: colors.text }]}>
+                      Icono
+                    </Text>
+                    <TouchableOpacity
+                      style={[
+                        styles.iconSelector,
+                        {
+                          backgroundColor: colors.background,
+                          borderColor: colors.border,
+                        },
+                      ]}
+                      onPress={() => openIconPicker(true)}
+                    >
+                      <Ionicons
+                        name={editIcon || "build-outline"}
+                        size={24}
+                        color={colors.primary}
+                      />
+                      <Text
+                        style={[
+                          styles.iconSelectorText,
+                          { color: colors.text },
+                        ]}
+                      >
+                        Seleccionar icono
+                      </Text>
+                      <Ionicons
+                        name="chevron-forward"
+                        size={20}
+                        color={colors.textSecondary}
+                      />
+                    </TouchableOpacity>
+                  </View>
+
+                  <View style={styles.inputRow}>
+                    <View
+                      style={[styles.inputGroup, { flex: 1, marginRight: 8 }]}
+                    >
+                      <Text style={[styles.inputLabel, { color: colors.text }]}>
+                        Kilómetros
+                      </Text>
+                      <TextInput
+                        style={[
+                          styles.input,
+                          {
+                            backgroundColor: colors.background,
+                            color: colors.text,
+                            borderColor: colors.border,
+                          },
+                        ]}
+                        value={editKm}
+                        onChangeText={setEditKm}
+                        placeholder="5000"
+                        placeholderTextColor={colors.textSecondary}
+                        keyboardType="numeric"
+                      />
+                    </View>
+
+                    <View
+                      style={[styles.inputGroup, { flex: 1, marginLeft: 8 }]}
+                    >
+                      <Text style={[styles.inputLabel, { color: colors.text }]}>
+                        Meses
+                      </Text>
+                      <TextInput
+                        style={[
+                          styles.input,
+                          {
+                            backgroundColor: colors.background,
+                            color: colors.text,
+                            borderColor: colors.border,
+                          },
+                        ]}
+                        value={editMonths}
+                        onChangeText={setEditMonths}
+                        placeholder="6"
+                        placeholderTextColor={colors.textSecondary}
+                        keyboardType="numeric"
+                      />
+                    </View>
+                  </View>
+
+                  {editError ? (
+                    <View style={styles.errorContainer}>
+                      <Ionicons name="alert-circle" size={20} color="#e74c3c" />
+                      <Text style={styles.errorText}>{editError}</Text>
+                    </View>
+                  ) : null}
+
+                  <View style={styles.modalActions}>
+                    <TouchableOpacity
+                      style={[
+                        styles.cancelButton,
+                        { borderColor: colors.border },
+                      ]}
+                      onPress={handleCancelEdit}
+                    >
+                      <Text
+                        style={[
+                          styles.cancelButtonText,
+                          { color: colors.text },
+                        ]}
+                      >
+                        Cancelar
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[
+                        styles.saveButton,
+                        { backgroundColor: colors.primary },
+                      ]}
+                      onPress={handleSaveType}
+                    >
+                      <Text style={[styles.saveButtonText, { color: "#fff" }]}>
+                        Guardar
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              )}
             </View>
           </View>
-        ))}
-      </ScrollView>
+        </Modal>
 
-      {/* Botón flotante para agregar */}
-      <TouchableOpacity
-        style={[styles.fab, { backgroundColor: colors.primary }]}
-        onPress={handleAddType}
-        activeOpacity={0.8}
-      >
-        <Ionicons name="add" size={30} color="#fff" />
-      </TouchableOpacity>
+        {/* Modal de agregar */}
+        <Modal
+          visible={addModalVisible}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={handleCancelAdd}
+        >
+          <View style={styles.modalOverlay}>
+            <View
+              style={[
+                styles.modalContent,
+                { backgroundColor: colors.cardBackground },
+              ]}
+            >
+              <View style={styles.modalHeader}>
+                <Text style={[styles.modalTitle, { color: colors.text }]}>
+                  Nuevo Tipo de Mantenimiento
+                </Text>
+                <TouchableOpacity onPress={handleCancelAdd}>
+                  <Ionicons name="close" size={24} color={colors.text} />
+                </TouchableOpacity>
+              </View>
 
-      {/* Modal de edición */}
-      <Modal
-        visible={editModalVisible}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={handleCancelEdit}
-      >
-        <View style={styles.modalOverlay}>
-          <View
-            style={[
-              styles.modalContent,
-              { backgroundColor: colors.cardBackground },
-            ]}
-          >
-            <View style={styles.modalHeader}>
-              <Text style={[styles.modalTitle, { color: colors.text }]}>
-                Editar Intervalos
-              </Text>
-              <TouchableOpacity onPress={handleCancelEdit}>
-                <Ionicons name="close" size={24} color={colors.text} />
-              </TouchableOpacity>
-            </View>
-
-            {selectedType && (
               <View style={styles.modalBody}>
                 <View style={styles.inputGroup}>
                   <Text style={[styles.inputLabel, { color: colors.text }]}>
@@ -345,9 +603,9 @@ const CategoriesScreen = ({ navigation }) => {
                         borderColor: colors.border,
                       },
                     ]}
-                    value={editName}
-                    onChangeText={setEditName}
-                    placeholder="Ej: Cambio de aceite"
+                    value={newTypeName}
+                    onChangeText={setNewTypeName}
+                    placeholder="Ej: Cambio de batería"
                     placeholderTextColor={colors.textSecondary}
                   />
                 </View>
@@ -365,9 +623,9 @@ const CategoriesScreen = ({ navigation }) => {
                         borderColor: colors.border,
                       },
                     ]}
-                    value={editCategory}
-                    onChangeText={setEditCategory}
-                    placeholder="Ej: Motor"
+                    value={newTypeCategory}
+                    onChangeText={setNewTypeCategory}
+                    placeholder="Ej: Eléctrico"
                     placeholderTextColor={colors.textSecondary}
                   />
                 </View>
@@ -384,10 +642,10 @@ const CategoriesScreen = ({ navigation }) => {
                         borderColor: colors.border,
                       },
                     ]}
-                    onPress={() => openIconPicker(true)}
+                    onPress={() => openIconPicker(false)}
                   >
                     <Ionicons
-                      name={editIcon || "construct-outline"}
+                      name={newTypeIcon || "build-outline"}
                       size={24}
                       color={colors.primary}
                     />
@@ -420,8 +678,8 @@ const CategoriesScreen = ({ navigation }) => {
                           borderColor: colors.border,
                         },
                       ]}
-                      value={editKm}
-                      onChangeText={setEditKm}
+                      value={newTypeKm}
+                      onChangeText={setNewTypeKm}
                       placeholder="5000"
                       placeholderTextColor={colors.textSecondary}
                       keyboardType="numeric"
@@ -441,8 +699,8 @@ const CategoriesScreen = ({ navigation }) => {
                           borderColor: colors.border,
                         },
                       ]}
-                      value={editMonths}
-                      onChangeText={setEditMonths}
+                      value={newTypeMonths}
+                      onChangeText={setNewTypeMonths}
                       placeholder="6"
                       placeholderTextColor={colors.textSecondary}
                       keyboardType="numeric"
@@ -450,13 +708,20 @@ const CategoriesScreen = ({ navigation }) => {
                   </View>
                 </View>
 
+                {addError ? (
+                  <View style={styles.errorContainer}>
+                    <Ionicons name="alert-circle" size={20} color="#e74c3c" />
+                    <Text style={styles.errorText}>{addError}</Text>
+                  </View>
+                ) : null}
+
                 <View style={styles.modalActions}>
                   <TouchableOpacity
                     style={[
                       styles.cancelButton,
                       { borderColor: colors.border },
                     ]}
-                    onPress={handleCancelEdit}
+                    onPress={handleCancelAdd}
                   >
                     <Text
                       style={[styles.cancelButtonText, { color: colors.text }]}
@@ -469,262 +734,95 @@ const CategoriesScreen = ({ navigation }) => {
                       styles.saveButton,
                       { backgroundColor: colors.primary },
                     ]}
-                    onPress={handleSaveType}
+                    onPress={handleSaveNewType}
                   >
                     <Text style={[styles.saveButtonText, { color: "#fff" }]}>
-                      Guardar
+                      Crear
                     </Text>
                   </TouchableOpacity>
                 </View>
               </View>
-            )}
-          </View>
-        </View>
-      </Modal>
-
-      {/* Modal de agregar */}
-      <Modal
-        visible={addModalVisible}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={handleCancelAdd}
-      >
-        <View style={styles.modalOverlay}>
-          <View
-            style={[
-              styles.modalContent,
-              { backgroundColor: colors.cardBackground },
-            ]}
-          >
-            <View style={styles.modalHeader}>
-              <Text style={[styles.modalTitle, { color: colors.text }]}>
-                Nuevo Tipo de Mantenimiento
-              </Text>
-              <TouchableOpacity onPress={handleCancelAdd}>
-                <Ionicons name="close" size={24} color={colors.text} />
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.modalBody}>
-              <View style={styles.inputGroup}>
-                <Text style={[styles.inputLabel, { color: colors.text }]}>
-                  Nombre *
-                </Text>
-                <TextInput
-                  style={[
-                    styles.input,
-                    {
-                      backgroundColor: colors.background,
-                      color: colors.text,
-                      borderColor: colors.border,
-                    },
-                  ]}
-                  value={newTypeName}
-                  onChangeText={setNewTypeName}
-                  placeholder="Ej: Cambio de batería"
-                  placeholderTextColor={colors.textSecondary}
-                />
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={[styles.inputLabel, { color: colors.text }]}>
-                  Categoría
-                </Text>
-                <TextInput
-                  style={[
-                    styles.input,
-                    {
-                      backgroundColor: colors.background,
-                      color: colors.text,
-                      borderColor: colors.border,
-                    },
-                  ]}
-                  value={newTypeCategory}
-                  onChangeText={setNewTypeCategory}
-                  placeholder="Ej: Eléctrico"
-                  placeholderTextColor={colors.textSecondary}
-                />
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={[styles.inputLabel, { color: colors.text }]}>
-                  Icono
-                </Text>
-                <TouchableOpacity
-                  style={[
-                    styles.iconSelector,
-                    {
-                      backgroundColor: colors.background,
-                      borderColor: colors.border,
-                    },
-                  ]}
-                  onPress={() => openIconPicker(false)}
-                >
-                  <Ionicons
-                    name={newTypeIcon || "construct-outline"}
-                    size={24}
-                    color={colors.primary}
-                  />
-                  <Text
-                    style={[styles.iconSelectorText, { color: colors.text }]}
-                  >
-                    Seleccionar icono
-                  </Text>
-                  <Ionicons
-                    name="chevron-forward"
-                    size={20}
-                    color={colors.textSecondary}
-                  />
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.inputRow}>
-                <View style={[styles.inputGroup, { flex: 1, marginRight: 8 }]}>
-                  <Text style={[styles.inputLabel, { color: colors.text }]}>
-                    Kilómetros
-                  </Text>
-                  <TextInput
-                    style={[
-                      styles.input,
-                      {
-                        backgroundColor: colors.background,
-                        color: colors.text,
-                        borderColor: colors.border,
-                      },
-                    ]}
-                    value={newTypeKm}
-                    onChangeText={setNewTypeKm}
-                    placeholder="5000"
-                    placeholderTextColor={colors.textSecondary}
-                    keyboardType="numeric"
-                  />
-                </View>
-
-                <View style={[styles.inputGroup, { flex: 1, marginLeft: 8 }]}>
-                  <Text style={[styles.inputLabel, { color: colors.text }]}>
-                    Meses
-                  </Text>
-                  <TextInput
-                    style={[
-                      styles.input,
-                      {
-                        backgroundColor: colors.background,
-                        color: colors.text,
-                        borderColor: colors.border,
-                      },
-                    ]}
-                    value={newTypeMonths}
-                    onChangeText={setNewTypeMonths}
-                    placeholder="6"
-                    placeholderTextColor={colors.textSecondary}
-                    keyboardType="numeric"
-                  />
-                </View>
-              </View>
-
-              <View style={styles.modalActions}>
-                <TouchableOpacity
-                  style={[styles.cancelButton, { borderColor: colors.border }]}
-                  onPress={handleCancelAdd}
-                >
-                  <Text
-                    style={[styles.cancelButtonText, { color: colors.text }]}
-                  >
-                    Cancelar
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[
-                    styles.saveButton,
-                    { backgroundColor: colors.primary },
-                  ]}
-                  onPress={handleSaveNewType}
-                >
-                  <Text style={[styles.saveButtonText, { color: "#fff" }]}>
-                    Crear
-                  </Text>
-                </TouchableOpacity>
-              </View>
             </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
 
-      {/* Modal de selector de iconos */}
-      <Modal
-        visible={iconPickerVisible}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setIconPickerVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View
-            style={[
-              styles.iconPickerContent,
-              { backgroundColor: colors.cardBackground },
-            ]}
-          >
-            <View style={styles.modalHeader}>
-              <Text style={[styles.modalTitle, { color: colors.text }]}>
-                Seleccionar Icono
-              </Text>
-              <TouchableOpacity onPress={() => setIconPickerVisible(false)}>
-                <Ionicons name="close" size={24} color={colors.text} />
-              </TouchableOpacity>
-            </View>
+        {/* Modal de selector de iconos */}
+        <Modal
+          visible={iconPickerVisible}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setIconPickerVisible(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View
+              style={[
+                styles.iconPickerContent,
+                { backgroundColor: colors.cardBackground },
+              ]}
+            >
+              <View style={styles.modalHeader}>
+                <Text style={[styles.modalTitle, { color: colors.text }]}>
+                  Seleccionar Icono
+                </Text>
+                <TouchableOpacity onPress={() => setIconPickerVisible(false)}>
+                  <Ionicons name="close" size={24} color={colors.text} />
+                </TouchableOpacity>
+              </View>
 
-            <FlatList
-              data={availableIcons}
-              numColumns={3}
-              keyExtractor={(item) => item.name}
-              contentContainerStyle={styles.iconGrid}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={[
-                    styles.iconOption,
-                    {
-                      backgroundColor: colors.background,
-                      borderColor:
-                        (isEditingIcon ? editIcon : newTypeIcon) === item.name
-                          ? colors.primary
-                          : colors.border,
-                      borderWidth:
-                        (isEditingIcon ? editIcon : newTypeIcon) === item.name
-                          ? 2
-                          : 1,
-                    },
-                  ]}
-                  onPress={() => handleSelectIcon(item.name)}
-                >
-                  <Ionicons
-                    name={item.name}
-                    size={32}
-                    color={
-                      (isEditingIcon ? editIcon : newTypeIcon) === item.name
-                        ? colors.primary
-                        : colors.text
-                    }
-                  />
-                  <Text
+              <FlatList
+                data={availableIcons}
+                numColumns={3}
+                keyExtractor={(item) => item.name}
+                contentContainerStyle={styles.iconGrid}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
                     style={[
-                      styles.iconLabel,
+                      styles.iconOption,
                       {
-                        color:
+                        backgroundColor: colors.background,
+                        borderColor:
                           (isEditingIcon ? editIcon : newTypeIcon) === item.name
                             ? colors.primary
-                            : colors.textSecondary,
+                            : colors.border,
+                        borderWidth:
+                          (isEditingIcon ? editIcon : newTypeIcon) === item.name
+                            ? 2
+                            : 1,
                       },
                     ]}
+                    onPress={() => handleSelectIcon(item.name)}
                   >
-                    {item.label}
-                  </Text>
-                </TouchableOpacity>
-              )}
-            />
+                    <Ionicons
+                      name={item.name}
+                      size={32}
+                      color={
+                        (isEditingIcon ? editIcon : newTypeIcon) === item.name
+                          ? colors.primary
+                          : colors.text
+                      }
+                    />
+                    <Text
+                      style={[
+                        styles.iconLabel,
+                        {
+                          color:
+                            (isEditingIcon ? editIcon : newTypeIcon) ===
+                            item.name
+                              ? colors.primary
+                              : colors.textSecondary,
+                        },
+                      ]}
+                    >
+                      {item.label}
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
           </View>
-        </View>
-      </Modal>
-    </View>
+        </Modal>
+      </View>
+    </DialogComponent>
   );
 };
 
@@ -936,6 +1034,22 @@ const styles = StyleSheet.create({
   inputRow: {
     flexDirection: "row",
     alignItems: "flex-start",
+  },
+  errorContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fee",
+    borderColor: "#e74c3c",
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+  },
+  errorText: {
+    color: "#e74c3c",
+    fontSize: 14,
+    marginLeft: 8,
+    flex: 1,
   },
 });
 
