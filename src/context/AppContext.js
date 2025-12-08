@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createContext, useContext, useEffect, useState } from "react";
 import { initDatabase } from "../services/database";
 import * as maintenanceService from "../services/maintenanceService";
@@ -8,6 +9,7 @@ const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
   const [vehicles, setVehicles] = useState([]);
+  const [contacts, setContacts] = useState([]);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
@@ -20,6 +22,7 @@ export const AppProvider = ({ children }) => {
     try {
       initDatabase();
       await loadVehicles();
+      await loadContacts();
 
       // Inicializar notificaciones (solo funciona en build, no en Expo Go)
       try {
@@ -111,6 +114,58 @@ export const AppProvider = ({ children }) => {
       }
     } catch (error) {
       console.error("Error actualizando kilometraje:", error);
+      throw error;
+    }
+  };
+
+  // Funciones de contactos
+  const loadContacts = async () => {
+    try {
+      const storedContacts = await AsyncStorage.getItem("contacts");
+      if (storedContacts) {
+        setContacts(JSON.parse(storedContacts));
+      }
+    } catch (error) {
+      console.error("Error cargando contactos:", error);
+    }
+  };
+
+  const addContact = async (contactData) => {
+    try {
+      const newContact = {
+        id: Date.now().toString(),
+        ...contactData,
+      };
+      const updatedContacts = [...contacts, newContact];
+      setContacts(updatedContacts);
+      await AsyncStorage.setItem("contacts", JSON.stringify(updatedContacts));
+      return newContact.id;
+    } catch (error) {
+      console.error("Error agregando contacto:", error);
+      throw error;
+    }
+  };
+
+  const updateContact = async (id, contactData) => {
+    try {
+      const updatedContacts = contacts.map((contact) =>
+        contact.id === id ? { ...contact, ...contactData } : contact
+      );
+      setContacts(updatedContacts);
+      await AsyncStorage.setItem("contacts", JSON.stringify(updatedContacts));
+    } catch (error) {
+      console.error("Error actualizando contacto:", error);
+      throw error;
+    }
+  };
+
+  const removeContact = async (id) => {
+    try {
+      const updatedContacts = contacts.filter((contact) => contact.id !== id);
+      setContacts(updatedContacts);
+      await AsyncStorage.setItem("contacts", JSON.stringify(updatedContacts));
+    } catch (error) {
+      console.error("Error eliminando contacto:", error);
       throw error;
     }
   };
@@ -352,6 +407,7 @@ export const AppProvider = ({ children }) => {
 
   const value = {
     vehicles,
+    contacts,
     selectedVehicle,
     setSelectedVehicle,
     loading,
@@ -362,6 +418,11 @@ export const AppProvider = ({ children }) => {
     updateVehicle,
     removeVehicle,
     updateVehicleKilometers,
+    // Contact functions
+    loadContacts,
+    addContact,
+    updateContact,
+    removeContact,
     // Maintenance functions
     getVehicleMaintenances,
     getAllMaintenances,

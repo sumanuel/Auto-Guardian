@@ -6,9 +6,11 @@ import { Platform } from "react-native";
 import { useTheme } from "../context/ThemeContext";
 
 // Screens
+import AddContactScreen from "../screens/AddContactScreen";
 import AddExpenseScreen from "../screens/AddExpenseScreen";
 import AddMaintenanceScreen from "../screens/AddMaintenanceScreen";
 import AddVehicleScreen from "../screens/AddVehicleScreen";
+import ContactsScreen from "../screens/ContactsScreen";
 import HomeScreen from "../screens/HomeScreen";
 import InvestmentDetailScreen from "../screens/InvestmentDetailScreen";
 import MaintenanceHistoryScreen from "../screens/MaintenanceHistoryScreen";
@@ -159,6 +161,16 @@ const MoreStack = () => {
         name="SettingsScreen"
         component={SettingsScreen}
         options={{ title: "Configuración" }}
+      />
+      <Stack.Screen
+        name="Contacts"
+        component={ContactsScreen}
+        options={{ title: "Contactos" }}
+      />
+      <Stack.Screen
+        name="AddContact"
+        component={AddContactScreen}
+        options={{ title: "Agregar Contacto" }}
       />
       <Stack.Screen
         name="About"

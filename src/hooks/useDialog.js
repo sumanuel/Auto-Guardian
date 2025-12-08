@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 
 /**
  * Hook para usar el CustomDialog
@@ -18,7 +18,31 @@ export const useDialog = () => {
   const [config, setConfig] = useState(null);
 
   const showDialog = useCallback((dialogConfig) => {
-    setConfig(dialogConfig);
+    // Convertir el formato antiguo al nuevo formato de botones
+    const config = { ...dialogConfig };
+
+    if (config.onConfirm && config.confirmText) {
+      config.buttons = [
+        {
+          text: config.cancelText || "Cancelar",
+          style: "cancel",
+          onPress: config.onCancel || (() => {}),
+        },
+        {
+          text: config.confirmText,
+          style: "destructive",
+          onPress: config.onConfirm,
+        },
+      ];
+      delete config.onConfirm;
+      delete config.confirmText;
+      delete config.onCancel;
+      delete config.cancelText;
+    } else if (!config.buttons) {
+      config.buttons = [{ text: "OK", onPress: () => {} }];
+    }
+
+    setConfig(config);
     setVisible(true);
   }, []);
 
