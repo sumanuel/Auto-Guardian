@@ -35,7 +35,7 @@ const CategoriesScreen = ({ navigation }) => {
       Filtros: "funnel-outline",
       "Alineación y balanceo": "options-outline",
     };
-    return icons[category] || "build-outline";
+    return icons[category] || "construct-outline";
   };
 
   return (
@@ -64,7 +64,7 @@ const CategoriesScreen = ({ navigation }) => {
             <View style={styles.typeItem}>
               <View style={styles.typeInfo}>
                 <Ionicons
-                  name={type.icon || "build-outline"}
+                  name={type.icon || "construct-outline"}
                   size={24}
                   color={colors.primary}
                 />

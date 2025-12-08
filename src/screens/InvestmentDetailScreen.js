@@ -133,7 +133,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
       Filtros: "funnel-outline",
       "Alineación y balanceo": "options-outline",
     };
-    return icons[type] || "build-outline";
+    return icons[type] || "construct-outline";
   };
 
   if (!vehicle) {
