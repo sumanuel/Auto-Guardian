@@ -172,14 +172,8 @@ export const getMaintenanceStats = (vehicleId) => {
 export const getMaintenanceTypes = () => {
   try {
     const types = db.getAllSync(
-      `SELECT * FROM maintenance_types 
-       ORDER BY 
-         CASE 
-           WHEN category IN ('Motor', 'Frenos', 'Neumáticos', 'Suspensión', 'Transmisión', 'Eléctrico', 'Sistema eléctrico', 'Sistema de refrigeración', 'Filtros') THEN 0 
-           ELSE 1 
-         END,
-         category, 
-         name`
+      `SELECT * FROM maintenance_types
+       ORDER BY \`order\` ASC, name ASC`
     );
     return types;
   } catch (error) {
@@ -202,18 +196,24 @@ export const getMaintenanceTypeByName = (name) => {
   }
 };
 
-// Crear tipo de mantenimiento personalizado
+// Crear nuevo tipo de mantenimiento
 export const createMaintenanceType = (typeData) => {
   try {
+    // Obtener el máximo orden actual
+    const maxOrder =
+      db.getFirstSync("SELECT MAX(`order`) as maxOrder FROM maintenance_types")
+        ?.maxOrder || 0;
+
     const result = db.runSync(
-      `INSERT INTO maintenance_types (name, category, defaultIntervalKm, defaultIntervalMonths, icon) 
-       VALUES (?, ?, ?, ?, ?)`,
+      `INSERT INTO maintenance_types (name, category, defaultIntervalKm, defaultIntervalMonths, icon, \`order\`)
+       VALUES (?, ?, ?, ?, ?, ?)`,
       [
         typeData.name,
         typeData.category || null,
         typeData.defaultIntervalKm || null,
         typeData.defaultIntervalMonths || null,
         typeData.icon || "construct-outline",
+        maxOrder + 1,
       ]
     );
     return result.lastInsertRowId;
@@ -274,6 +274,28 @@ export const deleteMaintenanceType = (id) => {
     return true;
   } catch (error) {
     console.error("Error eliminando tipo de mantenimiento:", error);
+    throw error;
+  }
+};
+
+// Actualizar orden de tipos de mantenimiento (para drag and drop)
+export const updateMaintenanceTypesOrder = (typesOrder) => {
+  try {
+    // Usar transacción para asegurar consistencia
+    db.execSync("BEGIN TRANSACTION");
+
+    typesOrder.forEach((type, index) => {
+      db.runSync("UPDATE maintenance_types SET `order` = ? WHERE id = ?", [
+        index + 1,
+        type.id,
+      ]);
+    });
+
+    db.execSync("COMMIT");
+    return true;
+  } catch (error) {
+    db.execSync("ROLLBACK");
+    console.error("Error actualizando orden de tipos de mantenimiento:", error);
     throw error;
   }
 };

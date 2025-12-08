@@ -255,8 +255,46 @@ export const initDatabase = () => {
 
     console.log("✅ Base de datos inicializada correctamente");
     seedMaintenanceTypes();
+    migrateDatabase();
   } catch (error) {
     console.error("❌ Error inicializando base de datos:", error);
+  }
+};
+
+// Migración para agregar campo order a maintenance_types
+const migrateDatabase = () => {
+  try {
+    // Verificar si la columna order ya existe
+    const tableInfo = db.getAllSync("PRAGMA table_info(maintenance_types)");
+    const hasOrderColumn = tableInfo.some((column) => column.name === "order");
+
+    if (!hasOrderColumn) {
+      console.log(
+        "🔄 Migrando tabla maintenance_types: agregando campo 'order'"
+      );
+
+      // Agregar columna order
+      db.execSync(
+        "ALTER TABLE maintenance_types ADD COLUMN `order` INTEGER DEFAULT 0"
+      );
+
+      // Asignar orden inicial basado en el orden actual
+      const types = db.getAllSync(
+        "SELECT id FROM maintenance_types ORDER BY id"
+      );
+      types.forEach((type, index) => {
+        db.runSync("UPDATE maintenance_types SET `order` = ? WHERE id = ?", [
+          index + 1,
+          type.id,
+        ]);
+      });
+
+      console.log(
+        "✅ Migración completada: campo 'order' agregado a maintenance_types"
+      );
+    }
+  } catch (error) {
+    console.error("❌ Error en migración:", error);
   }
 };
 

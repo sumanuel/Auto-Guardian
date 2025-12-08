@@ -3,13 +3,13 @@ import { useEffect, useState } from "react";
 import {
   FlatList,
   Modal,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import DraggableFlatList from "react-native-draggable-flatlist";
 import { useTheme } from "../context/ThemeContext";
 import { useDialog } from "../hooks/useDialog";
 import {
@@ -19,6 +19,7 @@ import {
   getMaintenanceTypes,
   isMaintenanceTypeInUse,
   updateMaintenanceType,
+  updateMaintenanceTypesOrder,
 } from "../services/maintenanceService";
 
 const CategoriesScreen = ({ navigation }) => {
@@ -74,6 +75,110 @@ const CategoriesScreen = ({ navigation }) => {
     const types = getMaintenanceTypes();
     setCategories(types);
   };
+
+  const handleDragEnd = ({ data }) => {
+    setCategories(data);
+    // Actualizar el orden en la base de datos
+    updateMaintenanceTypesOrder(data);
+  };
+
+  const renderCategoryItem = ({ item, drag, isActive }) => (
+    <View
+      style={[
+        styles.categoryCard,
+        {
+          backgroundColor: colors.cardBackground,
+          opacity: isActive ? 0.8 : 1,
+        },
+      ]}
+    >
+      <View style={styles.typeItem}>
+        <View style={styles.typeInfo}>
+          <Ionicons
+            name={item.icon || "build-outline"}
+            size={24}
+            color={colors.primary}
+          />
+          <View style={styles.typeDetails}>
+            <Text style={[styles.typeName, { color: colors.text }]}>
+              {item.name}
+            </Text>
+            <View style={styles.intervalsContainer}>
+              <View style={styles.intervalRow}>
+                <Ionicons
+                  name="speedometer-outline"
+                  size={14}
+                  color={colors.primary}
+                />
+                <Text
+                  style={[
+                    styles.intervalText,
+                    {
+                      color: item.defaultIntervalKm
+                        ? colors.textSecondary
+                        : "#e74c3c",
+                      fontWeight: item.defaultIntervalKm ? "normal" : "600",
+                    },
+                  ]}
+                >
+                  {item.defaultIntervalKm
+                    ? `Cada ${item.defaultIntervalKm?.toLocaleString()} km`
+                    : "Por definir"}
+                </Text>
+              </View>
+              <View style={styles.intervalRow}>
+                <Ionicons
+                  name="calendar-outline"
+                  size={14}
+                  color={colors.primary}
+                />
+                <Text
+                  style={[
+                    styles.intervalText,
+                    {
+                      color: item.defaultIntervalMonths
+                        ? colors.textSecondary
+                        : "#e74c3c",
+                      fontWeight: item.defaultIntervalMonths ? "normal" : "600",
+                    },
+                  ]}
+                >
+                  {item.defaultIntervalMonths
+                    ? `Cada ${item.defaultIntervalMonths} meses`
+                    : "Por definir"}
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
+        <View style={styles.actionButtons}>
+          <TouchableOpacity
+            style={styles.dragHandle}
+            onLongPress={drag}
+            delayLongPress={100}
+          >
+            <Ionicons
+              name="menu-outline"
+              size={20}
+              color={colors.textSecondary}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.editButton}
+            onPress={() => handleEditType(item)}
+          >
+            <Ionicons name="create-outline" size={20} color={colors.primary} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.deleteButton}
+            onPress={() => handleDeleteType(item)}
+          >
+            <Ionicons name="trash-outline" size={20} color="#E53935" />
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  );
 
   const handleEditType = (type) => {
     setSelectedType(type);
@@ -270,104 +375,21 @@ const CategoriesScreen = ({ navigation }) => {
 
   return (
     <DialogComponent>
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <ScrollView
-          style={styles.content}
+      <View
+        style={[
+          styles.container,
+          styles.content,
+          { backgroundColor: colors.background },
+        ]}
+      >
+        <DraggableFlatList
+          data={categories}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderCategoryItem}
+          onDragEnd={handleDragEnd}
           contentContainerStyle={styles.scrollContent}
-        >
-          {categories.map((type) => (
-            <View
-              key={type.id}
-              style={[
-                styles.categoryCard,
-                { backgroundColor: colors.cardBackground },
-              ]}
-            >
-              <View style={styles.typeItem}>
-                <View style={styles.typeInfo}>
-                  <Ionicons
-                    name={type.icon || "build-outline"}
-                    size={24}
-                    color={colors.primary}
-                  />
-                  <View style={styles.typeDetails}>
-                    <Text style={[styles.typeName, { color: colors.text }]}>
-                      {type.name}
-                    </Text>
-                    <View style={styles.intervalsContainer}>
-                      <View style={styles.intervalRow}>
-                        <Ionicons
-                          name="speedometer-outline"
-                          size={14}
-                          color={colors.primary}
-                        />
-                        <Text
-                          style={[
-                            styles.intervalText,
-                            {
-                              color: type.defaultIntervalKm
-                                ? colors.textSecondary
-                                : "#e74c3c",
-                              fontWeight: type.defaultIntervalKm
-                                ? "normal"
-                                : "600",
-                            },
-                          ]}
-                        >
-                          {type.defaultIntervalKm
-                            ? `Cada ${type.defaultIntervalKm?.toLocaleString()} km`
-                            : "Por definir"}
-                        </Text>
-                      </View>
-                      <View style={styles.intervalRow}>
-                        <Ionicons
-                          name="calendar-outline"
-                          size={14}
-                          color={colors.primary}
-                        />
-                        <Text
-                          style={[
-                            styles.intervalText,
-                            {
-                              color: type.defaultIntervalMonths
-                                ? colors.textSecondary
-                                : "#e74c3c",
-                              fontWeight: type.defaultIntervalMonths
-                                ? "normal"
-                                : "600",
-                            },
-                          ]}
-                        >
-                          {type.defaultIntervalMonths
-                            ? `Cada ${type.defaultIntervalMonths} meses`
-                            : "Por definir"}
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-                </View>
-                <View style={styles.actionButtons}>
-                  <TouchableOpacity
-                    style={styles.editButton}
-                    onPress={() => handleEditType(type)}
-                  >
-                    <Ionicons
-                      name="create-outline"
-                      size={20}
-                      color={colors.primary}
-                    />
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.deleteButton}
-                    onPress={() => handleDeleteType(type)}
-                  >
-                    <Ionicons name="trash-outline" size={20} color="#E53935" />
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>
-          ))}
-        </ScrollView>
+          showsVerticalScrollIndicator={false}
+        />
 
         {/* Botón flotante para agregar */}
         <TouchableOpacity
@@ -913,6 +935,11 @@ const styles = StyleSheet.create({
   deleteButton: {
     padding: 8,
     marginTop: 4,
+  },
+  dragHandle: {
+    padding: 8,
+    marginTop: 4,
+    marginRight: 4,
   },
   iconSelector: {
     flexDirection: "row",
