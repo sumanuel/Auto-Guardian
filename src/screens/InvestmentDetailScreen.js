@@ -52,11 +52,11 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
 
     setMaintenances(vehicleMaintenances);
 
-    // Obtener gastos particulares
+    // Obtener movimientos particulares
     const vehicleExpenses = getExpensesByVehicle(vehicleId);
     setExpenses(vehicleExpenses);
 
-    // Calcular total (mantenimientos + gastos)
+    // Calcular total (mantenimientos + movimientos)
     const maintenanceTotal = vehicleMaintenances.reduce(
       (sum, m) => sum + (m.cost || 0),
       0
@@ -90,8 +90,8 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
 
   const handleDeleteExpense = (expenseId, description) => {
     showDialog({
-      title: "Eliminar gasto",
-      message: `¿Deseas eliminar el gasto "${description}"?`,
+      title: "Eliminar movimiento",
+      message: `¿Deseas eliminar el movimiento "${description}"?`,
       type: "confirm",
       buttons: [
         { text: "Cancelar", style: "cancel" },
@@ -104,13 +104,13 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
               loadData();
               showDialog({
                 title: "Eliminado",
-                message: "El gasto fue eliminado correctamente.",
+                message: "El movimiento fue eliminado correctamente.",
                 type: "success",
               });
             } catch (error) {
               showDialog({
                 title: "Error",
-                message: "No se pudo eliminar el gasto",
+                message: "No se pudo eliminar el movimiento",
                 type: "error",
               });
             }
@@ -177,15 +177,16 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
             <Text style={styles.totalSubtitle}>
               {maintenances.length}{" "}
               {maintenances.length === 1 ? "mantenimiento" : "mantenimientos"} •{" "}
-              {expenses.length} {expenses.length === 1 ? "gasto" : "gastos"}
+              {expenses.length}{" "}
+              {expenses.length === 1 ? "movimiento" : "movimientos"}
             </Text>
           </View>
 
-          {/* Estadísticas por categoría */}
+          {/* Movimientos por categoría */}
           {categoryStats.length > 0 && (
             <>
               <Text style={[styles.sectionTitle, { color: colors.text }]}>
-                Gastos por Categoría
+                Movimientos por Categoría
               </Text>
               {categoryStats.map((category, index) => (
                 <View
@@ -291,7 +292,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                   { color: showExpenses ? "#fff" : colors.text },
                 ]}
               >
-                Gastos
+                Otros
               </Text>
             </TouchableOpacity>
           </View>
@@ -367,7 +368,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                 </View>
               ))
             )
-          ) : // Mostrar Gastos Particulares
+          ) : // Mostrar Movimientos Particulares
           expenses.length === 0 ? (
             <View style={styles.emptyState}>
               <Ionicons
@@ -376,12 +377,12 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                 color={colors.textSecondary}
               />
               <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-                No hay gastos registrados
+                No hay movimientos registrados
               </Text>
               <Text
                 style={[styles.emptySubtext, { color: colors.textSecondary }]}
               >
-                Presiona el botón + para agregar un gasto
+                Presiona el botón + para agregar un movimiento
               </Text>
             </View>
           ) : (
