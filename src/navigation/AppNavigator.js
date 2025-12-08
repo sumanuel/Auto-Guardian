@@ -235,12 +235,35 @@ const AppNavigator = () => {
           },
         })}
       >
-        <Tab.Screen name="Inicio" component={HomeStack} />
-        <Tab.Screen name="Inversión" component={StatsStack} />
-        <Tab.Screen name="Más" component={MoreStack} />
+        <Tab.Screen
+          name="Inicio"
+          component={HomeStack}
+          listeners={({ navigation }) => ({
+            tabPress: (e) => {
+              navigation.navigate("Inicio", { screen: "HomeMain" });
+            },
+          })}
+        />
+        <Tab.Screen
+          name="Inversión"
+          component={StatsStack}
+          listeners={({ navigation }) => ({
+            tabPress: (e) => {
+              navigation.navigate("Inversión", { screen: "StatsMain" });
+            },
+          })}
+        />
+        <Tab.Screen
+          name="Más"
+          component={MoreStack}
+          listeners={({ navigation }) => ({
+            tabPress: (e) => {
+              navigation.navigate("Más", { screen: "MoreMain" });
+            },
+          })}
+        />
       </Tab.Navigator>
     </NavigationContainer>
   );
 };
-
 export default AppNavigator;
