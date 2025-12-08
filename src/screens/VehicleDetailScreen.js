@@ -17,6 +17,7 @@ import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
 import { COLORS } from "../data/constants";
 import { useDialog } from "../hooks/useDialog";
+import { getMaintenanceTypes } from "../services/maintenanceService";
 import { formatDate, formatRelativeDate } from "../utils/dateUtils";
 import {
   formatCurrency,
@@ -240,23 +241,25 @@ const VehicleDetailScreen = ({ navigation, route }) => {
     );
   };
 
-  const quickMaintenanceTypes = [
-    {
-      id: 1,
-      icon: "water-outline",
-      label: "Cambio de Aceite",
-      color: "#FF9800",
-    },
-    { id: 2, icon: "funnel-outline", label: "Filtros", color: "#4CAF50" },
-    { id: 3, icon: "flash-outline", label: "Bujías", color: "#F44336" },
-    { id: 4, icon: "hardware-chip-outline", label: "Frenos", color: "#9C27B0" },
-    {
-      id: 5,
-      icon: "search-outline",
-      label: "Inspección general",
-      color: "#2196F3",
-    },
+  // Colores para los botones de acciones rápidas
+  const quickActionColors = [
+    "#FF9800", // Naranja
+    "#4CAF50", // Verde
+    "#F44336", // Rojo
+    "#9C27B0", // Morado
+    "#2196F3", // Azul
   ];
+
+  // Obtener los primeros 5 tipos de mantenimiento ordenados por el usuario
+  const getQuickMaintenanceTypes = () => {
+    const allTypes = getMaintenanceTypes();
+    return allTypes.slice(0, 5).map((type, index) => ({
+      id: type.id,
+      icon: type.icon || "build-outline",
+      label: type.name,
+      color: quickActionColors[index % quickActionColors.length],
+    }));
+  };
 
   const handleQuickMaintenance = (maintenanceType) => {
     navigation.navigate("AddMaintenance", {
@@ -375,7 +378,7 @@ const VehicleDetailScreen = ({ navigation, route }) => {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.quickActionsScroll}
           >
-            {quickMaintenanceTypes.map((type) => (
+            {getQuickMaintenanceTypes().map((type) => (
               <QuickMaintenanceButton
                 key={type.id}
                 icon={type.icon}
