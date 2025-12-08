@@ -116,7 +116,10 @@ const CategoriesScreen = ({ navigation }) => {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScrollView style={styles.content}>
+      <ScrollView
+        style={styles.content}
+        contentContainerStyle={styles.scrollContent}
+      >
         {categories.map((type) => (
           <View
             key={type.id}
@@ -444,6 +447,9 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
     paddingTop: 20,
+  },
+  scrollContent: {
+    paddingBottom: 100,
   },
   categoryCard: {
     borderRadius: 12,
