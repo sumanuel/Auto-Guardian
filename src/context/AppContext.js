@@ -157,13 +157,9 @@ export const AppProvider = ({ children }) => {
   const addContact = async (contactData) => {
     try {
       const newContactId = contactService.createContact(contactData);
-      const newContact = {
-        id: newContactId,
-        ...contactData,
-      };
-      const updatedContacts = [...contacts, newContact];
-      setContacts(updatedContacts);
-      return newContact.id;
+      // Recargar contactos desde la base de datos para asegurar consistencia
+      await loadContacts();
+      return newContactId;
     } catch (error) {
       console.error("Error agregando contacto:", error);
       throw error;
@@ -173,10 +169,8 @@ export const AppProvider = ({ children }) => {
   const updateContact = async (id, contactData) => {
     try {
       contactService.updateContact(id, contactData);
-      const updatedContacts = contacts.map((contact) =>
-        contact.id === id ? { ...contact, ...contactData } : contact
-      );
-      setContacts(updatedContacts);
+      // Recargar contactos desde la base de datos para asegurar consistencia
+      await loadContacts();
     } catch (error) {
       console.error("Error actualizando contacto:", error);
       throw error;
@@ -186,8 +180,8 @@ export const AppProvider = ({ children }) => {
   const removeContact = async (id) => {
     try {
       contactService.deleteContact(id);
-      const updatedContacts = contacts.filter((contact) => contact.id !== id);
-      setContacts(updatedContacts);
+      // Recargar contactos desde la base de datos para asegurar consistencia
+      await loadContacts();
     } catch (error) {
       console.error("Error eliminando contacto:", error);
       throw error;
