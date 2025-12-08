@@ -2,6 +2,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
   Alert,
+  FlatList,
+  Modal,
   ScrollView,
   StyleSheet,
   Text,
@@ -9,6 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { COUNTRIES } from "../constants/countries";
 import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
 
@@ -25,10 +28,26 @@ const AddContactScreen = ({ navigation, route }) => {
     correo: contactToEdit?.email || "",
   });
 
+  const [selectedCountry, setSelectedCountry] = useState(() => {
+    // Si estamos editando, intentar encontrar el país basado en el número
+    if (contactToEdit?.phone) {
+      const phone = contactToEdit.phone;
+      const country = COUNTRIES.find((c) => phone.startsWith(c.code));
+      return country || COUNTRIES[0]; // Colombia por defecto
+    }
+    return COUNTRIES[0]; // Colombia por defecto
+  });
+
+  const [showCountryModal, setShowCountryModal] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleCountrySelect = (country) => {
+    setSelectedCountry(country);
+    setShowCountryModal(false);
   };
 
   const validateForm = () => {
@@ -48,10 +67,15 @@ const AddContactScreen = ({ navigation, route }) => {
 
     setLoading(true);
     try {
+      // Combinar código de país con número de teléfono
+      const fullPhoneNumber = formData.telefono.startsWith("+")
+        ? formData.telefono // Ya tiene código
+        : selectedCountry.code + formData.telefono.replace(/^0+/, ""); // Agregar código y remover ceros iniciales
+
       // Map Spanish field names to English for the service
       const contactData = {
         name: formData.nombre,
-        phone: formData.telefono,
+        phone: fullPhoneNumber,
         email: formData.correo,
         notes: formData.alias, // Using alias as notes
       };
@@ -115,18 +139,37 @@ const AddContactScreen = ({ navigation, route }) => {
         </View>
 
         <View style={styles.inputContainer}>
+          <Text style={[styles.label, { color: colors.text }]}>País</Text>
+          <TouchableOpacity
+            style={[styles.countrySelector, { borderColor: colors.text }]}
+            onPress={() => setShowCountryModal(true)}
+          >
+            <Text style={[styles.countryText, { color: colors.text }]}>
+              {selectedCountry.flag} {selectedCountry.name} (
+              {selectedCountry.code})
+            </Text>
+            <Ionicons name="chevron-down" size={20} color={colors.text} />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.inputContainer}>
           <Text style={[styles.label, { color: colors.text }]}>Teléfono *</Text>
-          <TextInput
-            style={[
-              styles.input,
-              { color: colors.text, borderColor: colors.text },
-            ]}
-            value={formData.telefono}
-            onChangeText={(value) => handleInputChange("telefono", value)}
-            placeholder="Número de teléfono"
-            keyboardType="phone-pad"
-            placeholderTextColor={colors.text + "80"}
-          />
+          <View style={styles.phoneInputContainer}>
+            <Text style={[styles.countryCode, { color: colors.text }]}>
+              {selectedCountry.code}
+            </Text>
+            <TextInput
+              style={[
+                styles.phoneInput,
+                { color: colors.text, borderColor: colors.text },
+              ]}
+              value={formData.telefono}
+              onChangeText={(value) => handleInputChange("telefono", value)}
+              placeholder="Número sin código de país"
+              keyboardType="phone-pad"
+              placeholderTextColor={colors.text + "80"}
+            />
+          </View>
         </View>
 
         <View style={styles.inputContainer}>
@@ -154,6 +197,66 @@ const AddContactScreen = ({ navigation, route }) => {
           </Text>
         </TouchableOpacity>
       </View>
+
+      {/* Modal para seleccionar país */}
+      <Modal
+        visible={showCountryModal}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowCountryModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View
+            style={[
+              styles.modalContent,
+              { backgroundColor: colors.cardBackground },
+            ]}
+          >
+            <View style={styles.modalHeader}>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>
+                Seleccionar País
+              </Text>
+              <TouchableOpacity
+                onPress={() => setShowCountryModal(false)}
+                style={styles.closeButton}
+              >
+                <Ionicons name="close" size={24} color={colors.text} />
+              </TouchableOpacity>
+            </View>
+
+            <FlatList
+              data={COUNTRIES}
+              keyExtractor={(item) => item.code}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={[
+                    styles.countryItem,
+                    selectedCountry.code === item.code && {
+                      backgroundColor: colors.primary + "20",
+                    },
+                  ]}
+                  onPress={() => handleCountrySelect(item)}
+                >
+                  <Text
+                    style={[styles.countryItemText, { color: colors.text }]}
+                  >
+                    {item.flag} {item.name}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.countryCodeText,
+                      { color: colors.textSecondary },
+                    ]}
+                  >
+                    {item.code}
+                  </Text>
+                </TouchableOpacity>
+              )}
+              showsVerticalScrollIndicator={false}
+            />
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 };
@@ -203,6 +306,80 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 18,
     fontWeight: "bold",
+  },
+  countrySelector: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 12,
+    backgroundColor: "transparent",
+  },
+  countryText: {
+    fontSize: 16,
+  },
+  phoneInputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderRadius: 8,
+    backgroundColor: "transparent",
+  },
+  countryCode: {
+    fontSize: 16,
+    paddingLeft: 12,
+    paddingRight: 8,
+    fontWeight: "500",
+  },
+  phoneInput: {
+    flex: 1,
+    padding: 12,
+    fontSize: 16,
+    borderLeftWidth: 1,
+    borderLeftColor: "#ccc",
+    paddingLeft: 12,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "flex-end",
+  },
+  modalContent: {
+    maxHeight: "70%",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingBottom: 20,
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  closeButton: {
+    padding: 4,
+  },
+  countryItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f0f0f0",
+  },
+  countryItemText: {
+    fontSize: 16,
+  },
+  countryCodeText: {
+    fontSize: 14,
+    fontWeight: "500",
   },
 });
 
