@@ -103,6 +103,13 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
       console.log("Setting form data:", updatedFormData);
       setFormData(updatedFormData);
 
+      // Determinar el modo de mantenimiento basado en los datos existentes
+      if (maintenanceData.nextServiceKm) {
+        setMaintenanceMode("km");
+      } else if (maintenanceData.nextServiceDate) {
+        setMaintenanceMode("date");
+      }
+
       // Show optional fields if any optional data exists
       if (
         maintenanceData.cost ||
