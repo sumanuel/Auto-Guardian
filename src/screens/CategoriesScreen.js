@@ -1,18 +1,27 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import {
+  Modal,
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 import { useTheme } from "../context/ThemeContext";
-import { getMaintenanceTypes } from "../services/maintenanceService";
+import {
+  getMaintenanceTypes,
+  updateMaintenanceType,
+} from "../services/maintenanceService";
 
 const CategoriesScreen = ({ navigation }) => {
   const { colors } = useTheme();
   const [categories, setCategories] = useState([]);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [selectedType, setSelectedType] = useState(null);
+  const [editKm, setEditKm] = useState("");
+  const [editMonths, setEditMonths] = useState("");
 
   useEffect(() => {
     loadCategories();
@@ -23,20 +32,43 @@ const CategoriesScreen = ({ navigation }) => {
     setCategories(types);
   };
 
+  const handleEditType = (type) => {
+    setSelectedType(type);
+    setEditKm(type.defaultIntervalKm?.toString() || "");
+    setEditMonths(type.defaultIntervalMonths?.toString() || "");
+    setEditModalVisible(true);
+  };
+
+  const handleSaveType = async () => {
+    if (!selectedType) return;
+
+    const kmValue = editKm.trim() ? parseInt(editKm) : null;
+    const monthsValue = editMonths.trim() ? parseInt(editMonths) : null;
+
+    try {
+      await updateMaintenanceType(selectedType.id, {
+        defaultIntervalKm: kmValue,
+        defaultIntervalMonths: monthsValue,
+      });
+
+      // Recargar categorías para mostrar los cambios
+      loadCategories();
+      setEditModalVisible(false);
+      setSelectedType(null);
+    } catch (error) {
+      console.error("Error actualizando tipo de mantenimiento:", error);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditModalVisible(false);
+    setSelectedType(null);
+    setEditKm("");
+    setEditMonths("");
+  };
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
-        </TouchableOpacity>
-        <Text style={[styles.title, { color: colors.text }]}>
-          Categorías de Mantenimiento
-        </Text>
-      </View>
-
       <ScrollView style={styles.content}>
         {categories.map((type) => (
           <View
@@ -56,14 +88,6 @@ const CategoriesScreen = ({ navigation }) => {
                 <View style={styles.typeDetails}>
                   <Text style={[styles.typeName, { color: colors.text }]}>
                     {type.name}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.categoryLabel,
-                      { color: colors.textSecondary },
-                    ]}
-                  >
-                    {type.category}
                   </Text>
                   <View style={styles.intervalsContainer}>
                     <View style={styles.intervalRow}>
@@ -99,7 +123,10 @@ const CategoriesScreen = ({ navigation }) => {
                   </View>
                 </View>
               </View>
-              <TouchableOpacity style={styles.editButton}>
+              <TouchableOpacity
+                style={styles.editButton}
+                onPress={() => handleEditType(type)}
+              >
                 <Ionicons
                   name="create-outline"
                   size={20}
@@ -110,6 +137,109 @@ const CategoriesScreen = ({ navigation }) => {
           </View>
         ))}
       </ScrollView>
+
+      {/* Modal de edición */}
+      <Modal
+        visible={editModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={handleCancelEdit}
+      >
+        <View style={styles.modalOverlay}>
+          <View
+            style={[
+              styles.modalContent,
+              { backgroundColor: colors.cardBackground },
+            ]}
+          >
+            <View style={styles.modalHeader}>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>
+                Editar Intervalos
+              </Text>
+              <TouchableOpacity onPress={handleCancelEdit}>
+                <Ionicons name="close" size={24} color={colors.text} />
+              </TouchableOpacity>
+            </View>
+
+            {selectedType && (
+              <View style={styles.modalBody}>
+                <Text style={[styles.typeNameText, { color: colors.text }]}>
+                  {selectedType.name}
+                </Text>
+
+                <View style={styles.inputGroup}>
+                  <Text style={[styles.inputLabel, { color: colors.text }]}>
+                    Kilómetros
+                  </Text>
+                  <TextInput
+                    style={[
+                      styles.input,
+                      {
+                        backgroundColor: colors.background,
+                        color: colors.text,
+                        borderColor: colors.border,
+                      },
+                    ]}
+                    value={editKm}
+                    onChangeText={setEditKm}
+                    placeholder="Ej: 5000"
+                    placeholderTextColor={colors.textSecondary}
+                    keyboardType="numeric"
+                  />
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={[styles.inputLabel, { color: colors.text }]}>
+                    Meses
+                  </Text>
+                  <TextInput
+                    style={[
+                      styles.input,
+                      {
+                        backgroundColor: colors.background,
+                        color: colors.text,
+                        borderColor: colors.border,
+                      },
+                    ]}
+                    value={editMonths}
+                    onChangeText={setEditMonths}
+                    placeholder="Ej: 6"
+                    placeholderTextColor={colors.textSecondary}
+                    keyboardType="numeric"
+                  />
+                </View>
+
+                <View style={styles.modalActions}>
+                  <TouchableOpacity
+                    style={[
+                      styles.cancelButton,
+                      { borderColor: colors.border },
+                    ]}
+                    onPress={handleCancelEdit}
+                  >
+                    <Text
+                      style={[styles.cancelButtonText, { color: colors.text }]}
+                    >
+                      Cancelar
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[
+                      styles.saveButton,
+                      { backgroundColor: colors.primary },
+                    ]}
+                    onPress={handleSaveType}
+                  >
+                    <Text style={[styles.saveButtonText, { color: "#fff" }]}>
+                      Guardar
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -118,24 +248,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingTop: 50,
-    paddingBottom: 20,
-  },
-  backButton: {
-    marginRight: 16,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-    flex: 1,
-  },
   content: {
     flex: 1,
     paddingHorizontal: 20,
+    paddingTop: 20,
   },
   categoryCard: {
     borderRadius: 12,
@@ -187,6 +303,84 @@ const styles = StyleSheet.create({
   editButton: {
     padding: 8,
     marginTop: 4,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    width: "90%",
+    maxWidth: 400,
+    borderRadius: 12,
+    padding: 0,
+    elevation: 5,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#e0e0e0",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  modalBody: {
+    padding: 20,
+  },
+  typeNameText: {
+    fontSize: 16,
+    fontWeight: "500",
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  inputGroup: {
+    marginBottom: 16,
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: "500",
+    marginBottom: 8,
+  },
+  input: {
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+  },
+  modalActions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 12,
+    marginTop: 24,
+  },
+  cancelButton: {
+    flex: 1,
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 12,
+    alignItems: "center",
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    fontWeight: "500",
+  },
+  saveButton: {
+    flex: 1,
+    borderRadius: 8,
+    padding: 12,
+    alignItems: "center",
+  },
+  saveButtonText: {
+    fontSize: 16,
+    fontWeight: "500",
   },
 });
 

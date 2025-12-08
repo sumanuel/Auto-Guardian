@@ -16,7 +16,7 @@ const SettingsScreen = ({ navigation }) => {
     },
     {
       id: 2,
-      title: "Categorías",
+      title: "Tipos de Mantenimientos",
       icon: "list-outline",
       screen: "Categories",
     },

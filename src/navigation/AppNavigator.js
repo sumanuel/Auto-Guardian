@@ -166,7 +166,7 @@ const MoreStack = () => {
       <Stack.Screen
         name="Categories"
         component={CategoriesScreen}
-        options={{ title: "Categorías" }}
+        options={{ title: "Tipos de Mantenimientos" }}
       />
       <Stack.Screen
         name="Contacts"
