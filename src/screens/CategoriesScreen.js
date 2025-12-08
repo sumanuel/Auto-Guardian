@@ -382,6 +382,30 @@ const CategoriesScreen = ({ navigation }) => {
           { backgroundColor: colors.background },
         ]}
       >
+        {/* Header con título e ícono de ayuda */}
+        <View style={styles.header}>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>
+            Tipos de Mantenimiento
+          </Text>
+          <TouchableOpacity
+            style={styles.helpButton}
+            onPress={() =>
+              showDialog({
+                title: "Personalizar Orden",
+                message:
+                  "Organiza tus tipos de mantenimiento colocando los más frecuentes al inicio de la lista. Mantén presionado el ícono ≡ de cualquier tipo y arrástralo hacia arriba o abajo para cambiar su posición. El orden se guardará automáticamente.",
+                type: "info",
+              })
+            }
+          >
+            <Ionicons
+              name="information-circle-outline"
+              size={24}
+              color={colors.primary}
+            />
+          </TouchableOpacity>
+        </View>
+
         <DraggableFlatList
           data={categories}
           keyExtractor={(item) => item.id.toString()}
@@ -872,10 +896,24 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingTop: 0,
   },
   scrollContent: {
     paddingBottom: 100,
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+    paddingTop: 20,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  helpButton: {
+    padding: 8,
   },
   categoryCard: {
     borderRadius: 12,
