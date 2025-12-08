@@ -247,10 +247,15 @@ const VehicleDetailScreen = ({ navigation, route }) => {
       label: "Cambio de Aceite",
       color: "#FF9800",
     },
-    { id: 2, icon: "car-outline", label: "Filtros", color: "#4CAF50" },
+    { id: 2, icon: "funnel-outline", label: "Filtros", color: "#4CAF50" },
     { id: 3, icon: "flash-outline", label: "Bujías", color: "#F44336" },
-    { id: 4, icon: "disc-outline", label: "Frenos", color: "#9C27B0" },
-    { id: 5, icon: "stats-chart-outline", label: "Revisión", color: "#2196F3" },
+    { id: 4, icon: "hardware-chip-outline", label: "Frenos", color: "#9C27B0" },
+    {
+      id: 5,
+      icon: "search-outline",
+      label: "Inspección general",
+      color: "#2196F3",
+    },
   ];
 
   const handleQuickMaintenance = (maintenanceType) => {

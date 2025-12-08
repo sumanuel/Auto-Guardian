@@ -45,7 +45,7 @@ const seedMaintenanceTypes = () => {
       category: "Frenos",
       defaultIntervalKm: 40000,
       defaultIntervalMonths: 24,
-      icon: "droplet",
+      icon: "water-outline",
     },
     {
       name: "Neumáticos",
@@ -150,6 +150,7 @@ const migrateMaintenanceTypeIcons = () => {
     "Rotación de neumáticos": "refresh-outline",
     Neumáticos: "ellipse-outline",
     Batería: "battery-charging-outline",
+    "Líquido de frenos": "water-outline",
   };
 
   try {

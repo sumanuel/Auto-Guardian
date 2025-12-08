@@ -96,19 +96,6 @@ export const deleteMaintenance = (id) => {
   }
 };
 
-// Obtener tipos de mantenimiento
-export const getMaintenanceTypes = () => {
-  try {
-    const types = db.getAllSync(
-      "SELECT * FROM maintenance_types ORDER BY category, name"
-    );
-    return types;
-  } catch (error) {
-    console.error("Error obteniendo tipos de mantenimiento:", error);
-    return [];
-  }
-};
-
 // Obtener próximos mantenimientos (vencidos y próximos)
 export const getUpcomingMaintenances = (vehicleId, currentKm) => {
   try {
@@ -176,5 +163,103 @@ export const getMaintenanceStats = (vehicleId) => {
   } catch (error) {
     console.error("Error obteniendo estadísticas:", error);
     return { totalServices: 0, totalCost: 0, avgCost: 0 };
+  }
+};
+
+// ==================== GESTIÓN DE TIPOS DE MANTENIMIENTO ====================
+
+// Obtener todos los tipos de mantenimiento
+export const getMaintenanceTypes = () => {
+  try {
+    const types = db.getAllSync(
+      "SELECT * FROM maintenance_types ORDER BY category, name"
+    );
+    return types;
+  } catch (error) {
+    console.error("Error obteniendo tipos de mantenimiento:", error);
+    return [];
+  }
+};
+
+// Obtener un tipo de mantenimiento por nombre
+export const getMaintenanceTypeByName = (name) => {
+  try {
+    const type = db.getFirstSync(
+      "SELECT * FROM maintenance_types WHERE name = ?",
+      [name]
+    );
+    return type;
+  } catch (error) {
+    console.error("Error obteniendo tipo de mantenimiento:", error);
+    return null;
+  }
+};
+
+// Crear tipo de mantenimiento personalizado
+export const createMaintenanceType = (typeData) => {
+  try {
+    const result = db.runSync(
+      `INSERT INTO maintenance_types (name, category, defaultIntervalKm, defaultIntervalMonths, icon) 
+       VALUES (?, ?, ?, ?, ?)`,
+      [
+        typeData.name,
+        typeData.category || null,
+        typeData.defaultIntervalKm || null,
+        typeData.defaultIntervalMonths || null,
+        typeData.icon || "construct-outline",
+      ]
+    );
+    return result.lastInsertRowId;
+  } catch (error) {
+    console.error("Error creando tipo de mantenimiento:", error);
+    throw error;
+  }
+};
+
+// Actualizar tipo de mantenimiento
+export const updateMaintenanceType = (id, typeData) => {
+  try {
+    db.runSync(
+      `UPDATE maintenance_types 
+       SET name = ?, category = ?, defaultIntervalKm = ?, defaultIntervalMonths = ?, icon = ?
+       WHERE id = ?`,
+      [
+        typeData.name,
+        typeData.category || null,
+        typeData.defaultIntervalKm || null,
+        typeData.defaultIntervalMonths || null,
+        typeData.icon || "construct-outline",
+        id,
+      ]
+    );
+    return true;
+  } catch (error) {
+    console.error("Error actualizando tipo de mantenimiento:", error);
+    throw error;
+  }
+};
+
+// Eliminar tipo de mantenimiento personalizado
+export const deleteMaintenanceType = (id) => {
+  try {
+    db.runSync("DELETE FROM maintenance_types WHERE id = ?", [id]);
+    return true;
+  } catch (error) {
+    console.error("Error eliminando tipo de mantenimiento:", error);
+    throw error;
+  }
+};
+
+// Verificar si un tipo de mantenimiento está en uso
+export const isMaintenanceTypeInUse = (typeName) => {
+  try {
+    const count = db.getFirstSync(
+      "SELECT COUNT(*) as count FROM maintenances WHERE type = ?",
+      [typeName]
+    );
+    return count.count > 0;
+  } catch (error) {
+    console.error("Error verificando uso de tipo:", error);
+    return false;
   }
 };

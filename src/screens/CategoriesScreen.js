@@ -23,21 +23,6 @@ const CategoriesScreen = ({ navigation }) => {
     setCategories(types);
   };
 
-  const getCategoryIcon = (category) => {
-    const icons = {
-      Motor: "cog-outline",
-      Frenos: "disc-outline",
-      Neumáticos: "ellipse-outline",
-      Suspensión: "git-compare-outline",
-      Transmisión: "settings-outline",
-      "Sistema eléctrico": "flash-outline",
-      "Sistema de refrigeración": "thermometer-outline",
-      Filtros: "funnel-outline",
-      "Alineación y balanceo": "options-outline",
-    };
-    return icons[category] || "construct-outline";
-  };
-
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>

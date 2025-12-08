@@ -18,6 +18,7 @@ import {
 } from "../services/expenseService";
 import { formatDate } from "../utils/dateUtils";
 import { formatCurrency } from "../utils/formatUtils";
+import { getMaintenanceIcon } from "../utils/maintenanceIcons";
 
 const InvestmentDetailScreen = ({ route, navigation }) => {
   const { vehicleId } = route.params;
@@ -120,22 +121,6 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
     });
   };
 
-  const getCategoryIcon = (type) => {
-    const icons = {
-      "Cambio de aceite": "water-outline",
-      Frenos: "hand-left-outline",
-      Llantas: "ellipse-outline",
-      Batería: "battery-charging-outline",
-      Transmisión: "settings-outline",
-      "Sistema eléctrico": "flash-outline",
-      "Sistema de refrigeración": "thermometer-outline",
-      Suspensión: "git-compare-outline",
-      Filtros: "funnel-outline",
-      "Alineación y balanceo": "options-outline",
-    };
-    return icons[type] || "construct-outline";
-  };
-
   if (!vehicle) {
     return (
       <DialogComponent>
@@ -202,7 +187,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                   <View style={styles.categoryHeader}>
                     <View style={styles.categoryInfo}>
                       <Ionicons
-                        name={getCategoryIcon(category.name)}
+                        name={getMaintenanceIcon(category.name)}
                         size={24}
                         color={colors.primary}
                       />
@@ -327,7 +312,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                   <View style={styles.maintenanceHeader}>
                     <View style={styles.maintenanceInfo}>
                       <Ionicons
-                        name={getCategoryIcon(maintenance.type)}
+                        name={getMaintenanceIcon(maintenance.type)}
                         size={20}
                         color={colors.primary}
                       />
