@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { useTheme } from "../context/ThemeContext";
 import {
+  createMaintenanceType,
   getMaintenanceTypes,
   updateMaintenanceType,
 } from "../services/maintenanceService";
@@ -19,9 +20,15 @@ const CategoriesScreen = ({ navigation }) => {
   const { colors } = useTheme();
   const [categories, setCategories] = useState([]);
   const [editModalVisible, setEditModalVisible] = useState(false);
+  const [addModalVisible, setAddModalVisible] = useState(false);
   const [selectedType, setSelectedType] = useState(null);
   const [editKm, setEditKm] = useState("");
   const [editMonths, setEditMonths] = useState("");
+  const [newTypeName, setNewTypeName] = useState("");
+  const [newTypeCategory, setNewTypeCategory] = useState("");
+  const [newTypeKm, setNewTypeKm] = useState("");
+  const [newTypeMonths, setNewTypeMonths] = useState("");
+  const [newTypeIcon, setNewTypeIcon] = useState("");
 
   useEffect(() => {
     loadCategories();
@@ -65,6 +72,46 @@ const CategoriesScreen = ({ navigation }) => {
     setSelectedType(null);
     setEditKm("");
     setEditMonths("");
+  };
+
+  const handleAddType = () => {
+    setNewTypeName("");
+    setNewTypeCategory("");
+    setNewTypeKm("");
+    setNewTypeMonths("");
+    setNewTypeIcon("construct-outline");
+    setAddModalVisible(true);
+  };
+
+  const handleSaveNewType = async () => {
+    if (!newTypeName.trim()) return;
+
+    const kmValue = newTypeKm.trim() ? parseInt(newTypeKm) : null;
+    const monthsValue = newTypeMonths.trim() ? parseInt(newTypeMonths) : null;
+
+    try {
+      await createMaintenanceType({
+        name: newTypeName.trim(),
+        category: newTypeCategory.trim() || "General",
+        defaultIntervalKm: kmValue,
+        defaultIntervalMonths: monthsValue,
+        icon: newTypeIcon || "construct-outline",
+      });
+
+      loadCategories();
+      setAddModalVisible(false);
+    } catch (error) {
+      console.error("Error creando tipo de mantenimiento:", error);
+    }
+  };
+
+  const handleCancelAdd = () => {
+    setAddModalVisible(false);
+    setNewTypeName("");
+    setNewTypeCategory("");
+    setNewTypeKm("");
+    setNewTypeMonths("");
+    setNewTypeIcon("");
   };
 
   return (
@@ -137,6 +184,15 @@ const CategoriesScreen = ({ navigation }) => {
           </View>
         ))}
       </ScrollView>
+
+      {/* Botón flotante para agregar */}
+      <TouchableOpacity
+        style={[styles.fab, { backgroundColor: colors.primary }]}
+        onPress={handleAddType}
+        activeOpacity={0.8}
+      >
+        <Ionicons name="add" size={30} color="#fff" />
+      </TouchableOpacity>
 
       {/* Modal de edición */}
       <Modal
@@ -237,6 +293,142 @@ const CategoriesScreen = ({ navigation }) => {
                 </View>
               </View>
             )}
+          </View>
+        </View>
+      </Modal>
+
+      {/* Modal de agregar */}
+      <Modal
+        visible={addModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={handleCancelAdd}
+      >
+        <View style={styles.modalOverlay}>
+          <View
+            style={[
+              styles.modalContent,
+              { backgroundColor: colors.cardBackground },
+            ]}
+          >
+            <View style={styles.modalHeader}>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>
+                Nuevo Tipo de Mantenimiento
+              </Text>
+              <TouchableOpacity onPress={handleCancelAdd}>
+                <Ionicons name="close" size={24} color={colors.text} />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.modalBody}>
+              <View style={styles.inputGroup}>
+                <Text style={[styles.inputLabel, { color: colors.text }]}>
+                  Nombre *
+                </Text>
+                <TextInput
+                  style={[
+                    styles.input,
+                    {
+                      backgroundColor: colors.background,
+                      color: colors.text,
+                      borderColor: colors.border,
+                    },
+                  ]}
+                  value={newTypeName}
+                  onChangeText={setNewTypeName}
+                  placeholder="Ej: Cambio de batería"
+                  placeholderTextColor={colors.textSecondary}
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={[styles.inputLabel, { color: colors.text }]}>
+                  Categoría
+                </Text>
+                <TextInput
+                  style={[
+                    styles.input,
+                    {
+                      backgroundColor: colors.background,
+                      color: colors.text,
+                      borderColor: colors.border,
+                    },
+                  ]}
+                  value={newTypeCategory}
+                  onChangeText={setNewTypeCategory}
+                  placeholder="Ej: Eléctrico"
+                  placeholderTextColor={colors.textSecondary}
+                />
+              </View>
+
+              <View style={styles.inputRow}>
+                <View style={[styles.inputGroup, { flex: 1, marginRight: 8 }]}>
+                  <Text style={[styles.inputLabel, { color: colors.text }]}>
+                    Kilómetros
+                  </Text>
+                  <TextInput
+                    style={[
+                      styles.input,
+                      {
+                        backgroundColor: colors.background,
+                        color: colors.text,
+                        borderColor: colors.border,
+                      },
+                    ]}
+                    value={newTypeKm}
+                    onChangeText={setNewTypeKm}
+                    placeholder="5000"
+                    placeholderTextColor={colors.textSecondary}
+                    keyboardType="numeric"
+                  />
+                </View>
+
+                <View style={[styles.inputGroup, { flex: 1, marginLeft: 8 }]}>
+                  <Text style={[styles.inputLabel, { color: colors.text }]}>
+                    Meses
+                  </Text>
+                  <TextInput
+                    style={[
+                      styles.input,
+                      {
+                        backgroundColor: colors.background,
+                        color: colors.text,
+                        borderColor: colors.border,
+                      },
+                    ]}
+                    value={newTypeMonths}
+                    onChangeText={setNewTypeMonths}
+                    placeholder="6"
+                    placeholderTextColor={colors.textSecondary}
+                    keyboardType="numeric"
+                  />
+                </View>
+              </View>
+
+              <View style={styles.modalActions}>
+                <TouchableOpacity
+                  style={[styles.cancelButton, { borderColor: colors.border }]}
+                  onPress={handleCancelAdd}
+                >
+                  <Text
+                    style={[styles.cancelButtonText, { color: colors.text }]}
+                  >
+                    Cancelar
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.saveButton,
+                    { backgroundColor: colors.primary },
+                  ]}
+                  onPress={handleSaveNewType}
+                >
+                  <Text style={[styles.saveButtonText, { color: "#fff" }]}>
+                    Crear
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
           </View>
         </View>
       </Modal>
@@ -381,6 +573,26 @@ const styles = StyleSheet.create({
   saveButtonText: {
     fontSize: 16,
     fontWeight: "500",
+  },
+  fab: {
+    position: "absolute",
+    right: 20,
+    bottom: 20,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    zIndex: 999,
+  },
+  inputRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
   },
 });
 
