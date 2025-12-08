@@ -1,6 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import {
+  Alert,
+  FlatList,
   Modal,
   ScrollView,
   StyleSheet,
@@ -12,7 +14,9 @@ import {
 import { useTheme } from "../context/ThemeContext";
 import {
   createMaintenanceType,
+  deleteMaintenanceType,
   getMaintenanceTypes,
+  isMaintenanceTypeInUse,
   updateMaintenanceType,
 } from "../services/maintenanceService";
 
@@ -21,14 +25,41 @@ const CategoriesScreen = ({ navigation }) => {
   const [categories, setCategories] = useState([]);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [addModalVisible, setAddModalVisible] = useState(false);
+  const [iconPickerVisible, setIconPickerVisible] = useState(false);
   const [selectedType, setSelectedType] = useState(null);
   const [editKm, setEditKm] = useState("");
   const [editMonths, setEditMonths] = useState("");
+  const [editName, setEditName] = useState("");
+  const [editCategory, setEditCategory] = useState("");
+  const [editIcon, setEditIcon] = useState("");
   const [newTypeName, setNewTypeName] = useState("");
   const [newTypeCategory, setNewTypeCategory] = useState("");
   const [newTypeKm, setNewTypeKm] = useState("");
   const [newTypeMonths, setNewTypeMonths] = useState("");
   const [newTypeIcon, setNewTypeIcon] = useState("");
+  const [isEditingIcon, setIsEditingIcon] = useState(false);
+
+  // Iconos disponibles para tipos de mantenimiento
+  const availableIcons = [
+    { name: "water-outline", label: "Líquidos" },
+    { name: "flash-outline", label: "Eléctrico" },
+    { name: "construct-outline", label: "Herramientas" },
+    { name: "cog-outline", label: "Engranaje" },
+    { name: "hardware-chip-outline", label: "Componente" },
+    { name: "funnel-outline", label: "Filtro" },
+    { name: "ellipse-outline", label: "Neumático" },
+    { name: "refresh-outline", label: "Rotación" },
+    { name: "options-outline", label: "Ajuste" },
+    { name: "battery-charging-outline", label: "Batería" },
+    { name: "git-branch-outline", label: "Correa" },
+    { name: "search-outline", label: "Inspección" },
+    { name: "disc-outline", label: "Frenos" },
+    { name: "git-compare-outline", label: "Suspensión" },
+    { name: "thermometer-outline", label: "Temperatura" },
+    { name: "speedometer-outline", label: "Velocímetro" },
+    { name: "shield-outline", label: "Protección" },
+    { name: "checkmark-circle-outline", label: "Verificado" },
+  ];
 
   useEffect(() => {
     loadCategories();
@@ -41,37 +72,104 @@ const CategoriesScreen = ({ navigation }) => {
 
   const handleEditType = (type) => {
     setSelectedType(type);
+    setEditName(type.name);
+    setEditCategory(type.category || "");
     setEditKm(type.defaultIntervalKm?.toString() || "");
     setEditMonths(type.defaultIntervalMonths?.toString() || "");
+    setEditIcon(type.icon || "construct-outline");
     setEditModalVisible(true);
   };
 
   const handleSaveType = async () => {
-    if (!selectedType) return;
+    if (!selectedType || !editName.trim()) {
+      Alert.alert("Error", "El nombre es obligatorio");
+      return;
+    }
 
     const kmValue = editKm.trim() ? parseInt(editKm) : null;
     const monthsValue = editMonths.trim() ? parseInt(editMonths) : null;
 
     try {
       await updateMaintenanceType(selectedType.id, {
+        name: editName.trim(),
+        category: editCategory.trim() || "General",
         defaultIntervalKm: kmValue,
         defaultIntervalMonths: monthsValue,
+        icon: editIcon,
       });
 
-      // Recargar categorías para mostrar los cambios
       loadCategories();
       setEditModalVisible(false);
       setSelectedType(null);
     } catch (error) {
       console.error("Error actualizando tipo de mantenimiento:", error);
+      Alert.alert("Error", "No se pudo actualizar el tipo de mantenimiento");
     }
   };
 
   const handleCancelEdit = () => {
     setEditModalVisible(false);
     setSelectedType(null);
+    setEditName("");
+    setEditCategory("");
     setEditKm("");
     setEditMonths("");
+    setEditIcon("");
+  };
+
+  const handleDeleteType = async (type) => {
+    try {
+      const inUse = await isMaintenanceTypeInUse(type.id);
+
+      if (inUse) {
+        Alert.alert(
+          "No se puede eliminar",
+          `El tipo "${type.name}" está siendo usado en registros de mantenimiento y no puede ser eliminado.`,
+          [{ text: "Entendido" }]
+        );
+        return;
+      }
+
+      Alert.alert(
+        "Confirmar eliminación",
+        `¿Estás seguro de eliminar "${type.name}"?`,
+        [
+          { text: "Cancelar", style: "cancel" },
+          {
+            text: "Eliminar",
+            style: "destructive",
+            onPress: async () => {
+              try {
+                await deleteMaintenanceType(type.id);
+                loadCategories();
+              } catch (error) {
+                Alert.alert(
+                  "Error",
+                  "No se pudo eliminar el tipo de mantenimiento"
+                );
+              }
+            },
+          },
+        ]
+      );
+    } catch (error) {
+      console.error("Error verificando tipo de mantenimiento:", error);
+      Alert.alert("Error", "No se pudo verificar el tipo de mantenimiento");
+    }
+  };
+
+  const handleSelectIcon = (iconName) => {
+    if (isEditingIcon) {
+      setEditIcon(iconName);
+    } else {
+      setNewTypeIcon(iconName);
+    }
+    setIconPickerVisible(false);
+  };
+
+  const openIconPicker = (forEdit = false) => {
+    setIsEditingIcon(forEdit);
+    setIconPickerVisible(true);
   };
 
   const handleAddType = () => {
@@ -84,7 +182,10 @@ const CategoriesScreen = ({ navigation }) => {
   };
 
   const handleSaveNewType = async () => {
-    if (!newTypeName.trim()) return;
+    if (!newTypeName.trim()) {
+      Alert.alert("Error", "El nombre es obligatorio");
+      return;
+    }
 
     const kmValue = newTypeKm.trim() ? parseInt(newTypeKm) : null;
     const monthsValue = newTypeMonths.trim() ? parseInt(newTypeMonths) : null;
@@ -102,6 +203,7 @@ const CategoriesScreen = ({ navigation }) => {
       setAddModalVisible(false);
     } catch (error) {
       console.error("Error creando tipo de mantenimiento:", error);
+      Alert.alert("Error", "No se pudo crear el tipo de mantenimiento");
     }
   };
 
@@ -173,16 +275,24 @@ const CategoriesScreen = ({ navigation }) => {
                   </View>
                 </View>
               </View>
-              <TouchableOpacity
-                style={styles.editButton}
-                onPress={() => handleEditType(type)}
-              >
-                <Ionicons
-                  name="create-outline"
-                  size={20}
-                  color={colors.primary}
-                />
-              </TouchableOpacity>
+              <View style={styles.actionButtons}>
+                <TouchableOpacity
+                  style={styles.editButton}
+                  onPress={() => handleEditType(type)}
+                >
+                  <Ionicons
+                    name="create-outline"
+                    size={20}
+                    color={colors.primary}
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.deleteButton}
+                  onPress={() => handleDeleteType(type)}
+                >
+                  <Ionicons name="trash-outline" size={20} color="#E53935" />
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         ))}
@@ -222,13 +332,9 @@ const CategoriesScreen = ({ navigation }) => {
 
             {selectedType && (
               <View style={styles.modalBody}>
-                <Text style={[styles.typeNameText, { color: colors.text }]}>
-                  {selectedType.name}
-                </Text>
-
                 <View style={styles.inputGroup}>
                   <Text style={[styles.inputLabel, { color: colors.text }]}>
-                    Kilómetros
+                    Nombre *
                   </Text>
                   <TextInput
                     style={[
@@ -239,17 +345,16 @@ const CategoriesScreen = ({ navigation }) => {
                         borderColor: colors.border,
                       },
                     ]}
-                    value={editKm}
-                    onChangeText={setEditKm}
-                    placeholder="Ej: 5000"
+                    value={editName}
+                    onChangeText={setEditName}
+                    placeholder="Ej: Cambio de aceite"
                     placeholderTextColor={colors.textSecondary}
-                    keyboardType="numeric"
                   />
                 </View>
 
                 <View style={styles.inputGroup}>
                   <Text style={[styles.inputLabel, { color: colors.text }]}>
-                    Meses
+                    Categoría
                   </Text>
                   <TextInput
                     style={[
@@ -260,12 +365,89 @@ const CategoriesScreen = ({ navigation }) => {
                         borderColor: colors.border,
                       },
                     ]}
-                    value={editMonths}
-                    onChangeText={setEditMonths}
-                    placeholder="Ej: 6"
+                    value={editCategory}
+                    onChangeText={setEditCategory}
+                    placeholder="Ej: Motor"
                     placeholderTextColor={colors.textSecondary}
-                    keyboardType="numeric"
                   />
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={[styles.inputLabel, { color: colors.text }]}>
+                    Icono
+                  </Text>
+                  <TouchableOpacity
+                    style={[
+                      styles.iconSelector,
+                      {
+                        backgroundColor: colors.background,
+                        borderColor: colors.border,
+                      },
+                    ]}
+                    onPress={() => openIconPicker(true)}
+                  >
+                    <Ionicons
+                      name={editIcon || "construct-outline"}
+                      size={24}
+                      color={colors.primary}
+                    />
+                    <Text
+                      style={[styles.iconSelectorText, { color: colors.text }]}
+                    >
+                      Seleccionar icono
+                    </Text>
+                    <Ionicons
+                      name="chevron-forward"
+                      size={20}
+                      color={colors.textSecondary}
+                    />
+                  </TouchableOpacity>
+                </View>
+
+                <View style={styles.inputRow}>
+                  <View
+                    style={[styles.inputGroup, { flex: 1, marginRight: 8 }]}
+                  >
+                    <Text style={[styles.inputLabel, { color: colors.text }]}>
+                      Kilómetros
+                    </Text>
+                    <TextInput
+                      style={[
+                        styles.input,
+                        {
+                          backgroundColor: colors.background,
+                          color: colors.text,
+                          borderColor: colors.border,
+                        },
+                      ]}
+                      value={editKm}
+                      onChangeText={setEditKm}
+                      placeholder="5000"
+                      placeholderTextColor={colors.textSecondary}
+                      keyboardType="numeric"
+                    />
+                  </View>
+
+                  <View style={[styles.inputGroup, { flex: 1, marginLeft: 8 }]}>
+                    <Text style={[styles.inputLabel, { color: colors.text }]}>
+                      Meses
+                    </Text>
+                    <TextInput
+                      style={[
+                        styles.input,
+                        {
+                          backgroundColor: colors.background,
+                          color: colors.text,
+                          borderColor: colors.border,
+                        },
+                      ]}
+                      value={editMonths}
+                      onChangeText={setEditMonths}
+                      placeholder="6"
+                      placeholderTextColor={colors.textSecondary}
+                      keyboardType="numeric"
+                    />
+                  </View>
                 </View>
 
                 <View style={styles.modalActions}>
@@ -364,6 +546,38 @@ const CategoriesScreen = ({ navigation }) => {
                 />
               </View>
 
+              <View style={styles.inputGroup}>
+                <Text style={[styles.inputLabel, { color: colors.text }]}>
+                  Icono
+                </Text>
+                <TouchableOpacity
+                  style={[
+                    styles.iconSelector,
+                    {
+                      backgroundColor: colors.background,
+                      borderColor: colors.border,
+                    },
+                  ]}
+                  onPress={() => openIconPicker(false)}
+                >
+                  <Ionicons
+                    name={newTypeIcon || "construct-outline"}
+                    size={24}
+                    color={colors.primary}
+                  />
+                  <Text
+                    style={[styles.iconSelectorText, { color: colors.text }]}
+                  >
+                    Seleccionar icono
+                  </Text>
+                  <Ionicons
+                    name="chevron-forward"
+                    size={20}
+                    color={colors.textSecondary}
+                  />
+                </TouchableOpacity>
+              </View>
+
               <View style={styles.inputRow}>
                 <View style={[styles.inputGroup, { flex: 1, marginRight: 8 }]}>
                   <Text style={[styles.inputLabel, { color: colors.text }]}>
@@ -435,6 +649,81 @@ const CategoriesScreen = ({ navigation }) => {
           </View>
         </View>
       </Modal>
+
+      {/* Modal de selector de iconos */}
+      <Modal
+        visible={iconPickerVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setIconPickerVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View
+            style={[
+              styles.iconPickerContent,
+              { backgroundColor: colors.cardBackground },
+            ]}
+          >
+            <View style={styles.modalHeader}>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>
+                Seleccionar Icono
+              </Text>
+              <TouchableOpacity onPress={() => setIconPickerVisible(false)}>
+                <Ionicons name="close" size={24} color={colors.text} />
+              </TouchableOpacity>
+            </View>
+
+            <FlatList
+              data={availableIcons}
+              numColumns={3}
+              keyExtractor={(item) => item.name}
+              contentContainerStyle={styles.iconGrid}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={[
+                    styles.iconOption,
+                    {
+                      backgroundColor: colors.background,
+                      borderColor:
+                        (isEditingIcon ? editIcon : newTypeIcon) === item.name
+                          ? colors.primary
+                          : colors.border,
+                      borderWidth:
+                        (isEditingIcon ? editIcon : newTypeIcon) === item.name
+                          ? 2
+                          : 1,
+                    },
+                  ]}
+                  onPress={() => handleSelectIcon(item.name)}
+                >
+                  <Ionicons
+                    name={item.name}
+                    size={32}
+                    color={
+                      (isEditingIcon ? editIcon : newTypeIcon) === item.name
+                        ? colors.primary
+                        : colors.text
+                    }
+                  />
+                  <Text
+                    style={[
+                      styles.iconLabel,
+                      {
+                        color:
+                          (isEditingIcon ? editIcon : newTypeIcon) === item.name
+                            ? colors.primary
+                            : colors.textSecondary,
+                      },
+                    ]}
+                  >
+                    {item.label}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -501,6 +790,54 @@ const styles = StyleSheet.create({
   editButton: {
     padding: 8,
     marginTop: 4,
+  },
+  actionButtons: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  deleteButton: {
+    padding: 8,
+    marginTop: 4,
+  },
+  iconSelector: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 12,
+    gap: 12,
+  },
+  iconSelectorText: {
+    flex: 1,
+    fontSize: 16,
+  },
+  iconPickerContent: {
+    width: "90%",
+    maxWidth: 400,
+    maxHeight: "80%",
+    borderRadius: 12,
+    padding: 0,
+    elevation: 5,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+  },
+  iconGrid: {
+    padding: 20,
+  },
+  iconOption: {
+    flex: 1,
+    aspectRatio: 1,
+    margin: 6,
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 12,
+  },
+  iconLabel: {
+    fontSize: 11,
+    marginTop: 6,
+    textAlign: "center",
   },
   modalOverlay: {
     flex: 1,

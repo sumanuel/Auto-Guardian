@@ -239,27 +239,34 @@ export const updateMaintenanceType = (id, typeData) => {
   }
 };
 
+// Verificar si un tipo de mantenimiento está en uso
+export const isMaintenanceTypeInUse = (typeId) => {
+  try {
+    const result = db.getFirstSync(
+      "SELECT COUNT(*) as count FROM maintenances WHERE type = (SELECT name FROM maintenance_types WHERE id = ?)",
+      [typeId]
+    );
+    return result.count > 0;
+  } catch (error) {
+    console.error("Error verificando uso del tipo de mantenimiento:", error);
+    return true; // Por seguridad, asumimos que está en uso si hay error
+  }
+};
+
 // Eliminar tipo de mantenimiento personalizado
 export const deleteMaintenanceType = (id) => {
   try {
+    // Verificar si está en uso
+    if (isMaintenanceTypeInUse(id)) {
+      throw new Error(
+        "No se puede eliminar un tipo de mantenimiento que está en uso"
+      );
+    }
+
     db.runSync("DELETE FROM maintenance_types WHERE id = ?", [id]);
     return true;
   } catch (error) {
     console.error("Error eliminando tipo de mantenimiento:", error);
     throw error;
-  }
-};
-
-// Verificar si un tipo de mantenimiento está en uso
-export const isMaintenanceTypeInUse = (typeName) => {
-  try {
-    const count = db.getFirstSync(
-      "SELECT COUNT(*) as count FROM maintenances WHERE type = ?",
-      [typeName]
-    );
-    return count.count > 0;
-  } catch (error) {
-    console.error("Error verificando uso de tipo:", error);
-    return false;
   }
 };
