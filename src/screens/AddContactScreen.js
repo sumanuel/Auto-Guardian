@@ -1,7 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
-  Alert,
   FlatList,
   Modal,
   ScrollView,
@@ -14,18 +13,34 @@ import {
 import { COUNTRIES } from "../constants/countries";
 import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
+import { useDialog } from "../hooks/useDialog";
 
 const AddContactScreen = ({ navigation, route }) => {
   const { addContact, updateContact } = useApp();
   const { colors } = useTheme();
+  const { DialogComponent, showDialog } = useDialog();
   const isEditing = route.params?.contact != null;
   const contactToEdit = route.params?.contact;
 
-  const [formData, setFormData] = useState({
-    alias: contactToEdit?.notes || "",
-    nombre: contactToEdit?.name || "",
-    telefono: contactToEdit?.phone || "",
-    correo: contactToEdit?.email || "",
+  const [formData, setFormData] = useState(() => {
+    let telefono = contactToEdit?.phone || "";
+
+    // Si estamos editando y el teléfono tiene un código de país, extraer el número local
+    if (contactToEdit?.phone) {
+      const country = COUNTRIES.find((c) =>
+        contactToEdit.phone.startsWith(c.code)
+      );
+      if (country) {
+        telefono = contactToEdit.phone.replace(country.code, "");
+      }
+    }
+
+    return {
+      alias: contactToEdit?.notes || "",
+      nombre: contactToEdit?.name || "",
+      telefono: telefono,
+      correo: contactToEdit?.email || "",
+    };
   });
 
   const [selectedCountry, setSelectedCountry] = useState(() => {
@@ -46,17 +61,49 @@ const AddContactScreen = ({ navigation, route }) => {
   };
 
   const handleCountrySelect = (country) => {
+    // Si estamos editando y el teléfono ya tiene un código de país,
+    // extraer solo el número local cuando cambiamos de país
+    if (isEditing && formData.telefono) {
+      const currentPhone = formData.telefono;
+      // Si el teléfono actual comienza con el código del país anterior, extraer el número local
+      if (currentPhone.startsWith(selectedCountry.code)) {
+        const localNumber = currentPhone.replace(selectedCountry.code, "");
+        setFormData((prev) => ({ ...prev, telefono: localNumber }));
+      }
+    }
+
     setSelectedCountry(country);
     setShowCountryModal(false);
   };
 
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const validateForm = () => {
     if (!formData.nombre.trim()) {
-      Alert.alert("Error", "El nombre es obligatorio");
+      showDialog({
+        title: "Campo requerido",
+        message: "El nombre es obligatorio",
+        type: "error",
+      });
       return false;
     }
     if (!formData.telefono.trim()) {
-      Alert.alert("Error", "El teléfono es obligatorio");
+      showDialog({
+        title: "Campo requerido",
+        message: "El teléfono es obligatorio",
+        type: "error",
+      });
+      return false;
+    }
+    if (formData.correo.trim() && !validateEmail(formData.correo.trim())) {
+      showDialog({
+        title: "Formato inválido",
+        message: "El formato del correo electrónico no es válido",
+        type: "error",
+      });
       return false;
     }
     return true;
@@ -87,177 +134,185 @@ const AddContactScreen = ({ navigation, route }) => {
       }
       navigation.goBack();
     } catch (error) {
-      Alert.alert("Error", "No se pudo guardar el contacto");
+      showDialog({
+        title: "Error al guardar",
+        message: "No se pudo guardar el contacto. Inténtalo de nuevo.",
+        type: "error",
+      });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <ScrollView
-      style={[styles.container, { backgroundColor: colors.background }]}
-    >
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
-        </TouchableOpacity>
-        <Text style={[styles.title, { color: colors.text }]}>
-          {isEditing ? "Editar Contacto" : "Agregar Contacto"}
-        </Text>
-      </View>
-
-      <View style={styles.form}>
-        <View style={styles.inputContainer}>
-          <Text style={[styles.label, { color: colors.text }]}>Alias</Text>
-          <TextInput
-            style={[
-              styles.input,
-              { color: colors.text, borderColor: colors.text },
-            ]}
-            value={formData.alias}
-            onChangeText={(value) => handleInputChange("alias", value)}
-            placeholder="Ej: Mecanico de confianza, Proveedor, etc."
-            placeholderTextColor={colors.text + "80"}
-          />
-        </View>
-
-        <View style={styles.inputContainer}>
-          <Text style={[styles.label, { color: colors.text }]}>Nombre *</Text>
-          <TextInput
-            style={[
-              styles.input,
-              { color: colors.text, borderColor: colors.text },
-            ]}
-            value={formData.nombre}
-            onChangeText={(value) => handleInputChange("nombre", value)}
-            placeholder="Nombre completo"
-            placeholderTextColor={colors.text + "80"}
-          />
-        </View>
-
-        <View style={styles.inputContainer}>
-          <Text style={[styles.label, { color: colors.text }]}>País</Text>
+    <DialogComponent>
+      <ScrollView
+        style={[styles.container, { backgroundColor: colors.background }]}
+      >
+        <View style={styles.header}>
           <TouchableOpacity
-            style={[styles.countrySelector, { borderColor: colors.text }]}
-            onPress={() => setShowCountryModal(true)}
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
           >
-            <Text style={[styles.countryText, { color: colors.text }]}>
-              {selectedCountry.flag} {selectedCountry.name} (
-              {selectedCountry.code})
-            </Text>
-            <Ionicons name="chevron-down" size={20} color={colors.text} />
+            <Ionicons name="arrow-back" size={24} color={colors.text} />
           </TouchableOpacity>
+          <Text style={[styles.title, { color: colors.text }]}>
+            {isEditing ? "Editar Contacto" : "Agregar Contacto"}
+          </Text>
         </View>
 
-        <View style={styles.inputContainer}>
-          <Text style={[styles.label, { color: colors.text }]}>Teléfono *</Text>
-          <View style={styles.phoneInputContainer}>
-            <Text style={[styles.countryCode, { color: colors.text }]}>
-              {selectedCountry.code}
-            </Text>
+        <View style={styles.form}>
+          <View style={styles.inputContainer}>
+            <Text style={[styles.label, { color: colors.text }]}>Alias</Text>
             <TextInput
               style={[
-                styles.phoneInput,
+                styles.input,
                 { color: colors.text, borderColor: colors.text },
               ]}
-              value={formData.telefono}
-              onChangeText={(value) => handleInputChange("telefono", value)}
-              placeholder="Número sin código de país"
-              keyboardType="phone-pad"
+              value={formData.alias}
+              onChangeText={(value) => handleInputChange("alias", value)}
+              placeholder="Ej: Mecanico de confianza, Proveedor, etc."
               placeholderTextColor={colors.text + "80"}
             />
           </View>
-        </View>
 
-        <View style={styles.inputContainer}>
-          <Text style={[styles.label, { color: colors.text }]}>Correo</Text>
-          <TextInput
-            style={[
-              styles.input,
-              { color: colors.text, borderColor: colors.text },
-            ]}
-            value={formData.correo}
-            onChangeText={(value) => handleInputChange("correo", value)}
-            placeholder="correo@ejemplo.com"
-            keyboardType="email-address"
-            placeholderTextColor={colors.text + "80"}
-          />
-        </View>
-
-        <TouchableOpacity
-          style={[styles.saveButton, { backgroundColor: colors.primary }]}
-          onPress={handleSave}
-          disabled={loading}
-        >
-          <Text style={styles.saveButtonText}>
-            {loading ? "Guardando..." : isEditing ? "Actualizar" : "Guardar"}
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Modal para seleccionar país */}
-      <Modal
-        visible={showCountryModal}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setShowCountryModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View
-            style={[
-              styles.modalContent,
-              { backgroundColor: colors.cardBackground },
-            ]}
-          >
-            <View style={styles.modalHeader}>
-              <Text style={[styles.modalTitle, { color: colors.text }]}>
-                Seleccionar País
-              </Text>
-              <TouchableOpacity
-                onPress={() => setShowCountryModal(false)}
-                style={styles.closeButton}
-              >
-                <Ionicons name="close" size={24} color={colors.text} />
-              </TouchableOpacity>
-            </View>
-
-            <FlatList
-              data={COUNTRIES}
-              keyExtractor={(item) => item.code}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={[
-                    styles.countryItem,
-                    selectedCountry.code === item.code && {
-                      backgroundColor: colors.primary + "20",
-                    },
-                  ]}
-                  onPress={() => handleCountrySelect(item)}
-                >
-                  <Text
-                    style={[styles.countryItemText, { color: colors.text }]}
-                  >
-                    {item.flag} {item.name}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.countryCodeText,
-                      { color: colors.textSecondary },
-                    ]}
-                  >
-                    {item.code}
-                  </Text>
-                </TouchableOpacity>
-              )}
-              showsVerticalScrollIndicator={false}
+          <View style={styles.inputContainer}>
+            <Text style={[styles.label, { color: colors.text }]}>Nombre *</Text>
+            <TextInput
+              style={[
+                styles.input,
+                { color: colors.text, borderColor: colors.text },
+              ]}
+              value={formData.nombre}
+              onChangeText={(value) => handleInputChange("nombre", value)}
+              placeholder="Nombre completo"
+              placeholderTextColor={colors.text + "80"}
             />
           </View>
+
+          <View style={styles.inputContainer}>
+            <Text style={[styles.label, { color: colors.text }]}>País</Text>
+            <TouchableOpacity
+              style={[styles.countrySelector, { borderColor: colors.text }]}
+              onPress={() => setShowCountryModal(true)}
+            >
+              <Text style={[styles.countryText, { color: colors.text }]}>
+                {selectedCountry.flag} {selectedCountry.name} (
+                {selectedCountry.code})
+              </Text>
+              <Ionicons name="chevron-down" size={20} color={colors.text} />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Text style={[styles.label, { color: colors.text }]}>
+              Teléfono *
+            </Text>
+            <View style={styles.phoneInputContainer}>
+              <Text style={[styles.countryCode, { color: colors.text }]}>
+                {selectedCountry.code}
+              </Text>
+              <TextInput
+                style={[
+                  styles.phoneInput,
+                  { color: colors.text, borderColor: colors.text },
+                ]}
+                value={formData.telefono}
+                onChangeText={(value) => handleInputChange("telefono", value)}
+                placeholder="Número sin código de país"
+                keyboardType="phone-pad"
+                placeholderTextColor={colors.text + "80"}
+              />
+            </View>
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Text style={[styles.label, { color: colors.text }]}>Correo</Text>
+            <TextInput
+              style={[
+                styles.input,
+                { color: colors.text, borderColor: colors.text },
+              ]}
+              value={formData.correo}
+              onChangeText={(value) => handleInputChange("correo", value)}
+              placeholder="correo@ejemplo.com"
+              keyboardType="email-address"
+              placeholderTextColor={colors.text + "80"}
+            />
+          </View>
+
+          <TouchableOpacity
+            style={[styles.saveButton, { backgroundColor: colors.primary }]}
+            onPress={handleSave}
+            disabled={loading}
+          >
+            <Text style={styles.saveButtonText}>
+              {loading ? "Guardando..." : isEditing ? "Actualizar" : "Guardar"}
+            </Text>
+          </TouchableOpacity>
         </View>
-      </Modal>
-    </ScrollView>
+
+        {/* Modal para seleccionar país */}
+        <Modal
+          visible={showCountryModal}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setShowCountryModal(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View
+              style={[
+                styles.modalContent,
+                { backgroundColor: colors.cardBackground },
+              ]}
+            >
+              <View style={styles.modalHeader}>
+                <Text style={[styles.modalTitle, { color: colors.text }]}>
+                  Seleccionar País
+                </Text>
+                <TouchableOpacity
+                  onPress={() => setShowCountryModal(false)}
+                  style={styles.closeButton}
+                >
+                  <Ionicons name="close" size={24} color={colors.text} />
+                </TouchableOpacity>
+              </View>
+
+              <FlatList
+                data={COUNTRIES}
+                keyExtractor={(item) => item.code}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={[
+                      styles.countryItem,
+                      selectedCountry.code === item.code && {
+                        backgroundColor: colors.primary + "20",
+                      },
+                    ]}
+                    onPress={() => handleCountrySelect(item)}
+                  >
+                    <Text
+                      style={[styles.countryItemText, { color: colors.text }]}
+                    >
+                      {item.flag} {item.name}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.countryCodeText,
+                        { color: colors.textSecondary },
+                      ]}
+                    >
+                      {item.code}
+                    </Text>
+                  </TouchableOpacity>
+                )}
+                showsVerticalScrollIndicator={false}
+              />
+            </View>
+          </View>
+        </Modal>
+      </ScrollView>
+    </DialogComponent>
   );
 };
 
