@@ -29,6 +29,7 @@ const CategoriesScreen = ({ navigation }) => {
   const [addModalVisible, setAddModalVisible] = useState(false);
   const [iconPickerVisible, setIconPickerVisible] = useState(false);
   const [selectedType, setSelectedType] = useState(null);
+  const [editingIconFor, setEditingIconFor] = useState(null); // 'edit' o 'add'
   const [editKm, setEditKm] = useState("");
   const [editMonths, setEditMonths] = useState("");
   const [editName, setEditName] = useState("");
@@ -39,7 +40,6 @@ const CategoriesScreen = ({ navigation }) => {
   const [newTypeKm, setNewTypeKm] = useState("");
   const [newTypeMonths, setNewTypeMonths] = useState("");
   const [newTypeIcon, setNewTypeIcon] = useState("");
-  const [isEditingIcon, setIsEditingIcon] = useState(false);
   const [editError, setEditError] = useState("");
   const [addError, setAddError] = useState("");
 
@@ -111,6 +111,7 @@ const CategoriesScreen = ({ navigation }) => {
       setSelectedType(null);
       setEditError(""); // Limpiar error al guardar exitosamente
       setEditError(""); // Limpiar error al guardar exitosamente
+      setEditError(""); // Limpiar error al guardar exitosamente
     } catch (error) {
       console.error("Error actualizando tipo de mantenimiento:", error);
       setTimeout(() => {
@@ -131,7 +132,7 @@ const CategoriesScreen = ({ navigation }) => {
     setEditKm("");
     setEditMonths("");
     setEditIcon("");
-    setIsEditingIcon(false); // Limpiar estado de edición de icono
+    setEditingIconFor(null); // Limpiar estado de edición de icono
     setEditError(""); // Limpiar error al cancelar
   };
 
@@ -183,16 +184,17 @@ const CategoriesScreen = ({ navigation }) => {
   };
 
   const handleSelectIcon = (iconName) => {
-    if (isEditingIcon) {
+    if (editingIconFor === "edit") {
       setEditIcon(iconName);
-    } else {
+    } else if (editingIconFor === "add") {
       setNewTypeIcon(iconName);
     }
     setIconPickerVisible(false);
+    setEditingIconFor(null); // Limpiar después de seleccionar
   };
 
   const openIconPicker = (forEdit = false) => {
-    setIsEditingIcon(forEdit);
+    setEditingIconFor(forEdit ? "edit" : "add");
     setIconPickerVisible(true);
   };
 
@@ -241,7 +243,7 @@ const CategoriesScreen = ({ navigation }) => {
       setNewTypeKm("");
       setNewTypeMonths("");
       setNewTypeIcon("");
-      setIsEditingIcon(false); // Limpiar estado de edición de icono
+      setEditingIconFor(null); // Limpiar estado de edición de icono
       setAddError("");
     } catch (error) {
       console.error("Error creando tipo de mantenimiento:", error);
@@ -262,7 +264,7 @@ const CategoriesScreen = ({ navigation }) => {
     setNewTypeKm("");
     setNewTypeMonths("");
     setNewTypeIcon("");
-    setIsEditingIcon(false); // Limpiar estado de edición de icono
+    setEditingIconFor(null); // Limpiar estado de edición de icono
     setAddError(""); // Limpiar error al cancelar
   };
 
@@ -781,11 +783,19 @@ const CategoriesScreen = ({ navigation }) => {
                       {
                         backgroundColor: colors.background,
                         borderColor:
-                          (isEditingIcon ? editIcon : newTypeIcon) === item.name
+                          (editingIconFor === "edit"
+                            ? editIcon
+                            : editingIconFor === "add"
+                            ? newTypeIcon
+                            : "") === item.name
                             ? colors.primary
                             : colors.border,
                         borderWidth:
-                          (isEditingIcon ? editIcon : newTypeIcon) === item.name
+                          (editingIconFor === "edit"
+                            ? editIcon
+                            : editingIconFor === "add"
+                            ? newTypeIcon
+                            : "") === item.name
                             ? 2
                             : 1,
                       },
@@ -796,7 +806,11 @@ const CategoriesScreen = ({ navigation }) => {
                       name={item.name}
                       size={32}
                       color={
-                        (isEditingIcon ? editIcon : newTypeIcon) === item.name
+                        (editingIconFor === "edit"
+                          ? editIcon
+                          : editingIconFor === "add"
+                          ? newTypeIcon
+                          : "") === item.name
                           ? colors.primary
                           : colors.text
                       }
@@ -806,8 +820,11 @@ const CategoriesScreen = ({ navigation }) => {
                         styles.iconLabel,
                         {
                           color:
-                            (isEditingIcon ? editIcon : newTypeIcon) ===
-                            item.name
+                            (editingIconFor === "edit"
+                              ? editIcon
+                              : editingIconFor === "add"
+                              ? newTypeIcon
+                              : "") === item.name
                               ? colors.primary
                               : colors.textSecondary,
                         },
