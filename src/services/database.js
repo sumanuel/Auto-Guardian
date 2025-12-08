@@ -78,6 +78,18 @@ export const initDatabase = () => {
       );
     `);
 
+    // Tabla de contactos
+    db.execSync(`
+      CREATE TABLE IF NOT EXISTS contacts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        phone TEXT,
+        email TEXT,
+        notes TEXT,
+        createdAt TEXT DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
     console.log("✅ Base de datos inicializada correctamente");
     seedMaintenanceTypes();
   } catch (error) {

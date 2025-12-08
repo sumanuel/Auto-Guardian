@@ -25,40 +25,87 @@ const ContactsScreen = ({ navigation }) => {
     }
   };
 
-  const handleCall = (phoneNumber) => {
-    const url = `tel:${phoneNumber}`;
-    Linking.canOpenURL(url).then((supported) => {
+  const handleCall = async (phoneNumber) => {
+    try {
+      if (!phoneNumber || phoneNumber.trim() === '') {
+        Alert.alert("Error", "Número de teléfono no válido");
+        return;
+      }
+
+      // Limpiar el número de teléfono (remover espacios, guiones, paréntesis)
+      const cleanPhoneNumber = phoneNumber.replace(/[\s\-\(\)]/g, '');
+      const url = `tel:${cleanPhoneNumber}`;
+
+      const supported = await Linking.canOpenURL(url);
       if (supported) {
-        Linking.openURL(url);
+        await Linking.openURL(url);
       } else {
         Alert.alert(
-          "Error",
-          "No se puede realizar llamadas en este dispositivo"
+          "Función no disponible",
+          "Este dispositivo no soporta llamadas telefónicas. El número es: " + cleanPhoneNumber
         );
       }
-    });
+    } catch (error) {
+      console.error("Error al intentar llamar:", error);
+      Alert.alert(
+        "Error",
+        "No se pudo iniciar la llamada. Verifica que el número sea correcto."
+      );
+    }
   };
 
-  const handleSMS = (phoneNumber) => {
-    const url = `sms:${phoneNumber}`;
-    Linking.canOpenURL(url).then((supported) => {
-      if (supported) {
-        Linking.openURL(url);
-      } else {
-        Alert.alert("Error", "No se puede enviar SMS en este dispositivo");
+  const handleSMS = async (phoneNumber) => {
+    try {
+      if (!phoneNumber || phoneNumber.trim() === '') {
+        Alert.alert("Error", "Número de teléfono no válido");
+        return;
       }
-    });
+
+      const cleanPhoneNumber = phoneNumber.replace(/[\s\-\(\)]/g, '');
+      const url = `sms:${cleanPhoneNumber}`;
+
+      const supported = await Linking.canOpenURL(url);
+      if (supported) {
+        await Linking.openURL(url);
+      } else {
+        Alert.alert(
+          "Función no disponible",
+          "Este dispositivo no soporta envío de SMS. El número es: " + cleanPhoneNumber
+        );
+      }
+    } catch (error) {
+      console.error("Error al intentar enviar SMS:", error);
+      Alert.alert(
+        "Error",
+        "No se pudo enviar el SMS. Verifica que el número sea correcto."
+      );
+    }
   };
 
-  const handleWhatsApp = (phoneNumber) => {
-    const url = `whatsapp://send?phone=${phoneNumber}`;
-    Linking.canOpenURL(url).then((supported) => {
-      if (supported) {
-        Linking.openURL(url);
-      } else {
-        Alert.alert("Error", "WhatsApp no está instalado en este dispositivo");
+  const handleEmail = async (email) => {
+    try {
+      if (!email || email.trim() === '') {
+        Alert.alert("Error", "Dirección de email no válida");
+        return;
       }
-    });
+
+      const url = `mailto:${email}`;
+      const supported = await Linking.canOpenURL(url);
+      if (supported) {
+        await Linking.openURL(url);
+      } else {
+        Alert.alert(
+          "Función no disponible",
+          "Este dispositivo no soporta envío de emails. El email es: " + email
+        );
+      }
+    } catch (error) {
+      console.error("Error al intentar enviar email:", error);
+      Alert.alert(
+        "Error",
+        "No se pudo enviar el email. Verifica que la dirección sea correcta."
+      );
+    }
   };
 
   const renderContactCard = ({ item }) => (
@@ -81,13 +128,13 @@ const ContactsScreen = ({ navigation }) => {
           <Ionicons name="person" size={20} color={colors.primary} />
           <View>
             <Text style={[styles.contactName, { color: colors.text }]}>
-              {item.alias || item.nombre}
+              {item.notes || item.name}
             </Text>
-            {item.alias && (
+            {item.notes && (
               <Text
                 style={[styles.contactAlias, { color: colors.textSecondary }]}
               >
-                {item.nombre}
+                {item.name}
               </Text>
             )}
           </View>
@@ -105,7 +152,7 @@ const ContactsScreen = ({ navigation }) => {
             onPress={() =>
               showDialog({
                 title: "Eliminar contacto",
-                message: `¿Estás seguro de que quieres eliminar a ${item.nombre}?`,
+                message: `¿Estás seguro de que quieres eliminar a ${item.name}?`,
                 onConfirm: () => handleDeleteContact(item.id),
                 confirmText: "Eliminar",
                 cancelText: "Cancelar",
@@ -123,40 +170,40 @@ const ContactsScreen = ({ navigation }) => {
         <View style={styles.infoRow}>
           <Ionicons name="call-outline" size={16} color={colors.primary} />
           <Text style={[styles.contactDetail, { color: colors.primary }]}>
-            {item.telefono}
+            {item.phone}
           </Text>
           <View style={styles.actionIcons}>
             <TouchableOpacity
               style={styles.iconButton}
-              onPress={() => handleCall(item.telefono)}
+              onPress={() => handleCall(item.phone)}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
               <Ionicons name="call" size={20} color={colors.primary} />
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.iconButton}
-              onPress={() => handleSMS(item.telefono)}
+              onPress={() => handleSMS(item.phone)}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
               <Ionicons name="chatbubble-outline" size={20} color="#007AFF" />
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.iconButton}
-              onPress={() => handleWhatsApp(item.telefono)}
+              onPress={() => handleWhatsApp(item.phone)}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
               <Ionicons name="logo-whatsapp" size={20} color="#25D366" />
             </TouchableOpacity>
           </View>
         </View>
-        {item.correo && (
+        {item.email && (
           <TouchableOpacity
             style={styles.infoRow}
-            onPress={() => handleEmail(item.correo)}
+            onPress={() => handleEmail(item.email)}
           >
             <Ionicons name="mail-outline" size={16} color={colors.primary} />
             <Text style={[styles.contactDetail, { color: colors.primary }]}>
-              {item.correo}
+              {item.email}
             </Text>
           </TouchableOpacity>
         )}

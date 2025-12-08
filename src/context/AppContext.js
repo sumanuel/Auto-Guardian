@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createContext, useContext, useEffect, useState } from "react";
+import * as contactService from "../services/contactService";
 import { initDatabase } from "../services/database";
 import * as maintenanceService from "../services/maintenanceService";
 import * as notificationService from "../services/notificationService";
@@ -121,10 +122,33 @@ export const AppProvider = ({ children }) => {
   // Funciones de contactos
   const loadContacts = async () => {
     try {
+      // Migrar contactos desde AsyncStorage a SQLite si existen
       const storedContacts = await AsyncStorage.getItem("contacts");
       if (storedContacts) {
-        setContacts(JSON.parse(storedContacts));
+        const contactsData = JSON.parse(storedContacts);
+        if (contactsData.length > 0) {
+          console.log("Migrando contactos desde AsyncStorage a SQLite...");
+          contactsData.forEach((contact) => {
+            try {
+              contactService.createContact({
+                name: contact.name,
+                phone: contact.phone,
+                email: contact.email,
+                notes: contact.notes,
+              });
+            } catch (error) {
+              console.error("Error migrando contacto:", contact.name, error);
+            }
+          });
+          // Limpiar AsyncStorage después de la migración
+          await AsyncStorage.removeItem("contacts");
+          console.log("Migración de contactos completada");
+        }
       }
+
+      // Cargar contactos desde SQLite
+      const contactsFromDB = contactService.getAllContacts();
+      setContacts(contactsFromDB);
     } catch (error) {
       console.error("Error cargando contactos:", error);
     }
@@ -132,13 +156,13 @@ export const AppProvider = ({ children }) => {
 
   const addContact = async (contactData) => {
     try {
+      const newContactId = contactService.createContact(contactData);
       const newContact = {
-        id: Date.now().toString(),
+        id: newContactId,
         ...contactData,
       };
       const updatedContacts = [...contacts, newContact];
       setContacts(updatedContacts);
-      await AsyncStorage.setItem("contacts", JSON.stringify(updatedContacts));
       return newContact.id;
     } catch (error) {
       console.error("Error agregando contacto:", error);
@@ -148,11 +172,11 @@ export const AppProvider = ({ children }) => {
 
   const updateContact = async (id, contactData) => {
     try {
+      contactService.updateContact(id, contactData);
       const updatedContacts = contacts.map((contact) =>
         contact.id === id ? { ...contact, ...contactData } : contact
       );
       setContacts(updatedContacts);
-      await AsyncStorage.setItem("contacts", JSON.stringify(updatedContacts));
     } catch (error) {
       console.error("Error actualizando contacto:", error);
       throw error;
@@ -161,9 +185,9 @@ export const AppProvider = ({ children }) => {
 
   const removeContact = async (id) => {
     try {
+      contactService.deleteContact(id);
       const updatedContacts = contacts.filter((contact) => contact.id !== id);
       setContacts(updatedContacts);
-      await AsyncStorage.setItem("contacts", JSON.stringify(updatedContacts));
     } catch (error) {
       console.error("Error eliminando contacto:", error);
       throw error;

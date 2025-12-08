@@ -19,10 +19,10 @@ const AddContactScreen = ({ navigation, route }) => {
   const contactToEdit = route.params?.contact;
 
   const [formData, setFormData] = useState({
-    alias: contactToEdit?.alias || "",
-    nombre: contactToEdit?.nombre || "",
-    telefono: contactToEdit?.telefono || "",
-    correo: contactToEdit?.correo || "",
+    alias: contactToEdit?.notes || "",
+    nombre: contactToEdit?.name || "",
+    telefono: contactToEdit?.phone || "",
+    correo: contactToEdit?.email || "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -48,10 +48,18 @@ const AddContactScreen = ({ navigation, route }) => {
 
     setLoading(true);
     try {
+      // Map Spanish field names to English for the service
+      const contactData = {
+        name: formData.nombre,
+        phone: formData.telefono,
+        email: formData.correo,
+        notes: formData.alias, // Using alias as notes
+      };
+
       if (isEditing) {
-        await updateContact(contactToEdit.id, formData);
+        await updateContact(contactToEdit.id, contactData);
       } else {
-        await addContact(formData);
+        await addContact(contactData);
       }
       navigation.goBack();
     } catch (error) {
