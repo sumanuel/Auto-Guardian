@@ -11,6 +11,11 @@ import {
 import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
 import { useDialog } from "../hooks/useDialog";
+import {
+  cleanPhoneNumber,
+  formatPhoneForWhatsApp,
+  getCurrentCountryInfo,
+} from "../utils/phoneUtils";
 
 const ContactsScreen = ({ navigation }) => {
   const { contacts, removeContact } = useApp();
@@ -32,39 +37,17 @@ const ContactsScreen = ({ navigation }) => {
         return;
       }
 
-      // Limpiar el número de teléfono (remover espacios, guiones, paréntesis)
-      const cleanPhoneNumber = phoneNumber.replace(/[\s\-\(\)]/g, "");
-      const url = `tel:${cleanPhoneNumber}`;
+      // Limpiar el número de teléfono usando la utilidad
+      const cleanNumber = cleanPhoneNumber(phoneNumber);
+      const url = `tel:${cleanNumber}`;
 
-      const supported = await Linking.canOpenURL(url);
-      if (supported) {
-        await Linking.openURL(url);
-      } else {
-        // En Expo Go, las llamadas pueden no funcionar, pero intentemos de todas formas
-        Alert.alert(
-          "Información",
-          `Número: ${cleanPhoneNumber}\n\nEn Expo Go las llamadas pueden tener limitaciones. Si no funciona, copia el número manualmente.`,
-          [
-            {
-              text: "Copiar número",
-              onPress: () => {
-                // En React Native, podemos usar Clipboard para copiar
-                // Pero como es Expo Go limitado, solo mostramos el número
-                Alert.alert(
-                  "Número copiado",
-                  `Copia este número: ${cleanPhoneNumber}`
-                );
-              },
-            },
-            { text: "OK" },
-          ]
-        );
-      }
+      // Intentar abrir directamente sin verificar canOpenURL ya que tel: está permitido
+      await Linking.openURL(url);
     } catch (error) {
       console.error("Error al intentar llamar:", error);
       Alert.alert(
-        "Limitación de Expo Go",
-        `No se pudo iniciar la llamada automáticamente.\n\nNúmero: ${phoneNumber}\n\nCopia el número y llama manualmente desde tu teléfono.`
+        "Error",
+        `No se pudo iniciar la llamada.\n\nNúmero: ${phoneNumber}\n\nVerifica los permisos de la aplicación.`
       );
     }
   };
@@ -76,24 +59,16 @@ const ContactsScreen = ({ navigation }) => {
         return;
       }
 
-      const cleanPhoneNumber = phoneNumber.replace(/[\s\-\(\)]/g, "");
-      const url = `sms:${cleanPhoneNumber}`;
+      const cleanNumber = cleanPhoneNumber(phoneNumber);
+      const url = `sms:${cleanNumber}`;
 
-      const supported = await Linking.canOpenURL(url);
-      if (supported) {
-        await Linking.openURL(url);
-      } else {
-        Alert.alert(
-          "Función no disponible",
-          "Este dispositivo no soporta envío de SMS. El número es: " +
-            cleanPhoneNumber
-        );
-      }
+      // Intentar abrir directamente ya que sms: está permitido por defecto
+      await Linking.openURL(url);
     } catch (error) {
       console.error("Error al intentar enviar SMS:", error);
       Alert.alert(
         "Error",
-        "No se pudo enviar el SMS. Verifica que el número sea correcto."
+        `No se pudo abrir la aplicación de SMS.\n\nNúmero: ${phoneNumber}\n\nVerifica los permisos de la aplicación.`
       );
     }
   };
@@ -131,14 +106,12 @@ const ContactsScreen = ({ navigation }) => {
         return;
       }
 
-      let cleanPhoneNumber = phoneNumber.replace(/[\s\-\(\)]/g, "");
+      // Formatear el número con el código de país automático
+      const formattedNumber = formatPhoneForWhatsApp(phoneNumber);
+      const countryInfo = getCurrentCountryInfo();
 
-      // Si el número no tiene código de país (+), agregar +57 (Colombia) por defecto
-      if (!cleanPhoneNumber.startsWith("+")) {
-        cleanPhoneNumber = "+57" + cleanPhoneNumber;
-      }
-
-      const url = `whatsapp://send?phone=${cleanPhoneNumber}`;
+      // Usar la API web de WhatsApp que funciona tanto en apps como en navegadores
+      const url = `https://api.whatsapp.com/send?phone=${formattedNumber}`;
 
       const supported = await Linking.canOpenURL(url);
       if (supported) {
@@ -146,7 +119,7 @@ const ContactsScreen = ({ navigation }) => {
       } else {
         Alert.alert(
           "WhatsApp no disponible",
-          `WhatsApp no está instalado o el número no es válido.\nNúmero usado: ${cleanPhoneNumber}\n\nAsegúrate de que el número incluya el código de país (ej: +57 para Colombia).`
+          `No se pudo abrir WhatsApp.\nNúmero: ${formattedNumber}\nPaís detectado: ${countryInfo.formattedCode}\n\nAsegúrate de tener WhatsApp instalado.`
         );
       }
     } catch (error) {

@@ -48,9 +48,10 @@ const AddContactScreen = ({ navigation, route }) => {
     if (contactToEdit?.phone) {
       const phone = contactToEdit.phone;
       const country = COUNTRIES.find((c) => phone.startsWith(c.code));
-      return country || COUNTRIES[0]; // Colombia por defecto
+      return country || null;
     }
-    return COUNTRIES[0]; // Colombia por defecto
+    // Para nuevos contactos, no hay país seleccionado por defecto
+    return null;
   });
 
   const [showCountryModal, setShowCountryModal] = useState(false);
@@ -63,7 +64,7 @@ const AddContactScreen = ({ navigation, route }) => {
   const handleCountrySelect = (country) => {
     // Si estamos editando y el teléfono ya tiene un código de país,
     // extraer solo el número local cuando cambiamos de país
-    if (isEditing && formData.telefono) {
+    if (isEditing && formData.telefono && selectedCountry) {
       const currentPhone = formData.telefono;
       // Si el teléfono actual comienza con el código del país anterior, extraer el número local
       if (currentPhone.startsWith(selectedCountry.code)) {
@@ -86,6 +87,14 @@ const AddContactScreen = ({ navigation, route }) => {
       showDialog({
         title: "Campo requerido",
         message: "El nombre es obligatorio",
+        type: "error",
+      });
+      return false;
+    }
+    if (!selectedCountry) {
+      showDialog({
+        title: "Campo requerido",
+        message: "Debes seleccionar el país del número telefónico",
         type: "error",
       });
       return false;
@@ -117,7 +126,7 @@ const AddContactScreen = ({ navigation, route }) => {
       // Combinar código de país con número de teléfono
       const fullPhoneNumber = formData.telefono.startsWith("+")
         ? formData.telefono // Ya tiene código
-        : selectedCountry.code + formData.telefono.replace(/^0+/, ""); // Agregar código y remover ceros iniciales
+        : (selectedCountry?.code || "") + formData.telefono.replace(/^0+/, ""); // Agregar código y remover ceros iniciales
 
       // Map Spanish field names to English for the service
       const contactData = {
@@ -191,14 +200,25 @@ const AddContactScreen = ({ navigation, route }) => {
           </View>
 
           <View style={styles.inputContainer}>
-            <Text style={[styles.label, { color: colors.text }]}>País</Text>
+            <Text style={[styles.label, { color: colors.text }]}>País *</Text>
             <TouchableOpacity
-              style={[styles.countrySelector, { borderColor: colors.text }]}
+              style={[
+                styles.countrySelector,
+                { borderColor: selectedCountry ? colors.text : "#ff4444" },
+              ]}
               onPress={() => setShowCountryModal(true)}
             >
-              <Text style={[styles.countryText, { color: colors.text }]}>
-                {selectedCountry.flag} {selectedCountry.name} (
-                {selectedCountry.code})
+              <Text
+                style={[
+                  styles.countryText,
+                  {
+                    color: selectedCountry ? colors.text : colors.textSecondary,
+                  },
+                ]}
+              >
+                {selectedCountry
+                  ? `${selectedCountry.flag} ${selectedCountry.name} (${selectedCountry.code})`
+                  : "Selecciona un país..."}
               </Text>
               <Ionicons name="chevron-down" size={20} color={colors.text} />
             </TouchableOpacity>
@@ -210,7 +230,7 @@ const AddContactScreen = ({ navigation, route }) => {
             </Text>
             <View style={styles.phoneInputContainer}>
               <Text style={[styles.countryCode, { color: colors.text }]}>
-                {selectedCountry.code}
+                {selectedCountry ? selectedCountry.code : "+__"}
               </Text>
               <TextInput
                 style={[
@@ -285,7 +305,7 @@ const AddContactScreen = ({ navigation, route }) => {
                   <TouchableOpacity
                     style={[
                       styles.countryItem,
-                      selectedCountry.code === item.code && {
+                      selectedCountry?.code === item.code && {
                         backgroundColor: colors.primary + "20",
                       },
                     ]}
@@ -394,6 +414,11 @@ const styles = StyleSheet.create({
     borderLeftWidth: 1,
     borderLeftColor: "#ccc",
     paddingLeft: 12,
+  },
+  helperText: {
+    fontSize: 12,
+    marginTop: 4,
+    fontStyle: "italic",
   },
   modalOverlay: {
     flex: 1,

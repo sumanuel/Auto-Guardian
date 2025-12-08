@@ -23,7 +23,23 @@
         "android.permission.CALL_PHONE",
         "android.permission.SEND_SMS",
         "android.permission.READ_PHONE_STATE"
-      ]
+      ],
+      "queries": {
+        "schemes": [
+          "tel",
+          "sms",
+          "mailto"
+        ],
+        "intents": [
+          {
+            "action": "android.intent.action.VIEW",
+            "data": {
+              "scheme": "https",
+              "host": "api.whatsapp.com"
+            }
+          }
+        ]
+      }
     },
     "web": {
       "output": "static",
@@ -44,7 +60,8 @@
         }
       ],
       "expo-sqlite",
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true,
