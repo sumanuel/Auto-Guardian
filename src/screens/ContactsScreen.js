@@ -11,11 +11,6 @@ import {
 import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
 import { useDialog } from "../hooks/useDialog";
-import {
-  cleanPhoneNumber,
-  formatPhoneForWhatsApp,
-  getCurrentCountryInfo,
-} from "../utils/phoneUtils";
 
 const ContactsScreen = ({ navigation }) => {
   const { contacts, removeContact } = useApp();
@@ -37,8 +32,8 @@ const ContactsScreen = ({ navigation }) => {
         return;
       }
 
-      // Limpiar el número de teléfono usando la utilidad
-      const cleanNumber = cleanPhoneNumber(phoneNumber);
+      // Limpiar el número de teléfono (remover espacios, guiones, paréntesis)
+      const cleanNumber = phoneNumber.replace(/[\s\-\(\)]/g, "");
       const url = `tel:${cleanNumber}`;
 
       // Intentar abrir directamente sin verificar canOpenURL ya que tel: está permitido
@@ -59,7 +54,7 @@ const ContactsScreen = ({ navigation }) => {
         return;
       }
 
-      const cleanNumber = cleanPhoneNumber(phoneNumber);
+      const cleanNumber = phoneNumber.replace(/[\s\-\(\)]/g, "");
       const url = `sms:${cleanNumber}`;
 
       // Intentar abrir directamente ya que sms: está permitido por defecto
@@ -106,12 +101,11 @@ const ContactsScreen = ({ navigation }) => {
         return;
       }
 
-      // Formatear el número con el código de país automático
-      const formattedNumber = formatPhoneForWhatsApp(phoneNumber);
-      const countryInfo = getCurrentCountryInfo();
+      // Limpiar el número (remover espacios, guiones, paréntesis y el signo +)
+      const cleanNumber = phoneNumber.replace(/[\s\-\(\)\+]/g, "");
 
       // Usar la API web de WhatsApp que funciona tanto en apps como en navegadores
-      const url = `https://api.whatsapp.com/send?phone=${formattedNumber}`;
+      const url = `https://api.whatsapp.com/send?phone=${cleanNumber}`;
 
       const supported = await Linking.canOpenURL(url);
       if (supported) {
@@ -119,7 +113,7 @@ const ContactsScreen = ({ navigation }) => {
       } else {
         Alert.alert(
           "WhatsApp no disponible",
-          `No se pudo abrir WhatsApp.\nNúmero: ${formattedNumber}\nPaís detectado: ${countryInfo.formattedCode}\n\nAsegúrate de tener WhatsApp instalado.`
+          `No se pudo abrir WhatsApp.\n\nAsegúrate de tener WhatsApp instalado.`
         );
       }
     } catch (error) {
