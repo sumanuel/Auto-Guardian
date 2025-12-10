@@ -1,5 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import * as Notifications from "expo-notifications";
+import { useEffect } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -12,6 +14,17 @@ import { useTheme } from "../context/ThemeContext";
 const MoreScreen = () => {
   const navigation = useNavigation();
   const { colors } = useTheme();
+
+  useEffect(() => {
+    const requestPermissions = async () => {
+      const { status } = await Notifications.requestPermissionsAsync();
+      if (status !== "granted") {
+        alert("Permisos de notificación denegados");
+      }
+    };
+    requestPermissions();
+  }, []);
+
   const menuOptions = [
     {
       id: 1,
@@ -27,12 +40,12 @@ const MoreScreen = () => {
       comingSoon: false,
       screen: "Contacts",
     },
-    {
-      id: 3,
-      title: "Exportar datos",
-      icon: "cloud-download-outline",
-      comingSoon: true,
-    },
+    // {
+    //   id: 3,
+    //   title: "Exportar datos",
+    //   icon: "cloud-download-outline",
+    //   comingSoon: true,
+    // },
     {
       id: 4,
       title: "Acerca de",

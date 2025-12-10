@@ -24,7 +24,7 @@ const SettingsScreen = ({ navigation }) => {
       id: 3,
       title: "Notificaciones",
       icon: "notifications-outline",
-      comingSoon: true,
+      screen: "NotificationsScreen",
     },
   ];
 
