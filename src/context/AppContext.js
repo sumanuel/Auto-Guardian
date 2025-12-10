@@ -356,22 +356,22 @@ export const AppProvider = ({ children }) => {
 
           // Verificar por fecha (prioridad si es más urgente)
           if (maintenance.nextServiceDate) {
-            // Parsear la fecha correctamente (solo la parte de la fecha, sin hora)
-            const nextDate = new Date(
-              maintenance.nextServiceDate.split("T")[0]
-            );
-            const today = new Date(
-              now.getFullYear(),
-              now.getMonth(),
-              now.getDate()
-            );
+            // Parsear la fecha correctamente y normalizar a medianoche
+            const nextDateStr = maintenance.nextServiceDate.split("T")[0];
+            const nextDate = new Date(nextDateStr + "T00:00:00");
+
+            const todayStr = now.toISOString().split("T")[0];
+            const today = new Date(todayStr + "T00:00:00");
+
             const daysRemaining = Math.floor(
               (nextDate - today) / (1000 * 60 * 60 * 24)
             );
 
             if (daysRemaining < 0) {
               isOverdue = true;
-              reason = `Vencido hace ${Math.abs(daysRemaining)} días`;
+              reason = `Vencido hace ${Math.abs(daysRemaining)} día${
+                Math.abs(daysRemaining) !== 1 ? "s" : ""
+              }`;
             } else if (daysRemaining === 0) {
               isUrgent = true;
               reason = "¡Hoy es el día!";

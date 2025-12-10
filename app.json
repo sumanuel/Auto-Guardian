@@ -25,11 +25,7 @@
         "android.permission.READ_PHONE_STATE"
       ],
       "queries": {
-        "schemes": [
-          "tel",
-          "sms",
-          "mailto"
-        ],
+        "schemes": ["tel", "sms", "mailto", "whatsapp"],
         "intents": [
           {
             "action": "android.intent.action.VIEW",

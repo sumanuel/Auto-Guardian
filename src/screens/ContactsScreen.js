@@ -104,23 +104,27 @@ const ContactsScreen = ({ navigation }) => {
       // Limpiar el número (remover espacios, guiones, paréntesis y el signo +)
       const cleanNumber = phoneNumber.replace(/[\s\-\(\)\+]/g, "");
 
-      // Usar la API web de WhatsApp que funciona tanto en apps como en navegadores
-      const url = `https://api.whatsapp.com/send?phone=${cleanNumber}`;
+      // Intentar primero con el esquema de la app de WhatsApp
+      const whatsappUrl = `whatsapp://send?phone=${cleanNumber}`;
 
-      const supported = await Linking.canOpenURL(url);
-      if (supported) {
-        await Linking.openURL(url);
-      } else {
-        Alert.alert(
-          "WhatsApp no disponible",
-          `No se pudo abrir WhatsApp.\n\nAsegúrate de tener WhatsApp instalado.`
-        );
+      try {
+        const canOpen = await Linking.canOpenURL(whatsappUrl);
+        if (canOpen) {
+          await Linking.openURL(whatsappUrl);
+          return;
+        }
+      } catch (error) {
+        console.log("WhatsApp app no disponible, intentando con web API");
       }
+
+      // Si falla, usar la API web de WhatsApp como fallback
+      const webUrl = `https://api.whatsapp.com/send?phone=${cleanNumber}`;
+      await Linking.openURL(webUrl);
     } catch (error) {
       console.error("Error al intentar abrir WhatsApp:", error);
       Alert.alert(
-        "Error",
-        "No se pudo abrir WhatsApp. Verifica que esté instalado y que el número sea correcto."
+        "WhatsApp no disponible",
+        "No se pudo abrir WhatsApp. Asegúrate de tener WhatsApp instalado."
       );
     }
   };
