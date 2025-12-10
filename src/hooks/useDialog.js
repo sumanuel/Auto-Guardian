@@ -16,10 +16,35 @@ import { useCallback, useState } from "react";
 export const useDialog = () => {
   const [visible, setVisible] = useState(false);
   const [config, setConfig] = useState(null);
+  const [resolvePromise, setResolvePromise] = useState(null);
 
   const showDialog = useCallback((dialogConfig) => {
     // Convertir el formato antiguo al nuevo formato de botones
     const config = { ...dialogConfig };
+
+    // Si es tipo confirm, crear botones y retornar una promesa
+    if (config.type === "confirm" && !config.buttons) {
+      return new Promise((resolve) => {
+        config.buttons = [
+          {
+            text: "Cancelar",
+            style: "cancel",
+            onPress: () => {
+              resolve(false);
+            },
+          },
+          {
+            text: "Aceptar",
+            style: "primary",
+            onPress: () => {
+              resolve(true);
+            },
+          },
+        ];
+        setConfig(config);
+        setVisible(true);
+      });
+    }
 
     if (config.onConfirm && config.confirmText) {
       config.buttons = [

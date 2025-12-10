@@ -45,7 +45,7 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
     notes: "",
     photo: null,
     nextServiceKm: "",
-    nextServiceDate: null,
+    nextServiceDate: new Date(),
   });
 
   useEffect(() => {
@@ -224,7 +224,7 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
     });
   };
 
-  const validateForm = () => {
+  const validateForm = async () => {
     if (!formData.type.trim()) {
       showDialog({
         title: "Error",
@@ -233,11 +233,41 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
       });
       return false;
     }
+
+    // Validar si las fechas son iguales cuando el modo es por fecha
+    if (maintenanceMode === "date" && formData.nextServiceDate) {
+      const serviceDate = new Date(formData.date);
+      const nextServiceDate = new Date(formData.nextServiceDate);
+
+      // Comparar solo las fechas (sin hora)
+      const serviceDateOnly = new Date(
+        serviceDate.getFullYear(),
+        serviceDate.getMonth(),
+        serviceDate.getDate()
+      );
+      const nextServiceDateOnly = new Date(
+        nextServiceDate.getFullYear(),
+        nextServiceDate.getMonth(),
+        nextServiceDate.getDate()
+      );
+
+      if (serviceDateOnly.getTime() === nextServiceDateOnly.getTime()) {
+        const result = await showDialog({
+          title: "Advertencia",
+          message:
+            "La fecha de servicio y la fecha del próximo servicio son iguales. ¿Deseas continuar de todas formas?",
+          type: "confirm",
+        });
+        return result;
+      }
+    }
+
     return true;
   };
 
   const handleSubmit = async () => {
-    if (!validateForm()) return;
+    const isValid = await validateForm();
+    if (!isValid) return;
 
     setLoading(true);
     try {
