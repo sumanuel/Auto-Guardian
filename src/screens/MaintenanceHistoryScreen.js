@@ -1,7 +1,14 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
-import { FlatList, Image, Modal, StyleSheet, Text, View } from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
+import {
+  FlatList,
+  Image,
+  Modal,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
 import { COLORS } from "../data/constants";
@@ -24,6 +31,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
     vehicles,
     getAllMaintenances,
     updateMaintenance,
+    addMaintenance,
   } = useApp();
   const { DialogComponent, showDialog } = useDialog();
   const { colors } = useTheme();
@@ -33,6 +41,9 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
   const [activeTab, setActiveTab] = useState("inProgress");
   const [selectedImage, setSelectedImage] = useState(null);
   const [imageModalVisible, setImageModalVisible] = useState(false);
+  const [approveModalVisible, setApproveModalVisible] = useState(false);
+  const [selectedMaintenance, setSelectedMaintenance] = useState(null);
+  const [scheduleNext, setScheduleNext] = useState(false);
 
   const openImageModal = (imageUri) => {
     setSelectedImage(imageUri);
@@ -62,6 +73,30 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
     } else {
       data = getAllMaintenances ? getAllMaintenances() : [];
     }
+
+    // Ordenar mantenimientos por defecto
+    data = data.sort((a, b) => {
+      // Primero los mantenimientos en curso (con nextServiceKm o nextServiceDate)
+      const aIsCompleted = !a.nextServiceKm && !a.nextServiceDate;
+      const bIsCompleted = !b.nextServiceKm && !b.nextServiceDate;
+
+      if (aIsCompleted && !bIsCompleted) return 1; // Completados van después
+      if (!aIsCompleted && bIsCompleted) return -1; // En curso van primero
+
+      // Dentro de cada grupo, ordenar por fecha descendente
+      if (aIsCompleted && bIsCompleted) {
+        // Ambos completados: ordenar por completedAt descendente
+        const aDate = new Date(a.completedAt || a.date);
+        const bDate = new Date(b.completedAt || b.date);
+        return bDate - aDate;
+      } else {
+        // Ambos en curso: ordenar por fecha de creación descendente
+        const aDate = new Date(a.date);
+        const bDate = new Date(b.date);
+        return bDate - aDate;
+      }
+    });
+
     // Si viene desde próximos mantenimientos, ordenar por urgencia
     if (sortByUrgency) {
       const now = new Date();
@@ -155,41 +190,97 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
   const handleApprove = (id) => {
     const maintenanceToApprove = maintenances.find((item) => item.id === id);
     if (!maintenanceToApprove) return;
-    showDialog({
-      title: "Marcar como realizado",
-      message: "¿Deseas marcar este mantenimiento como realizado?",
-      type: "confirm",
-      buttons: [
-        { text: "Cancelar", style: "cancel" },
-        {
-          text: "Aceptar",
-          style: "default",
-          onPress: async () => {
-            const updatedMaintenance = {
-              ...maintenanceToApprove,
-              nextServiceKm: null,
-              nextServiceDate: null,
-              completedAt: new Date().toISOString(),
-            };
-            try {
-              await updateMaintenance(id, updatedMaintenance);
-              loadMaintenances();
-              showDialog({
-                title: "Realizado",
-                message: "El mantenimiento fue marcado como realizado.",
-                type: "success",
-              });
-            } catch (error) {
-              showDialog({
-                title: "Error",
-                message: "No se pudo marcar como realizado.",
-                type: "error",
-              });
-            }
-          },
-        },
-      ],
-    });
+
+    setSelectedMaintenance(maintenanceToApprove);
+    setScheduleNext(false); // Reset checkbox
+    setApproveModalVisible(true);
+  };
+
+  const handleConfirmApprove = async () => {
+    if (!selectedMaintenance) return;
+
+    const { id } = selectedMaintenance;
+
+    try {
+      // Primero marcar el mantenimiento actual como completado
+      const completedMaintenance = {
+        ...selectedMaintenance,
+        nextServiceKm: null,
+        nextServiceDate: null,
+        completedAt: new Date().toISOString(),
+      };
+
+      await updateMaintenance(id, completedMaintenance);
+
+      // Si se debe programar el próximo mantenimiento, crear uno nuevo
+      if (scheduleNext) {
+        const vehicle = vehicles.find(
+          (v) => v.id === selectedMaintenance.vehicleId
+        );
+
+        let nextServiceKm = null;
+        let nextServiceDate = null;
+
+        // Calcular próximo servicio basado en los valores originales
+        if (selectedMaintenance.nextServiceKm && vehicle?.currentKm) {
+          // Si tenía kilometraje programado, sumar al kilometraje actual
+          nextServiceKm =
+            vehicle.currentKm +
+            (selectedMaintenance.nextServiceKm - (selectedMaintenance.km || 0));
+        }
+
+        if (selectedMaintenance.nextServiceDate) {
+          // Si tenía fecha programada, sumar los días desde la fecha original
+          const originalDate = new Date(selectedMaintenance.date);
+          const nextDate = new Date(selectedMaintenance.nextServiceDate);
+          const daysDiff = Math.floor(
+            (nextDate - originalDate) / (1000 * 60 * 60 * 24)
+          );
+          const currentDate = new Date();
+          nextServiceDate = new Date(
+            currentDate.getTime() + daysDiff * 24 * 60 * 60 * 1000
+          )
+            .toISOString()
+            .split("T")[0];
+        }
+
+        // Crear nuevo mantenimiento programado
+        const newMaintenance = {
+          vehicleId: selectedMaintenance.vehicleId,
+          type: selectedMaintenance.type,
+          category: selectedMaintenance.category,
+          date: new Date().toISOString().split("T")[0], // Fecha actual
+          km: vehicle?.currentKm || null,
+          cost: null, // No tiene costo aún
+          provider: null, // No tiene proveedor aún
+          notes: `Próximo ${selectedMaintenance.type} programado automáticamente`,
+          photo: null,
+          nextServiceKm,
+          nextServiceDate,
+          completedAt: null, // No está completado
+        };
+
+        await addMaintenance(newMaintenance);
+      }
+
+      setApproveModalVisible(false);
+      setSelectedMaintenance(null);
+      loadMaintenances();
+      showDialog({
+        title: "Realizado",
+        message: scheduleNext
+          ? "El mantenimiento fue marcado como realizado y se programó el próximo servicio."
+          : "El mantenimiento fue marcado como realizado.",
+        type: "success",
+      });
+    } catch (error) {
+      console.error("Error procesando mantenimiento:", error);
+      showDialog({
+        title: "Error",
+        message: "No se pudo procesar el mantenimiento.",
+        type: "error",
+      });
+    }
   };
 
   const renderMaintenanceItem = ({ item }) => (
@@ -556,6 +647,102 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
             </TouchableOpacity>
           </View>
         </Modal>
+
+        {/* Modal para marcar mantenimiento como realizado */}
+        <Modal
+          visible={approveModalVisible}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setApproveModalVisible(false)}
+        >
+          <View style={styles.approveModalContainer}>
+            <View
+              style={[
+                styles.approveModalContent,
+                { backgroundColor: colors.cardBackground },
+              ]}
+            >
+              <View style={styles.approveModalHeader}>
+                <Ionicons
+                  name="checkmark-circle-outline"
+                  size={48}
+                  color={COLORS.success}
+                />
+                <Text
+                  style={[styles.approveModalTitle, { color: colors.text }]}
+                >
+                  Marcar como realizado
+                </Text>
+                <Text
+                  style={[
+                    styles.approveModalMessage,
+                    { color: colors.textSecondary },
+                  ]}
+                >
+                  ¿Deseas marcar este mantenimiento como realizado?
+                </Text>
+              </View>
+
+              <View style={styles.checkboxContainer}>
+                <TouchableOpacity
+                  style={styles.checkboxRow}
+                  onPress={() => setScheduleNext(!scheduleNext)}
+                >
+                  <View
+                    style={[
+                      styles.checkbox,
+                      scheduleNext && styles.checkboxChecked,
+                    ]}
+                  >
+                    {scheduleNext && (
+                      <Ionicons name="checkmark" size={16} color="#fff" />
+                    )}
+                  </View>
+                  <Text style={[styles.checkboxText, { color: colors.text }]}>
+                    Programar próximo mantenimiento
+                  </Text>
+                </TouchableOpacity>
+                {scheduleNext && (
+                  <Text
+                    style={[
+                      styles.checkboxHint,
+                      { color: colors.textSecondary },
+                    ]}
+                  >
+                    Se programará automáticamente basado en los días/kilómetros
+                    configurados
+                  </Text>
+                )}
+              </View>
+
+              <View style={styles.approveModalButtons}>
+                <TouchableOpacity
+                  style={[styles.approveModalButton, styles.cancelButton]}
+                  onPress={() => setApproveModalVisible(false)}
+                >
+                  <Text
+                    style={[
+                      styles.approveModalButtonText,
+                      { color: colors.text },
+                    ]}
+                  >
+                    Cancelar
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.approveModalButton, styles.confirmButton]}
+                  onPress={handleConfirmApprove}
+                >
+                  <Text
+                    style={[styles.approveModalButtonText, { color: "#fff" }]}
+                  >
+                    Confirmar
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
       </View>
     </DialogComponent>
   );
@@ -756,6 +943,94 @@ const styles = StyleSheet.create({
   modalImage: {
     width: "100%",
     height: "100%",
+  },
+  approveModalContainer: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  approveModalContent: {
+    borderRadius: 16,
+    padding: 24,
+    width: "100%",
+    maxWidth: 400,
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
+  approveModalHeader: {
+    alignItems: "center",
+    marginBottom: 24,
+  },
+  approveModalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  approveModalMessage: {
+    fontSize: 16,
+    textAlign: "center",
+    lineHeight: 22,
+  },
+  checkboxContainer: {
+    marginBottom: 24,
+  },
+  checkboxRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 8,
+  },
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderRadius: 4,
+    borderWidth: 2,
+    borderColor: COLORS.primary,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
+  },
+  checkboxChecked: {
+    backgroundColor: COLORS.primary,
+  },
+  checkboxText: {
+    fontSize: 16,
+    flex: 1,
+  },
+  checkboxHint: {
+    fontSize: 14,
+    marginTop: 8,
+    marginLeft: 36,
+    fontStyle: "italic",
+  },
+  approveModalButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 12,
+  },
+  approveModalButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  cancelButton: {
+    backgroundColor: "transparent",
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  confirmButton: {
+    backgroundColor: COLORS.success,
+  },
+  approveModalButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
   },
 });
 
