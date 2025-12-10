@@ -30,7 +30,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
   const [expenses, setExpenses] = useState([]);
   const [totalCost, setTotalCost] = useState(0);
   const [categoryStats, setCategoryStats] = useState([]);
-  const [showExpenses, setShowExpenses] = useState(false);
+  const [activeTab, setActiveTab] = useState("mantenimientos");
 
   useFocusEffect(
     React.useCallback(() => {
@@ -241,40 +241,84 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
             <TouchableOpacity
               style={[
                 styles.tab,
-                !showExpenses && styles.tabActive,
+                activeTab === "mantenimientos" && styles.tabActive,
                 {
-                  backgroundColor: !showExpenses
-                    ? colors.primary
-                    : colors.cardBackground,
+                  backgroundColor:
+                    activeTab === "mantenimientos"
+                      ? colors.primary
+                      : colors.cardBackground,
                 },
               ]}
-              onPress={() => setShowExpenses(false)}
+              onPress={() => setActiveTab("mantenimientos")}
             >
+              <Ionicons
+                name="construct"
+                size={24}
+                color={activeTab === "mantenimientos" ? "#fff" : colors.text}
+              />
               <Text
                 style={[
                   styles.tabText,
-                  { color: !showExpenses ? "#fff" : colors.text },
+                  {
+                    color:
+                      activeTab === "mantenimientos" ? "#fff" : colors.text,
+                  },
                 ]}
               >
-                Mantenimientos
+                Servicios
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[
                 styles.tab,
-                showExpenses && styles.tabActive,
+                activeTab === "reparaciones" && styles.tabActive,
                 {
-                  backgroundColor: showExpenses
-                    ? colors.primary
-                    : colors.cardBackground,
+                  backgroundColor:
+                    activeTab === "reparaciones"
+                      ? colors.primary
+                      : colors.cardBackground,
                 },
               ]}
-              onPress={() => setShowExpenses(true)}
+              onPress={() => setActiveTab("reparaciones")}
             >
+              <Ionicons
+                name="build"
+                size={24}
+                color={activeTab === "reparaciones" ? "#fff" : colors.text}
+              />
               <Text
                 style={[
                   styles.tabText,
-                  { color: showExpenses ? "#fff" : colors.text },
+                  {
+                    color: activeTab === "reparaciones" ? "#fff" : colors.text,
+                  },
+                ]}
+              >
+                Reparaciones
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.tab,
+                activeTab === "otros" && styles.tabActive,
+                {
+                  backgroundColor:
+                    activeTab === "otros"
+                      ? colors.primary
+                      : colors.cardBackground,
+                },
+              ]}
+              onPress={() => setActiveTab("otros")}
+            >
+              <Ionicons
+                name="cart"
+                size={24}
+                color={activeTab === "otros" ? "#fff" : colors.text}
+              />
+              <Text
+                style={[
+                  styles.tabText,
+                  { color: activeTab === "otros" ? "#fff" : colors.text },
                 ]}
               >
                 Otros
@@ -282,9 +326,9 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
             </TouchableOpacity>
           </View>
 
-          {!showExpenses ? (
+          {activeTab === "mantenimientos" &&
             // Mostrar Mantenimientos
-            maintenances.length === 0 ? (
+            (maintenances.length === 0 ? (
               <View style={styles.emptyState}>
                 <Ionicons
                   name="construct-outline"
@@ -352,105 +396,134 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                   )}
                 </View>
               ))
-            )
-          ) : // Mostrar Movimientos Particulares
-          expenses.length === 0 ? (
+            ))}
+
+          {activeTab === "reparaciones" && (
+            // Mostrar Reparaciones
             <View style={styles.emptyState}>
               <Ionicons
-                name="wallet-outline"
+                name="build-outline"
                 size={60}
                 color={colors.textSecondary}
               />
               <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-                No hay movimientos registrados
+                Reparaciones próximamente
               </Text>
               <Text
                 style={[styles.emptySubtext, { color: colors.textSecondary }]}
               >
-                Presiona el botón + para agregar un movimiento
+                Esta funcionalidad estará disponible en futuras actualizaciones
               </Text>
             </View>
-          ) : (
-            expenses.map((expense) => (
-              <View
-                key={expense.id}
-                style={[
-                  styles.maintenanceCard,
-                  {
-                    backgroundColor: colors.cardBackground,
-                    shadowColor: colors.shadow,
-                  },
-                ]}
-              >
-                <View style={styles.maintenanceHeader}>
-                  <View style={styles.maintenanceInfo}>
-                    <Ionicons
-                      name="wallet-outline"
-                      size={20}
-                      color={colors.primary}
-                    />
-                    <View style={{ flex: 1 }}>
-                      <Text
-                        style={[styles.maintenanceType, { color: colors.text }]}
-                      >
-                        {expense.description}
-                      </Text>
-                      {expense.category && (
-                        <Text
-                          style={[
-                            styles.expenseCategory,
-                            { color: colors.textSecondary },
-                          ]}
-                        >
-                          {expense.category}
-                        </Text>
-                      )}
-                    </View>
-                  </View>
-                  <TouchableOpacity
-                    onPress={() =>
-                      handleDeleteExpense(expense.id, expense.description)
-                    }
-                    style={styles.deleteButton}
-                  >
-                    <Ionicons
-                      name="trash-outline"
-                      size={20}
-                      color={COLORS.danger}
-                    />
-                  </TouchableOpacity>
-                  <Text
-                    style={[styles.maintenanceCost, { color: colors.primary }]}
-                  >
-                    {formatCurrency(expense.cost)}
-                  </Text>
-                </View>
+          )}
+
+          {activeTab === "otros" &&
+            // Mostrar Movimientos Particulares
+            (expenses.length === 0 ? (
+              <View style={styles.emptyState}>
+                <Ionicons
+                  name="wallet-outline"
+                  size={60}
+                  color={colors.textSecondary}
+                />
                 <Text
+                  style={[styles.emptyText, { color: colors.textSecondary }]}
+                >
+                  No hay movimientos registrados
+                </Text>
+                <Text
+                  style={[styles.emptySubtext, { color: colors.textSecondary }]}
+                >
+                  Presiona el botón + para agregar un movimiento
+                </Text>
+              </View>
+            ) : (
+              expenses.map((expense) => (
+                <View
+                  key={expense.id}
                   style={[
-                    styles.maintenanceDate,
-                    { color: colors.textSecondary },
+                    styles.maintenanceCard,
+                    {
+                      backgroundColor: colors.cardBackground,
+                      shadowColor: colors.shadow,
+                    },
                   ]}
                 >
-                  {formatDate(expense.date)}
-                </Text>
-                {expense.notes && (
+                  <View style={styles.maintenanceHeader}>
+                    <View style={styles.maintenanceInfo}>
+                      <Ionicons
+                        name="wallet-outline"
+                        size={20}
+                        color={colors.primary}
+                      />
+                      <View style={{ flex: 1 }}>
+                        <Text
+                          style={[
+                            styles.maintenanceType,
+                            { color: colors.text },
+                          ]}
+                        >
+                          {expense.description}
+                        </Text>
+                        {expense.category && (
+                          <Text
+                            style={[
+                              styles.expenseCategory,
+                              { color: colors.textSecondary },
+                            ]}
+                          >
+                            {expense.category}
+                          </Text>
+                        )}
+                      </View>
+                    </View>
+                    <TouchableOpacity
+                      onPress={() =>
+                        handleDeleteExpense(expense.id, expense.description)
+                      }
+                      style={styles.deleteButton}
+                    >
+                      <Ionicons
+                        name="trash-outline"
+                        size={20}
+                        color={COLORS.danger}
+                      />
+                    </TouchableOpacity>
+                    <Text
+                      style={[
+                        styles.maintenanceCost,
+                        { color: colors.primary },
+                      ]}
+                    >
+                      {formatCurrency(expense.cost)}
+                    </Text>
+                  </View>
                   <Text
                     style={[
-                      styles.maintenanceDescription,
+                      styles.maintenanceDate,
                       { color: colors.textSecondary },
                     ]}
-                    numberOfLines={2}
                   >
-                    {expense.notes}
+                    {formatDate(expense.date)}
                   </Text>
-                )}
-              </View>
-            ))
-          )}
+                  {expense.notes && (
+                    <Text
+                      style={[
+                        styles.maintenanceDescription,
+                        { color: colors.textSecondary },
+                      ]}
+                      numberOfLines={2}
+                    >
+                      {expense.notes}
+                    </Text>
+                  )}
+                </View>
+              ))
+            ))}
         </ScrollView>
 
         {/* Botón flotante para agregar gasto */}
-        {showExpenses && (
+        {activeTab === "otros" && (
           <TouchableOpacity
             style={styles.fab}
             onPress={() => navigation.navigate("AddExpense", { vehicleId })}
@@ -567,15 +640,16 @@ const styles = StyleSheet.create({
   },
   tabsContainer: {
     flexDirection: "row",
-    gap: 12,
+    gap: 8,
     marginBottom: 20,
   },
   tab: {
     flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
     borderRadius: 8,
     alignItems: "center",
+    gap: 4,
   },
   tabActive: {
     elevation: 2,
@@ -584,7 +658,7 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
   },
   tabText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "600",
   },
   viewAllText: {
