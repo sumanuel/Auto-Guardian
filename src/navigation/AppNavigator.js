@@ -9,6 +9,7 @@ import { useTheme } from "../context/ThemeContext";
 import AddContactScreen from "../screens/AddContactScreen";
 import AddExpenseScreen from "../screens/AddExpenseScreen";
 import AddMaintenanceScreen from "../screens/AddMaintenanceScreen";
+import AddRepairScreen from "../screens/AddRepairScreen";
 import AddVehicleScreen from "../screens/AddVehicleScreen";
 import CategoriesScreen from "../screens/CategoriesScreen";
 import ContactsScreen from "../screens/ContactsScreen";
@@ -127,7 +128,12 @@ const StatsStack = () => {
       <Stack.Screen
         name="AddExpense"
         component={AddExpenseScreen}
-        options={{ title: "Agregar Gasto" }}
+        options={{ title: "Agregar otro" }}
+      />
+      <Stack.Screen
+        name="AddRepair"
+        component={AddRepairScreen}
+        options={{ title: "Agregar Reparación" }}
       />
       <Stack.Screen
         name="MaintenanceHistory"

@@ -4,6 +4,7 @@ import * as contactService from "../services/contactService";
 import { initDatabase } from "../services/database";
 import * as maintenanceService from "../services/maintenanceService";
 import * as notificationService from "../services/notificationService";
+import * as repairService from "../services/repairService";
 import * as vehicleService from "../services/vehicleService";
 
 const AppContext = createContext();
@@ -451,6 +452,14 @@ export const AppProvider = ({ children }) => {
     getMaintenanceTypes,
     getUpcomingMaintenances,
     getMaintenanceStats,
+    // Repair functions
+    getVehicleRepairs: repairService.getRepairsByVehicle,
+    getAllRepairs: repairService.getAllRepairs,
+    addRepair: repairService.createRepair,
+    updateRepair: repairService.updateRepair,
+    removeRepair: repairService.deleteRepair,
+    getRepairStats: repairService.getRepairStats,
+    getRepairsByCategory: repairService.getRepairsByCategory,
     // Notification functions
     checkPendingMaintenances,
   };

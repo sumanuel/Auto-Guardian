@@ -16,6 +16,7 @@ import {
   deleteExpense,
   getExpensesByVehicle,
 } from "../services/expenseService";
+import { deleteRepair, getRepairsByVehicle } from "../services/repairService";
 import { formatDate } from "../utils/dateUtils";
 import { formatCurrency } from "../utils/formatUtils";
 import { getMaintenanceIcon } from "../utils/maintenanceIcons";
@@ -28,6 +29,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
   const [vehicle, setVehicle] = useState(null);
   const [maintenances, setMaintenances] = useState([]);
   const [expenses, setExpenses] = useState([]);
+  const [repairs, setRepairs] = useState([]);
   const [totalCost, setTotalCost] = useState(0);
   const [categoryStats, setCategoryStats] = useState([]);
   const [activeTab, setActiveTab] = useState("mantenimientos");
@@ -57,7 +59,11 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
     const vehicleExpenses = getExpensesByVehicle(vehicleId);
     setExpenses(vehicleExpenses);
 
-    // Calcular total (mantenimientos + movimientos)
+    // Obtener reparaciones
+    const vehicleRepairs = getRepairsByVehicle(vehicleId);
+    setRepairs(vehicleRepairs);
+
+    // Calcular total (mantenimientos + movimientos + reparaciones)
     const maintenanceTotal = vehicleMaintenances.reduce(
       (sum, m) => sum + (m.cost || 0),
       0
@@ -66,27 +72,58 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
       (sum, e) => sum + (e.cost || 0),
       0
     );
-    setTotalCost(maintenanceTotal + expenseTotal);
+    const repairTotal = vehicleRepairs.reduce(
+      (sum, r) => sum + (r.cost || 0),
+      0
+    );
+    setTotalCost(maintenanceTotal + expenseTotal + repairTotal);
 
-    // Agrupar por categoría
-    const categories = {};
-    vehicleMaintenances.forEach((m) => {
-      const category = m.type || "Otros";
-      if (!categories[category]) {
-        categories[category] = {
-          name: category,
-          total: 0,
-          count: 0,
-        };
-      }
-      categories[category].total += m.cost || 0;
-      categories[category].count += 1;
-    });
+    // Calcular estadísticas de servicios, reparaciones y otros
+    const stats = [];
 
-    const categoryArray = Object.values(categories)
-      .filter((cat) => cat.total > 0)
-      .sort((a, b) => b.total - a.total);
-    setCategoryStats(categoryArray);
+    // Servicios (mantenimientos con costo)
+    const servicesWithCost = vehicleMaintenances.filter(
+      (m) => m.cost && m.cost > 0
+    );
+    const servicesTotal = servicesWithCost.reduce(
+      (sum, m) => sum + (m.cost || 0),
+      0
+    );
+    if (servicesWithCost.length > 0) {
+      stats.push({
+        name: "Servicios",
+        total: servicesTotal,
+        count: servicesWithCost.length,
+      });
+    }
+
+    // Reparaciones
+    const repairsTotal = vehicleRepairs.reduce(
+      (sum, r) => sum + (r.cost || 0),
+      0
+    );
+    if (vehicleRepairs.length > 0) {
+      stats.push({
+        name: "Reparaciones",
+        total: repairsTotal,
+        count: vehicleRepairs.length,
+      });
+    }
+
+    // Otros (gastos)
+    const expensesTotal = vehicleExpenses.reduce(
+      (sum, e) => sum + (e.cost || 0),
+      0
+    );
+    if (vehicleExpenses.length > 0) {
+      stats.push({
+        name: "Otros",
+        total: expensesTotal,
+        count: vehicleExpenses.length,
+      });
+    }
+
+    setCategoryStats(stats);
   };
 
   const handleDeleteExpense = (expenseId, description) => {
@@ -112,6 +149,38 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
               showDialog({
                 title: "Error",
                 message: "No se pudo eliminar el movimiento",
+                type: "error",
+              });
+            }
+          },
+        },
+      ],
+    });
+  };
+
+  const handleDeleteRepair = (repairId, description) => {
+    showDialog({
+      title: "Eliminar reparación",
+      message: `¿Deseas eliminar la reparación "${description}"?`,
+      type: "confirm",
+      buttons: [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Eliminar",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await deleteRepair(repairId);
+              loadData();
+              showDialog({
+                title: "Eliminado",
+                message: "La reparación fue eliminada correctamente.",
+                type: "success",
+              });
+            } catch (error) {
+              showDialog({
+                title: "Error",
+                message: "No se pudo eliminar la reparación",
                 type: "error",
               });
             }
@@ -327,8 +396,8 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
           </View>
 
           {activeTab === "mantenimientos" &&
-            // Mostrar Mantenimientos
-            (maintenances.length === 0 ? (
+            // Mostrar Mantenimientos (solo los que tienen costo)
+            (maintenances.filter((m) => m.cost && m.cost > 0).length === 0 ? (
               <View style={styles.emptyState}>
                 <Ionicons
                   name="construct-outline"
@@ -342,9 +411,92 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                 </Text>
               </View>
             ) : (
-              maintenances.slice(0, 5).map((maintenance) => (
+              maintenances
+                .filter((m) => m.cost && m.cost > 0)
+                .slice(0, 5)
+                .map((maintenance) => (
+                  <View
+                    key={maintenance.id}
+                    style={[
+                      styles.maintenanceCard,
+                      {
+                        backgroundColor: colors.cardBackground,
+                        shadowColor: colors.shadow,
+                      },
+                    ]}
+                  >
+                    <View style={styles.maintenanceHeader}>
+                      <View style={styles.maintenanceInfo}>
+                        <Ionicons
+                          name={getMaintenanceIcon(maintenance.type)}
+                          size={20}
+                          color={colors.primary}
+                        />
+                        <Text
+                          style={[
+                            styles.maintenanceType,
+                            { color: colors.text },
+                          ]}
+                        >
+                          {maintenance.type}
+                        </Text>
+                      </View>
+                      <Text
+                        style={[
+                          styles.maintenanceCost,
+                          { color: colors.primary },
+                        ]}
+                      >
+                        {formatCurrency(maintenance.cost)}
+                      </Text>
+                    </View>
+                    <Text
+                      style={[
+                        styles.maintenanceDate,
+                        { color: colors.textSecondary },
+                      ]}
+                    >
+                      {formatDate(maintenance.date)}
+                    </Text>
+                    {maintenance.description && (
+                      <Text
+                        style={[
+                          styles.maintenanceDescription,
+                          { color: colors.textSecondary },
+                        ]}
+                        numberOfLines={2}
+                      >
+                        {maintenance.description}
+                      </Text>
+                    )}
+                  </View>
+                ))
+            ))}
+
+          {activeTab === "reparaciones" &&
+            // Mostrar Reparaciones
+            (repairs.length === 0 ? (
+              <View style={styles.emptyState}>
+                <Ionicons
+                  name="build-outline"
+                  size={60}
+                  color={colors.textSecondary}
+                />
+                <Text
+                  style={[styles.emptyText, { color: colors.textSecondary }]}
+                >
+                  No hay reparaciones registradas
+                </Text>
+                <Text
+                  style={[styles.emptySubtext, { color: colors.textSecondary }]}
+                >
+                  Presiona el botón + para agregar una reparación
+                </Text>
+              </View>
+            ) : (
+              repairs.map((repair) => (
                 <View
-                  key={maintenance.id}
+                  key={repair.id}
                   style={[
                     styles.maintenanceCard,
                     {
@@ -356,23 +508,50 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                   <View style={styles.maintenanceHeader}>
                     <View style={styles.maintenanceInfo}>
                       <Ionicons
-                        name={getMaintenanceIcon(maintenance.type)}
+                        name="build-outline"
                         size={20}
                         color={colors.primary}
                       />
-                      <Text
-                        style={[styles.maintenanceType, { color: colors.text }]}
-                      >
-                        {maintenance.type}
-                      </Text>
+                      <View style={{ flex: 1 }}>
+                        <Text
+                          style={[
+                            styles.maintenanceType,
+                            { color: colors.text },
+                          ]}
+                        >
+                          {repair.description}
+                        </Text>
+                        {repair.workshop && (
+                          <Text
+                            style={[
+                              styles.expenseCategory,
+                              { color: colors.textSecondary },
+                            ]}
+                          >
+                            🔧 {repair.workshop}
+                          </Text>
+                        )}
+                      </View>
                     </View>
+                    <TouchableOpacity
+                      onPress={() =>
+                        handleDeleteRepair(repair.id, repair.description)
+                      }
+                      style={styles.deleteButton}
+                    >
+                      <Ionicons
+                        name="trash-outline"
+                        size={20}
+                        color={COLORS.danger}
+                      />
+                    </TouchableOpacity>
                     <Text
                       style={[
                         styles.maintenanceCost,
                         { color: colors.primary },
                       ]}
                     >
-                      {formatCurrency(maintenance.cost)}
+                      {formatCurrency(repair.cost)}
                     </Text>
                   </View>
                   <Text
@@ -381,9 +560,9 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                       { color: colors.textSecondary },
                     ]}
                   >
-                    {formatDate(maintenance.date)}
+                    {formatDate(repair.date)}
                   </Text>
-                  {maintenance.description && (
+                  {repair.notes && (
                     <Text
                       style={[
                         styles.maintenanceDescription,
@@ -391,31 +570,12 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                       ]}
                       numberOfLines={2}
                     >
-                      {maintenance.description}
+                      {repair.notes}
                     </Text>
                   )}
                 </View>
               ))
             ))}
-
-          {activeTab === "reparaciones" && (
-            // Mostrar Reparaciones
-            <View style={styles.emptyState}>
-              <Ionicons
-                name="build-outline"
-                size={60}
-                color={colors.textSecondary}
-              />
-              <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-                Reparaciones próximamente
-              </Text>
-              <Text
-                style={[styles.emptySubtext, { color: colors.textSecondary }]}
-              >
-                Esta funcionalidad estará disponible en futuras actualizaciones
-              </Text>
-            </View>
-          )}
 
           {activeTab === "otros" &&
             // Mostrar Movimientos Particulares
@@ -522,11 +682,15 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
             ))}
         </ScrollView>
 
-        {/* Botón flotante para agregar gasto */}
-        {activeTab === "otros" && (
+        {/* Botón flotante para agregar gasto o reparación */}
+        {(activeTab === "otros" || activeTab === "reparaciones") && (
           <TouchableOpacity
             style={styles.fab}
-            onPress={() => navigation.navigate("AddExpense", { vehicleId })}
+            onPress={() =>
+              activeTab === "otros"
+                ? navigation.navigate("AddExpense", { vehicleId })
+                : navigation.navigate("AddRepair", { vehicleId })
+            }
             activeOpacity={0.8}
           >
             <Ionicons name="add" size={30} color="#fff" />
