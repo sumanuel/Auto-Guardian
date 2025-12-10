@@ -231,8 +231,9 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
             <Text style={styles.totalSubtitle}>
               {maintenances.length}{" "}
               {maintenances.length === 1 ? "mantenimiento" : "mantenimientos"} •{" "}
-              {expenses.length}{" "}
-              {expenses.length === 1 ? "movimiento" : "movimientos"}
+              {repairs.length}{" "}
+              {repairs.length === 1 ? "reparación" : "reparaciones"} •{" "}
+              {expenses.length} {expenses.length === 1 ? "otro" : "otros"}
             </Text>
           </View>
 
