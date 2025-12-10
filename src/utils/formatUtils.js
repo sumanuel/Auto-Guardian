@@ -79,10 +79,16 @@ export const getUrgencyText = (urgency) => {
 export const formatDaysRemaining = (nextServiceDate) => {
   if (!nextServiceDate) return null;
 
-  const nextDate = new Date(nextServiceDate.split("T")[0]);
+  const nextDateStr = nextServiceDate.split("T")[0];
+  const nextDate = new Date(nextDateStr + "T00:00:00");
+
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const daysRemaining = Math.floor((nextDate - today) / (1000 * 60 * 60 * 24));
+  const todayStr = today.toISOString().split("T")[0];
+  const todayDate = new Date(todayStr + "T00:00:00");
+
+  const daysRemaining = Math.floor(
+    (nextDate - todayDate) / (1000 * 60 * 60 * 24)
+  );
 
   if (daysRemaining < 0) {
     return `Vencido hace ${Math.abs(daysRemaining)} día${
