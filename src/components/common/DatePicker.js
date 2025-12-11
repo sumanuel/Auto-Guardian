@@ -1,6 +1,6 @@
-import React from "react";
-import { View, Text, StyleSheet, Platform } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import React from "react";
+import { Platform, StyleSheet, Text, View } from "react-native";
 import { formatDate } from "../../utils/dateUtils";
 import Button from "./Button";
 
@@ -8,11 +8,28 @@ const DatePicker = ({ value, onChange, label, style }) => {
   const [show, setShow] = React.useState(false);
   const [date, setDate] = React.useState(value || new Date());
 
+  React.useEffect(() => {
+    if (value) {
+      setDate(value);
+    }
+  }, [value]);
+
   const onChangeInternal = (event, selectedDate) => {
-    setShow(Platform.OS === "ios");
-    if (selectedDate) {
-      setDate(selectedDate);
-      onChange(selectedDate);
+    const currentDate = selectedDate || date;
+
+    if (Platform.OS === "android") {
+      setShow(false);
+      if (selectedDate) {
+        setDate(currentDate);
+        onChange(currentDate);
+      }
+    } else {
+      // iOS
+      setShow(Platform.OS === "ios");
+      if (selectedDate) {
+        setDate(currentDate);
+        onChange(currentDate);
+      }
     }
   };
 
@@ -28,7 +45,7 @@ const DatePicker = ({ value, onChange, label, style }) => {
         <DateTimePicker
           value={date}
           mode="date"
-          display="default"
+          display={Platform.OS === "ios" ? "default" : "spinner"}
           onChange={onChangeInternal}
         />
       )}

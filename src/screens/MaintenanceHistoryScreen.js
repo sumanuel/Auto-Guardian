@@ -1,11 +1,15 @@
 import { Ionicons } from "@expo/vector-icons";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { useEffect, useState } from "react";
 import {
   FlatList,
   Image,
   Modal,
+  Platform,
+  ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -44,6 +48,15 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
   const [approveModalVisible, setApproveModalVisible] = useState(false);
   const [selectedMaintenance, setSelectedMaintenance] = useState(null);
   const [scheduleNext, setScheduleNext] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    date: new Date(),
+    cost: "",
+    provider: "",
+    notes: "",
+    photo: null,
+  });
 
   const openImageModal = (imageUri) => {
     setSelectedImage(imageUri);
@@ -179,10 +192,66 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
   const handleEdit = (id) => {
     const maintenanceToEdit = maintenances.find((item) => item.id === id);
     if (maintenanceToEdit) {
-      navigation.navigate("AddMaintenance", {
-        vehicleId: maintenanceToEdit.vehicleId,
-        quickType: maintenanceToEdit.type,
-        maintenanceData: maintenanceToEdit, // Pass the full maintenance data for editing
+      if (isCompleted(maintenanceToEdit)) {
+        // For completed maintenances, open edit modal
+        setSelectedMaintenance(maintenanceToEdit);
+
+        // Parse completedAt date correctly (this is the date shown in the list)
+        let dateValue = new Date();
+        if (maintenanceToEdit.completedAt) {
+          const parsedDate = new Date(maintenanceToEdit.completedAt);
+          if (!isNaN(parsedDate.getTime())) {
+            dateValue = parsedDate;
+          }
+        }
+
+        setEditFormData({
+          date: dateValue,
+          cost: maintenanceToEdit.cost ? maintenanceToEdit.cost.toString() : "",
+          provider: maintenanceToEdit.provider || "",
+          notes: maintenanceToEdit.notes || "",
+          photo: maintenanceToEdit.photo || null,
+        });
+        setEditModalVisible(true);
+      } else {
+        // For in-progress maintenances, navigate to AddMaintenance screen
+        navigation.navigate("AddMaintenance", {
+          vehicleId: maintenanceToEdit.vehicleId,
+          quickType: maintenanceToEdit.type,
+          maintenanceData: maintenanceToEdit, // Pass the full maintenance data for editing
+        });
+      }
+    }
+  };
+
+  const handleSaveEdit = async () => {
+    if (!selectedMaintenance) return;
+
+    try {
+      const updatedData = {
+        ...selectedMaintenance,
+        completedAt: editFormData.date.toISOString(), // Update completedAt with the edited date
+        cost: editFormData.cost ? parseFloat(editFormData.cost) : null,
+        provider: editFormData.provider || null,
+        notes: editFormData.notes || null,
+        photo: editFormData.photo || null,
+      };
+
+      await updateMaintenance(selectedMaintenance.id, updatedData);
+      setEditModalVisible(false);
+      setSelectedMaintenance(null);
+      loadMaintenances();
+      showDialog({
+        title: "Actualizado",
+        message: "Los datos del mantenimiento han sido actualizados.",
+        type: "success",
+      });
+    } catch (error) {
+      console.error("Error updating maintenance:", error);
+      showDialog({
+        title: "Error",
+        message: "No se pudieron actualizar los datos.",
+        type: "error",
       });
     }
   };
@@ -345,6 +414,18 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
                 />
               </TouchableOpacity>
             </>
+          )}
+          {isCompleted(item) && (
+            <TouchableOpacity
+              onPress={() => handleEdit(item.id)}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <Ionicons
+                name="create-outline"
+                size={20}
+                color={COLORS.warning}
+              />
+            </TouchableOpacity>
           )}
           <TouchableOpacity
             onPress={() => handleDelete(item.id, item.type)}
@@ -744,6 +825,253 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
           </View>
         </Modal>
       </View>
+
+      {/* Edit Modal for completed maintenances */}
+      <Modal
+        visible={editModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setEditModalVisible(false)}
+      >
+        <View style={styles.editModalOverlay}>
+          <View
+            style={[
+              styles.editModalContent,
+              { backgroundColor: colors.background },
+            ]}
+          >
+            <View style={styles.editModalHeader}>
+              <Text style={[styles.editModalTitle, { color: colors.text }]}>
+                Editar mantenimiento
+              </Text>
+              <TouchableOpacity onPress={() => setEditModalVisible(false)}>
+                <Ionicons name="close" size={24} color={colors.text} />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.editModalBody}>
+              <ScrollView
+                style={styles.editModalScroll}
+                contentContainerStyle={styles.editModalScrollContent}
+              >
+                {/* Date */}
+                <View style={styles.inputGroup}>
+                  <Text style={[styles.label, { color: colors.text }]}>
+                    Fecha
+                  </Text>
+                  <TouchableOpacity
+                    key={`date-${editFormData.date?.getTime()}`}
+                    style={[
+                      styles.dateButton,
+                      {
+                        backgroundColor: colors.inputBackground,
+                        borderColor: colors.border,
+                      },
+                    ]}
+                    onPress={() => setShowDatePicker(true)}
+                  >
+                    <Ionicons
+                      name="calendar-outline"
+                      size={20}
+                      color={colors.primary}
+                    />
+                    <Text
+                      style={[styles.dateButtonText, { color: colors.text }]}
+                    >
+                      {formatDate(editFormData.date)}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+
+                {/* Cost */}
+                <View style={[styles.inputGroup, styles.costInputGroup]}>
+                  <Text style={[styles.label, { color: colors.text }]}>
+                    Costo
+                  </Text>
+                  <TextInput
+                    style={[
+                      styles.input,
+                      {
+                        backgroundColor: colors.inputBackground,
+                        borderColor: colors.border,
+                        color: colors.text,
+                      },
+                    ]}
+                    value={editFormData.cost}
+                    onChangeText={(value) =>
+                      setEditFormData((prev) => ({ ...prev, cost: value }))
+                    }
+                    placeholder="0.00"
+                    placeholderTextColor={colors.textSecondary}
+                    keyboardType="decimal-pad"
+                  />
+                </View>
+
+                {/* Provider */}
+                <View style={styles.inputGroup}>
+                  <Text style={[styles.label, { color: colors.text }]}>
+                    Taller/Proveedor
+                  </Text>
+                  <TextInput
+                    style={[
+                      styles.input,
+                      {
+                        backgroundColor: colors.inputBackground,
+                        borderColor: colors.border,
+                        color: colors.text,
+                      },
+                    ]}
+                    value={editFormData.provider}
+                    onChangeText={(value) =>
+                      setEditFormData((prev) => ({ ...prev, provider: value }))
+                    }
+                    placeholder="Nombre del taller"
+                    placeholderTextColor={colors.textSecondary}
+                  />
+                </View>
+
+                {/* Notes */}
+                <View style={styles.inputGroup}>
+                  <Text style={[styles.label, { color: colors.text }]}>
+                    Notas
+                  </Text>
+                  <TextInput
+                    style={[
+                      styles.input,
+                      styles.textArea,
+                      {
+                        backgroundColor: colors.inputBackground,
+                        borderColor: colors.border,
+                        color: colors.text,
+                      },
+                    ]}
+                    value={editFormData.notes}
+                    onChangeText={(value) =>
+                      setEditFormData((prev) => ({ ...prev, notes: value }))
+                    }
+                    placeholder="Notas adicionales"
+                    placeholderTextColor={colors.textSecondary}
+                    multiline
+                    numberOfLines={4}
+                  />
+                </View>
+
+                {/* Photo - Temporarily hidden */}
+                {/*
+                <View style={styles.inputGroup}>
+                  <Text style={[styles.label, { color: colors.text }]}>
+                    Foto del recibo
+                  </Text>
+                  {editFormData.photo && (
+                    <Image
+                      source={{ uri: editFormData.photo }}
+                      style={styles.photoPreview}
+                    />
+                  )}
+                  <View style={styles.photoActions}>
+                    <TouchableOpacity
+                      style={styles.photoButton}
+                      onPress={async () => {
+                        const { status } =
+                          await ImagePicker.requestCameraPermissionsAsync();
+                        if (status !== "granted") {
+                          showDialog({
+                            title: "Permiso denegado",
+                            message:
+                              "Necesitamos permiso para acceder a la cámara",
+                            type: "warning",
+                          });
+                          return;
+                        }
+                        const result = await ImagePicker.launchCameraAsync({
+                          allowsEditing: true,
+                          quality: 0.8,
+                        });
+                        if (!result.canceled) {
+                          setEditFormData((prev) => ({
+                            ...prev,
+                            photo: result.assets[0].uri,
+                          }));
+                        }
+                      }}
+                    >
+                      <Button title="Tomar foto" variant="secondary" />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.photoButton}
+                      onPress={async () => {
+                        const { status } =
+                          await ImagePicker.requestMediaLibraryPermissionsAsync();
+                        if (status !== "granted") {
+                          showDialog({
+                            title: "Permiso denegado",
+                            message:
+                              "Necesitamos permiso para acceder a tus fotos",
+                            type: "warning",
+                          });
+                          return;
+                        }
+                        const result =
+                          await ImagePicker.launchImageLibraryAsync({
+                            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                            allowsEditing: true,
+                            quality: 0.8,
+                          });
+                        if (!result.canceled) {
+                          setEditFormData((prev) => ({
+                            ...prev,
+                            photo: result.assets[0].uri,
+                          }));
+                        }
+                      }}
+                    >
+                      <Button title="Elegir de galería" variant="secondary" />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+                */}
+              </ScrollView>
+            </View>
+
+            <View style={styles.editModalFooter}>
+              <TouchableOpacity
+                style={styles.editModalCancelButton}
+                onPress={() => setEditModalVisible(false)}
+              >
+                <Text
+                  style={[
+                    styles.editModalCancelText,
+                    { color: colors.primary },
+                  ]}
+                >
+                  Cancelar
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.editModalSaveButton}
+                onPress={handleSaveEdit}
+              >
+                <Text style={styles.editModalSaveText}>Guardar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* DateTimePicker separado para evitar conflictos con el modal */}
+      {showDatePicker && (
+        <DateTimePicker
+          value={editFormData.date}
+          mode="date"
+          display={Platform.OS === "ios" ? "spinner" : "default"}
+          onChange={(event, selectedDate) => {
+            setShowDatePicker(Platform.OS === "ios");
+            if (selectedDate) {
+              setEditFormData((prev) => ({ ...prev, date: selectedDate }));
+            }
+          }}
+        />
+      )}
     </DialogComponent>
   );
 };
@@ -1031,6 +1359,124 @@ const styles = StyleSheet.create({
   approveModalButtonText: {
     fontSize: 16,
     fontWeight: "600",
+  },
+  editModalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  editModalContent: {
+    borderRadius: 16,
+    padding: 24,
+    width: "100%",
+    maxWidth: 400,
+    maxHeight: "80%",
+    flex: 1,
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
+  editModalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  editModalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  editModalScroll: {
+    flex: 1,
+  },
+  editModalScrollContent: {
+    flexGrow: 1,
+  },
+  editModalBody: {
+    flex: 1,
+  },
+  inputGroup: {
+    marginBottom: 20,
+  },
+  costInputGroup: {
+    marginBottom: 20,
+    marginTop: -5,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 8,
+  },
+  input: {
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+  },
+  textArea: {
+    height: 80,
+    textAlignVertical: "top",
+  },
+  photoPreview: {
+    width: "100%",
+    height: 200,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  photoActions: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  photoButton: {
+    flex: 1,
+  },
+  editModalFooter: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 20,
+    gap: 12,
+  },
+  editModalCancelButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  editModalCancelText: {
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  dateButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+  },
+  dateButtonText: {
+    fontSize: 16,
+  },
+  editModalSaveButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    alignItems: "center",
+    backgroundColor: COLORS.primary,
+  },
+  editModalSaveText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "white",
   },
 });
 

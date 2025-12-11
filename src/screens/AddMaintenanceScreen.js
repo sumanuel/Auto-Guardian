@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import {
   Image,
   KeyboardAvoidingView,
+  Modal,
   Platform,
   ScrollView,
   StyleSheet,
@@ -33,6 +34,14 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
   const [showOptionalFields, setShowOptionalFields] = useState(
     !!maintenanceData
   );
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    date: new Date(),
+    cost: "",
+    provider: "",
+    notes: "",
+    photo: null,
+  });
 
   const [formData, setFormData] = useState({
     vehicleId,
@@ -122,6 +131,17 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
     }
   }, [maintenanceData]);
 
+  const handleEdit = () => {
+    setEditFormData({
+      date: formData.date,
+      cost: formData.cost,
+      provider: formData.provider,
+      notes: formData.notes,
+      photo: formData.photo,
+    });
+    setEditModalVisible(true);
+  };
+
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
@@ -141,6 +161,18 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
     }));
   };
 
+  const handleSaveEdit = () => {
+    setFormData((prev) => ({
+      ...prev,
+      date: editFormData.date,
+      cost: editFormData.cost,
+      provider: editFormData.provider,
+      notes: editFormData.notes,
+      photo: editFormData.photo,
+    }));
+    setEditModalVisible(false);
+  };
+
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
@@ -153,7 +185,7 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
       return;
     }
 
-    const result = await ImagePicker.launchImagePickerAsync({
+    const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 0.8,
@@ -518,28 +550,40 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
             </>
           )}
 
-          {/* Botón desplegable para campos opcionales */}
-          <TouchableOpacity
-            style={[
-              styles.optionalToggle,
-              {
-                backgroundColor: colors.cardBackground,
-                borderColor: colors.border,
-              },
-            ]}
-            onPress={() => setShowOptionalFields(!showOptionalFields)}
-          >
-            <Text
-              style={[styles.optionalToggleText, { color: colors.primary }]}
+          {/* Botón desplegable para campos opcionales o ícono de editar */}
+          {maintenanceData ? (
+            <TouchableOpacity
+              style={styles.editIconContainer}
+              onPress={handleEdit}
             >
-              Mostrar opciones
-            </Text>
-            <Ionicons
-              name={showOptionalFields ? "chevron-up" : "chevron-down"}
-              size={20}
-              color={colors.primary}
-            />
-          </TouchableOpacity>
+              <Ionicons name="pencil" size={24} color={colors.primary} />
+              <Text style={[styles.editIconText, { color: colors.primary }]}>
+                Editar datos
+              </Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              style={[
+                styles.optionalToggle,
+                {
+                  backgroundColor: colors.cardBackground,
+                  borderColor: colors.border,
+                },
+              ]}
+              onPress={() => setShowOptionalFields(!showOptionalFields)}
+            >
+              <Text
+                style={[styles.optionalToggleText, { color: colors.primary }]}
+              >
+                Mostrar opciones
+              </Text>
+              <Ionicons
+                name={showOptionalFields ? "chevron-up" : "chevron-down"}
+                size={20}
+                color={colors.primary}
+              />
+            </TouchableOpacity>
+          )}
 
           {/* Campos opcionales desplegables */}
           {showOptionalFields && (
@@ -664,6 +708,216 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
           />
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Edit Modal */}
+      <Modal
+        visible={editModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setEditModalVisible(false)}
+      >
+        <View style={styles.editModalOverlay}>
+          <View
+            style={[
+              styles.editModalContent,
+              { backgroundColor: colors.background },
+            ]}
+          >
+            <View style={styles.editModalHeader}>
+              <Text style={[styles.editModalTitle, { color: colors.text }]}>
+                Editar mantenimiento
+              </Text>
+              <TouchableOpacity onPress={() => setEditModalVisible(false)}>
+                <Ionicons name="close" size={24} color={colors.text} />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView style={styles.editModalScroll}>
+              {/* Date */}
+              <View style={styles.inputGroup}>
+                <Text style={[styles.label, { color: colors.text }]}>
+                  Fecha
+                </Text>
+                <DatePicker
+                  key={`modal-date-${editFormData.date?.getTime()}`}
+                  label="Fecha"
+                  value={editFormData.date}
+                  onChange={(date) =>
+                    setEditFormData((prev) => ({ ...prev, date }))
+                  }
+                />
+              </View>
+
+              {/* Cost */}
+              <View style={styles.inputGroup}>
+                <Text style={[styles.label, { color: colors.text }]}>
+                  Costo
+                </Text>
+                <TextInput
+                  style={[
+                    styles.input,
+                    {
+                      backgroundColor: colors.inputBackground,
+                      borderColor: colors.border,
+                      color: colors.text,
+                    },
+                  ]}
+                  value={editFormData.cost}
+                  onChangeText={(value) =>
+                    setEditFormData((prev) => ({ ...prev, cost: value }))
+                  }
+                  placeholder="0.00"
+                  placeholderTextColor={colors.textSecondary}
+                  keyboardType="decimal-pad"
+                />
+              </View>
+
+              {/* Provider */}
+              <View style={styles.inputGroup}>
+                <Text style={[styles.label, { color: colors.text }]}>
+                  Taller/Proveedor
+                </Text>
+                <TextInput
+                  style={[
+                    styles.input,
+                    {
+                      backgroundColor: colors.inputBackground,
+                      borderColor: colors.border,
+                      color: colors.text,
+                    },
+                  ]}
+                  value={editFormData.provider}
+                  onChangeText={(value) =>
+                    setEditFormData((prev) => ({ ...prev, provider: value }))
+                  }
+                  placeholder="Nombre del taller"
+                  placeholderTextColor={colors.textSecondary}
+                />
+              </View>
+
+              {/* Notes */}
+              <View style={styles.inputGroup}>
+                <Text style={[styles.label, { color: colors.text }]}>
+                  Notas
+                </Text>
+                <TextInput
+                  style={[
+                    styles.input,
+                    styles.textArea,
+                    {
+                      backgroundColor: colors.inputBackground,
+                      borderColor: colors.border,
+                      color: colors.text,
+                    },
+                  ]}
+                  value={editFormData.notes}
+                  onChangeText={(value) =>
+                    setEditFormData((prev) => ({ ...prev, notes: value }))
+                  }
+                  placeholder="Notas adicionales"
+                  placeholderTextColor={colors.textSecondary}
+                  multiline
+                  numberOfLines={4}
+                />
+              </View>
+
+              {/* Photo */}
+              <View style={styles.inputGroup}>
+                <Text style={[styles.label, { color: colors.text }]}>
+                  Foto del recibo
+                </Text>
+                {editFormData.photo && (
+                  <Image
+                    source={{ uri: editFormData.photo }}
+                    style={styles.photoPreview}
+                  />
+                )}
+                <View style={styles.photoActions}>
+                  <TouchableOpacity
+                    style={styles.photoButton}
+                    onPress={async () => {
+                      const { status } =
+                        await ImagePicker.requestCameraPermissionsAsync();
+                      if (status !== "granted") {
+                        showDialog({
+                          title: "Permiso denegado",
+                          message:
+                            "Necesitamos permiso para acceder a la cámara",
+                          type: "warning",
+                        });
+                        return;
+                      }
+                      const result = await ImagePicker.launchCameraAsync({
+                        allowsEditing: true,
+                        quality: 0.8,
+                      });
+                      if (!result.canceled) {
+                        setEditFormData((prev) => ({
+                          ...prev,
+                          photo: result.assets[0].uri,
+                        }));
+                      }
+                    }}
+                  >
+                    <Button title="Tomar foto" variant="secondary" />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.photoButton}
+                    onPress={async () => {
+                      const { status } =
+                        await ImagePicker.requestMediaLibraryPermissionsAsync();
+                      if (status !== "granted") {
+                        showDialog({
+                          title: "Permiso denegado",
+                          message:
+                            "Necesitamos permiso para acceder a tus fotos",
+                          type: "warning",
+                        });
+                        return;
+                      }
+                      const result = await ImagePicker.launchImageLibraryAsync({
+                        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                        allowsEditing: true,
+                        quality: 0.8,
+                      });
+                      if (!result.canceled) {
+                        setEditFormData((prev) => ({
+                          ...prev,
+                          photo: result.assets[0].uri,
+                        }));
+                      }
+                    }}
+                  >
+                    <Button title="Elegir de galería" variant="secondary" />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </ScrollView>
+
+            <View style={styles.editModalFooter}>
+              <TouchableOpacity
+                style={styles.editModalCancelButton}
+                onPress={() => setEditModalVisible(false)}
+              >
+                <Text
+                  style={[
+                    styles.editModalCancelText,
+                    { color: colors.primary },
+                  ]}
+                >
+                  Cancelar
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.editModalSaveButton}
+                onPress={handleSaveEdit}
+              >
+                <Text style={styles.editModalSaveText}>Guardar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </DialogComponent>
   );
 };
@@ -780,6 +1034,82 @@ const styles = StyleSheet.create({
   submitButton: {
     marginTop: 16,
     marginBottom: 32,
+  },
+  editIconContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 12,
+    marginBottom: 16,
+  },
+  editIconText: {
+    fontSize: 16,
+    fontWeight: "500",
+    marginLeft: 8,
+  },
+  editModalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  editModalContent: {
+    borderRadius: 16,
+    padding: 24,
+    width: "100%",
+    maxWidth: 400,
+    maxHeight: "80%",
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
+  editModalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  editModalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  editModalScroll: {
+    flex: 1,
+  },
+  editModalFooter: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 20,
+    gap: 12,
+  },
+  editModalCancelButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  editModalCancelText: {
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  editModalSaveButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    alignItems: "center",
+    backgroundColor: COLORS.primary,
+  },
+  editModalSaveText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "white",
   },
 });
 
