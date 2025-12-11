@@ -4,7 +4,9 @@ import { useRef, useState } from "react";
 import {
   Alert,
   FlatList,
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -63,10 +65,26 @@ const AddContactScreen = ({ navigation, route }) => {
   const [searchText, setSearchText] = useState("");
 
   // Referencias para navegación entre campos
+  const scrollViewRef = useRef(null);
   const aliasRef = useRef(null);
   const nombreRef = useRef(null);
   const telefonoRef = useRef(null);
   const correoRef = useRef(null);
+
+  const scrollToInput = (inputRef) => {
+    if (inputRef.current && scrollViewRef.current) {
+      inputRef.current.measureLayout(
+        scrollViewRef.current,
+        (x, y) => {
+          scrollViewRef.current.scrollTo({
+            y: y - 150,
+            animated: true,
+          });
+        },
+        () => {}
+      );
+    }
+  };
 
   const importContacts = async () => {
     try {
@@ -227,290 +245,309 @@ const AddContactScreen = ({ navigation, route }) => {
 
   return (
     <DialogComponent>
-      <ScrollView
-        style={[styles.container, { backgroundColor: colors.background }]}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
       >
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
-            <Ionicons name="arrow-back" size={24} color={colors.text} />
-          </TouchableOpacity>
-          <Text style={[styles.title, { color: colors.text }]}>
-            {isEditing ? "Editar Contacto" : "Agregar Contacto"}
-          </Text>
-        </View>
-
-        <TouchableOpacity
-          style={[styles.importButton, { borderColor: colors.primary }]}
-          onPress={importContacts}
+        <ScrollView
+          ref={scrollViewRef}
+          style={[styles.container, { backgroundColor: colors.background }]}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          <Ionicons name="person-add" size={20} color={colors.primary} />
-          <Text style={[styles.importButtonText, { color: colors.primary }]}>
-            Importar desde Contactos
-          </Text>
-        </TouchableOpacity>
-
-        <View style={styles.form}>
-          <View style={styles.inputContainer}>
-            <Text style={[styles.label, { color: colors.text }]}>Alias</Text>
-            <TextInput
-              ref={aliasRef}
-              style={[
-                styles.input,
-                { color: colors.text, borderColor: colors.text },
-              ]}
-              value={formData.alias}
-              onChangeText={(value) => handleInputChange("alias", value)}
-              placeholder="Ej: Mecanico de confianza, Proveedor, etc."
-              placeholderTextColor={colors.text + "80"}
-              returnKeyType="next"
-              onSubmitEditing={() => nombreRef.current?.focus()}
-              blurOnSubmit={false}
-            />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={[styles.label, { color: colors.text }]}>Nombre *</Text>
-            <TextInput
-              ref={nombreRef}
-              style={[
-                styles.input,
-                { color: colors.text, borderColor: colors.text },
-              ]}
-              value={formData.nombre}
-              onChangeText={(value) => handleInputChange("nombre", value)}
-              placeholder="Nombre completo"
-              placeholderTextColor={colors.text + "80"}
-              returnKeyType="next"
-              onSubmitEditing={() => telefonoRef.current?.focus()}
-              blurOnSubmit={false}
-            />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={[styles.label, { color: colors.text }]}>País *</Text>
+          <View style={styles.header}>
             <TouchableOpacity
-              style={[
-                styles.countrySelector,
-                { borderColor: selectedCountry ? colors.text : "#ff4444" },
-              ]}
-              onPress={() => setShowCountryModal(true)}
+              style={styles.backButton}
+              onPress={() => navigation.goBack()}
             >
-              <Text
-                style={[
-                  styles.countryText,
-                  {
-                    color: selectedCountry ? colors.text : colors.textSecondary,
-                  },
-                ]}
-              >
-                {selectedCountry
-                  ? `${selectedCountry.flag} ${selectedCountry.name} (${selectedCountry.code})`
-                  : "Selecciona un país..."}
-              </Text>
-              <Ionicons name="chevron-down" size={20} color={colors.text} />
+              <Ionicons name="arrow-back" size={24} color={colors.text} />
             </TouchableOpacity>
+            <Text style={[styles.title, { color: colors.text }]}>
+              {isEditing ? "Editar Contacto" : "Agregar Contacto"}
+            </Text>
           </View>
 
-          <View style={styles.inputContainer}>
-            <Text style={[styles.label, { color: colors.text }]}>
-              Teléfono *
+          <TouchableOpacity
+            style={[styles.importButton, { borderColor: colors.primary }]}
+            onPress={importContacts}
+          >
+            <Ionicons name="person-add" size={20} color={colors.primary} />
+            <Text style={[styles.importButtonText, { color: colors.primary }]}>
+              Importar desde Contactos
             </Text>
-            <View style={styles.phoneInputContainer}>
-              <Text style={[styles.countryCode, { color: colors.text }]}>
-                {selectedCountry ? selectedCountry.code : "+__"}
-              </Text>
+          </TouchableOpacity>
+
+          <View style={styles.form}>
+            <View style={styles.inputContainer}>
+              <Text style={[styles.label, { color: colors.text }]}>Alias</Text>
               <TextInput
-                ref={telefonoRef}
+                ref={aliasRef}
                 style={[
-                  styles.phoneInput,
+                  styles.input,
                   { color: colors.text, borderColor: colors.text },
                 ]}
-                value={formData.telefono}
-                onChangeText={(value) => handleInputChange("telefono", value)}
-                placeholder="Número sin código de país"
-                keyboardType="phone-pad"
+                value={formData.alias}
+                onChangeText={(value) => handleInputChange("alias", value)}
+                placeholder="Ej: Mecanico de confianza, Proveedor, etc."
                 placeholderTextColor={colors.text + "80"}
                 returnKeyType="next"
-                onSubmitEditing={() => correoRef.current?.focus()}
+                onFocus={() => scrollToInput(aliasRef)}
+                onSubmitEditing={() => nombreRef.current?.focus()}
                 blurOnSubmit={false}
               />
             </View>
-          </View>
 
-          <View style={styles.inputContainer}>
-            <Text style={[styles.label, { color: colors.text }]}>Correo</Text>
-            <TextInput
-              ref={correoRef}
-              style={[
-                styles.input,
-                { color: colors.text, borderColor: colors.text },
-              ]}
-              value={formData.correo}
-              onChangeText={(value) => handleInputChange("correo", value)}
-              placeholder="correo@ejemplo.com"
-              keyboardType="email-address"
-              placeholderTextColor={colors.text + "80"}
-              returnKeyType="done"
-              onSubmitEditing={handleSave}
-            />
-          </View>
-
-          <TouchableOpacity
-            style={[styles.saveButton, { backgroundColor: colors.primary }]}
-            onPress={handleSave}
-            disabled={loading}
-          >
-            <Text style={styles.saveButtonText}>
-              {loading ? "Guardando..." : isEditing ? "Actualizar" : "Guardar"}
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Modal para seleccionar país */}
-        <Modal
-          visible={showCountryModal}
-          animationType="slide"
-          transparent={true}
-          onRequestClose={() => setShowCountryModal(false)}
-        >
-          <View style={styles.modalOverlay}>
-            <View
-              style={[
-                styles.modalContent,
-                { backgroundColor: colors.cardBackground },
-              ]}
-            >
-              <View style={styles.modalHeader}>
-                <Text style={[styles.modalTitle, { color: colors.text }]}>
-                  Seleccionar País
-                </Text>
-                <TouchableOpacity
-                  onPress={() => setShowCountryModal(false)}
-                  style={styles.closeButton}
-                >
-                  <Ionicons name="close" size={24} color={colors.text} />
-                </TouchableOpacity>
-              </View>
-
-              <FlatList
-                data={COUNTRIES}
-                keyExtractor={(item) => item.code}
-                renderItem={({ item }) => (
-                  <TouchableOpacity
-                    style={[
-                      styles.countryItem,
-                      selectedCountry?.code === item.code && {
-                        backgroundColor: colors.primary + "20",
-                      },
-                    ]}
-                    onPress={() => handleCountrySelect(item)}
-                  >
-                    <Text
-                      style={[styles.countryItemText, { color: colors.text }]}
-                    >
-                      {item.flag} {item.name}
-                    </Text>
-                    <Text
-                      style={[
-                        styles.countryCodeText,
-                        { color: colors.textSecondary },
-                      ]}
-                    >
-                      {item.code}
-                    </Text>
-                  </TouchableOpacity>
-                )}
-                showsVerticalScrollIndicator={false}
-              />
-            </View>
-          </View>
-        </Modal>
-
-        {/* Modal para importar contacto */}
-        <Modal
-          visible={importModalVisible}
-          animationType="slide"
-          transparent={true}
-          onRequestClose={() => setImportModalVisible(false)}
-        >
-          <View style={styles.modalOverlay}>
-            <View
-              style={[
-                styles.modalContent,
-                { backgroundColor: colors.cardBackground },
-              ]}
-            >
-              <View style={styles.modalHeader}>
-                <Text style={[styles.modalTitle, { color: colors.text }]}>
-                  Seleccionar Contacto
-                </Text>
-                <TouchableOpacity
-                  onPress={() => setImportModalVisible(false)}
-                  style={styles.closeButton}
-                >
-                  <Ionicons name="close" size={24} color={colors.text} />
-                </TouchableOpacity>
-              </View>
-
+            <View style={styles.inputContainer}>
+              <Text style={[styles.label, { color: colors.text }]}>
+                Nombre *
+              </Text>
               <TextInput
+                ref={nombreRef}
                 style={[
-                  styles.searchInput,
+                  styles.input,
                   { color: colors.text, borderColor: colors.text },
                 ]}
-                placeholder="Buscar contacto..."
-                placeholderTextColor={colors.textSecondary}
-                value={searchText}
-                onChangeText={setSearchText}
+                value={formData.nombre}
+                onChangeText={(value) => handleInputChange("nombre", value)}
+                placeholder="Nombre completo"
+                placeholderTextColor={colors.text + "80"}
+                returnKeyType="next"
+                onFocus={() => scrollToInput(nombreRef)}
+                onSubmitEditing={() => telefonoRef.current?.focus()}
+                blurOnSubmit={false}
               />
+            </View>
 
-              <FlatList
-                data={phoneContacts.filter(
-                  (contact) =>
-                    contact.name
-                      .toLowerCase()
-                      .includes(searchText.toLowerCase()) ||
-                    contact.phoneNumbers[0].number.includes(searchText)
-                )}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item }) => (
+            <View style={styles.inputContainer}>
+              <Text style={[styles.label, { color: colors.text }]}>País *</Text>
+              <TouchableOpacity
+                style={[
+                  styles.countrySelector,
+                  { borderColor: selectedCountry ? colors.text : "#ff4444" },
+                ]}
+                onPress={() => setShowCountryModal(true)}
+              >
+                <Text
+                  style={[
+                    styles.countryText,
+                    {
+                      color: selectedCountry
+                        ? colors.text
+                        : colors.textSecondary,
+                    },
+                  ]}
+                >
+                  {selectedCountry
+                    ? `${selectedCountry.flag} ${selectedCountry.name} (${selectedCountry.code})`
+                    : "Selecciona un país..."}
+                </Text>
+                <Ionicons name="chevron-down" size={20} color={colors.text} />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={[styles.label, { color: colors.text }]}>
+                Teléfono *
+              </Text>
+              <View style={styles.phoneInputContainer}>
+                <Text style={[styles.countryCode, { color: colors.text }]}>
+                  {selectedCountry ? selectedCountry.code : "+__"}
+                </Text>
+                <TextInput
+                  ref={telefonoRef}
+                  style={[
+                    styles.phoneInput,
+                    { color: colors.text, borderColor: colors.text },
+                  ]}
+                  value={formData.telefono}
+                  onChangeText={(value) => handleInputChange("telefono", value)}
+                  placeholder="Número sin código de país"
+                  keyboardType="phone-pad"
+                  placeholderTextColor={colors.text + "80"}
+                  returnKeyType="next"
+                  onFocus={() => scrollToInput(telefonoRef)}
+                  onSubmitEditing={() => correoRef.current?.focus()}
+                  blurOnSubmit={false}
+                />
+              </View>
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={[styles.label, { color: colors.text }]}>Correo</Text>
+              <TextInput
+                ref={correoRef}
+                style={[
+                  styles.input,
+                  { color: colors.text, borderColor: colors.text },
+                ]}
+                value={formData.correo}
+                onChangeText={(value) => handleInputChange("correo", value)}
+                placeholder="correo@ejemplo.com"
+                keyboardType="email-address"
+                placeholderTextColor={colors.text + "80"}
+                returnKeyType="done"
+                onFocus={() => scrollToInput(correoRef)}
+                onSubmitEditing={handleSave}
+              />
+            </View>
+
+            <TouchableOpacity
+              style={[styles.saveButton, { backgroundColor: colors.primary }]}
+              onPress={handleSave}
+              disabled={loading}
+            >
+              <Text style={styles.saveButtonText}>
+                {loading
+                  ? "Guardando..."
+                  : isEditing
+                  ? "Actualizar"
+                  : "Guardar"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Modal para seleccionar país */}
+          <Modal
+            visible={showCountryModal}
+            animationType="slide"
+            transparent={true}
+            onRequestClose={() => setShowCountryModal(false)}
+          >
+            <View style={styles.modalOverlay}>
+              <View
+                style={[
+                  styles.modalContent,
+                  { backgroundColor: colors.cardBackground },
+                ]}
+              >
+                <View style={styles.modalHeader}>
+                  <Text style={[styles.modalTitle, { color: colors.text }]}>
+                    Seleccionar País
+                  </Text>
                   <TouchableOpacity
-                    style={styles.contactItem}
-                    onPress={() => selectContact(item)}
+                    onPress={() => setShowCountryModal(false)}
+                    style={styles.closeButton}
                   >
-                    <Ionicons
-                      name="person"
-                      size={24}
-                      color={colors.primary}
-                      style={styles.contactIcon}
-                    />
-                    <View style={styles.contactInfo}>
+                    <Ionicons name="close" size={24} color={colors.text} />
+                  </TouchableOpacity>
+                </View>
+
+                <FlatList
+                  data={COUNTRIES}
+                  keyExtractor={(item) => item.code}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      style={[
+                        styles.countryItem,
+                        selectedCountry?.code === item.code && {
+                          backgroundColor: colors.primary + "20",
+                        },
+                      ]}
+                      onPress={() => handleCountrySelect(item)}
+                    >
                       <Text
-                        style={[styles.contactName, { color: colors.text }]}
+                        style={[styles.countryItemText, { color: colors.text }]}
                       >
-                        {item.name}
+                        {item.flag} {item.name}
                       </Text>
                       <Text
                         style={[
-                          styles.contactPhone,
+                          styles.countryCodeText,
                           { color: colors.textSecondary },
                         ]}
                       >
-                        {item.phoneNumbers[0].number}
+                        {item.code}
                       </Text>
-                    </View>
-                  </TouchableOpacity>
-                )}
-                showsVerticalScrollIndicator={false}
-              />
+                    </TouchableOpacity>
+                  )}
+                  showsVerticalScrollIndicator={false}
+                />
+              </View>
             </View>
-          </View>
-        </Modal>
-      </ScrollView>
+          </Modal>
+
+          {/* Modal para importar contacto */}
+          <Modal
+            visible={importModalVisible}
+            animationType="slide"
+            transparent={true}
+            onRequestClose={() => setImportModalVisible(false)}
+          >
+            <View style={styles.modalOverlay}>
+              <View
+                style={[
+                  styles.modalContent,
+                  { backgroundColor: colors.cardBackground },
+                ]}
+              >
+                <View style={styles.modalHeader}>
+                  <Text style={[styles.modalTitle, { color: colors.text }]}>
+                    Seleccionar Contacto
+                  </Text>
+                  <TouchableOpacity
+                    onPress={() => setImportModalVisible(false)}
+                    style={styles.closeButton}
+                  >
+                    <Ionicons name="close" size={24} color={colors.text} />
+                  </TouchableOpacity>
+                </View>
+
+                <TextInput
+                  style={[
+                    styles.searchInput,
+                    { color: colors.text, borderColor: colors.text },
+                  ]}
+                  placeholder="Buscar contacto..."
+                  placeholderTextColor={colors.textSecondary}
+                  value={searchText}
+                  onChangeText={setSearchText}
+                />
+
+                <FlatList
+                  data={phoneContacts.filter(
+                    (contact) =>
+                      contact.name
+                        .toLowerCase()
+                        .includes(searchText.toLowerCase()) ||
+                      contact.phoneNumbers[0].number.includes(searchText)
+                  )}
+                  keyExtractor={(item) => item.id}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      style={styles.contactItem}
+                      onPress={() => selectContact(item)}
+                    >
+                      <Ionicons
+                        name="person"
+                        size={24}
+                        color={colors.primary}
+                        style={styles.contactIcon}
+                      />
+                      <View style={styles.contactInfo}>
+                        <Text
+                          style={[styles.contactName, { color: colors.text }]}
+                        >
+                          {item.name}
+                        </Text>
+                        <Text
+                          style={[
+                            styles.contactPhone,
+                            { color: colors.textSecondary },
+                          ]}
+                        >
+                          {item.phoneNumbers[0].number}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  )}
+                  showsVerticalScrollIndicator={false}
+                />
+              </View>
+            </View>
+          </Modal>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </DialogComponent>
   );
 };
