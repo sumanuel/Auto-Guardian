@@ -687,6 +687,25 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
               Realizados
             </Text>
           </TouchableOpacity>
+          {activeTab === "done" && (
+            <TouchableOpacity
+              style={styles.infoIcon}
+              onPress={() =>
+                showDialog({
+                  title: "💰 Maximiza tu control financiero",
+                  message:
+                    "Completa los datos de costo y taller en cada mantenimiento para obtener estadísticas detalladas en la sección de Inversiones. ¡Un historial completo te ayuda a tomar mejores decisiones sobre el cuidado de tu vehículo!",
+                  type: "info",
+                })
+              }
+            >
+              <Ionicons
+                name="information-circle-outline"
+                size={24}
+                color={colors.primary}
+              />
+            </TouchableOpacity>
+          )}
         </View>
 
         <FlatList
@@ -1102,6 +1121,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 8,
     marginBottom: 8,
+    position: "relative",
+  },
+  infoIcon: {
+    position: "absolute",
+    right: 16,
+    padding: 4,
   },
   tab: {
     paddingVertical: 8,
