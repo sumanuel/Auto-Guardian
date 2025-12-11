@@ -1,5 +1,4 @@
 import { Ionicons } from "@expo/vector-icons";
-import { nextDay } from "date-fns";
 import * as Notifications from "expo-notifications";
 import { useEffect, useState } from "react";
 import {
@@ -69,25 +68,31 @@ const NotificationsScreen = () => {
         time
       );
 
-      // Schedule the notification
+      // Schedule the notifications for the next 4 occurrences
       const now = new Date();
       const [hours, minutes] = time.split(":").map(Number);
-      const nextDates = selectedDays.map((day) => {
-        const dayNum = parseInt(day);
-        const next = nextDay(now, dayNum);
-        next.setHours(hours, minutes, 0, 0);
-        if (next <= now) next.setDate(next.getDate() + 7);
-        return next;
-      });
-      const nextDate = nextDates.sort((a, b) => a - b)[0];
-
-      await Notifications.scheduleNotificationAsync({
-        content: {
-          title,
-          body,
-        },
-        trigger: nextDate,
-      });
+      const currentDay = now.getDay(); // 0 = Sunday
+      for (let week = 0; week < 4; week++) {
+        selectedDays.forEach(async (day) => {
+          const dayNum = parseInt(day);
+          let targetDate = new Date(now);
+          const daysDiff = (dayNum - currentDay + 7) % 7;
+          targetDate.setDate(now.getDate() + daysDiff + week * 7);
+          targetDate.setHours(hours, minutes, 0, 0);
+          if (targetDate > now) {
+            await Notifications.scheduleNotificationAsync({
+              content: {
+                title,
+                body,
+              },
+              trigger: {
+                type: "date",
+                date: targetDate,
+              },
+            });
+          }
+        });
+      }
 
       setModalVisible(false);
       setTitle("");
