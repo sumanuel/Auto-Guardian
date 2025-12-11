@@ -346,18 +346,6 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
               </TouchableOpacity>
             </>
           )}
-          {isCompleted(item) && (
-            <TouchableOpacity
-              onPress={() => handleEdit(item.id)}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <Ionicons
-                name="create-outline"
-                size={20}
-                color={COLORS.warning}
-              />
-            </TouchableOpacity>
-          )}
           <TouchableOpacity
             onPress={() => handleDelete(item.id, item.type)}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
