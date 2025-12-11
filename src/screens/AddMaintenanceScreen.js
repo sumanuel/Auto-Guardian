@@ -550,18 +550,8 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
             </>
           )}
 
-          {/* Botón desplegable para campos opcionales o ícono de editar */}
-          {maintenanceData ? (
-            <TouchableOpacity
-              style={styles.editIconContainer}
-              onPress={handleEdit}
-            >
-              <Ionicons name="pencil" size={24} color={colors.primary} />
-              <Text style={[styles.editIconText, { color: colors.primary }]}>
-                Editar datos
-              </Text>
-            </TouchableOpacity>
-          ) : (
+          {/* Botón desplegable para campos opcionales */}
+          {!maintenanceData && (
             <TouchableOpacity
               style={[
                 styles.optionalToggle,
