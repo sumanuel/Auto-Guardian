@@ -5,7 +5,6 @@ import {
   Alert,
   FlatList,
   Modal,
-  Picker,
   StyleSheet,
   Text,
   TextInput,
@@ -212,39 +211,51 @@ const NotificationsScreen = () => {
             <View style={styles.timeContainer}>
               <View style={styles.pickerContainer}>
                 <Text style={[styles.pickerLabel, { color: colors.text }]}>
-                  Hora
+                  Hora (1-24)
                 </Text>
-                <Picker
-                  selectedValue={selectedHour}
-                  onValueChange={(itemValue) => setSelectedHour(itemValue)}
-                  style={[styles.picker, { color: colors.text }]}
-                >
-                  {Array.from({ length: 24 }, (_, i) => i + 1).map((hour) => (
-                    <Picker.Item
-                      key={hour}
-                      label={hour.toString()}
-                      value={hour}
-                    />
-                  ))}
-                </Picker>
+                <TextInput
+                  style={[
+                    styles.input,
+                    { borderColor: colors.textTertiary, color: colors.text },
+                  ]}
+                  value={selectedHour.toString()}
+                  onChangeText={(value) => {
+                    const num = parseInt(value);
+                    if (!isNaN(num) && num >= 1 && num <= 24) {
+                      setSelectedHour(num);
+                    } else if (value === "") {
+                      setSelectedHour(12);
+                    }
+                  }}
+                  keyboardType="number-pad"
+                  maxLength={2}
+                  placeholder="12"
+                  placeholderTextColor={colors.textSecondary}
+                />
               </View>
               <View style={styles.pickerContainer}>
                 <Text style={[styles.pickerLabel, { color: colors.text }]}>
-                  Minuto
+                  Minuto (0-59)
                 </Text>
-                <Picker
-                  selectedValue={selectedMinute}
-                  onValueChange={(itemValue) => setSelectedMinute(itemValue)}
-                  style={[styles.picker, { color: colors.text }]}
-                >
-                  {Array.from({ length: 60 }, (_, i) => i).map((minute) => (
-                    <Picker.Item
-                      key={minute}
-                      label={minute.toString().padStart(2, "0")}
-                      value={minute}
-                    />
-                  ))}
-                </Picker>
+                <TextInput
+                  style={[
+                    styles.input,
+                    { borderColor: colors.textTertiary, color: colors.text },
+                  ]}
+                  value={selectedMinute.toString().padStart(2, "0")}
+                  onChangeText={(value) => {
+                    const num = parseInt(value);
+                    if (!isNaN(num) && num >= 0 && num <= 59) {
+                      setSelectedMinute(num);
+                    } else if (value === "") {
+                      setSelectedMinute(0);
+                    }
+                  }}
+                  keyboardType="number-pad"
+                  maxLength={2}
+                  placeholder="00"
+                  placeholderTextColor={colors.textSecondary}
+                />
               </View>
             </View>
             <Text style={[styles.daysLabel, { color: colors.text }]}>
@@ -385,9 +396,12 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     textAlign: "center",
   },
-  picker: {
-    height: 50,
-    width: "100%",
+  input: {
+    borderWidth: 1,
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 15,
+    textAlign: "center",
   },
   daysLabel: {
     fontSize: 16,

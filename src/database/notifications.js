@@ -15,6 +15,14 @@ export const initDatabase = async () => {
       );`
     );
     console.log("Table created successfully");
+    // Try to add column if not exists (for migration)
+    try {
+      await db.runAsync(
+        "ALTER TABLE notifications ADD COLUMN isDefault INTEGER DEFAULT 0;"
+      );
+    } catch (error) {
+      // Column already exists, ignore
+    }
   } catch (error) {
     console.log("Error creating table:", error);
   }
