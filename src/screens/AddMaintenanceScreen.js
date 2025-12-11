@@ -31,9 +31,7 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
   const vehicle = vehicles.find((v) => v.id === vehicleId);
   const [maintenanceTypes, setMaintenanceTypes] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [showOptionalFields, setShowOptionalFields] = useState(
-    !!maintenanceData
-  );
+  const [showOptionalFields, setShowOptionalFields] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editFormData, setEditFormData] = useState({
     date: new Date(),
@@ -550,30 +548,30 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
             </>
           )}
 
-          {/* Botón desplegable para campos opcionales */}
-          {!maintenanceData && (
-            <TouchableOpacity
-              style={[
-                styles.optionalToggle,
-                {
-                  backgroundColor: colors.cardBackground,
-                  borderColor: colors.border,
-                },
-              ]}
-              onPress={() => setShowOptionalFields(!showOptionalFields)}
+          {/* Botón desplegable para campos opcionales - Oculto */}
+          {/* 
+          <TouchableOpacity
+            style={[
+              styles.optionalToggle,
+              {
+                backgroundColor: colors.cardBackground,
+                borderColor: colors.border,
+              },
+            ]}
+            onPress={() => setShowOptionalFields(!showOptionalFields)}
+          >
+            <Text
+              style={[styles.optionalToggleText, { color: colors.primary }]}
             >
-              <Text
-                style={[styles.optionalToggleText, { color: colors.primary }]}
-              >
-                Mostrar opciones
-              </Text>
-              <Ionicons
-                name={showOptionalFields ? "chevron-up" : "chevron-down"}
-                size={20}
-                color={colors.primary}
-              />
-            </TouchableOpacity>
-          )}
+              Mostrar opciones
+            </Text>
+            <Ionicons
+              name={showOptionalFields ? "chevron-up" : "chevron-down"}
+              size={20}
+              color={colors.primary}
+            />
+          </TouchableOpacity>
+          */}
 
           {/* Campos opcionales desplegables */}
           {showOptionalFields && (
