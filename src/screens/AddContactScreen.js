@@ -60,6 +60,7 @@ const AddContactScreen = ({ navigation, route }) => {
   const [loading, setLoading] = useState(false);
   const [importModalVisible, setImportModalVisible] = useState(false);
   const [phoneContacts, setPhoneContacts] = useState([]);
+  const [searchText, setSearchText] = useState("");
 
   const importContacts = async () => {
     try {
@@ -111,6 +112,7 @@ const AddContactScreen = ({ navigation, route }) => {
 
     setFormData({
       ...formData,
+      alias: name,
       nombre: name,
       telefono: localPhone,
       correo: email,
@@ -432,25 +434,52 @@ const AddContactScreen = ({ navigation, route }) => {
                 </TouchableOpacity>
               </View>
 
+              <TextInput
+                style={[
+                  styles.searchInput,
+                  { color: colors.text, borderColor: colors.text },
+                ]}
+                placeholder="Buscar contacto..."
+                placeholderTextColor={colors.textSecondary}
+                value={searchText}
+                onChangeText={setSearchText}
+              />
+
               <FlatList
-                data={phoneContacts}
+                data={phoneContacts.filter(
+                  (contact) =>
+                    contact.name
+                      .toLowerCase()
+                      .includes(searchText.toLowerCase()) ||
+                    contact.phoneNumbers[0].number.includes(searchText)
+                )}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
                   <TouchableOpacity
                     style={styles.contactItem}
                     onPress={() => selectContact(item)}
                   >
-                    <Text style={[styles.contactName, { color: colors.text }]}>
-                      {item.name}
-                    </Text>
-                    <Text
-                      style={[
-                        styles.contactPhone,
-                        { color: colors.textSecondary },
-                      ]}
-                    >
-                      {item.phoneNumbers[0].number}
-                    </Text>
+                    <Ionicons
+                      name="person"
+                      size={24}
+                      color={colors.primary}
+                      style={styles.contactIcon}
+                    />
+                    <View style={styles.contactInfo}>
+                      <Text
+                        style={[styles.contactName, { color: colors.text }]}
+                      >
+                        {item.name}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.contactPhone,
+                          { color: colors.textSecondary },
+                        ]}
+                      >
+                        {item.phoneNumbers[0].number}
+                      </Text>
+                    </View>
                   </TouchableOpacity>
                 )}
                 showsVerticalScrollIndicator={false}
@@ -596,15 +625,24 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     marginTop: 10,
+    marginHorizontal: 16,
   },
   importButtonText: {
     fontSize: 16,
     marginLeft: 8,
   },
   contactItem: {
+    flexDirection: "row",
+    alignItems: "center",
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: "#eee",
+  },
+  contactIcon: {
+    marginRight: 12,
+  },
+  contactInfo: {
+    flex: 1,
   },
   contactName: {
     fontSize: 16,
@@ -613,6 +651,13 @@ const styles = StyleSheet.create({
   contactPhone: {
     fontSize: 14,
     marginTop: 4,
+  },
+  searchInput: {
+    margin: 16,
+    padding: 12,
+    borderWidth: 1,
+    borderRadius: 8,
+    fontSize: 16,
   },
 });
 
