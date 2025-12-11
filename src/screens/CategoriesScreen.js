@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   FlatList,
   Modal,
@@ -43,6 +43,12 @@ const CategoriesScreen = ({ navigation }) => {
   const [newTypeIcon, setNewTypeIcon] = useState("");
   const [editError, setEditError] = useState("");
   const [addError, setAddError] = useState("");
+
+  // Referencias para navegación en modal de nuevo tipo
+  const newTypeNameRef = useRef(null);
+  const newTypeCategoryRef = useRef(null);
+  const newTypeKmRef = useRef(null);
+  const newTypeMonthsRef = useRef(null);
 
   // Iconos disponibles para tipos de mantenimiento
   const availableIcons = [
@@ -643,6 +649,7 @@ const CategoriesScreen = ({ navigation }) => {
                     Nombre *
                   </Text>
                   <TextInput
+                    ref={newTypeNameRef}
                     style={[
                       styles.input,
                       {
@@ -655,6 +662,9 @@ const CategoriesScreen = ({ navigation }) => {
                     onChangeText={setNewTypeName}
                     placeholder="Ej: Cambio de batería"
                     placeholderTextColor={colors.textSecondary}
+                    returnKeyType="next"
+                    onSubmitEditing={() => newTypeCategoryRef.current?.focus()}
+                    blurOnSubmit={false}
                   />
                 </View>
 
@@ -663,6 +673,7 @@ const CategoriesScreen = ({ navigation }) => {
                     Categoría
                   </Text>
                   <TextInput
+                    ref={newTypeCategoryRef}
                     style={[
                       styles.input,
                       {
@@ -675,6 +686,9 @@ const CategoriesScreen = ({ navigation }) => {
                     onChangeText={setNewTypeCategory}
                     placeholder="Ej: Eléctrico"
                     placeholderTextColor={colors.textSecondary}
+                    returnKeyType="next"
+                    onSubmitEditing={() => newTypeKmRef.current?.focus()}
+                    blurOnSubmit={false}
                   />
                 </View>
 
@@ -718,6 +732,7 @@ const CategoriesScreen = ({ navigation }) => {
                       Kilómetros
                     </Text>
                     <TextInput
+                      ref={newTypeKmRef}
                       style={[
                         styles.input,
                         {
@@ -731,6 +746,9 @@ const CategoriesScreen = ({ navigation }) => {
                       placeholder="5000"
                       placeholderTextColor={colors.textSecondary}
                       keyboardType="numeric"
+                      returnKeyType="next"
+                      onSubmitEditing={() => newTypeMonthsRef.current?.focus()}
+                      blurOnSubmit={false}
                     />
                   </View>
 
@@ -739,6 +757,7 @@ const CategoriesScreen = ({ navigation }) => {
                       Meses
                     </Text>
                     <TextInput
+                      ref={newTypeMonthsRef}
                       style={[
                         styles.input,
                         {
@@ -752,6 +771,7 @@ const CategoriesScreen = ({ navigation }) => {
                       placeholder="6"
                       placeholderTextColor={colors.textSecondary}
                       keyboardType="numeric"
+                      returnKeyType="done"
                     />
                   </View>
                 </View>

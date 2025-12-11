@@ -1,5 +1,5 @@
 import * as ImagePicker from "expo-image-picker";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   Image,
   KeyboardAvoidingView,
@@ -35,6 +35,12 @@ const AddRepairScreen = ({ route, navigation }) => {
   });
 
   const [loading, setLoading] = useState(false);
+
+  // Referencias para navegación entre campos
+  const descriptionRef = useRef(null);
+  const costRef = useRef(null);
+  const workshopRef = useRef(null);
+  const notesRef = useRef(null);
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -208,6 +214,7 @@ const AddRepairScreen = ({ route, navigation }) => {
               Descripción de la reparación *
             </Text>
             <TextInput
+              ref={descriptionRef}
               style={[
                 styles.input,
                 {
@@ -221,6 +228,9 @@ const AddRepairScreen = ({ route, navigation }) => {
               placeholder="Ej: Cambio de embrague, reparación de caja..."
               placeholderTextColor={colors.textSecondary}
               multiline
+              returnKeyType="next"
+              onSubmitEditing={() => costRef.current?.focus()}
+              blurOnSubmit={false}
             />
           </View>
 
@@ -235,6 +245,7 @@ const AddRepairScreen = ({ route, navigation }) => {
           <View style={styles.inputGroup}>
             <Text style={[styles.label, { color: colors.text }]}>Costo *</Text>
             <TextInput
+              ref={costRef}
               style={[
                 styles.input,
                 {
@@ -248,6 +259,9 @@ const AddRepairScreen = ({ route, navigation }) => {
               placeholder="0.00"
               placeholderTextColor={colors.textSecondary}
               keyboardType="decimal-pad"
+              returnKeyType="next"
+              onSubmitEditing={() => workshopRef.current?.focus()}
+              blurOnSubmit={false}
             />
           </View>
 
@@ -255,6 +269,7 @@ const AddRepairScreen = ({ route, navigation }) => {
           <View style={styles.inputGroup}>
             <Text style={[styles.label, { color: colors.text }]}>Taller</Text>
             <TextInput
+              ref={workshopRef}
               style={[
                 styles.input,
                 {
@@ -267,6 +282,9 @@ const AddRepairScreen = ({ route, navigation }) => {
               onChangeText={(value) => handleInputChange("workshop", value)}
               placeholder="Nombre del taller"
               placeholderTextColor={colors.textSecondary}
+              returnKeyType="next"
+              onSubmitEditing={() => notesRef.current?.focus()}
+              blurOnSubmit={false}
             />
           </View>
 
@@ -274,6 +292,7 @@ const AddRepairScreen = ({ route, navigation }) => {
           <View style={styles.inputGroup}>
             <Text style={[styles.label, { color: colors.text }]}>Notas</Text>
             <TextInput
+              ref={notesRef}
               style={[
                 styles.input,
                 styles.textArea,
@@ -290,6 +309,7 @@ const AddRepairScreen = ({ route, navigation }) => {
               multiline
               numberOfLines={4}
               textAlignVertical="top"
+              returnKeyType="done"
             />
           </View>
 

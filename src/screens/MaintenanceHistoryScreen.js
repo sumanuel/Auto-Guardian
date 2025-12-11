@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   FlatList,
   Image,
@@ -57,6 +57,11 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
     notes: "",
     photo: null,
   });
+
+  // Referencias para navegación en modal de edición
+  const costRef = useRef(null);
+  const providerRef = useRef(null);
+  const notesRef = useRef(null);
 
   const openImageModal = (imageUri) => {
     setSelectedImage(imageUri);
@@ -908,6 +913,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
                     Costo
                   </Text>
                   <TextInput
+                    ref={costRef}
                     style={[
                       styles.input,
                       {
@@ -923,6 +929,9 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
                     placeholder="0.00"
                     placeholderTextColor={colors.textSecondary}
                     keyboardType="decimal-pad"
+                    returnKeyType="next"
+                    onSubmitEditing={() => providerRef.current?.focus()}
+                    blurOnSubmit={false}
                   />
                 </View>
 
@@ -932,6 +941,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
                     Taller/Proveedor
                   </Text>
                   <TextInput
+                    ref={providerRef}
                     style={[
                       styles.input,
                       {
@@ -946,6 +956,9 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
                     }
                     placeholder="Nombre del taller"
                     placeholderTextColor={colors.textSecondary}
+                    returnKeyType="next"
+                    onSubmitEditing={() => notesRef.current?.focus()}
+                    blurOnSubmit={false}
                   />
                 </View>
 
@@ -955,6 +968,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
                     Notas
                   </Text>
                   <TextInput
+                    ref={notesRef}
                     style={[
                       styles.input,
                       styles.textArea,
@@ -972,6 +986,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
                     placeholderTextColor={colors.textSecondary}
                     multiline
                     numberOfLines={4}
+                    returnKeyType="done"
                   />
                 </View>
 

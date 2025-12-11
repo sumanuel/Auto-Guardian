@@ -1,10 +1,18 @@
+import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import React from "react";
-import { Platform, StyleSheet, Text, View } from "react-native";
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { useTheme } from "../../context/ThemeContext";
 import { formatDate } from "../../utils/dateUtils";
-import Button from "./Button";
 
 const DatePicker = ({ value, onChange, label, style }) => {
+  const { colors } = useTheme();
   const [show, setShow] = React.useState(false);
   const [date, setDate] = React.useState(value || new Date());
 
@@ -35,12 +43,24 @@ const DatePicker = ({ value, onChange, label, style }) => {
 
   return (
     <View style={[styles.container, style]}>
-      {label && <Text style={styles.label}>{label}</Text>}
-      <Button
-        title={formatDate(date)}
+      {label && (
+        <Text style={[styles.label, { color: colors.text }]}>{label}</Text>
+      )}
+      <TouchableOpacity
+        style={[
+          styles.dateButton,
+          {
+            backgroundColor: colors.inputBackground,
+            borderColor: colors.border,
+          },
+        ]}
         onPress={() => setShow(true)}
-        variant="outline"
-      />
+      >
+        <Ionicons name="calendar-outline" size={20} color={colors.primary} />
+        <Text style={[styles.dateButtonText, { color: colors.text }]}>
+          {formatDate(date)}
+        </Text>
+      </TouchableOpacity>
       {show && (
         <DateTimePicker
           value={date}
@@ -61,7 +81,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     marginBottom: 8,
-    color: "#333",
+  },
+  dateButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 12,
+    gap: 8,
+  },
+  dateButtonText: {
+    fontSize: 16,
   },
 });
 

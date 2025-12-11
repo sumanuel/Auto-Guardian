@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -16,6 +16,7 @@ import Button from "../components/common/Button";
 import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
 import { createExpense, updateExpense } from "../services/expenseService";
+import { formatDate } from "../utils/dateUtils";
 
 const AddExpenseScreen = ({ route, navigation }) => {
   const { vehicleId, expense } = route.params || {};
@@ -33,6 +34,11 @@ const AddExpenseScreen = ({ route, navigation }) => {
   );
   const [notes, setNotes] = useState(expense?.notes || "");
   const [loading, setLoading] = useState(false);
+
+  // Referencias para navegación entre campos
+  const descriptionRef = useRef(null);
+  const costRef = useRef(null);
+  const notesRef = useRef(null);
 
   const handleSave = async () => {
     if (!description.trim()) {
@@ -96,6 +102,7 @@ const AddExpenseScreen = ({ route, navigation }) => {
             Descripción *
           </Text>
           <TextInput
+            ref={descriptionRef}
             style={[
               styles.input,
               {
@@ -108,6 +115,9 @@ const AddExpenseScreen = ({ route, navigation }) => {
             onChangeText={setDescription}
             placeholder="Ej: Gasolina, Lavado, Peaje, etc."
             placeholderTextColor={colors.textSecondary}
+            returnKeyType="next"
+            onSubmitEditing={() => costRef.current?.focus()}
+            blurOnSubmit={false}
           />
         </View>
 
@@ -130,11 +140,7 @@ const AddExpenseScreen = ({ route, navigation }) => {
               color={colors.primary}
             />
             <Text style={[styles.dateText, { color: colors.text }]}>
-              {date.toLocaleDateString("es-ES", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
+              {formatDate(date)}
             </Text>
           </TouchableOpacity>
           {showDatePicker && (
@@ -151,32 +157,32 @@ const AddExpenseScreen = ({ route, navigation }) => {
         {/* Costo */}
         <View style={styles.section}>
           <Text style={[styles.label, { color: colors.text }]}>Costo *</Text>
-          <View style={styles.costContainer}>
-            <Text style={[styles.currencySymbol, { color: colors.text }]}>
-              $
-            </Text>
-            <TextInput
-              style={[
-                styles.costInput,
-                {
-                  backgroundColor: colors.cardBackground,
-                  color: colors.text,
-                  borderColor: colors.border,
-                },
-              ]}
-              value={cost}
-              onChangeText={setCost}
-              placeholder="0.00"
-              placeholderTextColor={colors.textSecondary}
-              keyboardType="decimal-pad"
-            />
-          </View>
+          <TextInput
+            ref={costRef}
+            style={[
+              styles.input,
+              {
+                backgroundColor: colors.cardBackground,
+                color: colors.text,
+                borderColor: colors.border,
+              },
+            ]}
+            value={cost}
+            onChangeText={setCost}
+            placeholder="0.00"
+            placeholderTextColor={colors.textSecondary}
+            keyboardType="decimal-pad"
+            returnKeyType="next"
+            onSubmitEditing={() => notesRef.current?.focus()}
+            blurOnSubmit={false}
+          />
         </View>
 
         {/* Notas */}
         <View style={styles.section}>
           <Text style={[styles.label, { color: colors.text }]}>Notas</Text>
           <TextInput
+            ref={notesRef}
             style={[
               styles.textArea,
               {
@@ -192,6 +198,7 @@ const AddExpenseScreen = ({ route, navigation }) => {
             multiline
             numberOfLines={4}
             textAlignVertical="top"
+            returnKeyType="done"
           />
         </View>
 
