@@ -1,6 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
+import * as Contacts from "expo-contacts";
 import { useState } from "react";
 import {
+  Alert,
   FlatList,
   Modal,
   ScrollView,
@@ -56,6 +58,68 @@ const AddContactScreen = ({ navigation, route }) => {
 
   const [showCountryModal, setShowCountryModal] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [importModalVisible, setImportModalVisible] = useState(false);
+  const [phoneContacts, setPhoneContacts] = useState([]);
+
+  const importContacts = async () => {
+    try {
+      const { status } = await Contacts.requestPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert(
+          "Permiso denegado",
+          "Necesitas permitir el acceso a contactos."
+        );
+        return;
+      }
+      const { data } = await Contacts.getContactsAsync({
+        fields: [
+          Contacts.Fields.Name,
+          Contacts.Fields.PhoneNumbers,
+          Contacts.Fields.Emails,
+        ],
+      });
+      setPhoneContacts(
+        data.filter(
+          (contact) =>
+            contact.name &&
+            contact.phoneNumbers &&
+            contact.phoneNumbers.length > 0
+        )
+      );
+      setImportModalVisible(true);
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Error", "No se pudieron cargar los contactos.");
+    }
+  };
+
+  const selectContact = (contact) => {
+    const name = contact.name;
+    const phone = contact.phoneNumbers[0].number;
+    const email = contact.emails ? contact.emails[0].email : "";
+
+    // Extract country code
+    let country = null;
+    let localPhone = phone.replace(/\D/g, ""); // Remove non-digits
+    for (const c of COUNTRIES) {
+      if (localPhone.startsWith(c.code.replace(/\D/g, ""))) {
+        country = c;
+        localPhone = localPhone.replace(c.code.replace(/\D/g, ""), "");
+        break;
+      }
+    }
+
+    setFormData({
+      ...formData,
+      nombre: name,
+      telefono: localPhone,
+      correo: email,
+    });
+    if (country) {
+      setSelectedCountry(country);
+    }
+    setImportModalVisible(false);
+  };
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -169,6 +233,16 @@ const AddContactScreen = ({ navigation, route }) => {
             {isEditing ? "Editar Contacto" : "Agregar Contacto"}
           </Text>
         </View>
+
+        <TouchableOpacity
+          style={[styles.importButton, { borderColor: colors.primary }]}
+          onPress={importContacts}
+        >
+          <Ionicons name="person-add" size={20} color={colors.primary} />
+          <Text style={[styles.importButtonText, { color: colors.primary }]}>
+            Importar desde Contactos
+          </Text>
+        </TouchableOpacity>
 
         <View style={styles.form}>
           <View style={styles.inputContainer}>
@@ -331,6 +405,59 @@ const AddContactScreen = ({ navigation, route }) => {
             </View>
           </View>
         </Modal>
+
+        {/* Modal para importar contacto */}
+        <Modal
+          visible={importModalVisible}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setImportModalVisible(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View
+              style={[
+                styles.modalContent,
+                { backgroundColor: colors.cardBackground },
+              ]}
+            >
+              <View style={styles.modalHeader}>
+                <Text style={[styles.modalTitle, { color: colors.text }]}>
+                  Seleccionar Contacto
+                </Text>
+                <TouchableOpacity
+                  onPress={() => setImportModalVisible(false)}
+                  style={styles.closeButton}
+                >
+                  <Ionicons name="close" size={24} color={colors.text} />
+                </TouchableOpacity>
+              </View>
+
+              <FlatList
+                data={phoneContacts}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={styles.contactItem}
+                    onPress={() => selectContact(item)}
+                  >
+                    <Text style={[styles.contactName, { color: colors.text }]}>
+                      {item.name}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.contactPhone,
+                        { color: colors.textSecondary },
+                      ]}
+                    >
+                      {item.phoneNumbers[0].number}
+                    </Text>
+                  </TouchableOpacity>
+                )}
+                showsVerticalScrollIndicator={false}
+              />
+            </View>
+          </View>
+        </Modal>
       </ScrollView>
     </DialogComponent>
   );
@@ -460,6 +587,32 @@ const styles = StyleSheet.create({
   countryCodeText: {
     fontSize: 14,
     fontWeight: "500",
+  },
+  importButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    marginTop: 10,
+  },
+  importButtonText: {
+    fontSize: 16,
+    marginLeft: 8,
+  },
+  contactItem: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
+  },
+  contactName: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  contactPhone: {
+    fontSize: 14,
+    marginTop: 4,
   },
 });
 
