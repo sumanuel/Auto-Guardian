@@ -45,7 +45,7 @@ const DatePicker = ({ value, onChange, label, style }) => {
         <DateTimePicker
           value={date}
           mode="date"
-          display={Platform.OS === "ios" ? "default" : "spinner"}
+          display="default"
           onChange={onChangeInternal}
         />
       )}
