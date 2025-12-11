@@ -81,6 +81,11 @@ export const updateVehicle = (id, vehicleData) => {
 // Eliminar vehículo
 export const deleteVehicle = (id) => {
   try {
+    // Aunque ON DELETE CASCADE debería manejar esto automáticamente,
+    // nos aseguramos explícitamente de eliminar todos los registros relacionados
+    db.runSync("DELETE FROM maintenances WHERE vehicleId = ?", [id]);
+    db.runSync("DELETE FROM expenses WHERE vehicleId = ?", [id]);
+    db.runSync("DELETE FROM repairs WHERE vehicleId = ?", [id]);
     db.runSync("DELETE FROM vehicles WHERE id = ?", [id]);
     return true;
   } catch (error) {

@@ -1,7 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createContext, useContext, useEffect, useState } from "react";
 import * as contactService from "../services/contactService";
-import { initDatabase } from "../services/database";
+import { cleanOrphanedRecords, initDatabase } from "../services/database";
+import * as expenseService from "../services/expenseService";
 import * as maintenanceService from "../services/maintenanceService";
 import * as notificationService from "../services/notificationService";
 import * as repairService from "../services/repairService";
@@ -23,6 +24,10 @@ export const AppProvider = ({ children }) => {
   const initializeApp = async () => {
     try {
       initDatabase();
+
+      // Limpiar registros huérfanos al iniciar
+      cleanOrphanedRecords();
+
       await loadVehicles();
       await loadContacts();
 
@@ -258,6 +263,70 @@ export const AppProvider = ({ children }) => {
     return maintenanceService.getMaintenanceStats(vehicleId);
   };
 
+  // Funciones de reparaciones
+  const addRepair = async (repairData) => {
+    try {
+      const id = repairService.createRepair(repairData);
+      await loadVehicles(); // Actualizar el estado
+      return id;
+    } catch (error) {
+      console.error("Error agregando reparación:", error);
+      throw error;
+    }
+  };
+
+  const updateRepair = async (id, repairData) => {
+    try {
+      await repairService.updateRepair(id, repairData);
+      await loadVehicles(); // Actualizar el estado
+    } catch (error) {
+      console.error("Error actualizando reparación:", error);
+      throw error;
+    }
+  };
+
+  const removeRepair = async (id) => {
+    try {
+      await repairService.deleteRepair(id);
+      await loadVehicles(); // Actualizar el estado
+    } catch (error) {
+      console.error("Error eliminando reparación:", error);
+      throw error;
+    }
+  };
+
+  // Funciones de gastos
+  const addExpense = async (expenseData) => {
+    try {
+      const id = expenseService.createExpense(expenseData);
+      await loadVehicles(); // Actualizar el estado
+      return id;
+    } catch (error) {
+      console.error("Error agregando gasto:", error);
+      throw error;
+    }
+  };
+
+  const updateExpense = async (id, expenseData) => {
+    try {
+      await expenseService.updateExpense(id, expenseData);
+      await loadVehicles(); // Actualizar el estado
+    } catch (error) {
+      console.error("Error actualizando gasto:", error);
+      throw error;
+    }
+  };
+
+  const removeExpense = async (id) => {
+    try {
+      await expenseService.deleteExpense(id);
+      await loadVehicles(); // Actualizar el estado
+    } catch (error) {
+      console.error("Error eliminando gasto:", error);
+      throw error;
+    }
+  };
+
   // Función para actualizar el badge del icono de la app
   const updateAppBadge = async (vehiclesList = vehicles) => {
     try {
@@ -455,11 +524,18 @@ export const AppProvider = ({ children }) => {
     // Repair functions
     getVehicleRepairs: repairService.getRepairsByVehicle,
     getAllRepairs: repairService.getAllRepairs,
-    addRepair: repairService.createRepair,
-    updateRepair: repairService.updateRepair,
-    removeRepair: repairService.deleteRepair,
+    addRepair,
+    updateRepair,
+    removeRepair,
     getRepairStats: repairService.getRepairStats,
     getRepairsByCategory: repairService.getRepairsByCategory,
+    // Expense functions
+    getVehicleExpenses: expenseService.getExpensesByVehicle,
+    getAllExpenses: expenseService.getAllExpenses,
+    addExpense,
+    updateExpense,
+    removeExpense,
+    getExpenseStats: expenseService.getExpenseStats,
     // Notification functions
     checkPendingMaintenances,
   };

@@ -15,14 +15,15 @@ import {
 import Button from "../components/common/Button";
 import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
-import { createExpense, updateExpense } from "../services/expenseService";
 import { formatDate } from "../utils/dateUtils";
 
 const AddExpenseScreen = ({ route, navigation }) => {
   const { vehicleId, expense } = route.params || {};
   const { colors } = useTheme();
-  const { loadVehicles } = useApp();
+  const { addExpense, updateExpense, vehicles } = useApp();
   const isEditing = !!expense;
+
+  const vehicle = vehicles.find((v) => v.id === vehicleId);
 
   const [description, setDescription] = useState(expense?.description || "");
   const [date, setDate] = useState(
@@ -66,12 +67,7 @@ const AddExpenseScreen = ({ route, navigation }) => {
       if (isEditing) {
         await updateExpense(expense.id, expenseData);
       } else {
-        await createExpense(expenseData);
-      }
-
-      // Recargar datos
-      if (loadVehicles) {
-        await loadVehicles();
+        await addExpense(expenseData);
       }
 
       navigation.goBack();

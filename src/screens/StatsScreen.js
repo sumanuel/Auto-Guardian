@@ -25,10 +25,20 @@ const StatsScreen = ({ navigation }) => {
 
   const calculateInvestment = () => {
     const allMaintenances = getAllMaintenances();
-    const allExpenses = getAllExpenses();
-    const allRepairs = getAllRepairs();
+
+    // Obtener solo los IDs de vehículos existentes
+    const existingVehicleIds = vehicles.map((v) => v.id);
+
+    // Obtener todos los gastos y reparaciones, pero solo de vehículos existentes
+    const allExpenses = getAllExpenses().filter((e) =>
+      existingVehicleIds.includes(e.vehicleId)
+    );
+    const allRepairs = getAllRepairs().filter((r) =>
+      existingVehicleIds.includes(r.vehicleId)
+    );
 
     // Calcular total general (mantenimientos + gastos + reparaciones)
+    // getAllMaintenances() ya filtra por vehículos existentes
     const maintenanceTotal = allMaintenances.reduce((sum, maintenance) => {
       return sum + (maintenance.cost || 0);
     }, 0);
@@ -46,48 +56,47 @@ const StatsScreen = ({ navigation }) => {
     setTotalInvestment(total);
 
     // Calcular por vehículo
-    const statsPerVehicle = vehicles
-      .map((vehicle) => {
-        const vehicleMaintenances = allMaintenances.filter(
-          (m) => m.vehicleId === vehicle.id
-        );
-        const vehicleExpenses = allExpenses.filter(
-          (e) => e.vehicleId === vehicle.id
-        );
-        const vehicleRepairs = allRepairs.filter(
-          (r) => r.vehicleId === vehicle.id
-        );
+    const statsPerVehicle = vehicles.map((vehicle) => {
+      const vehicleMaintenances = allMaintenances.filter(
+        (m) => m.vehicleId === vehicle.id
+      );
+      const vehicleExpenses = allExpenses.filter(
+        (e) => e.vehicleId === vehicle.id
+      );
+      const vehicleRepairs = allRepairs.filter(
+        (r) => r.vehicleId === vehicle.id
+      );
 
-        const maintenanceTotal = vehicleMaintenances.reduce(
-          (sum, m) => sum + (m.cost || 0),
-          0
-        );
-        const expenseTotal = vehicleExpenses.reduce(
-          (sum, e) => sum + (e.cost || 0),
-          0
-        );
-        const repairTotal = vehicleRepairs.reduce(
-          (sum, r) => sum + (r.cost || 0),
-          0
-        );
-        const totalCost = maintenanceTotal + expenseTotal + repairTotal;
-        const maintenanceCount = vehicleMaintenances.length;
-        const expenseCount = vehicleExpenses.length;
-        const repairCount = vehicleRepairs.length;
+      const maintenanceTotal = vehicleMaintenances.reduce(
+        (sum, m) => sum + (m.cost || 0),
+        0
+      );
+      const expenseTotal = vehicleExpenses.reduce(
+        (sum, e) => sum + (e.cost || 0),
+        0
+      );
+      const repairTotal = vehicleRepairs.reduce(
+        (sum, r) => sum + (r.cost || 0),
+        0
+      );
+      const totalCost = maintenanceTotal + expenseTotal + repairTotal;
+      const maintenanceCount = vehicleMaintenances.length;
+      const expenseCount = vehicleExpenses.length;
+      const repairCount = vehicleRepairs.length;
 
-        return {
-          id: vehicle.id,
-          name: vehicle.name,
-          brand: vehicle.brand,
-          model: vehicle.model,
-          totalCost,
-          maintenanceCount,
-          expenseCount,
-          repairCount,
-          photo: vehicle.photo,
-        };
-      })
-      .sort((a, b) => b.totalCost - a.totalCost); // Ordenar por mayor gasto
+      return {
+        id: vehicle.id,
+        name: vehicle.name,
+        brand: vehicle.brand,
+        model: vehicle.model,
+        totalCost,
+        maintenanceCount,
+        expenseCount,
+        repairCount,
+        photo: vehicle.photo,
+      };
+    });
+    // Mantener el mismo orden que en HomeScreen (no ordenar por costo)
 
     setVehicleStats(statsPerVehicle);
   };
@@ -98,7 +107,10 @@ const StatsScreen = ({ navigation }) => {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScrollView style={styles.content}>
+      <ScrollView
+        style={styles.content}
+        contentContainerStyle={styles.scrollContent}
+      >
         <Text style={[styles.title, { color: colors.text }]}>
           Inversión Total
         </Text>
@@ -234,7 +246,10 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+  },
+  scrollContent: {
     padding: 20,
+    paddingBottom: 40,
   },
   title: {
     fontSize: 28,

@@ -315,4 +315,50 @@ const migrateDatabase = () => {
   }
 };
 
+// Limpiar registros huérfanos (registros que apuntan a vehículos eliminados)
+export const cleanOrphanedRecords = () => {
+  try {
+    console.log("🧹 Limpiando registros huérfanos...");
+
+    // Eliminar mantenimientos de vehículos que ya no existen
+    const deletedMaintenances = db.runSync(`
+      DELETE FROM maintenances 
+      WHERE vehicleId NOT IN (SELECT id FROM vehicles)
+    `);
+
+    // Eliminar gastos de vehículos que ya no existen
+    const deletedExpenses = db.runSync(`
+      DELETE FROM expenses 
+      WHERE vehicleId NOT IN (SELECT id FROM vehicles)
+    `);
+
+    // Eliminar reparaciones de vehículos que ya no existen
+    const deletedRepairs = db.runSync(`
+      DELETE FROM repairs 
+      WHERE vehicleId NOT IN (SELECT id FROM vehicles)
+    `);
+
+    const totalDeleted =
+      deletedMaintenances.changes +
+      deletedExpenses.changes +
+      deletedRepairs.changes;
+
+    if (totalDeleted > 0) {
+      console.log(
+        `✅ Limpieza completada: ${totalDeleted} registros huérfanos eliminados`
+      );
+      console.log(`   - Mantenimientos: ${deletedMaintenances.changes}`);
+      console.log(`   - Gastos: ${deletedExpenses.changes}`);
+      console.log(`   - Reparaciones: ${deletedRepairs.changes}`);
+    } else {
+      console.log("✅ No se encontraron registros huérfanos");
+    }
+
+    return totalDeleted;
+  } catch (error) {
+    console.error("❌ Error limpiando registros huérfanos:", error);
+    return 0;
+  }
+};
+
 export default db;
