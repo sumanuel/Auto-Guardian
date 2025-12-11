@@ -5,6 +5,7 @@ import {
   Alert,
   FlatList,
   Modal,
+  Picker,
   StyleSheet,
   Text,
   TextInput,
@@ -25,7 +26,8 @@ const NotificationsScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
-  const [time, setTime] = useState("");
+  const [selectedHour, setSelectedHour] = useState(12);
+  const [selectedMinute, setSelectedMinute] = useState(0);
   const [selectedDays, setSelectedDays] = useState([]);
 
   const daysOfWeek = [
@@ -56,10 +58,13 @@ const NotificationsScreen = () => {
   };
 
   const handleAddNotification = async () => {
-    if (!title || !body || !time || selectedDays.length === 0) {
+    if (!title || !body || selectedDays.length === 0) {
       Alert.alert("Error", "Completa todos los campos");
       return;
     }
+    const time = `${selectedHour}:${selectedMinute
+      .toString()
+      .padStart(2, "0")}`;
     try {
       const id = await insertNotification(
         title,
@@ -70,7 +75,7 @@ const NotificationsScreen = () => {
 
       // Schedule the notifications for the next 4 occurrences
       const now = new Date();
-      const [hours, minutes] = time.split(":").map(Number);
+      const [hours, minutes] = [selectedHour, selectedMinute];
       const currentDay = now.getDay(); // 0 = Sunday
       for (let week = 0; week < 4; week++) {
         selectedDays.forEach(async (day) => {
@@ -97,7 +102,8 @@ const NotificationsScreen = () => {
       setModalVisible(false);
       setTitle("");
       setBody("");
-      setTime("");
+      setSelectedHour(12);
+      setSelectedMinute(0);
       setSelectedDays([]);
       loadNotifications();
     } catch (error) {
@@ -200,16 +206,47 @@ const NotificationsScreen = () => {
               value={body}
               onChangeText={setBody}
             />
-            <TextInput
-              style={[
-                styles.input,
-                { borderColor: colors.textTertiary, color: colors.text },
-              ]}
-              placeholder="Hora (HH:MM)"
-              placeholderTextColor={colors.textSecondary}
-              value={time}
-              onChangeText={setTime}
-            />
+            <Text style={[styles.timeLabel, { color: colors.text }]}>
+              Hora:
+            </Text>
+            <View style={styles.timeContainer}>
+              <View style={styles.pickerContainer}>
+                <Text style={[styles.pickerLabel, { color: colors.text }]}>
+                  Hora
+                </Text>
+                <Picker
+                  selectedValue={selectedHour}
+                  onValueChange={(itemValue) => setSelectedHour(itemValue)}
+                  style={[styles.picker, { color: colors.text }]}
+                >
+                  {Array.from({ length: 24 }, (_, i) => i + 1).map((hour) => (
+                    <Picker.Item
+                      key={hour}
+                      label={hour.toString()}
+                      value={hour}
+                    />
+                  ))}
+                </Picker>
+              </View>
+              <View style={styles.pickerContainer}>
+                <Text style={[styles.pickerLabel, { color: colors.text }]}>
+                  Minuto
+                </Text>
+                <Picker
+                  selectedValue={selectedMinute}
+                  onValueChange={(itemValue) => setSelectedMinute(itemValue)}
+                  style={[styles.picker, { color: colors.text }]}
+                >
+                  {Array.from({ length: 60 }, (_, i) => i).map((minute) => (
+                    <Picker.Item
+                      key={minute}
+                      label={minute.toString().padStart(2, "0")}
+                      value={minute}
+                    />
+                  ))}
+                </Picker>
+              </View>
+            </View>
             <Text style={[styles.daysLabel, { color: colors.text }]}>
               Días de la semana:
             </Text>
@@ -329,6 +366,28 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 10,
     marginBottom: 15,
+  },
+  timeLabel: {
+    fontSize: 16,
+    marginBottom: 10,
+  },
+  timeContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 15,
+  },
+  pickerContainer: {
+    flex: 1,
+    marginHorizontal: 5,
+  },
+  pickerLabel: {
+    fontSize: 14,
+    marginBottom: 5,
+    textAlign: "center",
+  },
+  picker: {
+    height: 50,
+    width: "100%",
   },
   daysLabel: {
     fontSize: 16,
