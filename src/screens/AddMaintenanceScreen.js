@@ -351,10 +351,13 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
       <KeyboardAvoidingView
         style={[styles.container, { backgroundColor: colors.background }]}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
       >
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.content}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
           <Text style={[styles.vehicleName, { color: colors.text }]}>
             {vehicle?.name}
@@ -625,6 +628,7 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
                   Notas
                 </Text>
                 <TextInput
+                  ref={notesRef}
                   style={[
                     styles.input,
                     styles.textArea,

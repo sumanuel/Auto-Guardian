@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import * as Contacts from "expo-contacts";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   Alert,
   FlatList,
@@ -61,6 +61,12 @@ const AddContactScreen = ({ navigation, route }) => {
   const [importModalVisible, setImportModalVisible] = useState(false);
   const [phoneContacts, setPhoneContacts] = useState([]);
   const [searchText, setSearchText] = useState("");
+
+  // Referencias para navegación entre campos
+  const aliasRef = useRef(null);
+  const nombreRef = useRef(null);
+  const telefonoRef = useRef(null);
+  const correoRef = useRef(null);
 
   const importContacts = async () => {
     try {
@@ -223,6 +229,8 @@ const AddContactScreen = ({ navigation, route }) => {
     <DialogComponent>
       <ScrollView
         style={[styles.container, { backgroundColor: colors.background }]}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
           <TouchableOpacity
@@ -250,6 +258,7 @@ const AddContactScreen = ({ navigation, route }) => {
           <View style={styles.inputContainer}>
             <Text style={[styles.label, { color: colors.text }]}>Alias</Text>
             <TextInput
+              ref={aliasRef}
               style={[
                 styles.input,
                 { color: colors.text, borderColor: colors.text },
@@ -258,12 +267,16 @@ const AddContactScreen = ({ navigation, route }) => {
               onChangeText={(value) => handleInputChange("alias", value)}
               placeholder="Ej: Mecanico de confianza, Proveedor, etc."
               placeholderTextColor={colors.text + "80"}
+              returnKeyType="next"
+              onSubmitEditing={() => nombreRef.current?.focus()}
+              blurOnSubmit={false}
             />
           </View>
 
           <View style={styles.inputContainer}>
             <Text style={[styles.label, { color: colors.text }]}>Nombre *</Text>
             <TextInput
+              ref={nombreRef}
               style={[
                 styles.input,
                 { color: colors.text, borderColor: colors.text },
@@ -272,6 +285,9 @@ const AddContactScreen = ({ navigation, route }) => {
               onChangeText={(value) => handleInputChange("nombre", value)}
               placeholder="Nombre completo"
               placeholderTextColor={colors.text + "80"}
+              returnKeyType="next"
+              onSubmitEditing={() => telefonoRef.current?.focus()}
+              blurOnSubmit={false}
             />
           </View>
 
@@ -309,6 +325,7 @@ const AddContactScreen = ({ navigation, route }) => {
                 {selectedCountry ? selectedCountry.code : "+__"}
               </Text>
               <TextInput
+                ref={telefonoRef}
                 style={[
                   styles.phoneInput,
                   { color: colors.text, borderColor: colors.text },
@@ -318,6 +335,9 @@ const AddContactScreen = ({ navigation, route }) => {
                 placeholder="Número sin código de país"
                 keyboardType="phone-pad"
                 placeholderTextColor={colors.text + "80"}
+                returnKeyType="next"
+                onSubmitEditing={() => correoRef.current?.focus()}
+                blurOnSubmit={false}
               />
             </View>
           </View>
@@ -325,6 +345,7 @@ const AddContactScreen = ({ navigation, route }) => {
           <View style={styles.inputContainer}>
             <Text style={[styles.label, { color: colors.text }]}>Correo</Text>
             <TextInput
+              ref={correoRef}
               style={[
                 styles.input,
                 { color: colors.text, borderColor: colors.text },
@@ -334,6 +355,8 @@ const AddContactScreen = ({ navigation, route }) => {
               placeholder="correo@ejemplo.com"
               keyboardType="email-address"
               placeholderTextColor={colors.text + "80"}
+              returnKeyType="done"
+              onSubmitEditing={handleSave}
             />
           </View>
 

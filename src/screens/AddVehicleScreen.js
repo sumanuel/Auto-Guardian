@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   Image,
   KeyboardAvoidingView,
@@ -23,6 +23,32 @@ const AddVehicleScreen = ({ navigation, route }) => {
   const { colors } = useTheme();
   const isEditing = route.params?.vehicle != null;
   const vehicleToEdit = route.params?.vehicle;
+
+  // Referencias para los inputs
+  const scrollViewRef = useRef(null);
+  const nameRef = useRef(null);
+  const brandRef = useRef(null);
+  const modelRef = useRef(null);
+  const yearRef = useRef(null);
+  const colorRef = useRef(null);
+  const plateRef = useRef(null);
+  const vinRef = useRef(null);
+  const kmRef = useRef(null);
+
+  const scrollToInput = (inputRef) => {
+    if (inputRef.current && scrollViewRef.current) {
+      inputRef.current.measureLayout(
+        scrollViewRef.current,
+        (x, y) => {
+          scrollViewRef.current.scrollTo({
+            y: y - 100,
+            animated: true,
+          });
+        },
+        () => {}
+      );
+    }
+  };
 
   const [formData, setFormData] = useState({
     name: vehicleToEdit?.name || "",
@@ -167,10 +193,14 @@ const AddVehicleScreen = ({ navigation, route }) => {
       <KeyboardAvoidingView
         style={[styles.container, { backgroundColor: colors.background }]}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
       >
         <ScrollView
+          ref={scrollViewRef}
           style={styles.scrollView}
           contentContainerStyle={styles.content}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
           {/* Foto del vehículo */}
           <View style={styles.photoSection}>
@@ -211,6 +241,7 @@ const AddVehicleScreen = ({ navigation, route }) => {
               Nombre del vehículo *
             </Text>
             <TextInput
+              ref={nameRef}
               style={[
                 styles.input,
                 {
@@ -223,6 +254,10 @@ const AddVehicleScreen = ({ navigation, route }) => {
               onChangeText={(value) => handleInputChange("name", value)}
               placeholder="Ej: Mi auto, Auto familiar..."
               placeholderTextColor={colors.textSecondary}
+              returnKeyType="next"
+              onFocus={() => scrollToInput(nameRef)}
+              onSubmitEditing={() => brandRef.current?.focus()}
+              blurOnSubmit={false}
             />
           </View>
 
@@ -230,6 +265,7 @@ const AddVehicleScreen = ({ navigation, route }) => {
           <View style={styles.inputGroup}>
             <Text style={[styles.label, { color: colors.text }]}>Marca</Text>
             <TextInput
+              ref={brandRef}
               style={[
                 styles.input,
                 {
@@ -242,6 +278,10 @@ const AddVehicleScreen = ({ navigation, route }) => {
               onChangeText={(value) => handleInputChange("brand", value)}
               placeholder="Toyota, Honda, Ford..."
               placeholderTextColor={colors.textSecondary}
+              returnKeyType="next"
+              onFocus={() => scrollToInput(brandRef)}
+              onSubmitEditing={() => modelRef.current?.focus()}
+              blurOnSubmit={false}
             />
           </View>
 
@@ -249,6 +289,7 @@ const AddVehicleScreen = ({ navigation, route }) => {
           <View style={styles.inputGroup}>
             <Text style={[styles.label, { color: colors.text }]}>Modelo</Text>
             <TextInput
+              ref={modelRef}
               style={[
                 styles.input,
                 {
@@ -259,8 +300,12 @@ const AddVehicleScreen = ({ navigation, route }) => {
               ]}
               value={formData.model}
               onChangeText={(value) => handleInputChange("model", value)}
-              placeholder="Corolla, Civic, F-150..."
+              placeholder="Camry, Civic, Focus..."
               placeholderTextColor={colors.textSecondary}
+              returnKeyType="next"
+              onFocus={() => scrollToInput(modelRef)}
+              onSubmitEditing={() => yearRef.current?.focus()}
+              blurOnSubmit={false}
             />
           </View>
 
@@ -268,6 +313,7 @@ const AddVehicleScreen = ({ navigation, route }) => {
           <View style={styles.inputGroup}>
             <Text style={[styles.label, { color: colors.text }]}>Año</Text>
             <TextInput
+              ref={yearRef}
               style={[
                 styles.input,
                 {
@@ -278,10 +324,14 @@ const AddVehicleScreen = ({ navigation, route }) => {
               ]}
               value={formData.year}
               onChangeText={(value) => handleInputChange("year", value)}
-              placeholder="2020"
+              placeholder="2024"
               placeholderTextColor={colors.textSecondary}
               keyboardType="numeric"
               maxLength={4}
+              returnKeyType="next"
+              onFocus={() => scrollToInput(yearRef)}
+              onSubmitEditing={() => colorRef.current?.focus()}
+              blurOnSubmit={false}
             />
           </View>
 
@@ -289,6 +339,7 @@ const AddVehicleScreen = ({ navigation, route }) => {
           <View style={styles.inputGroup}>
             <Text style={[styles.label, { color: colors.text }]}>Color</Text>
             <TextInput
+              ref={colorRef}
               style={[
                 styles.input,
                 {
@@ -301,6 +352,10 @@ const AddVehicleScreen = ({ navigation, route }) => {
               onChangeText={(value) => handleInputChange("color", value)}
               placeholder="Blanco, Negro, Rojo..."
               placeholderTextColor={colors.textSecondary}
+              returnKeyType="next"
+              onFocus={() => scrollToInput(colorRef)}
+              onSubmitEditing={() => plateRef.current?.focus()}
+              blurOnSubmit={false}
             />
           </View>
 
@@ -308,6 +363,7 @@ const AddVehicleScreen = ({ navigation, route }) => {
           <View style={styles.inputGroup}>
             <Text style={[styles.label, { color: colors.text }]}>Placa</Text>
             <TextInput
+              ref={plateRef}
               style={[
                 styles.input,
                 {
@@ -320,9 +376,13 @@ const AddVehicleScreen = ({ navigation, route }) => {
               onChangeText={(value) =>
                 handleInputChange("plate", value.toUpperCase())
               }
-              placeholder="ABC-123"
+              placeholder="ABC123"
               placeholderTextColor={colors.textSecondary}
               autoCapitalize="characters"
+              returnKeyType="next"
+              onFocus={() => scrollToInput(plateRef)}
+              onSubmitEditing={() => vinRef.current?.focus()}
+              blurOnSubmit={false}
             />
           </View>
 
@@ -332,6 +392,7 @@ const AddVehicleScreen = ({ navigation, route }) => {
               VIN (Número de serie)
             </Text>
             <TextInput
+              ref={vinRef}
               style={[
                 styles.input,
                 {
@@ -347,6 +408,10 @@ const AddVehicleScreen = ({ navigation, route }) => {
               placeholder="1HGBH41JXMN109186"
               placeholderTextColor={colors.textSecondary}
               autoCapitalize="characters"
+              returnKeyType="next"
+              onFocus={() => scrollToInput(vinRef)}
+              onSubmitEditing={() => kmRef.current?.focus()}
+              blurOnSubmit={false}
             />
           </View>
 
@@ -356,6 +421,7 @@ const AddVehicleScreen = ({ navigation, route }) => {
               Kilometraje actual
             </Text>
             <TextInput
+              ref={kmRef}
               style={[
                 styles.input,
                 {
@@ -369,6 +435,9 @@ const AddVehicleScreen = ({ navigation, route }) => {
               placeholder="0"
               placeholderTextColor={colors.textSecondary}
               keyboardType="numeric"
+              returnKeyType="done"
+              onFocus={() => scrollToInput(kmRef)}
+              onSubmitEditing={handleSubmit}
             />
           </View>
 
