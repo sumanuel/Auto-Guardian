@@ -1,7 +1,6 @@
 import * as ImagePicker from "expo-image-picker";
 import { useRef, useState } from "react";
 import {
-  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -313,8 +312,8 @@ const AddRepairScreen = ({ route, navigation }) => {
             />
           </View>
 
-          {/* Foto */}
-          <View style={styles.inputGroup}>
+          {/* Foto - OCULTA */}
+          {/* <View style={styles.inputGroup}>
             <Text style={[styles.label, { color: colors.text }]}>
               Foto de la factura
             </Text>
@@ -349,7 +348,7 @@ const AddRepairScreen = ({ route, navigation }) => {
                 icon="camera"
               />
             )}
-          </View>
+          </View> */}
 
           <Button
             title={isEditing ? "Actualizar Reparación" : "Guardar Reparación"}
