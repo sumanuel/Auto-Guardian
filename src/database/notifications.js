@@ -76,39 +76,40 @@ export const getAllNotifications = async () => {
 
 export const insertDefaultNotifications = async () => {
   try {
-    // Check if defaults already exist
-    const existing = await db.getAllAsync(
-      "SELECT id FROM notifications WHERE isDefault = 1"
-    );
-    if (existing.length === 0) {
-      // Insert default notifications
-      const defaults = [
-        {
-          title: "🔧 Recordatorio de Mantenimiento",
-          body: "Es hora de revisar el mantenimiento de tu vehículo. 🛠️",
-          days: "1", // Lunes
-          time: "09:00",
-        },
-        {
-          title: "📅 Chequeo Semanal",
-          body: "No olvides verificar el estado de tu auto. 🚗",
-          days: "3", // Miércoles
-          time: "10:00",
-        },
-        {
-          title: "🛞 Revisión de Neumáticos",
-          body: "Es viernes, revisa el estado de tus neumáticos. 🔍",
-          days: "5", // Viernes
-          time: "11:00",
-        },
-        {
-          title: "🚗 Mantén tu Vehículo en Forma",
-          body: "¡Un auto bien cuidado es tu mejor compañero de viaje! Revisa frenos, aceite y más. 💨✨",
-          days: "0,1,2,3,4,5,6", // Todos los días
-          time: "10:00",
-        },
-      ];
-      for (const def of defaults) {
+    const defaults = [
+      {
+        title: "🔧 Recordatorio de Mantenimiento",
+        body: "Es hora de revisar el mantenimiento de tu vehículo. 🛠️",
+        days: "1", // Lunes
+        time: "09:00",
+      },
+      {
+        title: "📅 Chequeo Semanal",
+        body: "No olvides verificar el estado de tu auto. 🚗",
+        days: "3", // Miércoles
+        time: "10:00",
+      },
+      {
+        title: "🛞 Revisión de Neumáticos",
+        body: "Es viernes, revisa el estado de tus neumáticos. 🔍",
+        days: "5", // Viernes
+        time: "11:00",
+      },
+      {
+        title: "🚗 Mantén tu Vehículo en Forma",
+        body: "¡Un auto bien cuidado es tu mejor compañero de viaje! Revisa frenos, aceite y más. 💨✨",
+        days: "0,1,2,3,4,5,6", // Todos los días
+        time: "10:00",
+      },
+    ];
+
+    for (const def of defaults) {
+      // Check if this specific default notification already exists
+      const existing = await db.getAllAsync(
+        "SELECT id FROM notifications WHERE title = ? AND isDefault = 1",
+        [def.title]
+      );
+      if (existing.length === 0) {
         await insertNotification(def.title, def.body, def.days, def.time, 1);
       }
     }
