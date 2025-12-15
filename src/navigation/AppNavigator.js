@@ -212,7 +212,7 @@ const AppNavigator = () => {
 
             if (route.name === "Inicio") {
               iconName = focused ? "home" : "home-outline";
-            } else if (route.name === "Inversión") {
+            } else if (route.name === "MRO") {
               iconName = focused ? "cash" : "cash-outline";
             } else if (route.name === "Más") {
               iconName = focused
@@ -228,9 +228,9 @@ const AppNavigator = () => {
             backgroundColor: colors.tabBarBackground,
             borderTopWidth: 1,
             borderTopColor: colors.tabBarBorder,
-            paddingBottom: Platform.OS === "ios" ? 34 : 16,
+            paddingBottom: Platform.OS === "ios" ? 34 : 44,
             paddingTop: 8,
-            height: Platform.OS === "ios" ? 95 : 80,
+            height: Platform.OS === "ios" ? 95 : 96,
             elevation: 8,
             shadowColor: colors.shadow,
             shadowOffset: { width: 0, height: -2 },
@@ -257,11 +257,11 @@ const AppNavigator = () => {
           })}
         />
         <Tab.Screen
-          name="Inversión"
+          name="MRO"
           component={StatsStack}
           listeners={({ navigation }) => ({
             tabPress: (e) => {
-              navigation.navigate("Inversión", { screen: "StatsMain" });
+              navigation.navigate("MRO", { screen: "StatsMain" });
             },
           })}
         />
