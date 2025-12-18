@@ -153,7 +153,7 @@ export const getDateUrgencyColor = (nextServiceDate) => {
 export const getDocumentExpiryColor = (expiryDate) => {
   if (!expiryDate) return "#666";
 
-  const expiry = new Date(expiryDate.split("T")[0]);
+  const expiry = new Date(expiryDate + "T00:00:00");
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const daysRemaining = Math.floor((expiry - today) / (1000 * 60 * 60 * 24));

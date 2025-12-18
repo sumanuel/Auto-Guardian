@@ -61,13 +61,8 @@ const AddDocumentScreen = ({ navigation, route }) => {
       setIssueDate(localToday);
       setIssueDateSelected(true); // La fecha de expedición por defecto ya está "seleccionada"
 
-      // Fecha de vencimiento por defecto: 1 año después
-      const nextYear = new Date(
-        today.getFullYear() + 1,
-        today.getMonth(),
-        today.getDate()
-      );
-      setExpiryDate(nextYear);
+      // Fecha de vencimiento por defecto: misma fecha actual
+      setExpiryDate(localToday);
       setExpiryDateSelected(true); // La fecha de vencimiento por defecto ya está "seleccionada"
     }
   }, []);
@@ -163,12 +158,28 @@ const AddDocumentScreen = ({ navigation, route }) => {
     }
 
     // Continuar con la validación de fechas y guardado
-    checkExpiryDateConfirmation();
+    await checkExpiryDateConfirmation();
   };
 
   const checkExpiryDateConfirmation = async () => {
     // Verificar que la fecha de vencimiento sea posterior a la fecha de expedición
-    if (expiryDate <= issueDate) {
+    // Comparar solo fecha (sin hora) para evitar problemas con horas diferentes
+    const issueDateOnly = new Date(
+      issueDate.getFullYear(),
+      issueDate.getMonth(),
+      issueDate.getDate()
+    );
+    const expiryDateOnly = new Date(
+      expiryDate.getFullYear(),
+      expiryDate.getMonth(),
+      expiryDate.getDate()
+    );
+
+    console.log("Issue date:", issueDateOnly);
+    console.log("Expiry date:", expiryDateOnly);
+    console.log("Comparison:", expiryDateOnly <= issueDateOnly);
+
+    if (expiryDateOnly <= issueDateOnly) {
       showDialog({
         title: "Error",
         message:
@@ -197,10 +208,10 @@ const AddDocumentScreen = ({ navigation, route }) => {
     setLoading(true);
 
     try {
-      // Convertir fechas a formato YYYY-MM-DD para guardar
-      const issueDateString = issueDate.toISOString().split("T")[0];
+      // Convertir fechas a formato YYYY-MM-DD local para guardar
+      const issueDateString = issueDate.toLocaleDateString("en-CA");
       const expiryDateString = expiryDate
-        ? expiryDate.toISOString().split("T")[0]
+        ? expiryDate.toLocaleDateString("en-CA")
         : null;
 
       let success;

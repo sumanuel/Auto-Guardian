@@ -36,29 +36,32 @@ const VehicleDocumentsScreen = ({ navigation, route }) => {
     setLoading(false);
   };
 
-  const handleDeleteDocument = (document) => {
-    showDialog({
+  const handleDeleteDocument = async (document) => {
+    const confirmed = await showDialog({
       title: "Eliminar Documento",
       message: `¿Estás seguro de que quieres eliminar "${document.type_document}"?`,
-      type: "warning",
-      onConfirm: () => {
-        const success = deleteVehicleDocument(document.id);
-        if (success) {
-          loadDocuments();
-          showDialog({
-            title: "Éxito",
-            message: "Documento eliminado correctamente",
-            type: "success",
-          });
-        } else {
-          showDialog({
-            title: "Error",
-            message: "No se pudo eliminar el documento",
-            type: "error",
-          });
-        }
-      },
+      type: "confirm",
     });
+
+    if (!confirmed) {
+      return; // Usuario canceló
+    }
+
+    const success = deleteVehicleDocument(document.id);
+    if (success) {
+      loadDocuments();
+      showDialog({
+        title: "Éxito",
+        message: "Documento eliminado correctamente",
+        type: "success",
+      });
+    } else {
+      showDialog({
+        title: "Error",
+        message: "No se pudo eliminar el documento",
+        type: "error",
+      });
+    }
   };
 
   const renderDocumentItem = ({ item }) => {
@@ -67,7 +70,7 @@ const VehicleDocumentsScreen = ({ navigation, route }) => {
     const getExpiryText = (expiryDate) => {
       if (!expiryDate) return null;
 
-      const expiry = new Date(expiryDate.split("T")[0]);
+      const expiry = new Date(expiryDate + "T00:00:00");
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const daysRemaining = Math.floor(
@@ -113,14 +116,18 @@ const VehicleDocumentsScreen = ({ navigation, route }) => {
               {item.type_document}
             </Text>
             <Text style={[styles.issueDate, { color: colors.textSecondary }]}>
-              Expedición: {new Date(item.issue_date).toLocaleDateString()}
+              Expedición:{" "}
+              {new Date(item.issue_date + "T00:00:00").toLocaleDateString()}
             </Text>
             {item.expiry_date && (
               <View style={styles.expiryContainer}>
                 <Text
                   style={[styles.expiryDate, { color: colors.textSecondary }]}
                 >
-                  Vencimiento: {new Date(item.expiry_date).toLocaleDateString()}
+                  Vencimiento:{" "}
+                  {new Date(
+                    item.expiry_date + "T00:00:00"
+                  ).toLocaleDateString()}
                 </Text>
                 <Text style={[styles.expiryStatus, { color: expiryColor }]}>
                   {getExpiryText(item.expiry_date)}
