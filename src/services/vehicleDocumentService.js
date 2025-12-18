@@ -88,6 +88,28 @@ export const deleteVehicleDocument = (id) => {
   }
 };
 
+// Obtener todos los documentos de vehículos
+export const getAllVehicleDocuments = () => {
+  try {
+    if (!db) {
+      console.warn("Base de datos no inicializada");
+      return [];
+    }
+    const documents = db.getAllSync(
+      `SELECT vd.*, dt.type_document as document_type_name, dt.description as document_description,
+              v.name as vehicle_name, v.plate as vehicle_plate
+       FROM vehicle_documents vd
+       JOIN document_types dt ON vd.document_type_id = dt.id
+       JOIN vehicles v ON vd.vehicle_id = v.id
+       ORDER BY vd.expiry_date ASC`
+    );
+    return documents;
+  } catch (error) {
+    console.error("Error obteniendo todos los documentos de vehículos:", error);
+    return [];
+  }
+};
+
 // Obtener documentos próximos a vencer (dentro de 30 días)
 export const getExpiringDocuments = (days = 30) => {
   try {
@@ -95,19 +117,21 @@ export const getExpiringDocuments = (days = 30) => {
       console.warn("Base de datos no inicializada");
       return [];
     }
+    const today = new Date();
+    const todayStr = today.toISOString().split("T")[0];
     const futureDate = new Date();
     futureDate.setDate(futureDate.getDate() + days);
     const futureDateStr = futureDate.toISOString().split("T")[0];
 
     const documents = db.getAllSync(
-      `SELECT vd.*, dt.type_document, dt.description as document_description,
+      `SELECT vd.*, dt.type_document as document_type_name, dt.description as document_description,
               v.name as vehicle_name, v.plate as vehicle_plate
        FROM vehicle_documents vd
        JOIN document_types dt ON vd.document_type_id = dt.id
        JOIN vehicles v ON vd.vehicle_id = v.id
-       WHERE vd.expiry_date IS NOT NULL AND vd.expiry_date <= ?
+       WHERE vd.expiry_date IS NOT NULL AND vd.expiry_date >= ? AND vd.expiry_date <= ?
        ORDER BY vd.expiry_date ASC`,
-      [futureDateStr]
+      [todayStr, futureDateStr]
     );
     return documents;
   } catch (error) {

@@ -1,6 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import { useEffect, useState } from "react";
 import { FlatList, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
 import { COLORS } from "../data/constants";
 
@@ -110,26 +112,115 @@ const VehiclesTab = ({ summary }) => {
   );
 };
 
-// Componente para el tab de Documentos (placeholder)
+// Componente para el tab de Documentos
 const DocumentsTab = () => {
   const { colors } = useTheme();
+  const { getExpiringDocuments } = useApp();
+  const [expiringDocuments, setExpiringDocuments] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  return (
-    <View style={[styles.tabContainer, { backgroundColor: colors.background }]}>
-      <View style={styles.emptyState}>
-        <Ionicons
-          name="document-outline"
-          size={60}
-          color={colors.textSecondary}
-        />
-        <Text style={[styles.emptyTitle, { color: colors.text }]}>
-          Próximamente
-        </Text>
-        <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-          Aquí podrás ver alertas relacionadas con documentos de tus vehículos.
+  useEffect(() => {
+    loadExpiringDocuments();
+  }, []);
+
+  const loadExpiringDocuments = async () => {
+    try {
+      setLoading(true);
+      const documents = await getExpiringDocuments();
+      setExpiringDocuments(documents);
+    } catch (error) {
+      console.error("Error loading expiring documents:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const renderDocumentItem = ({ item }) => {
+    const daysRemaining = Math.ceil(
+      (new Date(item.expiry_date) - new Date()) / (1000 * 60 * 60 * 24)
+    );
+
+    return (
+      <View
+        style={[styles.alertItem, { backgroundColor: colors.cardBackground }]}
+      >
+        <View style={styles.alertHeader}>
+          <View style={styles.alertIcon}>
+            <Ionicons
+              name="document-text"
+              size={24}
+              color={daysRemaining <= 7 ? COLORS.danger : COLORS.warning}
+            />
+          </View>
+          <View style={styles.alertContent}>
+            <Text style={[styles.alertVehicle, { color: colors.text }]}>
+              {item.document_type_name || "Documento"}
+            </Text>
+            <Text
+              style={[styles.alertMaintenance, { color: colors.textSecondary }]}
+            >
+              {item.vehicle_name || "Vehículo"}
+            </Text>
+          </View>
+        </View>
+        <Text style={[styles.alertReason, { color: colors.textSecondary }]}>
+          Vence en {daysRemaining} día{daysRemaining !== 1 ? "s" : ""} (
+          {new Date(item.expiry_date).toLocaleDateString()})
         </Text>
       </View>
-    </View>
+    );
+  };
+
+  if (loading) {
+    return (
+      <View
+        style={[styles.tabContainer, { backgroundColor: colors.background }]}
+      >
+        <View style={styles.emptyState}>
+          <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+            Cargando documentos...
+          </Text>
+        </View>
+      </View>
+    );
+  }
+
+  return (
+    <ScrollView
+      style={[styles.tabContainer, { backgroundColor: colors.background }]}
+      showsVerticalScrollIndicator={false}
+    >
+      {expiringDocuments.length === 0 ? (
+        <View style={styles.emptyState}>
+          <Ionicons
+            name="document-outline"
+            size={60}
+            color={colors.textSecondary}
+          />
+          <Text style={[styles.emptyTitle, { color: colors.text }]}>
+            Sin documentos próximos a vencer
+          </Text>
+          <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+            No tienes documentos que venzan en los próximos 30 días.
+          </Text>
+        </View>
+      ) : (
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Ionicons name="time" size={20} color={COLORS.warning} />
+            <Text style={[styles.sectionTitle, { color: COLORS.warning }]}>
+              Próximos a vencer ({expiringDocuments.length})
+            </Text>
+          </View>
+          <FlatList
+            data={expiringDocuments}
+            renderItem={renderDocumentItem}
+            keyExtractor={(item) => `document-${item.id}`}
+            scrollEnabled={false}
+          />
+        </View>
+      )}
+    </ScrollView>
   );
 };
 

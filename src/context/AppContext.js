@@ -2,10 +2,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createContext, useContext, useEffect, useState } from "react";
 import * as contactService from "../services/contactService";
 import { cleanOrphanedRecords, initDatabase } from "../services/database";
+import * as documentService from "../services/documentService";
 import * as expenseService from "../services/expenseService";
 import * as maintenanceService from "../services/maintenanceService";
 import * as notificationService from "../services/notificationService";
 import * as repairService from "../services/repairService";
+import * as vehicleDocumentService from "../services/vehicleDocumentService";
 import * as vehicleService from "../services/vehicleService";
 
 const AppContext = createContext();
@@ -322,6 +324,27 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+  // Funciones de documentos
+  const getDocuments = async () => {
+    try {
+      const documents = await documentService.getAllDocuments();
+      return documents;
+    } catch (error) {
+      console.error("Error getting documents:", error);
+      throw error;
+    }
+  };
+
+  const getExpiringDocuments = async () => {
+    try {
+      const documents = await vehicleDocumentService.getExpiringDocuments(30);
+      return documents;
+    } catch (error) {
+      console.error("Error getting expiring documents:", error);
+      throw error;
+    }
+  };
+
   // Función para actualizar el badge del icono de la app
   const updateAppBadge = async (vehiclesList = vehicles) => {
     try {
@@ -536,6 +559,9 @@ export const AppProvider = ({ children }) => {
     updateExpense,
     removeExpense,
     getExpenseStats: expenseService.getExpenseStats,
+    // Document functions
+    getDocuments,
+    getExpiringDocuments,
     // Notification functions
     checkPendingMaintenances,
   };
