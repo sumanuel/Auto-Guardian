@@ -136,21 +136,10 @@ const VehicleDocumentsScreen = ({ navigation, route }) => {
   return (
     <DialogComponent>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
-            <Ionicons name="arrow-back" size={24} color={colors.text} />
-          </TouchableOpacity>
-          <View style={styles.headerInfo}>
-            <Text style={[styles.headerTitle, { color: colors.text }]}>
-              Documentos
-            </Text>
-            <Text style={[styles.vehicleName, { color: colors.textSecondary }]}>
-              {vehicle?.name || "Vehículo"}
-            </Text>
-          </View>
+        <View style={styles.vehicleHeader}>
+          <Text style={[styles.vehicleName, { color: colors.textSecondary }]}>
+            {vehicle?.name || "Vehículo"}
+          </Text>
         </View>
 
         <FlatList
@@ -198,25 +187,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
+  vehicleHeader: {
     padding: 20,
     paddingBottom: 10,
-  },
-  backButton: {
-    marginRight: 16,
-  },
-  headerInfo: {
-    flex: 1,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
+    alignItems: "center",
   },
   vehicleName: {
-    fontSize: 14,
-    marginTop: 2,
+    fontSize: 16,
+    fontWeight: "600",
   },
   listContainer: {
     padding: 20,

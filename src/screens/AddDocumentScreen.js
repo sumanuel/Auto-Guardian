@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import DatePicker from "../components/common/DatePicker";
 import { useTheme } from "../context/ThemeContext";
 import { useDialog } from "../hooks/useDialog";
 import { getDocumentTypes } from "../services/documentService";
@@ -27,8 +28,6 @@ const AddDocumentScreen = ({ navigation, route }) => {
   const [issueDate, setIssueDate] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
   const [showTypePicker, setShowTypePicker] = useState(false);
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [datePickerTarget, setDatePickerTarget] = useState(""); // "issue" or "expiry"
   const [loading, setLoading] = useState(false);
 
   const isEditing = !!document;
@@ -50,31 +49,6 @@ const AddDocumentScreen = ({ navigation, route }) => {
     setShowTypePicker(false);
   };
 
-  const formatDateForDisplay = (dateString) => {
-    if (!dateString) return "";
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString();
-    } catch {
-      return dateString;
-    }
-  };
-
-  const openDatePicker = (target) => {
-    setDatePickerTarget(target);
-    setShowDatePicker(true);
-  };
-
-  const handleDateSelect = (dateString) => {
-    if (datePickerTarget === "issue") {
-      setIssueDate(dateString);
-    } else if (datePickerTarget === "expiry") {
-      setExpiryDate(dateString);
-    }
-    setShowDatePicker(false);
-    setDatePickerTarget("");
-  };
-
   const handleSave = () => {
     if (!selectedDocumentType) {
       showDialog({
@@ -89,6 +63,15 @@ const AddDocumentScreen = ({ navigation, route }) => {
       showDialog({
         title: "Error",
         message: "Debes ingresar la fecha de expedición",
+        type: "error",
+      });
+      return;
+    }
+
+    if (!expiryDate) {
+      showDialog({
+        title: "Error",
+        message: "Debes ingresar la fecha de vencimiento",
         type: "error",
       });
       return;
@@ -194,59 +177,9 @@ const AddDocumentScreen = ({ navigation, route }) => {
     </TouchableOpacity>
   );
 
-  const renderDateOption = ({ item }) => (
-    <TouchableOpacity
-      style={[
-        styles.dateOption,
-        { backgroundColor: colors.cardBackground, borderColor: colors.border },
-      ]}
-      onPress={() => handleDateSelect(item.value)}
-    >
-      <Text style={[styles.dateOptionText, { color: colors.text }]}>
-        {item.label}
-      </Text>
-    </TouchableOpacity>
-  );
-
-  // Generate date options for the next 2 years
-  const getDateOptions = () => {
-    const options = [];
-    const today = new Date();
-
-    // Add today
-    options.push({
-      label: "Hoy",
-      value: today.toISOString().split("T")[0],
-    });
-
-    // Add dates for the next 2 years
-    for (let i = 1; i <= 730; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
-      options.push({
-        label: date.toLocaleDateString(),
-        value: date.toISOString().split("T")[0],
-      });
-    }
-
-    return options;
-  };
-
   return (
     <DialogComponent>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
-            <Ionicons name="arrow-back" size={24} color={colors.text} />
-          </TouchableOpacity>
-          <Text style={[styles.headerTitle, { color: colors.text }]}>
-            {isEditing ? "Editar Documento" : "Agregar Documento"}
-          </Text>
-        </View>
-
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
           <Text style={[styles.vehicleName, { color: colors.textSecondary }]}>
             {vehicle?.name || "Vehículo"}
@@ -290,72 +223,20 @@ const AddDocumentScreen = ({ navigation, route }) => {
           </View>
 
           {/* Fecha de expedición */}
-          <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>
-              Fecha de Expedición *
-            </Text>
-            <TouchableOpacity
-              style={[
-                styles.selector,
-                {
-                  borderColor: colors.border,
-                  backgroundColor: colors.cardBackground,
-                },
-              ]}
-              onPress={() => openDatePicker("issue")}
-            >
-              <Text
-                style={[
-                  styles.selectorText,
-                  {
-                    color: issueDate ? colors.text : colors.textSecondary,
-                  },
-                ]}
-              >
-                {issueDate
-                  ? formatDateForDisplay(issueDate)
-                  : "Seleccionar fecha"}
-              </Text>
-              <Ionicons
-                name="calendar-outline"
-                size={20}
-                color={colors.textSecondary}
-              />
-            </TouchableOpacity>
-          </View>
+          <DatePicker
+            label="Fecha de Expedición *"
+            value={issueDate ? new Date(issueDate) : new Date()}
+            onChange={(date) => setIssueDate(date.toISOString().split("T")[0])}
+          />
 
           {/* Fecha de vencimiento */}
-          <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>
-              Fecha de Vencimiento
-            </Text>
-            <TouchableOpacity
-              style={[
-                styles.selector,
-                {
-                  borderColor: colors.border,
-                  backgroundColor: colors.cardBackground,
-                },
-              ]}
-              onPress={() => openDatePicker("expiry")}
-            >
-              <Text
-                style={[
-                  styles.selectorText,
-                  {
-                    color: expiryDate ? colors.text : colors.textSecondary,
-                  },
-                ]}
-              >
-                {expiryDate ? formatDateForDisplay(expiryDate) : "Opcional"}
-              </Text>
-              <Ionicons
-                name="calendar-outline"
-                size={20}
-                color={colors.textSecondary}
-              />
-            </TouchableOpacity>
-          </View>
+          <DatePicker
+            label="Fecha de Vencimiento *"
+            value={expiryDate ? new Date(expiryDate) : null}
+            onChange={(date) =>
+              setExpiryDate(date ? date.toISOString().split("T")[0] : "")
+            }
+          />
 
           {/* Botones */}
           <View style={styles.buttonContainer}>
@@ -421,46 +302,6 @@ const AddDocumentScreen = ({ navigation, route }) => {
             </View>
           </View>
         </Modal>
-
-        {/* Modal para seleccionar fecha */}
-        <Modal
-          visible={showDatePicker}
-          animationType="slide"
-          transparent={true}
-          onRequestClose={() => setShowDatePicker(false)}
-        >
-          <View style={styles.modalOverlay}>
-            <View
-              style={[
-                styles.modalContent,
-                { backgroundColor: colors.cardBackground },
-              ]}
-            >
-              <View style={styles.modalHeader}>
-                <Text style={[styles.modalTitle, { color: colors.text }]}>
-                  Seleccionar Fecha
-                </Text>
-                <TouchableOpacity onPress={() => setShowDatePicker(false)}>
-                  <Ionicons name="close" size={24} color={colors.text} />
-                </TouchableOpacity>
-              </View>
-
-              <FlatList
-                data={getDateOptions()}
-                keyExtractor={(item) => item.value}
-                renderItem={renderDateOption}
-                contentContainerStyle={styles.dateList}
-                showsVerticalScrollIndicator={false}
-                initialScrollIndex={0}
-                getItemLayout={(data, index) => ({
-                  length: 50,
-                  offset: 50 * index,
-                  index,
-                })}
-              />
-            </View>
-          </View>
-        </Modal>
       </View>
     </DialogComponent>
   );
@@ -470,26 +311,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 20,
-    paddingBottom: 10,
-  },
-  backButton: {
-    marginRight: 16,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    flex: 1,
-  },
   content: {
     flex: 1,
     padding: 20,
   },
   vehicleName: {
     fontSize: 16,
+    fontWeight: "600",
     marginBottom: 20,
     textAlign: "center",
   },
@@ -500,18 +328,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     marginBottom: 8,
-  },
-  selector: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-  },
-  selectorText: {
-    fontSize: 16,
-    flex: 1,
   },
   buttonContainer: {
     flexDirection: "row",
@@ -580,19 +396,6 @@ const styles = StyleSheet.create({
   },
   typeOptionDescription: {
     fontSize: 14,
-  },
-  dateList: {
-    padding: 20,
-  },
-  dateOption: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 8,
-    alignItems: "center",
-  },
-  dateOptionText: {
-    fontSize: 16,
   },
 });
 
