@@ -5,7 +5,6 @@ import { FlatList, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
 import { COLORS } from "../data/constants";
-import * as vehicleDocumentService from "../services/vehicleDocumentService";
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -127,28 +126,7 @@ const DocumentsTab = () => {
   const loadExpiringDocuments = async () => {
     try {
       setLoading(true);
-
-      // Debug: ver todos los documentos
-      console.log("🔍 Verificando todos los documentos en BD...");
-      const allDocs = await vehicleDocumentService.getAllVehicleDocuments();
-      console.log(
-        "📄 Todos los documentos:",
-        allDocs.map((d) => ({
-          type: d.document_type_name,
-          expiry: d.expiry_date,
-          vehicle: d.vehicle_name,
-        }))
-      );
-
       const documents = await getExpiringDocuments(30);
-      console.log(
-        "Documentos próximos a vencer (30 días):",
-        documents.map((d) => ({
-          type: d.document_type_name,
-          expiry: d.expiry_date,
-          vehicle: d.vehicle_name,
-        }))
-      );
       setExpiringDocuments(documents);
 
       // Actualizar el badge después de cargar los documentos

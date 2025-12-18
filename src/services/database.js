@@ -212,9 +212,8 @@ const seedDocumentTypes = () => {
         [docType.code, docType.type_document, docType.description]
       );
     });
-    console.log("✅ Tipos de documentos predeterminados insertados");
   } catch (error) {
-    console.log("❌ Error insertando tipos de documentos:", error);
+    console.error("Error insertando tipos de documentos:", error);
   }
 };
 
@@ -348,7 +347,6 @@ export const initDatabase = () => {
       );
     `);
 
-    console.log("✅ Base de datos inicializada correctamente");
     seedMaintenanceTypes();
     seedDocumentTypes();
     migrateDatabase();
@@ -397,8 +395,6 @@ const migrateDatabase = () => {
 // Limpiar registros huérfanos (registros que apuntan a vehículos eliminados)
 export const cleanOrphanedRecords = () => {
   try {
-    console.log("🧹 Limpiando registros huérfanos...");
-
     // Eliminar mantenimientos de vehículos que ya no existen
     const deletedMaintenances = db.runSync(`
       DELETE FROM maintenances 
@@ -422,20 +418,9 @@ export const cleanOrphanedRecords = () => {
       deletedExpenses.changes +
       deletedRepairs.changes;
 
-    if (totalDeleted > 0) {
-      console.log(
-        `✅ Limpieza completada: ${totalDeleted} registros huérfanos eliminados`
-      );
-      console.log(`   - Mantenimientos: ${deletedMaintenances.changes}`);
-      console.log(`   - Gastos: ${deletedExpenses.changes}`);
-      console.log(`   - Reparaciones: ${deletedRepairs.changes}`);
-    } else {
-      console.log("✅ No se encontraron registros huérfanos");
-    }
-
     return totalDeleted;
   } catch (error) {
-    console.error("❌ Error limpiando registros huérfanos:", error);
+    console.error("Error limpiando registros huérfanos:", error);
     return 0;
   }
 };

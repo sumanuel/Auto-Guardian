@@ -39,11 +39,9 @@ export const requestNotificationPermissions = async () => {
         });
       } catch (channelError) {
         // No hay problema si falla en Expo Go
-        console.log("⚠️ Canal de Android no disponible en Expo Go");
       }
     }
 
-    console.log("✅ Permisos de notificación otorgados");
     return true;
   } catch (error) {
     console.error("Error solicitando permisos:", error);
@@ -207,36 +205,23 @@ export const checkAndNotifyPendingMaintenances = async (
 // Actualizar badge del icono de la app
 export const updateBadgeCount = async (count) => {
   try {
-    console.log(`🔄 Llamando setBadgeCountAsync con: ${count}`);
-
     // Verificar si las notificaciones están disponibles
     const permissions = await Notifications.getPermissionsAsync();
-    console.log(`🔐 Permisos de notificación:`, permissions);
 
     if (permissions.granted) {
       await Notifications.setBadgeCountAsync(count);
-      console.log(`✅ Badge actualizado a: ${count}`);
 
       // Verificar que se aplicó correctamente
       const currentBadge = await Notifications.getBadgeCountAsync();
-      console.log(`🔍 Badge actual en el sistema: ${currentBadge}`);
 
       if (currentBadge !== count) {
-        console.log(
-          `⚠️ Badge no se aplicó correctamente (${currentBadge} != ${count})`
-        );
-        console.log(
-          `💡 Esto es normal en Expo Go. El badge funciona en builds de producción.`
-        );
+        // Esto es normal en Expo Go
       }
     } else {
-      console.log(`⚠️ No hay permisos para actualizar badge`);
+      console.warn("Permisos de notificación no otorgados");
     }
   } catch (error) {
-    console.error("❌ Error actualizando badge:", error);
-    console.log(
-      `💡 Esto puede deberse a que estamos en Expo Go, que tiene limitaciones con notificaciones nativas`
-    );
+    console.error("Error actualizando badge:", error);
   }
 };
 

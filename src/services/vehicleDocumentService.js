@@ -123,10 +123,6 @@ export const getExpiringDocuments = (days = 30) => {
     futureDate.setDate(futureDate.getDate() + days);
     const futureDateStr = futureDate.toLocaleDateString("en-CA");
 
-    console.log(
-      `🔍 Consultando documentos entre ${todayStr} y ${futureDateStr}`
-    );
-
     const documents = db.getAllSync(
       `SELECT vd.*, dt.type_document as document_type_name, dt.description as document_description,
               v.name as vehicle_name, v.plate as vehicle_plate
@@ -136,15 +132,6 @@ export const getExpiringDocuments = (days = 30) => {
        WHERE vd.expiry_date IS NOT NULL AND vd.expiry_date >= ? AND vd.expiry_date <= ?
        ORDER BY vd.expiry_date ASC`,
       [todayStr, futureDateStr]
-    );
-
-    console.log(
-      `📄 Consulta SQL devolvió ${documents.length} documentos:`,
-      documents.map((d) => ({
-        type: d.document_type_name,
-        expiry: d.expiry_date,
-        vehicle: d.vehicle_name,
-      }))
     );
 
     return documents;

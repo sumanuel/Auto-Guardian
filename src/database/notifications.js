@@ -14,7 +14,6 @@ export const initDatabase = async () => {
         isDefault INTEGER DEFAULT 0
       );`
     );
-    console.log("Table created successfully");
     // Try to add column if not exists (for migration)
     try {
       await db.runAsync(
