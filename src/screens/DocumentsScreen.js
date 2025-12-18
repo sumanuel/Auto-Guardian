@@ -1,4 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
+import React, { useState } from "react";
 import {
   FlatList,
   StyleSheet,
@@ -15,16 +17,38 @@ const DocumentsScreen = ({ navigation }) => {
   const { vehicles } = useApp();
   const { DialogComponent } = useDialog();
   const { colors } = useTheme();
+  const [vehiclesWithDocs, setVehiclesWithDocs] = useState([]);
 
-  // Calcular documentos por vehículo
-  const vehiclesWithDocuments = vehicles.map((vehicle) => {
-    const documents = getVehicleDocuments(vehicle.id);
-    return {
-      ...vehicle,
-      documentCount: documents.length,
-      documents: documents,
-    };
-  });
+  useFocusEffect(
+    React.useCallback(() => {
+      loadVehiclesWithDocuments();
+    }, [vehicles])
+  );
+
+  const loadVehiclesWithDocuments = () => {
+    const vehiclesWithDocuments = vehicles.map((vehicle) => {
+      const documents = getVehicleDocuments(vehicle.id);
+      return {
+        ...vehicle,
+        documentCount: documents.length,
+        documents: documents,
+      };
+    });
+    setVehiclesWithDocs(vehiclesWithDocuments);
+  };
+
+  // Usar datos del estado si existen, sino calcular
+  const displayVehicles =
+    vehiclesWithDocs.length > 0
+      ? vehiclesWithDocs
+      : vehicles.map((vehicle) => {
+          const documents = getVehicleDocuments(vehicle.id);
+          return {
+            ...vehicle,
+            documentCount: documents.length,
+            documents: documents,
+          };
+        });
 
   const handleVehiclePress = (vehicleId) => {
     const vehicle = vehicles.find((v) => v.id === vehicleId);
@@ -82,7 +106,7 @@ const DocumentsScreen = ({ navigation }) => {
         </View>
 
         <FlatList
-          data={vehiclesWithDocuments}
+          data={displayVehicles}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderVehicleCard}
           contentContainerStyle={styles.listContainer}
