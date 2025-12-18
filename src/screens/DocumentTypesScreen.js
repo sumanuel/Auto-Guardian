@@ -403,6 +403,9 @@ const DocumentTypesScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   header: {
     padding: 20,
     paddingBottom: 10,
