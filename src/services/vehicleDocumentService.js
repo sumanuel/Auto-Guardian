@@ -123,6 +123,10 @@ export const getExpiringDocuments = (days = 30) => {
     futureDate.setDate(futureDate.getDate() + days);
     const futureDateStr = futureDate.toISOString().split("T")[0];
 
+    console.log(
+      `🔍 Consultando documentos entre ${todayStr} y ${futureDateStr}`
+    );
+
     const documents = db.getAllSync(
       `SELECT vd.*, dt.type_document as document_type_name, dt.description as document_description,
               v.name as vehicle_name, v.plate as vehicle_plate
@@ -133,6 +137,16 @@ export const getExpiringDocuments = (days = 30) => {
        ORDER BY vd.expiry_date ASC`,
       [todayStr, futureDateStr]
     );
+
+    console.log(
+      `📄 Consulta SQL devolvió ${documents.length} documentos:`,
+      documents.map((d) => ({
+        type: d.document_type_name,
+        expiry: d.expiry_date,
+        vehicle: d.vehicle_name,
+      }))
+    );
+
     return documents;
   } catch (error) {
     console.error("Error obteniendo documentos próximos a vencer:", error);

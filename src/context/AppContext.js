@@ -337,10 +337,16 @@ export const AppProvider = ({ children }) => {
 
   const getExpiringDocuments = async () => {
     try {
+      console.log("📋 getExpiringDocuments() llamado");
       const documents = await vehicleDocumentService.getExpiringDocuments(30);
+      console.log(
+        "📋 getExpiringDocuments() devolvió:",
+        documents.length,
+        "documentos"
+      );
       return documents;
     } catch (error) {
-      console.error("Error getting expiring documents:", error);
+      console.error("❌ Error getting expiring documents:", error);
       throw error;
     }
   };
@@ -396,10 +402,23 @@ export const AppProvider = ({ children }) => {
 
       // Contar documentos urgentes
       try {
+        console.log("🔍 Contando documentos urgentes para badge...");
         const expiringDocuments = await getExpiringDocuments();
+        console.log(
+          "📄 Documentos urgentes encontrados:",
+          expiringDocuments.length
+        );
+        console.log(
+          "📄 Detalles:",
+          expiringDocuments.map((d) => ({
+            type: d.document_type_name,
+            expiry: d.expiry_date,
+          }))
+        );
         totalAlerts += expiringDocuments.length;
+        console.log("🔔 Total alerts finales:", totalAlerts);
       } catch (error) {
-        console.error("Error counting expiring documents for badge:", error);
+        console.error("❌ Error counting expiring documents for badge:", error);
       }
 
       // Actualizar badge con el número de alertas
@@ -571,6 +590,8 @@ export const AppProvider = ({ children }) => {
     // Document functions
     getDocuments,
     getExpiringDocuments,
+    // Badge function
+    updateAppBadge,
     // Notification functions
     checkPendingMaintenances,
   };
