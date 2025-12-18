@@ -350,6 +350,7 @@ export const AppProvider = ({ children }) => {
     try {
       let totalAlerts = 0;
 
+      // Contar alertas de mantenimientos
       for (const vehicle of vehiclesList) {
         const upcomingMaintenances = getUpcomingMaintenances(
           vehicle.id,
@@ -391,6 +392,14 @@ export const AppProvider = ({ children }) => {
             totalAlerts++;
           }
         }
+      }
+
+      // Contar documentos urgentes
+      try {
+        const expiringDocuments = await getExpiringDocuments();
+        totalAlerts += expiringDocuments.length;
+      } catch (error) {
+        console.error("Error counting expiring documents for badge:", error);
       }
 
       // Actualizar badge con el número de alertas

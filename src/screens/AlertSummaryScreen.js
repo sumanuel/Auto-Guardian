@@ -126,7 +126,7 @@ const DocumentsTab = () => {
   const loadExpiringDocuments = async () => {
     try {
       setLoading(true);
-      const documents = await getExpiringDocuments();
+      const documents = await getExpiringDocuments(90);
       setExpiringDocuments(documents);
     } catch (error) {
       console.error("Error loading expiring documents:", error);
@@ -136,9 +136,57 @@ const DocumentsTab = () => {
   };
 
   const renderDocumentItem = ({ item }) => {
-    const daysRemaining = Math.ceil(
-      (new Date(item.expiry_date) - new Date()) / (1000 * 60 * 60 * 24)
-    );
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time to start of day
+
+    // Parse expiry date more carefully
+    let expiryDate;
+    if (typeof item.expiry_date === "string") {
+      // If it's a string like "2025-12-18", parse it correctly
+      const [year, month, day] = item.expiry_date.split("-").map(Number);
+      expiryDate = new Date(year, month - 1, day); // month is 0-indexed
+    } else {
+      expiryDate = new Date(item.expiry_date);
+    }
+    expiryDate.setHours(0, 0, 0, 0); // Reset time to start of day
+
+    // Calculate days remaining more accurately
+    const timeDiff = expiryDate.getTime() - today.getTime();
+    const daysRemaining = Math.round(timeDiff / (1000 * 60 * 60 * 24));
+
+    // Determine color and status
+    let iconColor = COLORS.warning;
+    let statusText = "";
+    let statusColor = colors.textSecondary;
+
+    if (daysRemaining < 0) {
+      // Already expired (shouldn't happen with current filter, but just in case)
+      iconColor = COLORS.danger;
+      statusText = `Venció hace ${Math.abs(daysRemaining)} día${
+        Math.abs(daysRemaining) !== 1 ? "s" : ""
+      }`;
+      statusColor = COLORS.danger;
+    } else if (daysRemaining === 0) {
+      // Expires today
+      iconColor = COLORS.danger;
+      statusText = "¡Vence HOY!";
+      statusColor = COLORS.danger;
+    } else if (daysRemaining === 1) {
+      // Expires tomorrow
+      iconColor = COLORS.danger;
+      statusText = "Vence mañana";
+      statusColor = COLORS.danger;
+    } else if (daysRemaining <= 7) {
+      // Expires this week
+      iconColor = COLORS.warning;
+      statusText = `Vence en ${daysRemaining} días`;
+      statusColor = COLORS.warning;
+    } else {
+      // Expires later
+      iconColor = COLORS.info || COLORS.primary;
+      statusText = `Vence en ${daysRemaining} días`;
+      statusColor = colors.textSecondary;
+    }
 
     return (
       <View
@@ -146,11 +194,7 @@ const DocumentsTab = () => {
       >
         <View style={styles.alertHeader}>
           <View style={styles.alertIcon}>
-            <Ionicons
-              name="document-text"
-              size={24}
-              color={daysRemaining <= 7 ? COLORS.danger : COLORS.warning}
-            />
+            <Ionicons name="document-text" size={24} color={iconColor} />
           </View>
           <View style={styles.alertContent}>
             <Text style={[styles.alertVehicle, { color: colors.text }]}>
@@ -163,9 +207,8 @@ const DocumentsTab = () => {
             </Text>
           </View>
         </View>
-        <Text style={[styles.alertReason, { color: colors.textSecondary }]}>
-          Vence en {daysRemaining} día{daysRemaining !== 1 ? "s" : ""} (
-          {new Date(item.expiry_date).toLocaleDateString()})
+        <Text style={[styles.alertReason, { color: statusColor }]}>
+          {statusText} ({new Date(item.expiry_date).toLocaleDateString()})
         </Text>
       </View>
     );
@@ -198,10 +241,10 @@ const DocumentsTab = () => {
             color={colors.textSecondary}
           />
           <Text style={[styles.emptyTitle, { color: colors.text }]}>
-            Sin documentos próximos a vencer
+            Sin documentos urgentes
           </Text>
           <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-            No tienes documentos que venzan en los próximos 30 días.
+            No tienes documentos urgentes que requieran atención.
           </Text>
         </View>
       ) : (
@@ -209,7 +252,7 @@ const DocumentsTab = () => {
           <View style={styles.sectionHeader}>
             <Ionicons name="time" size={20} color={COLORS.warning} />
             <Text style={[styles.sectionTitle, { color: COLORS.warning }]}>
-              Próximos a vencer ({expiringDocuments.length})
+              Urgentes ({expiringDocuments.length})
             </Text>
           </View>
           <FlatList
