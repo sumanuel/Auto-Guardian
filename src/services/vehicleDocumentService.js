@@ -118,10 +118,10 @@ export const getExpiringDocuments = (days = 30) => {
       return [];
     }
     const today = new Date();
-    const todayStr = today.toISOString().split("T")[0];
+    const todayStr = today.toLocaleDateString("en-CA");
     const futureDate = new Date();
     futureDate.setDate(futureDate.getDate() + days);
-    const futureDateStr = futureDate.toISOString().split("T")[0];
+    const futureDateStr = futureDate.toLocaleDateString("en-CA");
 
     console.log(
       `🔍 Consultando documentos entre ${todayStr} y ${futureDateStr}`

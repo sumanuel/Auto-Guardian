@@ -35,6 +35,13 @@ const AddDocumentScreen = ({ navigation, route }) => {
 
   const isEditing = !!document;
 
+  // Función para parsear fechas locales correctamente
+  const parseLocalDate = (dateString) => {
+    if (!dateString) return null;
+    const [year, month, day] = dateString.split("-").map(Number);
+    return new Date(year, month - 1, day);
+  };
+
   useEffect(() => {
     const types = getDocumentTypes();
     setDocumentTypes(types);
@@ -42,10 +49,8 @@ const AddDocumentScreen = ({ navigation, route }) => {
     if (isEditing && document) {
       const type = types.find((t) => t.id === document.document_type_id);
       setSelectedDocumentType(type);
-      setIssueDate(new Date(document.issue_date));
-      setExpiryDate(
-        document.expiry_date ? new Date(document.expiry_date) : null
-      );
+      setIssueDate(parseLocalDate(document.issue_date));
+      setExpiryDate(parseLocalDate(document.expiry_date));
       // En edición, consideramos que las fechas ya fueron "seleccionadas"
       setIssueDateSelected(true);
       setExpiryDateSelected(!!document.expiry_date);
