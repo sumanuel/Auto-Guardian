@@ -4,10 +4,11 @@ import { AppProvider } from "./src/context/AppContext";
 import { ThemeProvider } from "./src/context/ThemeContext";
 import {
   getAllNotifications,
-  initDatabase,
+  initDatabase as initNotificationsDatabase,
   insertDefaultNotifications,
 } from "./src/database/notifications";
 import AppNavigator from "./src/navigation/AppNavigator";
+import { initDatabase as initMainDatabase } from "./src/services/database";
 
 export default function App() {
   useEffect(() => {
@@ -16,7 +17,8 @@ export default function App() {
       if (status !== "granted") {
         console.log("Permiso de notificaciones denegado");
       }
-      await initDatabase();
+      await initMainDatabase();
+      await initNotificationsDatabase();
       await insertDefaultNotifications();
       // Schedule all notifications
       const allNotifications = await getAllNotifications();

@@ -16,12 +16,18 @@ const SettingsScreen = ({ navigation }) => {
     },
     {
       id: 2,
-      title: "Tipos de Mantenimientos",
+      title: "Tipos de mantenimientos",
       icon: "list-outline",
       screen: "Categories",
     },
     {
       id: 3,
+      title: "Tipos de documentos",
+      icon: "document-text-outline",
+      screen: "DocumentTypes",
+    },
+    {
+      id: 4,
       title: "Notificaciones",
       icon: "notifications-outline",
       screen: "NotificationsScreen",

@@ -176,6 +176,11 @@ const MoreStack = () => {
         options={{ title: "Tipos de Mantenimientos" }}
       />
       <Stack.Screen
+        name="DocumentTypes"
+        component={require("../screens/DocumentTypesScreen").default}
+        options={{ title: "Tipos de Documentos" }}
+      />
+      <Stack.Screen
         name="Contacts"
         component={ContactsScreen}
         options={{ title: "Contactos" }}

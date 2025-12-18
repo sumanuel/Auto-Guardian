@@ -165,6 +165,59 @@ const migrateMaintenanceTypeIcons = () => {
   }
 };
 
+// Insertar tipos de documentos predeterminados
+const seedDocumentTypes = () => {
+  const documentTypes = [
+    {
+      code: 1,
+      type_document: "Licencia de Conducir",
+      description: "",
+    },
+    {
+      code: 2,
+      type_document: "Certificado Médico",
+      description: "",
+    },
+    {
+      code: 3,
+      type_document: "Tarjeta de Circulación",
+      description: "",
+    },
+    {
+      code: 4,
+      type_document: "SOAT",
+      description: "Seguro Obligatorio de Accidentes de Tránsito",
+    },
+    {
+      code: 5,
+      type_document: "Certificado de Inspección Técnica Vehicular",
+      description: "Revisión Técnica",
+    },
+    {
+      code: 6,
+      type_document: "Carnet de Transporte",
+      description: "Para vehículos de transporte público o de carga",
+    },
+    {
+      code: 7,
+      type_document: "Documento de Identidad",
+      description: "Cédula de Identidad",
+    },
+  ];
+
+  try {
+    documentTypes.forEach((docType) => {
+      db.runSync(
+        "INSERT OR IGNORE INTO document_types (code, type_document, description) VALUES (?, ?, ?)",
+        [docType.code, docType.type_document, docType.description]
+      );
+    });
+    console.log("✅ Tipos de documentos predeterminados insertados");
+  } catch (error) {
+    console.log("❌ Error insertando tipos de documentos:", error);
+  }
+};
+
 // Inicializar la base de datos
 export const initDatabase = () => {
   try {
@@ -258,6 +311,16 @@ export const initDatabase = () => {
       );
     `);
 
+    // Tabla de tipos de documentos (configuración)
+    db.execSync(`
+      CREATE TABLE IF NOT EXISTS document_types (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        code INTEGER NOT NULL UNIQUE,
+        type_document TEXT NOT NULL UNIQUE,
+        description TEXT
+      );
+    `);
+
     // Tabla de contactos
     db.execSync(`
       CREATE TABLE IF NOT EXISTS contacts (
@@ -272,6 +335,7 @@ export const initDatabase = () => {
 
     console.log("✅ Base de datos inicializada correctamente");
     seedMaintenanceTypes();
+    seedDocumentTypes();
     migrateDatabase();
   } catch (error) {
     console.error("❌ Error inicializando base de datos:", error);
