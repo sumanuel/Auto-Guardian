@@ -16,6 +16,7 @@ export const AppProvider = ({ children }) => {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [urgentNotificationShown, setUrgentNotificationShown] = useState(false);
 
   useEffect(() => {
     initializeApp();
@@ -28,6 +29,9 @@ export const AppProvider = ({ children }) => {
       // Limpiar registros huérfanos al iniciar
       cleanOrphanedRecords();
 
+      // Resetear flag de notificación urgente al iniciar la app
+      setUrgentNotificationShown(false);
+
       await loadVehicles();
       await loadContacts();
 
@@ -38,17 +42,8 @@ export const AppProvider = ({ children }) => {
         setNotificationsEnabled(permissionsGranted);
 
         if (permissionsGranted) {
-          // Programar notificación diaria
-          await notificationService.scheduleDailyNotification();
-
-          // Verificar mantenimientos pendientes al abrir la app
-          setTimeout(async () => {
-            const allVehicles = vehicleService.getAllVehicles();
-            await notificationService.checkAndNotifyPendingMaintenances(
-              allVehicles,
-              getUpcomingMaintenances
-            );
-          }, 2000); // Esperar 2 segundos para no interferir con la carga inicial
+          // Las notificaciones de mantenimientos urgentes se mostrarán automáticamente
+          // cuando se carguen los vehículos (ver updateAppBadge)
         }
       } catch (notifError) {
         console.log(
@@ -474,12 +469,17 @@ export const AppProvider = ({ children }) => {
         }
       }
 
-      // Solo enviar notificaciones si están habilitadas
-      if (notificationsEnabled && (totalOverdue > 0 || totalUrgent > 0)) {
+      // Solo enviar notificaciones si están habilitadas y no se han mostrado antes en esta sesión
+      if (
+        notificationsEnabled &&
+        (totalOverdue > 0 || totalUrgent > 0) &&
+        !urgentNotificationShown
+      ) {
         await notificationService.checkAndNotifyPendingMaintenances(
           vehicles,
           getUpcomingMaintenances
         );
+        setUrgentNotificationShown(true);
       }
 
       return {
