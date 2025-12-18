@@ -179,6 +179,12 @@ const DocumentsTab = () => {
     const timeDiff = expiryDate.getTime() - today.getTime();
     const daysRemaining = Math.round(timeDiff / (1000 * 60 * 60 * 24));
 
+    // Helper function to format date as dd/mm/yyyy
+    const formatDate = (dateString) => {
+      const [year, month, day] = dateString.split("-");
+      return `${day.padStart(2, "0")}/${month.padStart(2, "0")}/${year}`;
+    };
+
     // Determine color and status
     let iconColor = COLORS.warning;
     let statusText = "";
@@ -233,7 +239,7 @@ const DocumentsTab = () => {
           </View>
         </View>
         <Text style={[styles.alertReason, { color: statusColor }]}>
-          {statusText} ({new Date(item.expiry_date).toLocaleDateString()})
+          {statusText} ({formatDate(item.expiry_date)})
         </Text>
       </View>
     );

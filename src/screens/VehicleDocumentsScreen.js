@@ -67,6 +67,12 @@ const VehicleDocumentsScreen = ({ navigation, route }) => {
   const renderDocumentItem = ({ item }) => {
     const expiryColor = getDocumentExpiryColor(item.expiry_date);
 
+    // Helper function to format date as dd/mm/yyyy
+    const formatDate = (dateString) => {
+      const [year, month, day] = dateString.split("-");
+      return `${day.padStart(2, "0")}/${month.padStart(2, "0")}/${year}`;
+    };
+
     const getExpiryText = (expiryDate) => {
       if (!expiryDate) return null;
 
@@ -116,18 +122,14 @@ const VehicleDocumentsScreen = ({ navigation, route }) => {
               {item.type_document}
             </Text>
             <Text style={[styles.issueDate, { color: colors.textSecondary }]}>
-              Expedición:{" "}
-              {new Date(item.issue_date + "T00:00:00").toLocaleDateString()}
+              Expedición: {formatDate(item.issue_date)}
             </Text>
             {item.expiry_date && (
               <View style={styles.expiryContainer}>
                 <Text
                   style={[styles.expiryDate, { color: colors.textSecondary }]}
                 >
-                  Vencimiento:{" "}
-                  {new Date(
-                    item.expiry_date + "T00:00:00"
-                  ).toLocaleDateString()}
+                  Vencimiento: {formatDate(item.expiry_date)}
                 </Text>
                 <Text style={[styles.expiryStatus, { color: expiryColor }]}>
                   {getExpiryText(item.expiry_date)}
