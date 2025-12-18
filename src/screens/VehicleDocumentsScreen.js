@@ -14,6 +14,7 @@ import {
   deleteVehicleDocument,
   getVehicleDocuments,
 } from "../services/vehicleDocumentService";
+import { getDocumentExpiryColor } from "../utils/formatUtils";
 
 const VehicleDocumentsScreen = ({ navigation, route }) => {
   const { vehicleId, vehicle } = route.params;
@@ -61,13 +62,38 @@ const VehicleDocumentsScreen = ({ navigation, route }) => {
   };
 
   const renderDocumentItem = ({ item }) => {
-    const isExpired =
-      item.expiry_date && new Date(item.expiry_date) < new Date();
-    const isExpiringSoon =
-      item.expiry_date &&
-      new Date(item.expiry_date) <=
-        new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) &&
-      new Date(item.expiry_date) > new Date();
+    const expiryColor = getDocumentExpiryColor(item.expiry_date);
+
+    const getExpiryText = (expiryDate) => {
+      if (!expiryDate) return null;
+
+      const expiry = new Date(expiryDate.split("T")[0]);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const daysRemaining = Math.floor(
+        (expiry - today) / (1000 * 60 * 60 * 24)
+      );
+
+      if (daysRemaining < 0) {
+        return `Vencido hace ${Math.abs(daysRemaining)} día${
+          Math.abs(daysRemaining) !== 1 ? "s" : ""
+        }`;
+      } else if (daysRemaining === 0) {
+        return "Vence hoy";
+      } else if (daysRemaining === 1) {
+        return "Vence en 1 día";
+      } else if (daysRemaining < 10) {
+        return `Vence en ${daysRemaining} días`;
+      } else if (daysRemaining < 30) {
+        return `Vence en ${Math.floor(daysRemaining / 7)} semana${
+          Math.floor(daysRemaining / 7) !== 1 ? "s" : ""
+        }`;
+      } else {
+        return `Vence en ${Math.floor(daysRemaining / 30)} mes${
+          Math.floor(daysRemaining / 30) !== 1 ? "es" : ""
+        }`;
+      }
+    };
 
     return (
       <View
@@ -90,22 +116,16 @@ const VehicleDocumentsScreen = ({ navigation, route }) => {
               Expedición: {new Date(item.issue_date).toLocaleDateString()}
             </Text>
             {item.expiry_date && (
-              <Text
-                style={[
-                  styles.expiryDate,
-                  {
-                    color: isExpired
-                      ? "#E53935"
-                      : isExpiringSoon
-                      ? "#FF9800"
-                      : colors.textSecondary,
-                  },
-                ]}
-              >
-                Vencimiento: {new Date(item.expiry_date).toLocaleDateString()}
-                {isExpired && " (VENCIDO)"}
-                {isExpiringSoon && " (VENCE PRONTO)"}
-              </Text>
+              <View style={styles.expiryContainer}>
+                <Text
+                  style={[styles.expiryDate, { color: colors.textSecondary }]}
+                >
+                  Vencimiento: {new Date(item.expiry_date).toLocaleDateString()}
+                </Text>
+                <Text style={[styles.expiryStatus, { color: expiryColor }]}>
+                  {getExpiryText(item.expiry_date)}
+                </Text>
+              </View>
             )}
           </View>
         </View>
@@ -233,6 +253,13 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   expiryDate: {
+    fontSize: 14,
+    marginBottom: 2,
+  },
+  expiryContainer: {
+    marginTop: 4,
+  },
+  expiryStatus: {
     fontSize: 14,
     fontWeight: "500",
   },

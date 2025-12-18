@@ -148,3 +148,17 @@ export const getDateUrgencyColor = (nextServiceDate) => {
   if (daysRemaining <= 30) return "#4CAF50"; // Bien - Verde claro
   return "#00C851"; // Al día - Verde
 };
+
+// Obtener color de urgencia para documentos por fecha de vencimiento
+export const getDocumentExpiryColor = (expiryDate) => {
+  if (!expiryDate) return "#666";
+
+  const expiry = new Date(expiryDate.split("T")[0]);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const daysRemaining = Math.floor((expiry - today) / (1000 * 60 * 60 * 24));
+
+  if (daysRemaining < 10) return "#ff4444"; // Menos de 10 días - Rojo
+  if (daysRemaining < 30) return "#ffaa00"; // Menos de 1 mes - Amarillo
+  return "#00C851"; // Más de 1 mes - Verde
+};
