@@ -20,34 +20,45 @@ export default function App() {
       await initMainDatabase();
       await initNotificationsDatabase();
       await insertDefaultNotifications();
-      // Schedule all notifications
+      // Schedule all notifications with random selection for same day/time
       const allNotifications = await getAllNotifications();
-      const now = new Date();
-      const currentDay = now.getDay();
+
+      // Group notifications by day and time
+      const groupedNotifications = {};
       for (const notif of allNotifications) {
-        const [hours, minutes] = notif.time.split(":").map(Number);
-        const selectedDays = notif.days.split(",");
-        for (let week = 0; week < 4; week++) {
-          selectedDays.forEach(async (day) => {
-            const dayNum = parseInt(day);
-            let targetDate = new Date(now);
-            const daysDiff = (dayNum - currentDay + 7) % 7;
-            targetDate.setDate(now.getDate() + daysDiff + week * 7);
-            targetDate.setHours(hours, minutes, 0, 0);
-            if (targetDate > now) {
-              await Notifications.scheduleNotificationAsync({
-                content: {
-                  title: notif.title,
-                  body: notif.body,
-                },
-                trigger: {
-                  type: "date",
-                  date: targetDate,
-                },
-              });
-            }
-          });
+        const key = `${notif.days}_${notif.time}`;
+        if (!groupedNotifications[key]) {
+          groupedNotifications[key] = [];
         }
+        groupedNotifications[key].push(notif);
+      }
+
+      // Schedule one random notification per group, weekly recurring
+      for (const [key, notifications] of Object.entries(groupedNotifications)) {
+        const randomNotification =
+          notifications[Math.floor(Math.random() * notifications.length)];
+        const [hours, minutes] = randomNotification.time.split(":").map(Number);
+        const selectedDays = randomNotification.days.split(",");
+
+        selectedDays.forEach(async (day) => {
+          const dayNum = parseInt(day);
+          // Convert day number to Expo weekday (1 = Sunday, 2 = Monday, etc.)
+          const expoWeekday = dayNum === 0 ? 1 : dayNum + 1;
+
+          await Notifications.scheduleNotificationAsync({
+            content: {
+              title: randomNotification.title,
+              body: randomNotification.body,
+            },
+            trigger: {
+              type: "weekly",
+              weekday: expoWeekday,
+              hour: hours,
+              minute: minutes,
+              repeats: true,
+            },
+          });
+        });
       }
     };
     setup();

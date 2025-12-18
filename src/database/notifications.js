@@ -77,29 +77,58 @@ export const getAllNotifications = async () => {
 export const insertDefaultNotifications = async () => {
   try {
     const defaults = [
+      // Lunes 9:00 AM - 2 mensajes alternativos
       {
-        title: "🔧 Recordatorio de Mantenimiento",
-        body: "Es hora de revisar el mantenimiento de tu vehículo. 🛠️",
+        title: "🛡️ Prevención es seguridad",
+        body: "Un mantenimiento a tiempo evita averías costosas. Recuerda tu cita de servicio esta semana.",
         days: "1", // Lunes
         time: "09:00",
       },
       {
-        title: "📅 Chequeo Semanal",
-        body: "No olvides verificar el estado de tu auto. 🚗",
+        title: "🚗 ¿Listo para la semana?",
+        body: "Tu auto también necesita un chequeo. Programa su mantenimiento para circular sin preocupaciones.",
+        days: "1", // Lunes
+        time: "09:00",
+      },
+      // Miércoles 10:00 AM - 2 mensajes alternativos
+      {
+        title: "✅ Chequeo rápido de medio semana",
+        body: "Tómate 5 minutos para revisar: líquidos, presión de neumáticos y luces. ¡Tu auto lo agradecerá!",
         days: "3", // Miércoles
         time: "10:00",
       },
       {
-        title: "🛞 Revisión de Neumáticos",
-        body: "Es viernes, revisa el estado de tus neumáticos. 🔍",
+        title: "📞 Hora de agendar",
+        body: "Miércoles: el día perfecto para llamar al taller y programar el mantenimiento de tu vehículo.",
+        days: "3", // Miércoles
+        time: "10:00",
+      },
+      // Viernes 11:00 AM - 2 mensajes alternativos
+      {
+        title: "🛞 ¡Neumáticos listos para rodar!",
+        body: "Antes del fin de semana, revisa la presión y el dibujo de tus ruedas. Seguridad en cada viaje.",
         days: "5", // Viernes
         time: "11:00",
       },
       {
-        title: "🚗 Mantén tu Vehículo en Forma",
-        body: "¡Un auto bien cuidado es tu mejor compañero de viaje! Revisa frenos, aceite y más. 💨✨",
-        days: "0,1,2,3,4,5,6", // Todos los días
-        time: "10:00",
+        title: "🚦 Viaja seguro este fin de semana",
+        body: "Revisión express: neumáticos, frenos y luces. 5 minutos que marcan la diferencia en la carretera.",
+        days: "5", // Viernes
+        time: "11:00",
+      },
+      // Sábado 9:00 AM - 1 mensaje
+      {
+        title: "🧰 Día de autocuidado (para tu auto)",
+        body: "Hoy es un buen día para revisar niveles, limpiar el vehículo o programar la próxima visita al taller.",
+        days: "6", // Sábado
+        time: "09:00",
+      },
+      // Domingo 9:00 AM - 1 mensaje
+      {
+        title: "🗓️ Planifica tu semana sobre ruedas",
+        body: '¿Tu auto necesita atención? Agrega "mantenimiento del vehículo" a tu agenda de esta semana.',
+        days: "0", // Domingo
+        time: "09:00",
       },
     ];
 
