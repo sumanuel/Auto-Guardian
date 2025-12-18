@@ -1,22 +1,20 @@
+import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
   FlatList,
-  ScrollView,
   RefreshControl,
-  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import { Ionicons } from "@expo/vector-icons";
-import { useApp } from "../context/AppContext";
-import { COLORS } from "../data/constants";
-import { useTheme } from "../context/ThemeContext";
 import Button from "../components/common/Button";
-import VehicleCard from "../components/vehicles/VehicleCard";
 import SearchBar from "../components/common/SearchBar";
-import AlertModal from "../components/common/AlertModal";
+import VehicleCard from "../components/vehicles/VehicleCard";
+import { useApp } from "../context/AppContext";
+import { useTheme } from "../context/ThemeContext";
+import { COLORS } from "../data/constants";
 import { useDialog } from "../hooks/useDialog";
 
 const HomeScreen = ({ navigation }) => {
@@ -35,7 +33,6 @@ const HomeScreen = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [filteredVehicles, setFilteredVehicles] = React.useState([]);
   const [alertSummary, setAlertSummary] = React.useState(null);
-  const [alertModalVisible, setAlertModalVisible] = React.useState(false);
 
   React.useEffect(() => {
     loadAlertSummary();
@@ -51,7 +48,7 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const showAlertDetails = () => {
-    setAlertModalVisible(true);
+    navigation.navigate("AlertSummary", { summary: alertSummary });
   };
 
   React.useEffect(() => {
@@ -244,13 +241,6 @@ const HomeScreen = ({ navigation }) => {
             <Ionicons name="add" size={30} color="#fff" />
           </TouchableOpacity>
         )}
-
-        {/* Modal de Alertas */}
-        <AlertModal
-          visible={alertModalVisible}
-          onClose={() => setAlertModalVisible(false)}
-          summary={alertSummary}
-        />
       </View>
     </DialogComponent>
   );

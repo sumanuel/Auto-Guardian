@@ -12,6 +12,7 @@ import AddExpenseScreen from "../screens/AddExpenseScreen";
 import AddMaintenanceScreen from "../screens/AddMaintenanceScreen";
 import AddRepairScreen from "../screens/AddRepairScreen";
 import AddVehicleScreen from "../screens/AddVehicleScreen";
+import AlertSummaryScreen from "../screens/AlertSummaryScreen";
 import CategoriesScreen from "../screens/CategoriesScreen";
 import ContactsScreen from "../screens/ContactsScreen";
 import DocumentsScreen from "../screens/DocumentsScreen";
@@ -75,6 +76,11 @@ const HomeStack = () => {
         name="MaintenanceHistory"
         component={MaintenanceHistoryScreen}
         options={{ title: "Historial de Mantenimientos" }}
+      />
+      <Stack.Screen
+        name="AlertSummary"
+        component={AlertSummaryScreen}
+        options={{ title: "Resumen de Alertas" }}
       />
     </Stack.Navigator>
   );
