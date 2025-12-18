@@ -7,12 +7,14 @@ import { useTheme } from "../context/ThemeContext";
 
 // Screens
 import AddContactScreen from "../screens/AddContactScreen";
+import AddDocumentScreen from "../screens/AddDocumentScreen";
 import AddExpenseScreen from "../screens/AddExpenseScreen";
 import AddMaintenanceScreen from "../screens/AddMaintenanceScreen";
 import AddRepairScreen from "../screens/AddRepairScreen";
 import AddVehicleScreen from "../screens/AddVehicleScreen";
 import CategoriesScreen from "../screens/CategoriesScreen";
 import ContactsScreen from "../screens/ContactsScreen";
+import DocumentsScreen from "../screens/DocumentsScreen";
 import HomeScreen from "../screens/HomeScreen";
 import InvestmentDetailScreen from "../screens/InvestmentDetailScreen";
 import MaintenanceHistoryScreen from "../screens/MaintenanceHistoryScreen";
@@ -22,6 +24,7 @@ import SettingsScreen from "../screens/SettingsScreen";
 import StatsScreen from "../screens/StatsScreen";
 import UpdateKmScreen from "../screens/UpdateKmScreen";
 import VehicleDetailScreen from "../screens/VehicleDetailScreen";
+import VehicleDocumentsScreen from "../screens/VehicleDocumentsScreen";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -145,6 +148,40 @@ const StatsStack = () => {
   );
 };
 
+// Stack Navigator para Documentos
+const DocumentsStack = () => {
+  const { colors } = useTheme();
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: colors.primary,
+        },
+        headerTintColor: "#fff",
+        headerTitleStyle: {
+          fontWeight: "bold",
+        },
+      }}
+    >
+      <Stack.Screen
+        name="DocumentsMain"
+        component={DocumentsScreen}
+        options={{ title: "Documentos" }}
+      />
+      <Stack.Screen
+        name="VehicleDocuments"
+        component={VehicleDocumentsScreen}
+        options={{ title: "Documentos del Vehículo" }}
+      />
+      <Stack.Screen
+        name="AddDocument"
+        component={AddDocumentScreen}
+        options={{ title: "Agregar Documento" }}
+      />
+    </Stack.Navigator>
+  );
+};
+
 // Stack Navigator para Más opciones
 const MoreStack = () => {
   const { colors } = useTheme();
@@ -219,6 +256,8 @@ const AppNavigator = () => {
               iconName = focused ? "home" : "home-outline";
             } else if (route.name === "MRO") {
               iconName = focused ? "cash" : "cash-outline";
+            } else if (route.name === "Documentos") {
+              iconName = focused ? "document-text" : "document-text-outline";
             } else if (route.name === "Más") {
               iconName = focused
                 ? "ellipsis-horizontal-circle"
@@ -267,6 +306,15 @@ const AppNavigator = () => {
           listeners={({ navigation }) => ({
             tabPress: (e) => {
               navigation.navigate("MRO", { screen: "StatsMain" });
+            },
+          })}
+        />
+        <Tab.Screen
+          name="Documentos"
+          component={DocumentsStack}
+          listeners={({ navigation }) => ({
+            tabPress: (e) => {
+              navigation.navigate("Documentos", { screen: "DocumentsMain" });
             },
           })}
         />

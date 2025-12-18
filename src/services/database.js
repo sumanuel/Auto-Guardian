@@ -321,6 +321,21 @@ export const initDatabase = () => {
       );
     `);
 
+    // Tabla de documentos de vehículos
+    db.execSync(`
+      CREATE TABLE IF NOT EXISTS vehicle_documents (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        vehicle_id INTEGER NOT NULL,
+        document_type_id INTEGER NOT NULL,
+        issue_date TEXT NOT NULL,
+        expiry_date TEXT,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (vehicle_id) REFERENCES vehicles (id) ON DELETE CASCADE,
+        FOREIGN KEY (document_type_id) REFERENCES document_types (id) ON DELETE CASCADE
+      );
+    `);
+
     // Tabla de contactos
     db.execSync(`
       CREATE TABLE IF NOT EXISTS contacts (
