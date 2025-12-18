@@ -143,25 +143,6 @@ const AddDocumentScreen = ({ navigation, route }) => {
       return;
     }
 
-    // Confirmación si la fecha de expedición es hoy (siempre, independientemente de si viene por defecto)
-    if (isToday(issueDate)) {
-      const confirmed = await showDialog({
-        title: "Advertencia: Fecha de expedición",
-        message:
-          "La fecha de expedición está configurada para hoy. ¿Estás seguro de que es correcta?",
-        type: "confirm",
-      });
-
-      if (!confirmed) {
-        return; // Usuario canceló
-      }
-    }
-
-    // Continuar con la validación de fechas y guardado
-    await checkExpiryDateConfirmation();
-  };
-
-  const checkExpiryDateConfirmation = async () => {
     // Verificar que la fecha de vencimiento sea posterior a la fecha de expedición
     // Comparar solo fecha (sin hora) para evitar problemas con horas diferentes
     const issueDateOnly = new Date(
@@ -175,10 +156,6 @@ const AddDocumentScreen = ({ navigation, route }) => {
       expiryDate.getDate()
     );
 
-    console.log("Issue date:", issueDateOnly);
-    console.log("Expiry date:", expiryDateOnly);
-    console.log("Comparison:", expiryDateOnly <= issueDateOnly);
-
     if (expiryDateOnly <= issueDateOnly) {
       showDialog({
         title: "Error",
@@ -189,18 +166,7 @@ const AddDocumentScreen = ({ navigation, route }) => {
       return;
     }
 
-    if (isToday(expiryDate)) {
-      const confirmed = await showDialog({
-        title: "Confirmar fecha de vencimiento",
-        message: "¿Estás seguro de que la fecha de vencimiento es hoy?",
-        type: "confirm",
-      });
-
-      if (!confirmed) {
-        return; // Usuario canceló
-      }
-    }
-
+    // Proceder con el guardado
     proceedWithSave();
   };
 
