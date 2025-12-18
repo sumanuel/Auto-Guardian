@@ -98,16 +98,7 @@ const AddDocumentScreen = ({ navigation, route }) => {
       }
 
       if (success) {
-        showDialog({
-          title: "Éxito",
-          message: `Documento ${
-            isEditing ? "actualizado" : "agregado"
-          } correctamente`,
-          type: "success",
-          onConfirm: () => {
-            navigation.goBack();
-          },
-        });
+        navigation.goBack();
       } else {
         showDialog({
           title: "Error",
@@ -328,6 +319,18 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     marginBottom: 8,
+  },
+  selector: {
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 12,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  selectorText: {
+    fontSize: 16,
+    flex: 1,
   },
   buttonContainer: {
     flexDirection: "row",

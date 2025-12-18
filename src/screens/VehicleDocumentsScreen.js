@@ -202,6 +202,9 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   documentCard: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -214,6 +217,7 @@ const styles = StyleSheet.create({
   documentInfo: {
     flexDirection: "row",
     alignItems: "flex-start",
+    flex: 1,
   },
   documentDetails: {
     flex: 1,
@@ -235,7 +239,6 @@ const styles = StyleSheet.create({
   actionButtons: {
     flexDirection: "row",
     gap: 8,
-    marginTop: 12,
   },
   editButton: {
     padding: 8,
