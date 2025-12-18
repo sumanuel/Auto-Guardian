@@ -158,7 +158,11 @@ export const getDocumentExpiryColor = (expiryDate) => {
   today.setHours(0, 0, 0, 0);
   const daysRemaining = Math.floor((expiry - today) / (1000 * 60 * 60 * 24));
 
-  if (daysRemaining < 10) return "#ff4444"; // Menos de 10 días - Rojo
-  if (daysRemaining < 30) return "#ffaa00"; // Menos de 1 mes - Amarillo
-  return "#00C851"; // Más de 1 mes - Verde
+  if (daysRemaining < 0) return "#ff4444"; // Vencido - Rojo
+  if (daysRemaining === 0) return "#ff4444"; // Vence hoy - Rojo
+  if (daysRemaining <= 3) return "#ff6b00"; // Muy urgente - Naranja oscuro
+  if (daysRemaining <= 7) return "#ffaa00"; // Urgente - Naranja
+  if (daysRemaining <= 15) return "#ffc107"; // Próximamente - Amarillo
+  if (daysRemaining <= 30) return "#4CAF50"; // Bien - Verde claro
+  return "#00C851"; // Al día - Verde
 };
