@@ -15,6 +15,7 @@ import { useDialog } from "../hooks/useDialog";
 import { getDocumentTypes } from "../services/documentService";
 import {
   addVehicleDocument,
+  getVehicleDocuments,
   updateVehicleDocument,
 } from "../services/vehicleDocumentService";
 
@@ -25,10 +26,12 @@ const AddDocumentScreen = ({ navigation, route }) => {
 
   const [documentTypes, setDocumentTypes] = useState([]);
   const [selectedDocumentType, setSelectedDocumentType] = useState(null);
-  const [issueDate, setIssueDate] = useState("");
-  const [expiryDate, setExpiryDate] = useState("");
+  const [issueDate, setIssueDate] = useState(new Date());
+  const [expiryDate, setExpiryDate] = useState(null);
   const [showTypePicker, setShowTypePicker] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [issueDateSelected, setIssueDateSelected] = useState(false);
+  const [expiryDateSelected, setExpiryDateSelected] = useState(false);
 
   const isEditing = !!document;
 
@@ -39,8 +42,33 @@ const AddDocumentScreen = ({ navigation, route }) => {
     if (isEditing && document) {
       const type = types.find((t) => t.id === document.document_type_id);
       setSelectedDocumentType(type);
-      setIssueDate(document.issue_date);
-      setExpiryDate(document.expiry_date || "");
+      setIssueDate(new Date(document.issue_date));
+      setExpiryDate(
+        document.expiry_date ? new Date(document.expiry_date) : null
+      );
+      // En edición, consideramos que las fechas ya fueron "seleccionadas"
+      setIssueDateSelected(true);
+      setExpiryDateSelected(!!document.expiry_date);
+    } else {
+      // Setear fechas por defecto para nuevo documento
+      const today = new Date();
+      // Ajustar la fecha para que sea local (evitar problemas de zona horaria)
+      const localToday = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate()
+      );
+      setIssueDate(localToday);
+      setIssueDateSelected(true); // La fecha de expedición por defecto ya está "seleccionada"
+
+      // Fecha de vencimiento por defecto: 1 año después
+      const nextYear = new Date(
+        today.getFullYear() + 1,
+        today.getMonth(),
+        today.getDate()
+      );
+      setExpiryDate(nextYear);
+      setExpiryDateSelected(true); // La fecha de vencimiento por defecto ya está "seleccionada"
     }
   }, []);
 
@@ -49,11 +77,54 @@ const AddDocumentScreen = ({ navigation, route }) => {
     setShowTypePicker(false);
   };
 
-  const handleSave = () => {
+  const handleIssueDateChange = (date) => {
+    setIssueDate(date);
+    setIssueDateSelected(true);
+  };
+
+  const handleExpiryDateChange = (date) => {
+    setExpiryDate(date);
+    setExpiryDateSelected(true);
+  };
+
+  const isToday = (date) => {
+    if (!date) return false;
+    const today = new Date();
+    const localToday = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate()
+    );
+    const compareDate = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate()
+    );
+    return localToday.getTime() === compareDate.getTime();
+  };
+
+  const handleSave = async () => {
     if (!selectedDocumentType) {
       showDialog({
         title: "Error",
         message: "Debes seleccionar un tipo de documento",
+        type: "error",
+      });
+      return;
+    }
+
+    // Verificar si ya existe un documento del mismo tipo para este vehículo
+    const existingDocuments = getVehicleDocuments(vehicleId);
+    const duplicateDocument = existingDocuments.find(
+      (doc) =>
+        doc.document_type_id === selectedDocumentType.id &&
+        (!isEditing || doc.id !== document.id)
+    );
+
+    if (duplicateDocument) {
+      showDialog({
+        title: "Error",
+        message: `Ya existe un documento de tipo "${selectedDocumentType.type_document}" para este vehículo. No se pueden duplicar tipos de documento.`,
         type: "error",
       });
       return;
@@ -77,23 +148,75 @@ const AddDocumentScreen = ({ navigation, route }) => {
       return;
     }
 
+    // Confirmación si la fecha de expedición es hoy (siempre, independientemente de si viene por defecto)
+    if (isToday(issueDate)) {
+      const confirmed = await showDialog({
+        title: "Advertencia: Fecha de expedición",
+        message:
+          "La fecha de expedición está configurada para hoy. ¿Estás seguro de que es correcta?",
+        type: "confirm",
+      });
+
+      if (!confirmed) {
+        return; // Usuario canceló
+      }
+    }
+
+    // Continuar con la validación de fechas y guardado
+    checkExpiryDateConfirmation();
+  };
+
+  const checkExpiryDateConfirmation = async () => {
+    // Verificar que la fecha de vencimiento sea posterior a la fecha de expedición
+    if (expiryDate <= issueDate) {
+      showDialog({
+        title: "Error",
+        message:
+          "La fecha de vencimiento debe ser posterior a la fecha de expedición",
+        type: "error",
+      });
+      return;
+    }
+
+    if (isToday(expiryDate)) {
+      const confirmed = await showDialog({
+        title: "Confirmar fecha de vencimiento",
+        message: "¿Estás seguro de que la fecha de vencimiento es hoy?",
+        type: "confirm",
+      });
+
+      if (!confirmed) {
+        return; // Usuario canceló
+      }
+    }
+
+    proceedWithSave();
+  };
+
+  const proceedWithSave = () => {
     setLoading(true);
 
     try {
+      // Convertir fechas a formato YYYY-MM-DD para guardar
+      const issueDateString = issueDate.toISOString().split("T")[0];
+      const expiryDateString = expiryDate
+        ? expiryDate.toISOString().split("T")[0]
+        : null;
+
       let success;
       if (isEditing) {
         success = updateVehicleDocument(
           document.id,
           selectedDocumentType.id,
-          issueDate,
-          expiryDate || null
+          issueDateString,
+          expiryDateString
         );
       } else {
         success = addVehicleDocument(
           vehicleId,
           selectedDocumentType.id,
-          issueDate,
-          expiryDate || null
+          issueDateString,
+          expiryDateString
         );
       }
 
@@ -216,17 +339,15 @@ const AddDocumentScreen = ({ navigation, route }) => {
           {/* Fecha de expedición */}
           <DatePicker
             label="Fecha de Expedición *"
-            value={issueDate ? new Date(issueDate) : new Date()}
-            onChange={(date) => setIssueDate(date.toISOString().split("T")[0])}
+            value={issueDate}
+            onChange={handleIssueDateChange}
           />
 
           {/* Fecha de vencimiento */}
           <DatePicker
             label="Fecha de Vencimiento *"
-            value={expiryDate ? new Date(expiryDate) : null}
-            onChange={(date) =>
-              setExpiryDate(date ? date.toISOString().split("T")[0] : "")
-            }
+            value={expiryDate}
+            onChange={handleExpiryDateChange}
           />
 
           {/* Botones */}
