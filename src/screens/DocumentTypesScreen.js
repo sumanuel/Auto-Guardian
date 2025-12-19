@@ -206,11 +206,34 @@ const DocumentTypesScreen = ({ navigation }) => {
 
   return (
     <DialogComponent>
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <View
+        style={[
+          styles.container,
+          styles.content,
+          { backgroundColor: colors.background },
+        ]}
+      >
         <View style={styles.header}>
-          <Text style={[styles.title, { color: colors.text }]}>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>
             Tipos de Documentos
           </Text>
+          <TouchableOpacity
+            style={styles.helpButton}
+            onPress={() =>
+              showDialog({
+                title: "Tipos de Documentos",
+                message:
+                  "Aquí puedes gestionar los diferentes tipos de documentos que requieren tus vehículos, como licencias de conducir, seguros, revisiones técnicas, etc. Puedes agregar, editar o eliminar tipos según tus necesidades.",
+                type: "info",
+              })
+            }
+          >
+            <Ionicons
+              name="information-circle-outline"
+              size={24}
+              color={colors.primary}
+            />
+          </TouchableOpacity>
         </View>
 
         <FlatList
@@ -426,16 +449,23 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
-    padding: 20,
-    paddingBottom: 10,
+  content: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 0,
   },
-  title: {
-    fontSize: 24,
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+    paddingTop: 20,
+  },
+  headerTitle: {
+    fontSize: 20,
     fontWeight: "bold",
   },
   listContainer: {
-    padding: 20,
     paddingTop: 0,
     paddingBottom: 100,
   },
@@ -559,6 +589,9 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     backgroundColor: "#f5f5f5",
+  },
+  helpButton: {
+    padding: 8,
   },
 });
 
