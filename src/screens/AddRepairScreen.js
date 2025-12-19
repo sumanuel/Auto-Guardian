@@ -40,6 +40,13 @@ const AddRepairScreen = ({ route, navigation }) => {
   const costRef = useRef(null);
   const workshopRef = useRef(null);
   const notesRef = useRef(null);
+  const scrollViewRef = useRef(null);
+
+  const scrollToEnd = () => {
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollToEnd({ animated: true });
+    }
+  };
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -200,6 +207,7 @@ const AddRepairScreen = ({ route, navigation }) => {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <ScrollView
+          ref={scrollViewRef}
           style={styles.scrollView}
           contentContainerStyle={styles.content}
         >
@@ -224,9 +232,8 @@ const AddRepairScreen = ({ route, navigation }) => {
               ]}
               value={formData.description}
               onChangeText={(value) => handleInputChange("description", value)}
-              placeholder="Ej: Cambio de embrague, reparación de caja..."
+              placeholder="Ej: Cambio de embrague, reparación..."
               placeholderTextColor={colors.textSecondary}
-              multiline
               returnKeyType="next"
               onSubmitEditing={() => costRef.current?.focus()}
               blurOnSubmit={false}
@@ -283,6 +290,7 @@ const AddRepairScreen = ({ route, navigation }) => {
               placeholderTextColor={colors.textSecondary}
               returnKeyType="next"
               onSubmitEditing={() => notesRef.current?.focus()}
+              onFocus={() => scrollToEnd()}
               blurOnSubmit={false}
             />
           </View>
