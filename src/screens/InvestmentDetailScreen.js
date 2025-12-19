@@ -65,36 +65,8 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
     // Obtener reparaciones
     let vehicleRepairs = getRepairsByVehicle(vehicleId);
 
-    console.log("Movimientos sin filtrar:");
-    console.log(
-      "Mantenimientos:",
-      vehicleMaintenances.map((m) => ({
-        type: m.type,
-        cost: m.cost,
-        date: m.date,
-      }))
-    );
-    console.log(
-      "Gastos:",
-      vehicleExpenses.map((e) => ({
-        description: e.description,
-        cost: e.cost,
-        date: e.date,
-      }))
-    );
-    console.log(
-      "Reparaciones:",
-      vehicleRepairs.map((r) => ({
-        description: r.description,
-        cost: r.cost,
-        date: r.date,
-      }))
-    );
-
     // Aplicar filtro de fechas si existe
     if (filterFrom && filterTo) {
-      console.log("Aplicando filtro:", { filterFrom, filterTo });
-
       // Función helper para comparar solo fechas (sin hora ni zona horaria)
       const isDateInRange = (dateStr) => {
         // Extraer la fecha como string YYYY-MM-DD
@@ -118,11 +90,6 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
       );
       vehicleExpenses = vehicleExpenses.filter((e) => isDateInRange(e.date));
       vehicleRepairs = vehicleRepairs.filter((r) => isDateInRange(r.date));
-
-      console.log("Movimientos filtrados:");
-      console.log("Mantenimientos:", vehicleMaintenances.length);
-      console.log("Gastos:", vehicleExpenses.length);
-      console.log("Reparaciones:", vehicleRepairs.length);
     }
 
     setMaintenances(vehicleMaintenances);
@@ -335,6 +302,23 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
               >
                 <Ionicons
                   name="refresh-outline"
+                  size={24}
+                  color={colors.primary}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.filterIcon}
+                onPress={() =>
+                  showDialog({
+                    title: "📅 Filtro por fechas",
+                    message:
+                      "Utiliza el calendario para filtrar los movimientos financieros por un rango de fechas específico. El total mostrado se actualizará automáticamente para reflejar solo los gastos, reparaciones y mantenimientos dentro del período seleccionado. Usa el botón de refrescar para limpiar el filtro y ver todos los movimientos.",
+                    type: "info",
+                  })
+                }
+              >
+                <Ionicons
+                  name="information-circle-outline"
                   size={24}
                   color={colors.primary}
                 />
