@@ -18,12 +18,15 @@ import ContactsScreen from "../screens/ContactsScreen";
 import DocumentsScreen from "../screens/DocumentsScreen";
 import HomeScreen from "../screens/HomeScreen";
 import InvestmentDetailScreen from "../screens/InvestmentDetailScreen";
+import LearnCarScreen from "../screens/LearnCarScreen";
 import LearnMoreScreen from "../screens/LearnMoreScreen";
 import MaintenanceHistoryScreen from "../screens/MaintenanceHistoryScreen";
 import MoreScreen from "../screens/MoreScreen";
 import NotificationsScreen from "../screens/NotificationsScreen";
+import RecommendationsScreen from "../screens/RecommendationsScreen";
 import SettingsScreen from "../screens/SettingsScreen";
 import StatsScreen from "../screens/StatsScreen";
+import TipsScreen from "../screens/TipsScreen";
 import UpdateKmScreen from "../screens/UpdateKmScreen";
 import VehicleDetailScreen from "../screens/VehicleDetailScreen";
 import VehicleDocumentsScreen from "../screens/VehicleDocumentsScreen";
@@ -218,6 +221,21 @@ const MoreStack = () => {
         name="LearnMore"
         component={LearnMoreScreen}
         options={{ title: "Saber más" }}
+      />
+      <Stack.Screen
+        name="Tips"
+        component={TipsScreen}
+        options={{ title: "Consejos" }}
+      />
+      <Stack.Screen
+        name="Recommendations"
+        component={RecommendationsScreen}
+        options={{ title: "Recomendaciones" }}
+      />
+      <Stack.Screen
+        name="LearnCar"
+        component={LearnCarScreen}
+        options={{ title: "Aprende sobre tu auto" }}
       />
       <Stack.Screen
         name="Categories"

@@ -1,8 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useTheme } from "../context/ThemeContext";
 
 const LearnMoreScreen = () => {
+  const navigation = useNavigation();
   const { colors } = useTheme();
 
   const learnOptions = [
@@ -11,30 +13,36 @@ const LearnMoreScreen = () => {
       title: "Consejos",
       icon: "bulb-outline",
       description: "Consejos útiles para el cuidado de tu vehículo",
+      screen: "Tips",
     },
     {
       id: 2,
       title: "Recomendaciones",
       icon: "book-outline",
       description: "Recomendaciones generales sobre mantenimiento",
+      screen: "Recommendations",
     },
     {
       id: 3,
       title: "Aprende sobre tu auto",
       icon: "search-outline",
       description: "Información detallada sobre componentes del vehículo",
+      screen: "LearnCar",
     },
     {
       id: 4,
       title: "Tips de Mantenimiento",
       icon: "construct-outline",
-      description: "Tips prácticos para el mantenimiento preventivo",
+      description:
+        "Recomendaciones por tipo de mantenimiento y estación del año",
+      screen: "Recommendations",
     },
   ];
 
   const handleOptionPress = (option) => {
-    // Por ahora solo mostrar un mensaje, después se pueden implementar las pantallas específicas
-    alert(`Próximamente: ${option.title}\n\n${option.description}`);
+    if (option.screen) {
+      navigation.navigate(option.screen);
+    }
   };
 
   return (
@@ -75,11 +83,6 @@ const LearnMoreScreen = () => {
                   </Text>
                 </View>
               </View>
-              <Ionicons
-                name="chevron-forward"
-                size={20}
-                color={colors.textSecondary}
-              />
             </TouchableOpacity>
           ))}
         </View>
@@ -109,7 +112,6 @@ const styles = StyleSheet.create({
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
     paddingVertical: 16,
     borderBottomWidth: 1,
     borderBottomColor: "#e0e0e0",
