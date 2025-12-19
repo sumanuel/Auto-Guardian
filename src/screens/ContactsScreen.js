@@ -248,10 +248,31 @@ const ContactsScreen = ({ navigation }) => {
     <DialogComponent>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.header}>
-          <Text style={[styles.title, { color: colors.text }]}>Contactos</Text>
-          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-            {contacts.length} contacto{contacts.length !== 1 ? "s" : ""}
-          </Text>
+          <View>
+            <Text style={[styles.headerTitle, { color: colors.text }]}>
+              Contactos
+            </Text>
+            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+              {contacts.length} contacto{contacts.length !== 1 ? "s" : ""}
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={styles.helpButton}
+            onPress={() =>
+              showDialog({
+                title: "Contactos de Confianza",
+                message:
+                  "Aquí puedes gestionar tus contactos de confianza como mecánicos, servicios de grúas, compañías de seguros, etc. Tenlos a mano para un acceso mucho más rápido cuando necesites asistencia con tus vehículos.",
+                type: "info",
+              })
+            }
+          >
+            <Ionicons
+              name="information-circle-outline"
+              size={24}
+              color={colors.primary}
+            />
+          </TouchableOpacity>
         </View>
 
         {contacts.length === 0 ? (
@@ -282,12 +303,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    padding: 20,
-    paddingTop: 50,
-    paddingBottom: 20,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+    paddingTop: 20,
+    paddingHorizontal: 20,
   },
-  title: {
-    fontSize: 28,
+  headerTitle: {
+    fontSize: 20,
     fontWeight: "bold",
     marginBottom: 4,
   },
@@ -392,6 +416,9 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
+  },
+  helpButton: {
+    padding: 8,
   },
 });
 
