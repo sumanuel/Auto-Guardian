@@ -148,7 +148,9 @@ const HomeScreen = ({ navigation }) => {
 
           {/* Badge de alertas */}
           {alertSummary &&
-            (alertSummary.totalOverdue > 0 || alertSummary.totalUrgent > 0) && (
+            (alertSummary.totalOverdue > 0 ||
+              alertSummary.totalUrgent > 0 ||
+              (alertSummary.totalDocuments || 0) > 0) && (
               <TouchableOpacity
                 style={styles.alertBadge}
                 onPress={showAlertDetails}
@@ -174,7 +176,9 @@ const HomeScreen = ({ navigation }) => {
                   ]}
                 >
                   <Text style={styles.alertCountText}>
-                    {alertSummary.totalOverdue + alertSummary.totalUrgent}
+                    {alertSummary.totalOverdue +
+                      alertSummary.totalUrgent +
+                      (alertSummary.totalDocuments || 0)}
                   </Text>
                 </View>
               </TouchableOpacity>

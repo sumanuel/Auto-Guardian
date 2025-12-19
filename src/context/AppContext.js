@@ -415,6 +415,7 @@ export const AppProvider = ({ children }) => {
     try {
       let totalOverdue = 0;
       let totalUrgent = 0;
+      let totalDocuments = 0;
       const alerts = [];
       const processedMaintenances = new Set();
 
@@ -514,14 +515,25 @@ export const AppProvider = ({ children }) => {
         setUrgentNotificationShown(true);
       }
 
+      // Documentos próximos a vencer (se usan para el contador de la campana)
+      try {
+        const expiringDocuments = await getExpiringDocuments();
+        totalDocuments = Array.isArray(expiringDocuments)
+          ? expiringDocuments.length
+          : 0;
+      } catch (_error) {
+        totalDocuments = 0;
+      }
+
       return {
         totalOverdue,
         totalUrgent,
+        totalDocuments,
         alerts,
       };
     } catch (error) {
       console.error("Error verificando mantenimientos:", error);
-      return { totalOverdue: 0, totalUrgent: 0, alerts: [] };
+      return { totalOverdue: 0, totalUrgent: 0, totalDocuments: 0, alerts: [] };
     }
   };
 
