@@ -743,7 +743,7 @@ const CategoriesScreen = ({ navigation }) => {
                       ]}
                       value={newTypeKm}
                       onChangeText={setNewTypeKm}
-                      placeholder="5000"
+                      placeholder="Ingresa kilómetros"
                       placeholderTextColor={colors.textSecondary}
                       keyboardType="numeric"
                       returnKeyType="next"
@@ -768,7 +768,7 @@ const CategoriesScreen = ({ navigation }) => {
                       ]}
                       value={newTypeMonths}
                       onChangeText={setNewTypeMonths}
-                      placeholder="6"
+                      placeholder="Ingresa meses"
                       placeholderTextColor={colors.textSecondary}
                       keyboardType="numeric"
                       returnKeyType="done"
