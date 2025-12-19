@@ -692,6 +692,25 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
               Realizados
             </Text>
           </TouchableOpacity>
+          {activeTab === "inProgress" && (
+            <TouchableOpacity
+              style={styles.infoIcon}
+              onPress={() =>
+                showDialog({
+                  title: "Próximos Mantenimientos",
+                  message:
+                    "Aquí puedes ver los mantenimientos programados para tu vehículo. Usa el icono del check (✓) para marcar como realizado cuando completes un servicio. También puedes editar o eliminar mantenimientos usando los iconos correspondientes. Mantén esta lista actualizada para tener un historial preciso.",
+                  type: "info",
+                })
+              }
+            >
+              <Ionicons
+                name="information-circle-outline"
+                size={24}
+                color={colors.primary}
+              />
+            </TouchableOpacity>
+          )}
           {activeTab === "done" && (
             <TouchableOpacity
               style={styles.infoIcon}
@@ -699,7 +718,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
                 showDialog({
                   title: "💰 Importancia de los costos",
                   message:
-                    "Si editas y agregas costos a los mantenimientos realizados, estos se verán reflejados automáticamente en las estadísticas de inversión (MRO). Es de suma importancia mantener estos datos actualizados para tener un control financiero preciso y tomar mejores decisiones sobre el cuidado de tu vehículo.",
+                    "Si editas y agregas costos a los mantenimientos realizados, estos se verán reflejados automáticamente en las estadísticas de inversión. Es de suma importancia mantener estos datos actualizados para tener un control financiero preciso y tomar mejores decisiones sobre el cuidado de tu vehículo.",
                   type: "info",
                 })
               }
