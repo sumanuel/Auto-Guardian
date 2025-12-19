@@ -312,9 +312,28 @@ const VehicleDetailScreen = ({ navigation, route }) => {
             </View>
           )}
           <View style={styles.headerInfo}>
-            <Text style={[styles.vehicleName, { color: colors.text }]}>
-              {vehicle.name}
-            </Text>
+            <View style={styles.titleContainer}>
+              <Text style={[styles.vehicleName, { color: colors.text }]}>
+                {vehicle.name}
+              </Text>
+              <TouchableOpacity
+                style={styles.helpButton}
+                onPress={() =>
+                  showDialog({
+                    title: "Detalle del Vehículo",
+                    message:
+                      "Aquí puedes ver toda la información de tu vehículo, próximos mantenimientos más urgentes, opciones para registrar nuevos mantenimientos o ver el historial. Mantén actualizado el kilometraje para alertas precisas.",
+                    type: "info",
+                  })
+                }
+              >
+                <Ionicons
+                  name="information-circle-outline"
+                  size={24}
+                  color={colors.primary}
+                />
+              </TouchableOpacity>
+            </View>
             <Text
               style={[styles.vehicleDetails, { color: colors.textSecondary }]}
             >
@@ -672,10 +691,15 @@ const styles = StyleSheet.create({
   headerInfo: {
     flex: 1,
   },
+  titleContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 4,
+  },
   vehicleName: {
     fontSize: 22,
     fontWeight: "bold",
-    marginBottom: 4,
   },
   vehicleDetails: {
     fontSize: 16,
@@ -683,6 +707,9 @@ const styles = StyleSheet.create({
   },
   vehiclePlate: {
     fontSize: 14,
+  },
+  helpButton: {
+    padding: 8,
   },
   kmSection: {
     margin: 16,
