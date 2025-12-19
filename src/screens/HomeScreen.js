@@ -183,12 +183,31 @@ const HomeScreen = ({ navigation }) => {
 
         {vehicles.length > 0 && (
           <View style={styles.searchContainer}>
-            <SearchBar
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              placeholder="Buscar vehículo..."
-              onClear={() => setSearchQuery("")}
-            />
+            <View style={styles.searchBarContainer}>
+              <SearchBar
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                placeholder="Buscar vehículo..."
+                onClear={() => setSearchQuery("")}
+              />
+            </View>
+            <TouchableOpacity
+              style={styles.helpButton}
+              onPress={() =>
+                showDialog({
+                  title: "Inicio",
+                  message:
+                    "Aquí puedes ver todos tus vehículos registrados. Presiona sobre cualquier vehículo para ver opciones adicionales. El badge de notificaciones te informa sobre mantenimientos pendientes o vencidos.",
+                  type: "info",
+                })
+              }
+            >
+              <Ionicons
+                name="information-circle-outline"
+                size={24}
+                color={colors.primary}
+              />
+            </TouchableOpacity>
           </View>
         )}
 
@@ -300,8 +319,16 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   searchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 16,
     paddingVertical: 12,
+  },
+  searchBarContainer: {
+    flex: 1,
+  },
+  helpButton: {
+    padding: 8,
   },
   listContent: {
     padding: 16,
