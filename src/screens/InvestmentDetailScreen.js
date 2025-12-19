@@ -211,16 +211,37 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
         >
           {/* Header del vehículo */}
           <View style={styles.header}>
-            <Text style={[styles.vehicleName, { color: colors.text }]}>
-              {vehicle.name}
-            </Text>
-            {vehicle.brand && vehicle.model && (
-              <Text
-                style={[styles.vehicleDetails, { color: colors.textSecondary }]}
-              >
-                {vehicle.brand} {vehicle.model}
+            <View style={styles.headerLeft}>
+              <Text style={[styles.vehicleName, { color: colors.text }]}>
+                {vehicle.name}
               </Text>
-            )}
+              {vehicle.brand && vehicle.model && (
+                <Text
+                  style={[
+                    styles.vehicleDetails,
+                    { color: colors.textSecondary },
+                  ]}
+                >
+                  {vehicle.brand} {vehicle.model}
+                </Text>
+              )}
+            </View>
+            <View style={styles.headerRight}>
+              <TouchableOpacity style={styles.filterIcon}>
+                <Ionicons
+                  name="calendar-outline"
+                  size={24}
+                  color={colors.primary}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.filterIcon}>
+                <Ionicons
+                  name="refresh-outline"
+                  size={24}
+                  color={colors.primary}
+                />
+              </TouchableOpacity>
+            </View>
           </View>
 
           {/* Tarjeta de total */}
@@ -707,7 +728,21 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
     marginBottom: 20,
+  },
+  headerLeft: {
+    flex: 1,
+  },
+  headerRight: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  filterIcon: {
+    padding: 8,
   },
   vehicleName: {
     fontSize: 28,
