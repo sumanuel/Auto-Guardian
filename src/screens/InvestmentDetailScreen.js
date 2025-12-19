@@ -2,12 +2,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
 import {
+  Modal,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import DatePicker from "../components/common/DatePicker";
 import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
 import { COLORS } from "../data/constants";
@@ -33,6 +35,10 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
   const [totalCost, setTotalCost] = useState(0);
   const [categoryStats, setCategoryStats] = useState([]);
   const [activeTab, setActiveTab] = useState("mantenimientos");
+  const [dateFilterModal, setDateFilterModal] = useState(false);
+  const [dateFrom, setDateFrom] = useState(null);
+  const [dateTo, setDateTo] = useState(null);
+  const [isFiltered, setIsFiltered] = useState(false);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -44,23 +50,46 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
     loadData();
   }, [vehicleId, vehicles]);
 
-  const loadData = () => {
+  const loadData = (filterFrom = null, filterTo = null) => {
     const vehicleData = vehicles.find((v) => v.id === vehicleId);
     setVehicle(vehicleData);
 
     const allMaintenances = getAllMaintenances();
-    const vehicleMaintenances = allMaintenances
+    let vehicleMaintenances = allMaintenances
       .filter((m) => m.vehicleId === vehicleId)
       .sort((a, b) => new Date(b.date) - new Date(a.date));
 
-    setMaintenances(vehicleMaintenances);
-
     // Obtener movimientos particulares
-    const vehicleExpenses = getExpensesByVehicle(vehicleId);
-    setExpenses(vehicleExpenses);
+    let vehicleExpenses = getExpensesByVehicle(vehicleId);
 
     // Obtener reparaciones
-    const vehicleRepairs = getRepairsByVehicle(vehicleId);
+    let vehicleRepairs = getRepairsByVehicle(vehicleId);
+
+    // Aplicar filtro de fechas si existe
+    if (filterFrom && filterTo) {
+      const fromDate = new Date(filterFrom);
+      const toDate = new Date(filterTo);
+      fromDate.setHours(0, 0, 0, 0);
+      toDate.setHours(23, 59, 59, 999);
+
+      vehicleMaintenances = vehicleMaintenances.filter((m) => {
+        const maintenanceDate = new Date(m.date);
+        return maintenanceDate >= fromDate && maintenanceDate <= toDate;
+      });
+
+      vehicleExpenses = vehicleExpenses.filter((e) => {
+        const expenseDate = new Date(e.date);
+        return expenseDate >= fromDate && expenseDate <= toDate;
+      });
+
+      vehicleRepairs = vehicleRepairs.filter((r) => {
+        const repairDate = new Date(r.date);
+        return repairDate >= fromDate && repairDate <= toDate;
+      });
+    }
+
+    setMaintenances(vehicleMaintenances);
+    setExpenses(vehicleExpenses);
     setRepairs(vehicleRepairs);
 
     // Calcular total (mantenimientos + movimientos + reparaciones)
@@ -124,6 +153,32 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
     }
 
     setCategoryStats(stats);
+  };
+
+  const openDateFilter = () => {
+    setDateFilterModal(true);
+  };
+
+  const applyDateFilter = () => {
+    if (dateFrom && dateTo) {
+      loadData(dateFrom, dateTo);
+      setIsFiltered(true);
+      setDateFilterModal(false);
+    } else {
+      showDialog({
+        title: "Fechas requeridas",
+        message:
+          "Por favor selecciona tanto la fecha desde como la fecha hasta.",
+        type: "warning",
+      });
+    }
+  };
+
+  const clearDateFilter = () => {
+    setDateFrom(null);
+    setDateTo(null);
+    setIsFiltered(false);
+    loadData();
   };
 
   const handleDeleteExpense = (expenseId, description) => {
@@ -227,14 +282,20 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
               )}
             </View>
             <View style={styles.headerRight}>
-              <TouchableOpacity style={styles.filterIcon}>
+              <TouchableOpacity
+                style={styles.filterIcon}
+                onPress={openDateFilter}
+              >
                 <Ionicons
                   name="calendar-outline"
                   size={24}
-                  color={colors.primary}
+                  color={isFiltered ? COLORS.success : colors.primary}
                 />
               </TouchableOpacity>
-              <TouchableOpacity style={styles.filterIcon}>
+              <TouchableOpacity
+                style={styles.filterIcon}
+                onPress={clearDateFilter}
+              >
                 <Ionicons
                   name="refresh-outline"
                   size={24}
@@ -711,6 +772,68 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
           </TouchableOpacity>
         )}
       </View>
+
+      {/* Modal para filtro de fechas */}
+      <Modal
+        visible={dateFilterModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setDateFilterModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View
+            style={[
+              styles.modalContent,
+              { backgroundColor: colors.background },
+            ]}
+          >
+            <View style={styles.modalHeader}>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>
+                Filtrar por fechas
+              </Text>
+              <TouchableOpacity onPress={() => setDateFilterModal(false)}>
+                <Ionicons name="close" size={24} color={colors.text} />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.modalBody}>
+              <DatePicker
+                label="Fecha desde"
+                value={dateFrom}
+                onChange={setDateFrom}
+                maximumDate={dateTo || new Date()}
+              />
+
+              <DatePicker
+                label="Fecha hasta"
+                value={dateTo}
+                onChange={setDateTo}
+                minimumDate={dateFrom}
+                maximumDate={new Date()}
+              />
+            </View>
+
+            <View style={styles.modalFooter}>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.cancelButton]}
+                onPress={() => setDateFilterModal(false)}
+              >
+                <Text
+                  style={[styles.modalButtonText, { color: colors.primary }]}
+                >
+                  Cancelar
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.confirmButton]}
+                onPress={applyDateFilter}
+              >
+                <Text style={styles.modalButtonText}>Aplicar filtro</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </DialogComponent>
   );
 };
@@ -932,6 +1055,63 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4,
     zIndex: 999,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  modalContent: {
+    borderRadius: 16,
+    padding: 24,
+    width: "100%",
+    maxWidth: 400,
+    maxHeight: "80%",
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  modalBody: {
+    marginBottom: 20,
+  },
+  modalFooter: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 12,
+  },
+  modalButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  cancelButton: {
+    backgroundColor: "transparent",
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  confirmButton: {
+    backgroundColor: COLORS.primary,
+  },
+  modalButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#fff",
   },
 });
 
