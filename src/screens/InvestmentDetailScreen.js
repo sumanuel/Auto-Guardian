@@ -346,6 +346,11 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
           <View style={[styles.totalCard, { backgroundColor: colors.primary }]}>
             <Ionicons name="cash-outline" size={40} color="#fff" />
             <Text style={styles.totalLabel}>Total Invertido</Text>
+            {isFiltered && (
+              <Text style={[styles.totalLabel, { fontSize: 12, opacity: 0.9 }]}>
+                Desde {formatDate(dateFrom)} hasta {formatDate(dateTo)}
+              </Text>
+            )}
             <Text style={styles.totalAmount}>{formatCurrency(totalCost)}</Text>
             <Text style={styles.totalSubtitle}>
               {maintenances.length}{" "}
