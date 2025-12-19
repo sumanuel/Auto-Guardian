@@ -48,7 +48,7 @@ const LearnMoreScreen = () => {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.content}>
-        <Text style={[styles.title, { color: colors.text }]}>Saber más</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Tips & Guías</Text>
 
         <View
           style={[

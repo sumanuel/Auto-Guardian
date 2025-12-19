@@ -220,7 +220,7 @@ const MoreStack = () => {
       <Stack.Screen
         name="LearnMore"
         component={LearnMoreScreen}
-        options={{ title: "Saber más" }}
+        options={{ title: "Tips & Guías" }}
       />
       <Stack.Screen
         name="Tips"

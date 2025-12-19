@@ -42,7 +42,7 @@ const MoreScreen = () => {
     },
     {
       id: 3,
-      title: "Saber más",
+      title: "Tips & Guías",
       icon: "help-circle-outline",
       comingSoon: false,
       screen: "LearnMore",
