@@ -76,9 +76,11 @@ export const updateDocumentType = (id, typeData) => {
 // Verificar si un tipo de documento está en uso
 export const isDocumentTypeInUse = (typeId) => {
   try {
-    // Por ahora, asumimos que no están en uso ya que no hay tabla de documentos
-    // En el futuro, si se crea una tabla de documentos, verificar aquí
-    return false;
+    const result = db.getFirstSync(
+      "SELECT COUNT(*) as count FROM vehicle_documents WHERE document_type_id = ?",
+      [typeId]
+    );
+    return result.count > 0;
   } catch (error) {
     console.error("Error verificando uso del tipo de documento:", error);
     return true; // Por seguridad, asumimos que está en uso si hay error

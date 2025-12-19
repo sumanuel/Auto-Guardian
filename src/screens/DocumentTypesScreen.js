@@ -15,6 +15,7 @@ import {
   createDocumentType,
   deleteDocumentType,
   getDocumentTypes,
+  isDocumentTypeInUse,
   updateDocumentType,
 } from "../services/documentService";
 
@@ -151,37 +152,56 @@ const DocumentTypesScreen = ({ navigation }) => {
     }
   };
 
-  const handleDeleteType = (type) => {
-    showDialog({
-      title: "Eliminar Tipo de Documento",
-      message: `¿Estás seguro de eliminar "${type.type_document}"?`,
-      type: "confirm",
-      buttons: [
-        { text: "Cancelar", style: "cancel" },
-        {
-          text: "Eliminar",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await deleteDocumentType(type.id);
-              loadDocumentTypes();
-              showDialog({
-                title: "Éxito",
-                message: "Tipo de documento eliminado correctamente",
-                type: "success",
-              });
-            } catch (error) {
-              showDialog({
-                title: "Error",
-                message:
-                  error.message || "Error al eliminar el tipo de documento",
-                type: "error",
-              });
-            }
+  const handleDeleteType = async (type) => {
+    try {
+      const inUse = await isDocumentTypeInUse(type.id);
+
+      if (inUse) {
+        showDialog({
+          title: "No se puede eliminar",
+          message: `El tipo "${type.type_document}" está siendo usado en vehículos y no puede ser eliminado.`,
+          type: "warning",
+        });
+        return;
+      }
+
+      showDialog({
+        title: "Eliminar Tipo de Documento",
+        message: `¿Estás seguro de eliminar "${type.type_document}"?`,
+        type: "confirm",
+        buttons: [
+          { text: "Cancelar", style: "cancel" },
+          {
+            text: "Eliminar",
+            style: "destructive",
+            onPress: async () => {
+              try {
+                await deleteDocumentType(type.id);
+                loadDocumentTypes();
+                showDialog({
+                  title: "Éxito",
+                  message: "Tipo de documento eliminado correctamente",
+                  type: "success",
+                });
+              } catch (error) {
+                showDialog({
+                  title: "Error",
+                  message: "No se pudo eliminar el tipo de documento",
+                  type: "error",
+                });
+              }
+            },
           },
-        },
-      ],
-    });
+        ],
+      });
+    } catch (error) {
+      console.error("Error verificando tipo de documento:", error);
+      showDialog({
+        title: "Error",
+        message: "No se pudo verificar el tipo de documento",
+        type: "error",
+      });
+    }
   };
 
   return (
