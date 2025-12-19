@@ -40,14 +40,21 @@ const MoreScreen = () => {
       comingSoon: false,
       screen: "Contacts",
     },
+    {
+      id: 3,
+      title: "Saber más",
+      icon: "help-circle-outline",
+      comingSoon: false,
+      screen: "LearnMore",
+    },
     // {
-    //   id: 3,
+    //   id: 4,
     //   title: "Exportar datos",
     //   icon: "cloud-download-outline",
     //   comingSoon: true,
     // },
     {
-      id: 4,
+      id: 5,
       title: "Acerca de",
       icon: "information-circle-outline",
       comingSoon: false,
