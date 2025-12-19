@@ -65,27 +65,64 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
     // Obtener reparaciones
     let vehicleRepairs = getRepairsByVehicle(vehicleId);
 
+    console.log("Movimientos sin filtrar:");
+    console.log(
+      "Mantenimientos:",
+      vehicleMaintenances.map((m) => ({
+        type: m.type,
+        cost: m.cost,
+        date: m.date,
+      }))
+    );
+    console.log(
+      "Gastos:",
+      vehicleExpenses.map((e) => ({
+        description: e.description,
+        cost: e.cost,
+        date: e.date,
+      }))
+    );
+    console.log(
+      "Reparaciones:",
+      vehicleRepairs.map((r) => ({
+        description: r.description,
+        cost: r.cost,
+        date: r.date,
+      }))
+    );
+
     // Aplicar filtro de fechas si existe
     if (filterFrom && filterTo) {
-      const fromDate = new Date(filterFrom);
-      const toDate = new Date(filterTo);
-      fromDate.setHours(0, 0, 0, 0);
-      toDate.setHours(23, 59, 59, 999);
+      console.log("Aplicando filtro:", { filterFrom, filterTo });
 
-      vehicleMaintenances = vehicleMaintenances.filter((m) => {
-        const maintenanceDate = new Date(m.date);
-        return maintenanceDate >= fromDate && maintenanceDate <= toDate;
-      });
+      // Función helper para comparar solo fechas (sin hora ni zona horaria)
+      const isDateInRange = (dateStr) => {
+        // Extraer la fecha como string YYYY-MM-DD
+        let itemDateStr;
+        if (dateStr.includes("T")) {
+          itemDateStr = dateStr.split("T")[0];
+        } else {
+          itemDateStr = dateStr;
+        }
 
-      vehicleExpenses = vehicleExpenses.filter((e) => {
-        const expenseDate = new Date(e.date);
-        return expenseDate >= fromDate && expenseDate <= toDate;
-      });
+        // Extraer las fechas del filtro como strings YYYY-MM-DD
+        const fromDateStr = filterFrom.toISOString().split("T")[0];
+        const toDateStr = filterTo.toISOString().split("T")[0];
 
-      vehicleRepairs = vehicleRepairs.filter((r) => {
-        const repairDate = new Date(r.date);
-        return repairDate >= fromDate && repairDate <= toDate;
-      });
+        // Comparar las strings de fecha
+        return itemDateStr >= fromDateStr && itemDateStr <= toDateStr;
+      };
+
+      vehicleMaintenances = vehicleMaintenances.filter((m) =>
+        isDateInRange(m.date)
+      );
+      vehicleExpenses = vehicleExpenses.filter((e) => isDateInRange(e.date));
+      vehicleRepairs = vehicleRepairs.filter((r) => isDateInRange(r.date));
+
+      console.log("Movimientos filtrados:");
+      console.log("Mantenimientos:", vehicleMaintenances.length);
+      console.log("Gastos:", vehicleExpenses.length);
+      console.log("Reparaciones:", vehicleRepairs.length);
     }
 
     setMaintenances(vehicleMaintenances);
