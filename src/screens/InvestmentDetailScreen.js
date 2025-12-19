@@ -865,7 +865,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                 style={[styles.modalButton, styles.confirmButton]}
                 onPress={applyDateFilter}
               >
-                <Text style={styles.modalButtonText}>Aplicar filtro</Text>
+                <Text style={styles.modalButtonText}>Aceptar</Text>
               </TouchableOpacity>
             </View>
           </View>
