@@ -364,6 +364,7 @@ const AddRepairScreen = ({ route, navigation }) => {
             loading={loading}
             style={styles.submitButton}
           />
+          <View style={{ height: 100 }} />
         </ScrollView>
       </KeyboardAvoidingView>
     </DialogComponent>

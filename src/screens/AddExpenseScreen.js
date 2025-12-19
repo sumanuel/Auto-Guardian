@@ -213,6 +213,7 @@ const AddExpenseScreen = ({ route, navigation }) => {
           disabled={loading}
           style={styles.saveButton}
         />
+        <View style={{ height: 100 }} />
       </ScrollView>
     </KeyboardAvoidingView>
   );
