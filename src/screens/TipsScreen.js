@@ -34,6 +34,7 @@ const TipsScreen = ({ navigation }) => {
             </Text>
           </View>
         ))}
+        <View style={{ height: 100 }} />
       </ScrollView>
     </View>
   );
