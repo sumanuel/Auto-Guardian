@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Image,
   KeyboardAvoidingView,
@@ -40,6 +40,11 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
     notes: "",
     photo: null,
   });
+
+  // Referencias para navegación en modal de edición
+  const costRef = useRef(null);
+  const providerRef = useRef(null);
+  const notesRef = useRef(null);
 
   const [formData, setFormData] = useState({
     vehicleId,
@@ -359,6 +364,32 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
+          {/* Header con título e icono informativo */}
+          <View style={styles.header}>
+            <Text style={[styles.headerTitle, { color: colors.text }]}>
+              {maintenanceData?.id
+                ? "Editar Mantenimiento"
+                : "Nuevo Mantenimiento"}
+            </Text>
+            <TouchableOpacity
+              style={styles.infoIcon}
+              onPress={() =>
+                showDialog({
+                  title: "Registro de Mantenimiento",
+                  message:
+                    "Aquí puedes registrar mantenimientos realizados. Elige un tipo de mantenimiento de las opciones predefinidas o escribe uno personalizado. Programa el próximo servicio por fecha (útil para servicios periódicos como cambio de aceite) o por kilometraje (ideal para servicios basados en uso).",
+                  type: "info",
+                })
+              }
+            >
+              <Ionicons
+                name="information-circle-outline"
+                size={24}
+                color={colors.primary}
+              />
+            </TouchableOpacity>
+          </View>
+
           <Text style={[styles.vehicleName, { color: colors.text }]}>
             {vehicle?.name}
           </Text>
@@ -1026,6 +1057,19 @@ const styles = StyleSheet.create({
   submitButton: {
     marginTop: 16,
     marginBottom: 32,
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  infoIcon: {
+    padding: 4,
   },
   editIconContainer: {
     flexDirection: "row",
