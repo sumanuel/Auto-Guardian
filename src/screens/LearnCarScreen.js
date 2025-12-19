@@ -33,9 +33,6 @@ const LearnCarScreen = ({ navigation }) => {
         <Text style={[styles.sectionTitle, { color: colors.primary }]}>
           Señales de Alerta que No Debes Ignorar
         </Text>
-        <Text style={[styles.sectionSubtitle, { color: colors.textSecondary }]}>
-          (Convierte al usuario en un conductor más alerta).
-        </Text>
         <Text style={[styles.introText, { color: colors.text }]}>
           &apos;Si ves, escuchas o sientes esto, revisa tu auto:&apos;
         </Text>

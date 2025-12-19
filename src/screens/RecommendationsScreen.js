@@ -56,9 +56,6 @@ const RecommendationsScreen = ({ navigation }) => {
         <Text style={[styles.sectionTitle, { color: colors.primary }]}>
           Recomendaciones por Tipo de Mantenimiento
         </Text>
-        <Text style={[styles.sectionSubtitle, { color: colors.textSecondary }]}>
-          (Se vinculan directamente con la función principal de tu app).
-        </Text>
 
         {maintenanceTips.map((tip, index) => (
           <View
@@ -81,9 +78,6 @@ const RecommendationsScreen = ({ navigation }) => {
           ]}
         >
           Recomendaciones por Estación del Año / Clima
-        </Text>
-        <Text style={[styles.sectionSubtitle, { color: colors.textSecondary }]}>
-          (Muy útil y práctica).
         </Text>
 
         {seasonalRecommendations.map((rec, index) => (
