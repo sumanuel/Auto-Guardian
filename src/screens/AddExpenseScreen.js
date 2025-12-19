@@ -40,6 +40,13 @@ const AddExpenseScreen = ({ route, navigation }) => {
   const descriptionRef = useRef(null);
   const costRef = useRef(null);
   const notesRef = useRef(null);
+  const scrollViewRef = useRef(null);
+
+  const scrollToEnd = () => {
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollToEnd({ animated: true });
+    }
+  };
 
   const handleSave = async () => {
     if (!description.trim()) {
@@ -91,7 +98,7 @@ const AddExpenseScreen = ({ route, navigation }) => {
       style={[styles.container, { backgroundColor: colors.background }]}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <ScrollView style={styles.content}>
+      <ScrollView ref={scrollViewRef} style={styles.content}>
         {/* Descripción */}
         <View style={styles.section}>
           <Text style={[styles.label, { color: colors.text }]}>
@@ -170,6 +177,7 @@ const AddExpenseScreen = ({ route, navigation }) => {
             keyboardType="decimal-pad"
             returnKeyType="next"
             onSubmitEditing={() => notesRef.current?.focus()}
+            onFocus={() => scrollToEnd()}
             blurOnSubmit={false}
           />
         </View>
