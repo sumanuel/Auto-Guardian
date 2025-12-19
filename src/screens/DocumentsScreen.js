@@ -15,7 +15,7 @@ import { getVehicleDocuments } from "../services/vehicleDocumentService";
 
 const DocumentsScreen = ({ navigation }) => {
   const { vehicles } = useApp();
-  const { DialogComponent } = useDialog();
+  const { DialogComponent, showDialog } = useDialog();
   const { colors } = useTheme();
   const [vehiclesWithDocs, setVehiclesWithDocs] = useState([]);
 
@@ -102,7 +102,26 @@ const DocumentsScreen = ({ navigation }) => {
     <DialogComponent>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.header}>
-          <Text style={[styles.title, { color: colors.text }]}>Documentos</Text>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>
+            Documentos
+          </Text>
+          <TouchableOpacity
+            style={styles.helpButton}
+            onPress={() =>
+              showDialog({
+                title: "Gestión de Documentos",
+                message:
+                  "Aquí puedes ver y gestionar todos los documentos asociados a tus vehículos. Organizados por vehículo, incluye licencias, seguros, revisiones técnicas y otros documentos importantes. Mantén al día la información de vencimiento para evitar multas o problemas legales.",
+                type: "info",
+              })
+            }
+          >
+            <Ionicons
+              name="information-circle-outline"
+              size={24}
+              color={colors.primary}
+            />
+          </TouchableOpacity>
         </View>
 
         <FlatList
@@ -139,11 +158,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    padding: 20,
-    paddingBottom: 10,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+    paddingTop: 20,
+    paddingHorizontal: 20,
   },
-  title: {
-    fontSize: 24,
+  headerTitle: {
+    fontSize: 20,
     fontWeight: "bold",
   },
   listContainer: {
@@ -204,6 +227,9 @@ const styles = StyleSheet.create({
     marginTop: 8,
     textAlign: "center",
     paddingHorizontal: 40,
+  },
+  helpButton: {
+    padding: 8,
   },
 });
 
