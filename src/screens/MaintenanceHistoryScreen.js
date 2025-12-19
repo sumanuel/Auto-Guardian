@@ -699,7 +699,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
                 showDialog({
                   title: "💰 Importancia de los costos",
                   message:
-                    "Si editas y agregas costos a los mantenimientos realizados, estos se verán reflejados automáticamente en las estadísticas de inversión. Es de suma importancia mantener estos datos actualizados para tener un control financiero preciso y tomar mejores decisiones sobre el cuidado de tu vehículo.",
+                    "Si editas y agregas costos a los mantenimientos realizados, estos se verán reflejados automáticamente en las estadísticas de inversión (MRO). Es de suma importancia mantener estos datos actualizados para tener un control financiero preciso y tomar mejores decisiones sobre el cuidado de tu vehículo.",
                   type: "info",
                 })
               }
