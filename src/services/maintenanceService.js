@@ -205,13 +205,14 @@ export const createMaintenanceType = (typeData) => {
         ?.maxOrder || 0;
 
     const result = db.runSync(
-      `INSERT INTO maintenance_types (name, category, defaultIntervalKm, defaultIntervalMonths, icon, \`order\`)
-       VALUES (?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO maintenance_types (name, category, defaultIntervalKm, defaultIntervalTime, defaultIntervalUnit, icon, \`order\`)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
         typeData.name,
         typeData.category || null,
         typeData.defaultIntervalKm || null,
-        typeData.defaultIntervalMonths || null,
+        typeData.defaultIntervalTime || null,
+        typeData.defaultIntervalUnit || "months",
         typeData.icon || "construct-outline",
         maxOrder + 1,
       ]
@@ -228,13 +229,14 @@ export const updateMaintenanceType = (id, typeData) => {
   try {
     db.runSync(
       `UPDATE maintenance_types 
-       SET name = ?, category = ?, defaultIntervalKm = ?, defaultIntervalMonths = ?, icon = ?
+       SET name = ?, category = ?, defaultIntervalKm = ?, defaultIntervalTime = ?, defaultIntervalUnit = ?, icon = ?
        WHERE id = ?`,
       [
         typeData.name,
         typeData.category || null,
         typeData.defaultIntervalKm || null,
-        typeData.defaultIntervalMonths || null,
+        typeData.defaultIntervalTime || null,
+        typeData.defaultIntervalUnit || "months",
         typeData.icon || "construct-outline",
         id,
       ]

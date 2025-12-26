@@ -32,14 +32,16 @@ const CategoriesScreen = ({ navigation }) => {
   const [selectedType, setSelectedType] = useState(null);
   const [editingIconFor, setEditingIconFor] = useState(null); // 'edit' o 'add'
   const [editKm, setEditKm] = useState("");
-  const [editMonths, setEditMonths] = useState("");
+  const [editTime, setEditTime] = useState("");
+  const [editTimeUnit, setEditTimeUnit] = useState("months");
   const [editName, setEditName] = useState("");
   const [editCategory, setEditCategory] = useState("");
   const [editIcon, setEditIcon] = useState("");
   const [newTypeName, setNewTypeName] = useState("");
   const [newTypeCategory, setNewTypeCategory] = useState("");
   const [newTypeKm, setNewTypeKm] = useState("");
-  const [newTypeMonths, setNewTypeMonths] = useState("");
+  const [newTypeTime, setNewTypeTime] = useState("");
+  const [newTypeTimeUnit, setNewTypeTimeUnit] = useState("months");
   const [newTypeIcon, setNewTypeIcon] = useState("");
   const [editError, setEditError] = useState("");
   const [addError, setAddError] = useState("");
@@ -48,7 +50,7 @@ const CategoriesScreen = ({ navigation }) => {
   const newTypeNameRef = useRef(null);
   const newTypeCategoryRef = useRef(null);
   const newTypeKmRef = useRef(null);
-  const newTypeMonthsRef = useRef(null);
+  const newTypeTimeRef = useRef(null);
 
   // Iconos disponibles para tipos de mantenimiento
   const availableIcons = [
@@ -142,15 +144,25 @@ const CategoriesScreen = ({ navigation }) => {
                   style={[
                     styles.intervalText,
                     {
-                      color: item.defaultIntervalMonths
-                        ? colors.textSecondary
-                        : "#e74c3c",
-                      fontWeight: item.defaultIntervalMonths ? "normal" : "600",
+                      color:
+                        item.defaultIntervalTime || item.defaultIntervalMonths
+                          ? colors.textSecondary
+                          : "#e74c3c",
+                      fontWeight:
+                        item.defaultIntervalTime || item.defaultIntervalMonths
+                          ? "normal"
+                          : "600",
                     },
                   ]}
                 >
-                  {item.defaultIntervalMonths
-                    ? `Cada ${item.defaultIntervalMonths} meses`
+                  {item.defaultIntervalTime || item.defaultIntervalMonths
+                    ? `Cada ${
+                        item.defaultIntervalTime || item.defaultIntervalMonths
+                      } ${
+                        (item.defaultIntervalUnit || "months") === "months"
+                          ? "meses"
+                          : "días"
+                      }`
                     : "Por definir"}
                 </Text>
               </View>
@@ -191,7 +203,10 @@ const CategoriesScreen = ({ navigation }) => {
     setEditName(type.name);
     setEditCategory(type.category || "");
     setEditKm(type.defaultIntervalKm?.toString() || "");
-    setEditMonths(type.defaultIntervalMonths?.toString() || "");
+    setEditTime(
+      (type.defaultIntervalTime || type.defaultIntervalMonths)?.toString() || ""
+    );
+    setEditTimeUnit(type.defaultIntervalUnit || "months");
     setEditIcon(type.icon || "build-outline");
     setEditError(""); // Limpiar error al abrir
     setEditModalVisible(true);
@@ -206,14 +221,15 @@ const CategoriesScreen = ({ navigation }) => {
     setEditError(""); // Limpiar error anterior
 
     const kmValue = editKm.trim() ? parseInt(editKm) : null;
-    const monthsValue = editMonths.trim() ? parseInt(editMonths) : null;
+    const timeValue = editTime.trim() ? parseInt(editTime) : null;
 
     try {
       await updateMaintenanceType(selectedType.id, {
         name: editName.trim(),
         category: editCategory.trim() || "General",
         defaultIntervalKm: kmValue,
-        defaultIntervalMonths: monthsValue,
+        defaultIntervalTime: timeValue,
+        defaultIntervalUnit: editTimeUnit,
         icon: editIcon,
       });
 
@@ -241,7 +257,8 @@ const CategoriesScreen = ({ navigation }) => {
     setEditName("");
     setEditCategory("");
     setEditKm("");
-    setEditMonths("");
+    setEditTime("");
+    setEditTimeUnit("months");
     setEditIcon("");
     setEditingIconFor(null); // Limpiar estado de edición de icono
     setEditError(""); // Limpiar error al cancelar
@@ -313,7 +330,8 @@ const CategoriesScreen = ({ navigation }) => {
     setNewTypeName("");
     setNewTypeCategory("");
     setNewTypeKm("");
-    setNewTypeMonths("");
+    setNewTypeTime("");
+    setNewTypeTimeUnit("months");
     setNewTypeIcon("build-outline"); // Icono de llave inglesa por defecto
     setAddError(""); // Limpiar error al abrir
     setAddModalVisible(true);
@@ -335,14 +353,15 @@ const CategoriesScreen = ({ navigation }) => {
     setAddError(""); // Limpiar error anterior
 
     const kmValue = newTypeKm.trim() ? parseInt(newTypeKm) : null;
-    const monthsValue = newTypeMonths.trim() ? parseInt(newTypeMonths) : null;
+    const timeValue = newTypeTime.trim() ? parseInt(newTypeTime) : null;
 
     try {
       await createMaintenanceType({
         name: newTypeName.trim(),
         category: newTypeCategory.trim() || "General",
         defaultIntervalKm: kmValue,
-        defaultIntervalMonths: monthsValue,
+        defaultIntervalTime: timeValue,
+        defaultIntervalUnit: newTypeTimeUnit,
         icon: newTypeIcon || "build-outline",
       });
 
@@ -352,7 +371,8 @@ const CategoriesScreen = ({ navigation }) => {
       setNewTypeName("");
       setNewTypeCategory("");
       setNewTypeKm("");
-      setNewTypeMonths("");
+      setNewTypeTime("");
+      setNewTypeTimeUnit("months");
       setNewTypeIcon("");
       setEditingIconFor(null); // Limpiar estado de edición de icono
       setAddError("");
@@ -373,7 +393,8 @@ const CategoriesScreen = ({ navigation }) => {
     setNewTypeName("");
     setNewTypeCategory("");
     setNewTypeKm("");
-    setNewTypeMonths("");
+    setNewTypeTime("");
+    setNewTypeTimeUnit("months");
     setNewTypeIcon("");
     setEditingIconFor(null); // Limpiar estado de edición de icono
     setAddError(""); // Limpiar error al cancelar
@@ -558,8 +579,58 @@ const CategoriesScreen = ({ navigation }) => {
                       style={[styles.inputGroup, { flex: 1, marginLeft: 8 }]}
                     >
                       <Text style={[styles.inputLabel, { color: colors.text }]}>
-                        Meses
+                        Intervalo de tiempo
                       </Text>
+                      <View style={styles.unitSelector}>
+                        <TouchableOpacity
+                          style={[
+                            styles.unitButton,
+                            editTimeUnit === "days" && {
+                              backgroundColor: colors.primary,
+                            },
+                            { borderColor: colors.border },
+                          ]}
+                          onPress={() => setEditTimeUnit("days")}
+                        >
+                          <Text
+                            style={[
+                              styles.unitButtonText,
+                              {
+                                color:
+                                  editTimeUnit === "days"
+                                    ? "#fff"
+                                    : colors.text,
+                              },
+                            ]}
+                          >
+                            Días
+                          </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={[
+                            styles.unitButton,
+                            editTimeUnit === "months" && {
+                              backgroundColor: colors.primary,
+                            },
+                            { borderColor: colors.border },
+                          ]}
+                          onPress={() => setEditTimeUnit("months")}
+                        >
+                          <Text
+                            style={[
+                              styles.unitButtonText,
+                              {
+                                color:
+                                  editTimeUnit === "months"
+                                    ? "#fff"
+                                    : colors.text,
+                              },
+                            ]}
+                          >
+                            Meses
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
                       <TextInput
                         style={[
                           styles.input,
@@ -569,9 +640,9 @@ const CategoriesScreen = ({ navigation }) => {
                             borderColor: colors.border,
                           },
                         ]}
-                        value={editMonths}
-                        onChangeText={setEditMonths}
-                        placeholder="6"
+                        value={editTime}
+                        onChangeText={setEditTime}
+                        placeholder={editTimeUnit === "days" ? "" : ""}
                         placeholderTextColor={colors.textSecondary}
                         keyboardType="numeric"
                       />
@@ -747,17 +818,67 @@ const CategoriesScreen = ({ navigation }) => {
                       placeholderTextColor={colors.textSecondary}
                       keyboardType="numeric"
                       returnKeyType="next"
-                      onSubmitEditing={() => newTypeMonthsRef.current?.focus()}
+                      onSubmitEditing={() => newTypeTimeRef.current?.focus()}
                       blurOnSubmit={false}
                     />
                   </View>
 
                   <View style={[styles.inputGroup, { flex: 1, marginLeft: 8 }]}>
                     <Text style={[styles.inputLabel, { color: colors.text }]}>
-                      Meses
+                      Intervalo de tiempo
                     </Text>
+                    <View style={styles.unitSelector}>
+                      <TouchableOpacity
+                        style={[
+                          styles.unitButton,
+                          newTypeTimeUnit === "days" && {
+                            backgroundColor: colors.primary,
+                          },
+                          { borderColor: colors.border },
+                        ]}
+                        onPress={() => setNewTypeTimeUnit("days")}
+                      >
+                        <Text
+                          style={[
+                            styles.unitButtonText,
+                            {
+                              color:
+                                newTypeTimeUnit === "days"
+                                  ? "#fff"
+                                  : colors.text,
+                            },
+                          ]}
+                        >
+                          Días
+                        </Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={[
+                          styles.unitButton,
+                          newTypeTimeUnit === "months" && {
+                            backgroundColor: colors.primary,
+                          },
+                          { borderColor: colors.border },
+                        ]}
+                        onPress={() => setNewTypeTimeUnit("months")}
+                      >
+                        <Text
+                          style={[
+                            styles.unitButtonText,
+                            {
+                              color:
+                                newTypeTimeUnit === "months"
+                                  ? "#fff"
+                                  : colors.text,
+                            },
+                          ]}
+                        >
+                          Meses
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
                     <TextInput
-                      ref={newTypeMonthsRef}
+                      ref={newTypeTimeRef}
                       style={[
                         styles.input,
                         {
@@ -766,9 +887,9 @@ const CategoriesScreen = ({ navigation }) => {
                           borderColor: colors.border,
                         },
                       ]}
-                      value={newTypeMonths}
-                      onChangeText={setNewTypeMonths}
-                      placeholder="Ingresa meses"
+                      value={newTypeTime}
+                      onChangeText={setNewTypeTime}
+                      placeholder={newTypeTimeUnit === "days" ? "30" : "6"}
                       placeholderTextColor={colors.textSecondary}
                       keyboardType="numeric"
                       returnKeyType="done"
@@ -1136,6 +1257,22 @@ const styles = StyleSheet.create({
   inputRow: {
     flexDirection: "row",
     alignItems: "flex-start",
+  },
+  unitSelector: {
+    flexDirection: "row",
+    marginBottom: 8,
+    gap: 8,
+  },
+  unitButton: {
+    flex: 1,
+    borderWidth: 1,
+    borderRadius: 6,
+    padding: 8,
+    alignItems: "center",
+  },
+  unitButtonText: {
+    fontSize: 14,
+    fontWeight: "500",
   },
   errorContainer: {
     flexDirection: "row",

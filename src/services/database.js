@@ -9,105 +9,120 @@ const seedMaintenanceTypes = () => {
       name: "Cambio de aceite",
       category: "Motor",
       defaultIntervalKm: 5000,
-      defaultIntervalMonths: 6,
+      defaultIntervalTime: 6,
+      defaultIntervalUnit: "months",
       icon: "water-outline",
     },
     {
       name: "Filtro de aceite",
       category: "Motor",
       defaultIntervalKm: 5000,
-      defaultIntervalMonths: 6,
+      defaultIntervalTime: 6,
+      defaultIntervalUnit: "months",
       icon: "funnel-outline",
     },
     {
       name: "Filtro de aire",
       category: "Motor",
       defaultIntervalKm: 15000,
-      defaultIntervalMonths: 12,
+      defaultIntervalTime: 12,
+      defaultIntervalUnit: "months",
       icon: "construct-outline",
     },
     {
       name: "Bujías",
       category: "Motor",
       defaultIntervalKm: 30000,
-      defaultIntervalMonths: 24,
+      defaultIntervalTime: 24,
+      defaultIntervalUnit: "months",
       icon: "flash-outline",
     },
     {
       name: "Pastillas de freno",
       category: "Frenos",
       defaultIntervalKm: 40000,
-      defaultIntervalMonths: 24,
+      defaultIntervalTime: 24,
+      defaultIntervalUnit: "months",
       icon: "hardware-chip-outline",
     },
     {
       name: "Líquido de frenos",
       category: "Frenos",
       defaultIntervalKm: 40000,
-      defaultIntervalMonths: 24,
+      defaultIntervalTime: 24,
+      defaultIntervalUnit: "months",
       icon: "water-outline",
     },
     {
       name: "Neumáticos",
       category: "Neumáticos",
       defaultIntervalKm: 50000,
-      defaultIntervalMonths: 36,
+      defaultIntervalTime: 36,
+      defaultIntervalUnit: "months",
       icon: "ellipse-outline",
     },
     {
       name: "Rotación de neumáticos",
       category: "Neumáticos",
       defaultIntervalKm: 10000,
-      defaultIntervalMonths: 6,
+      defaultIntervalTime: 6,
+      defaultIntervalUnit: "months",
       icon: "refresh-outline",
     },
     {
       name: "Alineación",
       category: "Neumáticos",
       defaultIntervalKm: 15000,
-      defaultIntervalMonths: 12,
+      defaultIntervalTime: 12,
+      defaultIntervalUnit: "months",
       icon: "options-outline",
     },
     {
       name: "Balanceo",
       category: "Neumáticos",
       defaultIntervalKm: 15000,
-      defaultIntervalMonths: 12,
+      defaultIntervalTime: 12,
+      defaultIntervalUnit: "months",
       icon: "options-outline",
     },
     {
       name: "Batería",
       category: "Eléctrico",
       defaultIntervalKm: null,
-      defaultIntervalMonths: 36,
+      defaultIntervalTime: 36,
+      defaultIntervalUnit: "months",
       icon: "battery-charging-outline",
     },
     {
       name: "Refrigerante",
       category: "Motor",
       defaultIntervalKm: 40000,
-      defaultIntervalMonths: 24,
+      defaultIntervalTime: 24,
+      defaultIntervalUnit: "months",
       icon: "water-outline",
     },
     {
       name: "Transmisión",
       category: "Motor",
       defaultIntervalKm: 60000,
-      defaultIntervalMonths: 36,
+      defaultIntervalTime: 36,
+      defaultIntervalUnit: "months",
       icon: "cog-outline",
     },
     {
       name: "Correa de distribución",
       category: "Motor",
       defaultIntervalKm: 100000,
-      defaultIntervalMonths: 60,
+      defaultIntervalTime: 60,
+      defaultIntervalUnit: "months",
       icon: "git-branch-outline",
     },
     {
       name: "Inspección general",
       category: "General",
       defaultIntervalKm: 10000,
-      defaultIntervalMonths: 12,
+      defaultIntervalTime: 12,
+      defaultIntervalUnit: "months",
       icon: "search-outline",
     },
   ];
@@ -115,12 +130,13 @@ const seedMaintenanceTypes = () => {
   types.forEach((type) => {
     try {
       db.runSync(
-        "INSERT OR IGNORE INTO maintenance_types (name, category, defaultIntervalKm, defaultIntervalMonths, icon) VALUES (?, ?, ?, ?, ?)",
+        "INSERT OR IGNORE INTO maintenance_types (name, category, defaultIntervalKm, defaultIntervalTime, defaultIntervalUnit, icon) VALUES (?, ?, ?, ?, ?, ?)",
         [
           type.name,
           type.category,
           type.defaultIntervalKm,
-          type.defaultIntervalMonths,
+          type.defaultIntervalTime,
+          type.defaultIntervalUnit,
           type.icon,
         ]
       );
@@ -305,8 +321,10 @@ export const initDatabase = () => {
         name TEXT NOT NULL UNIQUE,
         category TEXT,
         defaultIntervalKm INTEGER,
-        defaultIntervalMonths INTEGER,
-        icon TEXT
+        defaultIntervalTime INTEGER,
+        defaultIntervalUnit TEXT DEFAULT 'months',
+        icon TEXT,
+        \`order\` INTEGER DEFAULT 0
       );
     `);
 
@@ -385,6 +403,50 @@ const migrateDatabase = () => {
 
       console.log(
         "✅ Migración completada: campo 'order' agregado a maintenance_types"
+      );
+    }
+
+    // Migrar defaultIntervalMonths a defaultIntervalTime y agregar unit
+    const hasMonthsColumn = tableInfo.some(
+      (column) => column.name === "defaultIntervalMonths"
+    );
+    const hasTimeColumn = tableInfo.some(
+      (column) => column.name === "defaultIntervalTime"
+    );
+    const hasUnitColumn = tableInfo.some(
+      (column) => column.name === "defaultIntervalUnit"
+    );
+
+    if (hasMonthsColumn && !hasTimeColumn) {
+      console.log(
+        "🔄 Migrando tabla maintenance_types: renombrando defaultIntervalMonths a defaultIntervalTime y agregando defaultIntervalUnit"
+      );
+
+      // Renombrar columna
+      db.execSync(
+        "ALTER TABLE maintenance_types RENAME COLUMN defaultIntervalMonths TO defaultIntervalTime"
+      );
+
+      // Agregar columna unit
+      db.execSync(
+        "ALTER TABLE maintenance_types ADD COLUMN defaultIntervalUnit TEXT DEFAULT 'months'"
+      );
+
+      console.log(
+        "✅ Migración completada: defaultIntervalMonths renombrado a defaultIntervalTime y defaultIntervalUnit agregado"
+      );
+    } else if (!hasUnitColumn) {
+      console.log(
+        "🔄 Migrando tabla maintenance_types: agregando campo 'defaultIntervalUnit'"
+      );
+
+      // Agregar columna unit
+      db.execSync(
+        "ALTER TABLE maintenance_types ADD COLUMN defaultIntervalUnit TEXT DEFAULT 'months'"
+      );
+
+      console.log(
+        "✅ Migración completada: campo 'defaultIntervalUnit' agregado a maintenance_types"
       );
     }
   } catch (error) {
