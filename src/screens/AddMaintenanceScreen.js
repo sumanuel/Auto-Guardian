@@ -150,6 +150,24 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
   };
 
   const handleTypeSelect = (type) => {
+    let nextServiceDate = null;
+
+    // Calcular fecha del próximo servicio si hay intervalo de tiempo definido
+    if (type.defaultIntervalTime && type.defaultIntervalUnit) {
+      const currentDate = new Date();
+      if (type.defaultIntervalUnit === "days") {
+        nextServiceDate = new Date(
+          currentDate.getTime() + type.defaultIntervalTime * 24 * 60 * 60 * 1000
+        );
+      } else if (type.defaultIntervalUnit === "months") {
+        nextServiceDate = new Date(
+          currentDate.getFullYear(),
+          currentDate.getMonth() + type.defaultIntervalTime,
+          currentDate.getDate()
+        );
+      }
+    }
+
     setFormData((prev) => ({
       ...prev,
       type: type.name,
@@ -161,6 +179,7 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
             type.defaultIntervalKm
           ).toString()
         : "",
+      nextServiceDate: nextServiceDate,
     }));
   };
 
