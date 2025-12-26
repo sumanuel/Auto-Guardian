@@ -246,14 +246,55 @@ export const cancelAllNotifications = async () => {
   }
 };
 
-// Obtener notificaciones programadas
-export const getScheduledNotifications = async () => {
+// Programar todas las notificaciones activas
+export const scheduleAllNotifications = async (getAllNotifications) => {
   try {
-    const notifications =
-      await Notifications.getAllScheduledNotificationsAsync();
-    return notifications;
+    // Cancelar todas las notificaciones programadas anteriores
+    await Notifications.cancelAllScheduledNotificationsAsync();
+
+    // Obtener todas las notificaciones
+    const allNotifications = await getAllNotifications();
+
+    // Group notifications by day and time
+    const groupedNotifications = {};
+    for (const notif of allNotifications) {
+      const key = `${notif.days}_${notif.time}`;
+      if (!groupedNotifications[key]) {
+        groupedNotifications[key] = [];
+      }
+      groupedNotifications[key].push(notif);
+    }
+
+    // Schedule one random notification per group, weekly recurring
+    for (const [key, notifications] of Object.entries(groupedNotifications)) {
+      const randomNotification =
+        notifications[Math.floor(Math.random() * notifications.length)];
+      const [hours, minutes] = randomNotification.time.split(":").map(Number);
+      const selectedDays = randomNotification.days.split(",");
+
+      selectedDays.forEach(async (day) => {
+        const dayNum = parseInt(day);
+        // Convert day number to Expo weekday (1 = Sunday, 2 = Monday, etc.)
+        const expoWeekday = dayNum === 0 ? 1 : dayNum + 1;
+
+        await Notifications.scheduleNotificationAsync({
+          content: {
+            title: randomNotification.title,
+            body: randomNotification.body,
+          },
+          trigger: {
+            type: "weekly",
+            weekday: expoWeekday,
+            hour: hours,
+            minute: minutes,
+            repeats: true,
+          },
+        });
+      });
+    }
+
+    console.log("✅ Todas las notificaciones reprogramadas");
   } catch (error) {
-    console.error("Error obteniendo notificaciones programadas:", error);
-    return [];
+    console.error("Error programando notificaciones:", error);
   }
 };

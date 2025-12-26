@@ -1,5 +1,4 @@
 import { Ionicons } from "@expo/vector-icons";
-import * as Notifications from "expo-notifications";
 import { useEffect, useState } from "react";
 import {
   Alert,
@@ -14,10 +13,12 @@ import {
 import { useTheme } from "../context/ThemeContext";
 import {
   deleteNotification,
+  getAllNotifications,
   getNotifications,
   initDatabase,
   insertNotification,
 } from "../database/notifications";
+import { scheduleAllNotifications } from "../services/notificationService";
 
 const NotificationsScreen = () => {
   const { colors } = useTheme();
@@ -65,38 +66,10 @@ const NotificationsScreen = () => {
       .toString()
       .padStart(2, "0")}`;
     try {
-      const id = await insertNotification(
-        title,
-        body,
-        selectedDays.join(","),
-        time
-      );
+      await insertNotification(title, body, selectedDays.join(","), time);
 
-      // Schedule the notifications for the next 4 occurrences
-      const now = new Date();
-      const [hours, minutes] = [selectedHour, selectedMinute];
-      const currentDay = now.getDay(); // 0 = Sunday
-      for (let week = 0; week < 4; week++) {
-        selectedDays.forEach(async (day) => {
-          const dayNum = parseInt(day);
-          let targetDate = new Date(now);
-          const daysDiff = (dayNum - currentDay + 7) % 7;
-          targetDate.setDate(now.getDate() + daysDiff + week * 7);
-          targetDate.setHours(hours, minutes, 0, 0);
-          if (targetDate > now) {
-            await Notifications.scheduleNotificationAsync({
-              content: {
-                title,
-                body,
-              },
-              trigger: {
-                type: "date",
-                date: targetDate,
-              },
-            });
-          }
-        });
-      }
+      // Reprogramar todas las notificaciones
+      await scheduleAllNotifications(getAllNotifications);
 
       setModalVisible(false);
       setTitle("");
@@ -113,6 +86,8 @@ const NotificationsScreen = () => {
   const handleDelete = async (id) => {
     try {
       await deleteNotification(id);
+      // Reprogramar todas las notificaciones después de eliminar
+      await scheduleAllNotifications(getAllNotifications);
       loadNotifications();
     } catch (error) {
       console.error(error);
