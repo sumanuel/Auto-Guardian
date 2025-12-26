@@ -9,15 +9,15 @@ Esta Política de Privacidad describe cómo Auto Guardian ("nosotros", "nuestro"
 ### Información proporcionada por el usuario
 
 - **Datos de vehículos**: Información sobre tus vehículos, incluyendo marca, modelo, año, color, placa, VIN, kilometraje actual y fotos.
-- **Registros de mantenimiento**: Detalles de servicios realizados, incluyendo tipo de mantenimiento, fecha, kilometraje, costo, proveedor, notas y fotos.
+- **Registros de mantenimiento**: Detalles de servicios realizados, incluyendo tipo de mantenimiento, fecha, kilometraje.
 - **Datos de contactos**: Información de talleres o proveedores de servicios, incluyendo nombre, teléfono y dirección.
-- **Datos de gastos**: Registros de gastos relacionados con vehículos, incluyendo descripción, categoría, fecha, costo, notas y fotos.
+- **Datos de gastos**: Registros de gastos relacionados con vehículos, incluyendo descripción, categoría, fecha, costo y notas.
 
 ### Información recopilada automáticamente
 
 - **Permisos del dispositivo**: La app solicita permisos para:
   - Notificaciones: Para enviar recordatorios de mantenimiento.
-  - Cámara y galería: Para tomar o seleccionar fotos de vehículos, mantenimientos y gastos.
+  - Cámara y galería: Para tomar o seleccionar fotos de vehículos.
   - Almacenamiento: Para guardar fotos localmente en tu dispositivo.
 - **Datos de uso**: Información técnica sobre el uso de la app, como fechas de acceso, para mejorar la funcionalidad.
 
