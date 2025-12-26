@@ -7,12 +7,14 @@ Esta Política de Privacidad describe cómo Auto Guardian ("nosotros", "nuestro"
 ## 1. Información que recopilamos
 
 ### Información proporcionada por el usuario
+
 - **Datos de vehículos**: Información sobre tus vehículos, incluyendo marca, modelo, año, color, placa, VIN, kilometraje actual y fotos.
 - **Registros de mantenimiento**: Detalles de servicios realizados, incluyendo tipo de mantenimiento, fecha, kilometraje, costo, proveedor, notas y fotos.
 - **Datos de contactos**: Información de talleres o proveedores de servicios, incluyendo nombre, teléfono y dirección.
 - **Datos de gastos**: Registros de gastos relacionados con vehículos, incluyendo descripción, categoría, fecha, costo, notas y fotos.
 
 ### Información recopilada automáticamente
+
 - **Permisos del dispositivo**: La app solicita permisos para:
   - Notificaciones: Para enviar recordatorios de mantenimiento.
   - Cámara y galería: Para tomar o seleccionar fotos de vehículos, mantenimientos y gastos.
@@ -20,11 +22,13 @@ Esta Política de Privacidad describe cómo Auto Guardian ("nosotros", "nuestro"
 - **Datos de uso**: Información técnica sobre el uso de la app, como fechas de acceso, para mejorar la funcionalidad.
 
 ### Información de terceros
+
 - No recopilamos información de terceros. Todas las fotos y datos se almacenan localmente en tu dispositivo.
 
 ## 2. Cómo usamos tu información
 
 Utilizamos la información recopilada para:
+
 - **Gestionar tus vehículos**: Almacenar y organizar información sobre tus vehículos y su historial de mantenimiento.
 - **Recordatorios de mantenimiento**: Enviar notificaciones programadas para recordarte servicios pendientes.
 - **Análisis y estadísticas**: Calcular costos, frecuencias de mantenimiento y generar reportes.
@@ -45,6 +49,7 @@ Utilizamos la información recopilada para:
 ## 5. Tus derechos
 
 Como usuario, tienes derecho a:
+
 - **Acceder a tus datos**: Ver toda la información almacenada en la app.
 - **Eliminar datos**: Borrar cualquier registro de vehículo, mantenimiento o gasto.
 - **Exportar datos**: Los datos están en formato SQLite y puedes exportarlos manualmente.
@@ -57,6 +62,7 @@ Podemos actualizar esta Política de Privacidad ocasionalmente. Te notificaremos
 ## 7. Contacto
 
 Si tienes preguntas sobre esta Política de Privacidad, puedes contactarnos a través de:
+
 - Correo electrónico: [tu-email@ejemplo.com]
 - Soporte en la app: Sección de "Acerca de" en la aplicación.
 
@@ -66,5 +72,5 @@ Al usar Auto Guardian, aceptas esta Política de Privacidad. Si no estás de acu
 
 ---
 
-*Esta política se aplica únicamente a la versión móvil de Auto Guardian. No cubre otras aplicaciones o servicios relacionados.*</content>
+_Esta política se aplica únicamente a la versión móvil de Auto Guardian. No cubre otras aplicaciones o servicios relacionados._</content>
 <parameter name="filePath">d:\Mis proyectos\Auto-Guardian\PrivacyPolicy.md
