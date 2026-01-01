@@ -1,7 +1,7 @@
 import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system/legacy";
 import * as Sharing from "expo-sharing";
-import { db } from "../database";
+import db from "../database";
 
 const BACKUP_DIR = `${FileSystem.documentDirectory}backups/`;
 
@@ -21,7 +21,7 @@ const ensureBackupDir = async () => {
 };
 
 const getUserTables = async () => {
-  const rows = await db.getAllAsync(
+  const rows = await db.getAllSync(
     "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name;"
   );
   return rows.map((r) => r.name);
@@ -47,7 +47,7 @@ const toInsertOrder = (tables) => {
 };
 
 const exportTable = async (tableName) => {
-  const rows = await db.getAllAsync(`SELECT * FROM ${tableName}`);
+  const rows = await db.getAllSync(`SELECT * FROM ${tableName}`);
   return { tableName, rows };
 };
 
@@ -57,21 +57,25 @@ const importTable = async (tableData) => {
   if (rows.length === 0) return;
 
   // Obtener columnas de la tabla
-  const columns = await db.getAllAsync(`PRAGMA table_info(${tableName})`);
+  const columns = await db.getAllSync(`PRAGMA table_info(${tableName})`);
   const columnNames = columns
     .map((col) => col.name)
     .filter((col) => col !== "id");
 
+  // Función para escapar nombres de columnas
+  const escapeColumnName = (name) => `"${name}"`;
+
   // Crear placeholders para los valores
+  const escapedColumnNames = columnNames.map(escapeColumnName);
   const placeholders = columnNames.map(() => "?").join(", ");
-  const insertSQL = `INSERT OR REPLACE INTO ${tableName} (${columnNames.join(
+  const insertSQL = `INSERT OR REPLACE INTO ${tableName} (${escapedColumnNames.join(
     ", "
   )}) VALUES (${placeholders})`;
 
   // Insertar filas
   for (const row of rows) {
     const values = columnNames.map((col) => row[col]);
-    await db.runAsync(insertSQL, values);
+    await db.runSync(insertSQL, values);
   }
 };
 
@@ -158,11 +162,9 @@ export const importDatabaseBackupFromUri = async (uri) => {
     // Limpiar tablas existentes (excepto las del sistema)
     const tables = await getUserTables();
     for (const tableName of tables) {
-      await db.runAsync(`DELETE FROM ${tableName}`);
+      await db.runSync(`DELETE FROM ${tableName}`);
       // Resetear autoincrement si es necesario
-      await db.runAsync(
-        `DELETE FROM sqlite_sequence WHERE name='${tableName}'`
-      );
+      await db.runSync(`DELETE FROM sqlite_sequence WHERE name='${tableName}'`);
     }
 
     // Importar datos en orden correcto
