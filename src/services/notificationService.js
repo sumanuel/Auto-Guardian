@@ -68,30 +68,98 @@ export const sendImmediateNotification = async (title, body, data = {}) => {
   }
 };
 
-// Programar notificación diaria
-export const scheduleDailyNotification = async () => {
+// Programar notificaciones semanales de alertas (lunes y miércoles 9 AM)
+export const scheduleAlertNotifications = async (getAlertSummary) => {
   try {
-    // Cancelar notificaciones programadas anteriores
-    await Notifications.cancelAllScheduledNotificationsAsync();
+    // No cancelar todas las notificaciones, solo reprogramar las de alertas
+    // Primero obtener las notificaciones programadas existentes
+    const existingNotifications =
+      await Notifications.getAllScheduledNotificationsAsync();
 
-    // Programar notificación diaria a las 9:00 AM
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: "🚗 Auto Guardian",
-        body: "Revisa el estado de tus vehículos",
-        data: { type: "daily-reminder" },
-        sound: true,
-      },
-      trigger: {
-        hour: 9,
-        minute: 0,
-        repeats: true,
-      },
-    });
+    // Cancelar solo las notificaciones de alertas existentes
+    const alertNotifications = existingNotifications.filter(
+      (notif) => notif.content.data?.type === "alert-summary"
+    );
 
-    console.log("✅ Notificación diaria programada");
+    for (const notif of alertNotifications) {
+      await Notifications.cancelScheduledNotificationAsync(notif.identifier);
+    }
+
+    // Obtener resumen de alertas actual
+    const alertSummary = await getAlertSummary();
+
+    // Solo programar si hay alertas
+    if (
+      alertSummary &&
+      (alertSummary.totalOverdue > 0 ||
+        alertSummary.totalUrgent > 0 ||
+        (alertSummary.totalDocuments || 0) > 0)
+    ) {
+      const now = new Date();
+      const currentDay = now.getDay(); // 0 = Domingo, 1 = Lunes, etc.
+
+      // Días a programar: 1 (Lunes) y 3 (Miércoles)
+      const alertDays = [1, 3];
+
+      for (const dayNum of alertDays) {
+        // Calcular la próxima fecha para este día
+        let targetDate = new Date(now);
+        const daysDiff = (dayNum - currentDay + 7) % 7;
+
+        if (daysDiff === 0 && now.getHours() >= 9) {
+          // Si es hoy y ya pasaron las 9 AM, programar para la próxima semana
+          targetDate.setDate(now.getDate() + 7);
+        } else {
+          targetDate.setDate(now.getDate() + daysDiff);
+        }
+
+        targetDate.setHours(9, 0, 0, 0);
+
+        // Crear mensaje de notificación basado en las alertas
+        let title = "🚨 Alertas de Auto Guardian";
+        let body = "Tienes mantenimientos y documentos que requieren atención.";
+
+        const totalAlerts =
+          (alertSummary.totalOverdue || 0) +
+          (alertSummary.totalUrgent || 0) +
+          (alertSummary.totalDocuments || 0);
+        if (totalAlerts > 0) {
+          body = `Tienes ${totalAlerts} alerta${
+            totalAlerts > 1 ? "s" : ""
+          } pendiente${totalAlerts > 1 ? "s" : ""} en Auto Guardian.`;
+        }
+
+        await Notifications.scheduleNotificationAsync({
+          content: {
+            title,
+            body,
+            data: {
+              type: "alert-summary",
+              alertSummary: alertSummary,
+            },
+            sound: true,
+            priority: Notifications.AndroidNotificationPriority.HIGH,
+          },
+          trigger: {
+            type: "weekly",
+            weekday: dayNum === 0 ? 1 : dayNum + 1, // Convertir a formato Expo (1=Domingo, 2=Lunes, etc.)
+            hour: 9,
+            minute: 0,
+            repeats: true,
+          },
+        });
+      }
+
+      console.log(
+        "✅ Notificaciones de alertas programadas para lunes y miércoles"
+      );
+    } else {
+      console.log(
+        "ℹ️ No hay alertas pendientes, no se programan notificaciones"
+      );
+    }
   } catch (error) {
-    console.error("Error programando notificación diaria:", error);
+    console.error("Error programando notificaciones de alertas:", error);
   }
 };
 

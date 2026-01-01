@@ -345,10 +345,13 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  // Función para actualizar el badge del icono de la app
-  const updateAppBadge = async (vehiclesList = vehicles) => {
+  // Obtener resumen completo de alertas
+  const getAlertSummary = async (vehiclesList = vehicles) => {
     try {
-      let totalAlerts = 0;
+      let totalOverdue = 0;
+      let totalUrgent = 0;
+      let totalDocuments = 0;
+      const alerts = [];
 
       // Contar alertas de mantenimientos
       for (const vehicle of vehiclesList) {
@@ -359,18 +362,21 @@ export const AppProvider = ({ children }) => {
 
         for (const maintenance of upcomingMaintenances) {
           const now = new Date();
-          let isAlert = false;
+          let isOverdue = false;
+          let isUrgent = false;
 
           // Verificar por kilometraje
           if (maintenance.nextServiceKm && vehicle.currentKm) {
             const kmRemaining = maintenance.nextServiceKm - vehicle.currentKm;
-            if (kmRemaining <= 500) {
-              isAlert = true;
+            if (kmRemaining < 0) {
+              isOverdue = true;
+            } else if (kmRemaining <= 500) {
+              isUrgent = true;
             }
           }
 
           // Verificar por fecha
-          if (maintenance.nextServiceDate && !isAlert) {
+          if (maintenance.nextServiceDate && !isOverdue && !isUrgent) {
             const nextDate = new Date(
               maintenance.nextServiceDate.split("T")[0]
             );
@@ -383,13 +389,29 @@ export const AppProvider = ({ children }) => {
               (nextDate - today) / (1000 * 60 * 60 * 24)
             );
 
-            if (daysRemaining <= 3) {
-              isAlert = true;
+            if (daysRemaining < 0) {
+              isOverdue = true;
+            } else if (daysRemaining <= 3) {
+              isUrgent = true;
             }
           }
 
-          if (isAlert) {
-            totalAlerts++;
+          if (isOverdue) {
+            totalOverdue++;
+            alerts.push({
+              type: "overdue",
+              vehicle: vehicle.name,
+              maintenance: maintenance.type,
+              reason: "Mantenimiento vencido",
+            });
+          } else if (isUrgent) {
+            totalUrgent++;
+            alerts.push({
+              type: "urgent",
+              vehicle: vehicle.name,
+              maintenance: maintenance.type,
+              reason: "Mantenimiento próximo",
+            });
           }
         }
       }
@@ -397,13 +419,62 @@ export const AppProvider = ({ children }) => {
       // Contar documentos urgentes
       try {
         const expiringDocuments = await getExpiringDocuments();
-        totalAlerts += expiringDocuments.length;
+        totalDocuments = Array.isArray(expiringDocuments)
+          ? expiringDocuments.length
+          : 0;
+
+        // Agregar documentos al array de alertas
+        expiringDocuments.forEach((doc) => {
+          alerts.push({
+            type: "document",
+            vehicle: doc.vehicle_name,
+            document: doc.document_type_name,
+            expiryDate: doc.expiry_date,
+            isExpired: doc.is_expired === 1,
+          });
+        });
       } catch (error) {
-        console.error("❌ Error counting expiring documents for badge:", error);
+        console.error(
+          "❌ Error counting expiring documents for summary:",
+          error
+        );
       }
+
+      return {
+        totalOverdue,
+        totalUrgent,
+        totalDocuments,
+        totalAlerts: totalOverdue + totalUrgent + totalDocuments,
+        alerts,
+      };
+    } catch (error) {
+      console.error("Error obteniendo resumen de alertas:", error);
+      return {
+        totalOverdue: 0,
+        totalUrgent: 0,
+        totalDocuments: 0,
+        totalAlerts: 0,
+        alerts: [],
+      };
+    }
+  };
+
+  // Función para actualizar el badge del icono de la app
+  const updateAppBadge = async (vehiclesList = vehicles) => {
+    try {
+      // Obtener resumen completo de alertas
+      const alertSummary = await getAlertSummary(vehiclesList);
+      const totalAlerts = alertSummary.totalAlerts;
 
       // Actualizar badge con el número de alertas
       await notificationService.updateBadgeCount(totalAlerts);
+
+      // Programar notificaciones semanales de alertas si están habilitadas
+      if (notificationsEnabled && totalAlerts > 0) {
+        await notificationService.scheduleAlertNotifications(() =>
+          Promise.resolve(alertSummary)
+        );
+      }
     } catch (error) {
       console.error("Error actualizando badge:", error);
     }
@@ -583,6 +654,7 @@ export const AppProvider = ({ children }) => {
     // Document functions
     getDocuments,
     getExpiringDocuments,
+    getAlertSummary,
     // Badge function
     updateAppBadge,
     // Notification functions

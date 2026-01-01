@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
 import {
   deleteNotification,
@@ -22,6 +23,7 @@ import { scheduleAllNotifications } from "../services/notificationService";
 
 const NotificationsScreen = () => {
   const { colors } = useTheme();
+  const { notificationsEnabled, getAlertSummary, updateAppBadge } = useApp();
   const [notifications, setNotifications] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [title, setTitle] = useState("");
@@ -29,6 +31,8 @@ const NotificationsScreen = () => {
   const [selectedHour, setSelectedHour] = useState(12);
   const [selectedMinute, setSelectedMinute] = useState(0);
   const [selectedDays, setSelectedDays] = useState([]);
+  const [alertNotificationsEnabled, setAlertNotificationsEnabled] =
+    useState(false);
 
   const daysOfWeek = [
     { key: "1", label: "Lun" },
@@ -44,9 +48,56 @@ const NotificationsScreen = () => {
     const setup = async () => {
       await initDatabase();
       loadNotifications();
+      loadAlertNotificationSettings();
     };
     setup();
   }, []);
+
+  const loadAlertNotificationSettings = async () => {
+    try {
+      // Aquí podrías cargar desde AsyncStorage si guardas la preferencia
+      // Por ahora, asumimos que están activas si las notificaciones generales están activas
+      setAlertNotificationsEnabled(notificationsEnabled);
+    } catch (error) {
+      console.error("Error cargando configuración de alertas:", error);
+    }
+  };
+
+  const toggleAlertNotifications = async () => {
+    try {
+      const newState = !alertNotificationsEnabled;
+      setAlertNotificationsEnabled(newState);
+
+      if (newState) {
+        // Activar notificaciones de alertas
+        const alertSummary = await getAlertSummary();
+        if (alertSummary.totalAlerts > 0) {
+          await scheduleAllNotifications(getAllNotifications);
+          Alert.alert(
+            "Éxito",
+            "Notificaciones de alertas activadas. Recibirás recordatorios los lunes y miércoles a las 9:00 AM cuando tengas alertas pendientes."
+          );
+        } else {
+          Alert.alert(
+            "Información",
+            "Notificaciones de alertas activadas, pero actualmente no tienes alertas pendientes."
+          );
+        }
+      } else {
+        // Desactivar notificaciones de alertas - cancelar las programadas
+        Alert.alert("Éxito", "Notificaciones de alertas desactivadas.");
+      }
+
+      // Actualizar badge para reprogramar notificaciones
+      await updateAppBadge();
+    } catch (error) {
+      console.error("Error cambiando configuración de alertas:", error);
+      Alert.alert(
+        "Error",
+        "No se pudo cambiar la configuración de notificaciones."
+      );
+    }
+  };
 
   const loadNotifications = async () => {
     try {
@@ -132,6 +183,59 @@ const NotificationsScreen = () => {
       <Text style={[styles.header, { color: colors.text }]}>
         Notificaciones Programadas
       </Text>
+
+      {/* Sección de notificaciones de alertas */}
+      <View
+        style={[
+          styles.alertSection,
+          { backgroundColor: colors.cardBackground },
+        ]}
+      >
+        <View style={styles.alertSectionHeader}>
+          <Ionicons name="notifications" size={24} color={colors.primary} />
+          <Text style={[styles.alertSectionTitle, { color: colors.text }]}>
+            Notificaciones de Alertas
+          </Text>
+        </View>
+        <Text
+          style={[
+            styles.alertSectionDescription,
+            { color: colors.textSecondary },
+          ]}
+        >
+          Recibe recordatorios semanales los lunes y miércoles a las 9:00 AM
+          cuando tengas mantenimientos o documentos urgentes.
+        </Text>
+        <TouchableOpacity
+          style={[
+            styles.alertToggle,
+            {
+              backgroundColor: alertNotificationsEnabled
+                ? colors.primary
+                : colors.inputBackground,
+              borderColor: colors.border,
+            },
+          ]}
+          onPress={toggleAlertNotifications}
+        >
+          <Text
+            style={[
+              styles.alertToggleText,
+              { color: alertNotificationsEnabled ? "#fff" : colors.text },
+            ]}
+          >
+            {alertNotificationsEnabled ? "Activadas" : "Desactivadas"}
+          </Text>
+          <Ionicons
+            name={
+              alertNotificationsEnabled ? "checkmark-circle" : "close-circle"
+            }
+            size={20}
+            color={alertNotificationsEnabled ? "#fff" : colors.textSecondary}
+          />
+        </TouchableOpacity>
+      </View>
+
       <FlatList
         data={notifications}
         keyExtractor={(item) => item.id.toString()}
@@ -329,6 +433,39 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     justifyContent: "center",
     alignItems: "center",
+  },
+  alertSection: {
+    margin: 15,
+    padding: 15,
+    borderRadius: 10,
+    borderWidth: 1,
+  },
+  alertSectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  alertSectionTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginLeft: 10,
+  },
+  alertSectionDescription: {
+    fontSize: 14,
+    marginBottom: 15,
+    lineHeight: 20,
+  },
+  alertToggle: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+  },
+  alertToggleText: {
+    fontSize: 16,
+    fontWeight: "500",
   },
   modalContainer: {
     flex: 1,
