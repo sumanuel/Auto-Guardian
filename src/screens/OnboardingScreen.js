@@ -1,14 +1,14 @@
-import React, { useState, useRef } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Dimensions,
-  TouchableOpacity,
-  ScrollView,
-  SafeAreaView,
-} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRef, useState } from "react";
+import {
+  Dimensions,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { useTheme } from "../context/ThemeContext";
 
 const { width, height } = Dimensions.get("window");
@@ -86,7 +86,9 @@ export const OnboardingScreen = ({ onComplete }) => {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.primary }]}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.primary }]}
+    >
       <View style={styles.skipContainer}>
         <TouchableOpacity onPress={handleSkip} style={styles.skipButton}>
           <Text style={styles.skipText}>Saltar</Text>
@@ -126,7 +128,7 @@ export const OnboardingScreen = ({ onComplete }) => {
                 { backgroundColor: "rgba(255, 255, 255, 0.3)" },
                 currentSlide === index && [
                   styles.activeIndicator,
-                  { backgroundColor: "#fff" }
+                  { backgroundColor: "#fff" },
                 ],
               ]}
             />

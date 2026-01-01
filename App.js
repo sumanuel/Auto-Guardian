@@ -27,7 +27,9 @@ export default function App() {
   const initializeApp = async () => {
     try {
       // Verificar si el usuario ya completó el onboarding
-      const onboardingCompleted = await AsyncStorage.getItem("onboardingCompleted");
+      const onboardingCompleted = await AsyncStorage.getItem(
+        "onboardingCompleted"
+      );
       setShowOnboarding(!onboardingCompleted);
 
       // Inicializar base de datos y notificaciones
