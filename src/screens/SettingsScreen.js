@@ -32,6 +32,12 @@ const SettingsScreen = ({ navigation }) => {
       icon: "notifications-outline",
       screen: "NotificationsScreen",
     },
+    {
+      id: 5,
+      title: "Gestión de datos",
+      icon: "server-outline",
+      screen: "DataManagement", // Placeholder screen name
+    },
   ];
 
   return (

@@ -15,6 +15,7 @@ import AddVehicleScreen from "../screens/AddVehicleScreen";
 import AlertSummaryScreen from "../screens/AlertSummaryScreen";
 import CategoriesScreen from "../screens/CategoriesScreen";
 import ContactsScreen from "../screens/ContactsScreen";
+import DataManagementScreen from "../screens/DataManagementScreen";
 import DocumentsScreen from "../screens/DocumentsScreen";
 import HomeScreen from "../screens/HomeScreen";
 import InvestmentDetailScreen from "../screens/InvestmentDetailScreen";
@@ -261,6 +262,11 @@ const MoreStack = () => {
         name="NotificationsScreen"
         component={NotificationsScreen}
         options={{ title: "Notificaciones" }}
+      />
+      <Stack.Screen
+        name="DataManagement"
+        component={DataManagementScreen}
+        options={{ title: "Gestión de Datos" }}
       />
       <Stack.Screen
         name="About"
