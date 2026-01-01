@@ -2,7 +2,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -11,6 +10,7 @@ import {
   View,
 } from "react-native";
 import { useTheme } from "../context/ThemeContext";
+import { useDialog } from "../hooks/useDialog";
 import {
   exportDatabaseBackup,
   importDatabaseBackupFromUri,
@@ -21,6 +21,7 @@ import { getAllVehicles } from "../services/vehicleService";
 
 const DataManagementScreen = ({ navigation }) => {
   const { colors } = useTheme();
+  const { DialogComponent, showDialog } = useDialog();
   const [backupBusy, setBackupBusy] = useState(false);
 
   const handleExportData = async () => {
@@ -28,23 +29,30 @@ const DataManagementScreen = ({ navigation }) => {
       // Verificar que haya al menos un vehículo registrado
       const vehicles = getAllVehicles();
       if (!vehicles || vehicles.length === 0) {
-        Alert.alert(
-          "No hay datos para respaldar",
-          "Debes tener al menos un vehículo registrado para crear un respaldo."
-        );
+        showDialog({
+          title: "No hay datos para respaldar",
+          message:
+            "Debes tener al menos un vehículo registrado para crear un respaldo.",
+          type: "warning",
+        });
         return;
       }
 
       setBackupBusy(true);
       const { uri } = await exportDatabaseBackup();
       await shareBackupFile(uri);
-      Alert.alert(
-        "Respaldo creado",
-        "Tus datos fueron exportados correctamente."
-      );
+      showDialog({
+        title: "Respaldo creado",
+        message: "Tus datos fueron exportados correctamente.",
+        type: "success",
+      });
     } catch (error) {
       console.error("Error exporting data:", error);
-      Alert.alert("Error", "No se pudo exportar el respaldo.");
+      showDialog({
+        title: "Error",
+        message: "No se pudo exportar el respaldo.",
+        type: "error",
+      });
     } finally {
       setBackupBusy(false);
     }
@@ -58,38 +66,45 @@ const DataManagementScreen = ({ navigation }) => {
 
       await importDatabaseBackupFromUri(file.uri);
 
-      Alert.alert(
-        "Respaldo importado",
-        "Los datos se importaron correctamente. Por favor, reinicia la aplicación manualmente para ver los cambios.",
-        [{ text: "Entendido", onPress: () => navigation.goBack() }]
-      );
+      showDialog({
+        title: "Respaldo importado",
+        message:
+          "Los datos se importaron correctamente. Por favor, reinicia la aplicación manualmente para ver los cambios.",
+        type: "success",
+        buttons: [{ text: "Entendido", onPress: () => navigation.goBack() }],
+      });
     } catch (error) {
       console.error("Error importing data:", error);
-      Alert.alert(
-        "Error",
-        error?.message || "No se pudo importar el respaldo."
-      );
+      showDialog({
+        title: "Error",
+        message: error?.message || "No se pudo importar el respaldo.",
+        type: "error",
+      });
     } finally {
       setBackupBusy(false);
     }
   };
 
   const handleImportData = async () => {
-    Alert.alert(
-      "Importar datos",
-      "Esto reemplazará los datos actuales por los del respaldo. ¿Deseas continuar?",
-      [
-        { text: "Cancelar", style: "cancel" },
-        { text: "Importar", onPress: doImport },
-      ]
-    );
+    const confirmed = await showDialog({
+      title: "Importar datos",
+      message:
+        "Esto reemplazará los datos actuales por los del respaldo. ¿Deseas continuar?",
+      type: "confirm",
+    });
+
+    if (confirmed) {
+      doImport();
+    }
   };
 
   const showBackupInfo = () => {
-    Alert.alert(
-      "💡 Recomendación de respaldo",
-      "Te recomendamos guardar tus respaldos en Google Drive u otro servicio en la nube para tener una copia segura fuera de tu dispositivo.\n\nEsto te protegerá en caso de pérdida, robo o daño del teléfono."
-    );
+    showDialog({
+      title: "💡 Recomendación de respaldo",
+      message:
+        "Te recomendamos guardar tus respaldos en Google Drive u otro servicio en la nube para tener una copia segura fuera de tu dispositivo.\n\nEsto te protegerá en caso de pérdida, robo o daño del teléfono.",
+      type: "info",
+    });
   };
 
   return (
@@ -257,6 +272,7 @@ const DataManagementScreen = ({ navigation }) => {
           </View>
         </View>
       </ScrollView>
+      <DialogComponent />
     </SafeAreaView>
   );
 };
