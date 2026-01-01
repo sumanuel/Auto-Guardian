@@ -110,7 +110,7 @@ export const getAllVehicleDocuments = () => {
   }
 };
 
-// Obtener documentos próximos a vencer (dentro de 30 días)
+// Obtener documentos próximos a vencer y vencidos (dentro de 30 días y ya vencidos)
 export const getExpiringDocuments = (days = 30) => {
   try {
     if (!db) {
@@ -125,13 +125,14 @@ export const getExpiringDocuments = (days = 30) => {
 
     const documents = db.getAllSync(
       `SELECT vd.*, dt.type_document as document_type_name, dt.description as document_description,
-              v.name as vehicle_name, v.plate as vehicle_plate
+              v.name as vehicle_name, v.plate as vehicle_plate,
+              CASE WHEN vd.expiry_date < ? THEN 1 ELSE 0 END as is_expired
        FROM vehicle_documents vd
        JOIN document_types dt ON vd.document_type_id = dt.id
        JOIN vehicles v ON vd.vehicle_id = v.id
-       WHERE vd.expiry_date IS NOT NULL AND vd.expiry_date >= ? AND vd.expiry_date <= ?
+       WHERE vd.expiry_date IS NOT NULL AND (vd.expiry_date < ? OR (vd.expiry_date >= ? AND vd.expiry_date <= ?))
        ORDER BY vd.expiry_date ASC`,
-      [todayStr, futureDateStr]
+      [todayStr, todayStr, todayStr, futureDateStr]
     );
 
     return documents;
