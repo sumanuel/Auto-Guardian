@@ -4,6 +4,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { Platform } from "react-native";
 import { useTheme } from "../context/ThemeContext";
+import { isTablet, ms, rf } from "../utils/responsive";
 
 // Screens
 import AddContactScreen from "../screens/AddContactScreen";
@@ -47,6 +48,7 @@ const HomeStack = () => {
         headerTintColor: "#fff",
         headerTitleStyle: {
           fontWeight: "bold",
+          fontSize: rf(18),
         },
       }}
     >
@@ -103,6 +105,7 @@ const HistoryStack = () => {
         headerTintColor: "#fff",
         headerTitleStyle: {
           fontWeight: "bold",
+          fontSize: rf(18),
         },
       }}
     >
@@ -127,6 +130,7 @@ const StatsStack = () => {
         headerTintColor: "#fff",
         headerTitleStyle: {
           fontWeight: "bold",
+          fontSize: rf(18),
         },
       }}
     >
@@ -171,6 +175,7 @@ const DocumentsStack = () => {
         headerTintColor: "#fff",
         headerTitleStyle: {
           fontWeight: "bold",
+          fontSize: rf(18),
         },
       }}
     >
@@ -205,6 +210,7 @@ const MoreStack = () => {
         headerTintColor: "#fff",
         headerTitleStyle: {
           fontWeight: "bold",
+          fontSize: rf(18),
         },
       }}
     >
@@ -280,6 +286,7 @@ const MoreStack = () => {
 // Bottom Tab Navigator principal
 const AppNavigator = () => {
   const { colors } = useTheme();
+  const tablet = isTablet();
   return (
     <NavigationContainer>
       <Tab.Navigator
@@ -300,30 +307,44 @@ const AppNavigator = () => {
                 : "ellipsis-horizontal-circle-outline";
             }
 
-            return <Ionicons name={iconName} size={size} color={color} />;
+            return <Ionicons name={iconName} size={ms(size)} color={color} />;
           },
           tabBarActiveTintColor: colors.primary,
           tabBarInactiveTintColor: colors.tabBarInactive,
           tabBarStyle: {
             backgroundColor: colors.tabBarBackground,
-            borderTopWidth: 1,
+            borderTopWidth: ms(1),
             borderTopColor: colors.tabBarBorder,
-            paddingBottom: Platform.OS === "ios" ? 34 : 44,
-            paddingTop: 8,
-            height: Platform.OS === "ios" ? 95 : 96,
-            elevation: 8,
+            paddingBottom:
+              Platform.OS === "ios"
+                ? tablet
+                  ? ms(24)
+                  : 34
+                : tablet
+                ? ms(16)
+                : 44,
+            paddingTop: tablet ? ms(8) : 8,
+            height:
+              Platform.OS === "ios"
+                ? tablet
+                  ? ms(84)
+                  : 95
+                : tablet
+                ? ms(84)
+                : 96,
+            elevation: ms(8),
             shadowColor: colors.shadow,
-            shadowOffset: { width: 0, height: -2 },
+            shadowOffset: { width: 0, height: ms(-2) },
             shadowOpacity: 0.1,
-            shadowRadius: 3,
+            shadowRadius: ms(3),
           },
           tabBarLabelStyle: {
-            fontSize: 13,
+            fontSize: rf(13),
             fontWeight: "600",
-            marginBottom: 4,
+            marginBottom: ms(4),
           },
           tabBarIconStyle: {
-            marginTop: 4,
+            marginTop: ms(4),
           },
         })}
       >

@@ -2,7 +2,7 @@ import { Dimensions, PixelRatio } from "react-native";
 
 const BASE_WIDTH = 375; // iPhone X-ish baseline
 const MIN_SCALE = 1; // no shrink on small devices (your phone already looks good)
-const MAX_SCALE = 1.35; // avoid comically large UI on very big screens
+const MAX_SCALE = 1.45; // avoid comically large UI on very big screens
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
@@ -19,7 +19,8 @@ export const ms = (size, factor = 0.6) => {
   return size + (scaled - size) * factor;
 };
 
-export const rf = (fontSize, factor = 0.7) => {
+// Slightly stronger default scaling for typography.
+export const rf = (fontSize, factor = 0.85) => {
   const scaled = ms(fontSize, factor);
   return Math.round(PixelRatio.roundToNearestPixel(scaled));
 };

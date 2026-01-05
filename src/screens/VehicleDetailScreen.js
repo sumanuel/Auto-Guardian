@@ -29,7 +29,7 @@ import {
   getMaintenanceUrgency,
   getUrgencyColor,
 } from "../utils/formatUtils";
-import { ms, rf } from "../utils/responsive";
+import { isTablet, ms, rf } from "../utils/responsive";
 
 const VehicleDetailScreen = ({ navigation, route }) => {
   const { vehicleId } = route.params;
@@ -43,6 +43,10 @@ const VehicleDetailScreen = ({ navigation, route }) => {
   } = useApp();
   const { DialogComponent, showDialog } = useDialog();
   const { colors } = useTheme();
+  const tablet = isTablet();
+
+  const vehicleImageSize = tablet ? ms(100, 1) : ms(100);
+  const vehiclePlaceholderIconSize = tablet ? ms(60, 1) : ms(60);
 
   const [vehicle, setVehicle] = useState(null);
   const [recentMaintenances, setRecentMaintenances] = useState([]);
@@ -300,16 +304,24 @@ const VehicleDetailScreen = ({ navigation, route }) => {
           {vehicle.photo ? (
             <Image
               source={{ uri: vehicle.photo }}
-              style={styles.vehicleImage}
+              style={[
+                styles.vehicleImage,
+                { width: vehicleImageSize, height: vehicleImageSize },
+              ]}
             />
           ) : (
             <View
               style={[
                 styles.imagePlaceholder,
                 { backgroundColor: colors.inputBackground },
+                { width: vehicleImageSize, height: vehicleImageSize },
               ]}
             >
-              <Ionicons name="car" size={ms(60)} color={colors.textSecondary} />
+              <Ionicons
+                name="car"
+                size={vehiclePlaceholderIconSize}
+                color={colors.textSecondary}
+              />
             </View>
           )}
           <View style={styles.headerInfo}>

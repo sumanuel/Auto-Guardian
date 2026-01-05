@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useTheme } from "../../context/ThemeContext";
 import { COLORS } from "../../data/constants";
-import { ms, rf } from "../../utils/responsive";
+import { isTablet, ms, rf } from "../../utils/responsive";
 
 const QuickMaintenanceButton = ({
   icon,
@@ -12,15 +12,30 @@ const QuickMaintenanceButton = ({
   color = COLORS.primary,
 }) => {
   const { colors } = useTheme();
+  const tablet = isTablet();
+
+  const circleSize = tablet ? ms(64, 1) : ms(64);
+  const iconSize = tablet ? ms(24, 1) : ms(24);
+  const itemWidth = tablet ? ms(105, 1) : ms(105);
 
   return (
     <TouchableOpacity
-      style={styles.container}
+      style={[styles.container, { width: itemWidth }]}
       onPress={onPress}
       activeOpacity={0.7}
     >
-      <View style={[styles.iconCircle, { backgroundColor: color + "20" }]}>
-        <Ionicons name={icon} size={ms(24)} color={color} />
+      <View
+        style={[
+          styles.iconCircle,
+          {
+            backgroundColor: color + "20",
+            width: circleSize,
+            height: circleSize,
+            borderRadius: circleSize / 2,
+          },
+        ]}
+      >
+        <Ionicons name={icon} size={iconSize} color={color} />
       </View>
       <Text style={[styles.label, { color: colors.text }]} numberOfLines={2}>
         {label}
@@ -32,13 +47,9 @@ const QuickMaintenanceButton = ({
 const styles = StyleSheet.create({
   container: {
     alignItems: "center",
-    width: ms(105),
     marginHorizontal: ms(8),
   },
   iconCircle: {
-    width: ms(64),
-    height: ms(64),
-    borderRadius: ms(32),
     justifyContent: "center",
     alignItems: "center",
     marginBottom: ms(8),
