@@ -1,17 +1,17 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
   KeyboardAvoidingView,
   Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
-import { useApp } from "../context/AppContext";
-import { COLORS } from "../data/constants";
-import { useTheme } from "../context/ThemeContext";
 import Button from "../components/common/Button";
+import { useApp } from "../context/AppContext";
+import { useTheme } from "../context/ThemeContext";
 import { useDialog } from "../hooks/useDialog";
+import { ms, rf } from "../utils/responsive";
 
 const UpdateKmScreen = ({ navigation, route }) => {
   const { vehicle } = route.params;
@@ -136,43 +136,43 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: 20,
+    padding: ms(20),
   },
   title: {
-    fontSize: 24,
+    fontSize: rf(24),
     fontWeight: "bold",
-    marginBottom: 8,
+    marginBottom: ms(8),
   },
   subtitle: {
-    fontSize: 16,
-    marginBottom: 24,
+    fontSize: rf(16),
+    marginBottom: ms(24),
   },
   currentKmContainer: {
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 24,
+    padding: ms(16),
+    borderRadius: ms(8),
+    marginBottom: ms(24),
   },
   label: {
-    fontSize: 14,
-    marginBottom: 4,
+    fontSize: rf(14),
+    marginBottom: ms(4),
   },
   currentKm: {
-    fontSize: 28,
+    fontSize: rf(28),
     fontWeight: "bold",
   },
   inputGroup: {
-    marginBottom: 24,
+    marginBottom: ms(24),
   },
   input: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 24,
+    borderWidth: ms(1),
+    borderRadius: ms(8),
+    padding: ms(12),
+    fontSize: rf(24),
     fontWeight: "bold",
     textAlign: "center",
   },
   submitButton: {
-    marginTop: 16,
+    marginTop: ms(16),
   },
 });
 

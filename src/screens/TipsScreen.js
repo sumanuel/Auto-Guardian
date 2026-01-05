@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useTheme } from "../context/ThemeContext";
+import { ms, rf } from "../utils/responsive";
 
 const TipsScreen = ({ navigation }) => {
   const { colors } = useTheme();
@@ -25,7 +26,7 @@ const TipsScreen = ({ navigation }) => {
           >
             <Ionicons
               name="bulb"
-              size={20}
+              size={ms(20)}
               color={colors.primary}
               style={styles.icon}
             />
@@ -46,28 +47,28 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingHorizontal: ms(20),
+    paddingTop: ms(20),
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: rf(18),
     fontWeight: "bold",
-    marginBottom: 20,
+    marginBottom: ms(20),
   },
   tipCard: {
     flexDirection: "row",
     alignItems: "flex-start",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    borderRadius: ms(12),
+    padding: ms(16),
+    marginBottom: ms(12),
   },
   icon: {
-    marginRight: 12,
-    marginTop: 2,
+    marginRight: ms(12),
+    marginTop: ms(2),
   },
   tipContent: {
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: rf(14),
+    lineHeight: ms(20),
     flex: 1,
   },
 });

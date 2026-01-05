@@ -18,6 +18,7 @@ import { COUNTRIES } from "../constants/countries";
 import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
 import { useDialog } from "../hooks/useDialog";
+import { ms, rf } from "../utils/responsive";
 
 const AddContactScreen = ({ navigation, route }) => {
   const { addContact, updateContact } = useApp();
@@ -77,7 +78,7 @@ const AddContactScreen = ({ navigation, route }) => {
         scrollViewRef.current,
         (x, y) => {
           scrollViewRef.current.scrollTo({
-            y: y - 150,
+            y: y - ms(150),
             animated: true,
           });
         },
@@ -261,7 +262,7 @@ const AddContactScreen = ({ navigation, route }) => {
               style={styles.backButton}
               onPress={() => navigation.goBack()}
             >
-              <Ionicons name="arrow-back" size={24} color={colors.text} />
+              <Ionicons name="arrow-back" size={ms(24)} color={colors.text} />
             </TouchableOpacity>
             <Text style={[styles.title, { color: colors.text }]}>
               {isEditing ? "Editar Contacto" : "Agregar Contacto"}
@@ -272,7 +273,7 @@ const AddContactScreen = ({ navigation, route }) => {
             style={[styles.importButton, { borderColor: colors.primary }]}
             onPress={importContacts}
           >
-            <Ionicons name="person-add" size={20} color={colors.primary} />
+            <Ionicons name="person-add" size={ms(20)} color={colors.primary} />
             <Text style={[styles.importButtonText, { color: colors.primary }]}>
               Importar desde Contactos
             </Text>
@@ -342,7 +343,11 @@ const AddContactScreen = ({ navigation, route }) => {
                     ? `${selectedCountry.flag} ${selectedCountry.name} (${selectedCountry.code})`
                     : "Selecciona un país..."}
                 </Text>
-                <Ionicons name="chevron-down" size={20} color={colors.text} />
+                <Ionicons
+                  name="chevron-down"
+                  size={ms(20)}
+                  color={colors.text}
+                />
               </TouchableOpacity>
             </View>
 
@@ -429,7 +434,7 @@ const AddContactScreen = ({ navigation, route }) => {
                     onPress={() => setShowCountryModal(false)}
                     style={styles.closeButton}
                   >
-                    <Ionicons name="close" size={24} color={colors.text} />
+                    <Ionicons name="close" size={ms(24)} color={colors.text} />
                   </TouchableOpacity>
                 </View>
 
@@ -489,7 +494,7 @@ const AddContactScreen = ({ navigation, route }) => {
                     onPress={() => setImportModalVisible(false)}
                     style={styles.closeButton}
                   >
-                    <Ionicons name="close" size={24} color={colors.text} />
+                    <Ionicons name="close" size={ms(24)} color={colors.text} />
                   </TouchableOpacity>
                 </View>
 
@@ -520,7 +525,7 @@ const AddContactScreen = ({ navigation, route }) => {
                     >
                       <Ionicons
                         name="person"
-                        size={24}
+                        size={ms(24)}
                         color={colors.primary}
                         style={styles.contactIcon}
                       />
@@ -559,81 +564,81 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 16,
-    paddingTop: 50,
+    padding: ms(16),
+    paddingTop: ms(50),
   },
   backButton: {
-    marginRight: 16,
+    marginRight: ms(16),
   },
   title: {
-    fontSize: 20,
+    fontSize: rf(20),
     fontWeight: "bold",
   },
   form: {
-    padding: 16,
+    padding: ms(16),
   },
   inputContainer: {
-    marginBottom: 20,
+    marginBottom: ms(20),
   },
   label: {
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "500",
-    marginBottom: 8,
+    marginBottom: ms(8),
   },
   input: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
+    borderWidth: ms(1),
+    borderRadius: ms(8),
+    padding: ms(12),
+    fontSize: rf(16),
     backgroundColor: "transparent",
   },
   saveButton: {
-    padding: 16,
-    borderRadius: 8,
+    padding: ms(16),
+    borderRadius: ms(8),
     alignItems: "center",
-    marginTop: 20,
+    marginTop: ms(20),
   },
   saveButtonText: {
     color: "#fff",
-    fontSize: 18,
+    fontSize: rf(18),
     fontWeight: "bold",
   },
   countrySelector: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
+    borderWidth: ms(1),
+    borderRadius: ms(8),
+    padding: ms(12),
     backgroundColor: "transparent",
   },
   countryText: {
-    fontSize: 16,
+    fontSize: rf(16),
   },
   phoneInputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    borderWidth: 1,
-    borderRadius: 8,
+    borderWidth: ms(1),
+    borderRadius: ms(8),
     backgroundColor: "transparent",
   },
   countryCode: {
-    fontSize: 16,
-    paddingLeft: 12,
-    paddingRight: 8,
+    fontSize: rf(16),
+    paddingLeft: ms(12),
+    paddingRight: ms(8),
     fontWeight: "500",
   },
   phoneInput: {
     flex: 1,
-    padding: 12,
-    fontSize: 16,
-    borderLeftWidth: 1,
+    padding: ms(12),
+    fontSize: rf(16),
+    borderLeftWidth: ms(1),
     borderLeftColor: "#ccc",
-    paddingLeft: 12,
+    paddingLeft: ms(12),
   },
   helperText: {
-    fontSize: 12,
-    marginTop: 4,
+    fontSize: rf(12),
+    marginTop: ms(4),
     fontStyle: "italic",
   },
   modalOverlay: {
@@ -643,81 +648,81 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     maxHeight: "70%",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    paddingBottom: 20,
+    borderTopLeftRadius: ms(20),
+    borderTopRightRadius: ms(20),
+    paddingBottom: ms(20),
   },
   modalHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 20,
-    borderBottomWidth: 1,
+    padding: ms(20),
+    borderBottomWidth: ms(1),
     borderBottomColor: "#eee",
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: rf(18),
     fontWeight: "bold",
   },
   closeButton: {
-    padding: 4,
+    padding: ms(4),
   },
   countryItem: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 16,
-    borderBottomWidth: 1,
+    padding: ms(16),
+    borderBottomWidth: ms(1),
     borderBottomColor: "#f0f0f0",
   },
   countryItemText: {
-    fontSize: 16,
+    fontSize: rf(16),
   },
   countryCodeText: {
-    fontSize: 14,
+    fontSize: rf(14),
     fontWeight: "500",
   },
   importButton: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    padding: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    marginTop: 10,
-    marginHorizontal: 16,
+    padding: ms(12),
+    borderRadius: ms(8),
+    borderWidth: ms(1),
+    marginTop: ms(10),
+    marginHorizontal: ms(16),
   },
   importButtonText: {
-    fontSize: 16,
-    marginLeft: 8,
+    fontSize: rf(16),
+    marginLeft: ms(8),
   },
   contactItem: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 16,
-    borderBottomWidth: 1,
+    padding: ms(16),
+    borderBottomWidth: ms(1),
     borderBottomColor: "#eee",
   },
   contactIcon: {
-    marginRight: 12,
+    marginRight: ms(12),
   },
   contactInfo: {
     flex: 1,
   },
   contactName: {
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "bold",
   },
   contactPhone: {
-    fontSize: 14,
-    marginTop: 4,
+    fontSize: rf(14),
+    marginTop: ms(4),
   },
   searchInput: {
-    margin: 16,
-    padding: 12,
-    borderWidth: 1,
-    borderRadius: 8,
-    fontSize: 16,
+    margin: ms(16),
+    padding: ms(12),
+    borderWidth: ms(1),
+    borderRadius: ms(8),
+    fontSize: rf(16),
   },
 });
 

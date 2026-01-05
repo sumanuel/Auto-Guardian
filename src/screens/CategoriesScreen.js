@@ -21,6 +21,7 @@ import {
   updateMaintenanceType,
   updateMaintenanceTypesOrder,
 } from "../services/maintenanceService";
+import { ms, rf } from "../utils/responsive";
 
 const CategoriesScreen = ({ navigation }) => {
   const { colors } = useTheme();
@@ -104,7 +105,7 @@ const CategoriesScreen = ({ navigation }) => {
         <View style={styles.typeInfo}>
           <Ionicons
             name={item.icon || "build-outline"}
-            size={24}
+            size={ms(24)}
             color={colors.primary}
           />
           <View style={styles.typeDetails}>
@@ -115,7 +116,7 @@ const CategoriesScreen = ({ navigation }) => {
               <View style={styles.intervalRow}>
                 <Ionicons
                   name="speedometer-outline"
-                  size={14}
+                  size={ms(14)}
                   color={colors.primary}
                 />
                 <Text
@@ -137,7 +138,7 @@ const CategoriesScreen = ({ navigation }) => {
               <View style={styles.intervalRow}>
                 <Ionicons
                   name="calendar-outline"
-                  size={14}
+                  size={ms(14)}
                   color={colors.primary}
                 />
                 <Text
@@ -177,7 +178,7 @@ const CategoriesScreen = ({ navigation }) => {
           >
             <Ionicons
               name="menu-outline"
-              size={20}
+              size={ms(20)}
               color={colors.textSecondary}
             />
           </TouchableOpacity>
@@ -185,13 +186,17 @@ const CategoriesScreen = ({ navigation }) => {
             style={styles.editButton}
             onPress={() => handleEditType(item)}
           >
-            <Ionicons name="create-outline" size={20} color={colors.primary} />
+            <Ionicons
+              name="create-outline"
+              size={ms(20)}
+              color={colors.primary}
+            />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.deleteButton}
             onPress={() => handleDeleteType(item)}
           >
-            <Ionicons name="trash-outline" size={20} color="#E53935" />
+            <Ionicons name="trash-outline" size={ms(20)} color="#E53935" />
           </TouchableOpacity>
         </View>
       </View>
@@ -427,7 +432,7 @@ const CategoriesScreen = ({ navigation }) => {
           >
             <Ionicons
               name="information-circle-outline"
-              size={24}
+              size={ms(24)}
               color={colors.primary}
             />
           </TouchableOpacity>
@@ -448,7 +453,7 @@ const CategoriesScreen = ({ navigation }) => {
           onPress={handleAddType}
           activeOpacity={0.8}
         >
-          <Ionicons name="add" size={30} color="#fff" />
+          <Ionicons name="add" size={ms(30)} color="#fff" />
         </TouchableOpacity>
 
         {/* Modal de edición */}
@@ -470,7 +475,7 @@ const CategoriesScreen = ({ navigation }) => {
                   Editar Intervalos
                 </Text>
                 <TouchableOpacity onPress={handleCancelEdit}>
-                  <Ionicons name="close" size={24} color={colors.text} />
+                  <Ionicons name="close" size={ms(24)} color={colors.text} />
                 </TouchableOpacity>
               </View>
 
@@ -532,7 +537,7 @@ const CategoriesScreen = ({ navigation }) => {
                     >
                       <Ionicons
                         name={editIcon || "build-outline"}
-                        size={24}
+                        size={ms(24)}
                         color={colors.primary}
                       />
                       <Text
@@ -545,7 +550,7 @@ const CategoriesScreen = ({ navigation }) => {
                       </Text>
                       <Ionicons
                         name="chevron-forward"
-                        size={20}
+                        size={ms(20)}
                         color={colors.textSecondary}
                       />
                     </TouchableOpacity>
@@ -553,7 +558,10 @@ const CategoriesScreen = ({ navigation }) => {
 
                   <View style={styles.inputRow}>
                     <View
-                      style={[styles.inputGroup, { flex: 1, marginRight: 8 }]}
+                      style={[
+                        styles.inputGroup,
+                        { flex: 1, marginRight: ms(8) },
+                      ]}
                     >
                       <Text style={[styles.inputLabel, { color: colors.text }]}>
                         Kilómetros
@@ -576,7 +584,10 @@ const CategoriesScreen = ({ navigation }) => {
                     </View>
 
                     <View
-                      style={[styles.inputGroup, { flex: 1, marginLeft: 8 }]}
+                      style={[
+                        styles.inputGroup,
+                        { flex: 1, marginLeft: ms(8) },
+                      ]}
                     >
                       <Text style={[styles.inputLabel, { color: colors.text }]}>
                         Intervalo de tiempo
@@ -651,7 +662,11 @@ const CategoriesScreen = ({ navigation }) => {
 
                   {editError ? (
                     <View style={styles.errorContainer}>
-                      <Ionicons name="alert-circle" size={20} color="#e74c3c" />
+                      <Ionicons
+                        name="alert-circle"
+                        size={ms(20)}
+                        color="#e74c3c"
+                      />
                       <Text style={styles.errorText}>{editError}</Text>
                     </View>
                   ) : null}
@@ -710,7 +725,7 @@ const CategoriesScreen = ({ navigation }) => {
                   Nuevo Tipo de Mantenimiento
                 </Text>
                 <TouchableOpacity onPress={handleCancelAdd}>
-                  <Ionicons name="close" size={24} color={colors.text} />
+                  <Ionicons name="close" size={ms(24)} color={colors.text} />
                 </TouchableOpacity>
               </View>
 
@@ -779,7 +794,7 @@ const CategoriesScreen = ({ navigation }) => {
                   >
                     <Ionicons
                       name={newTypeIcon || "build-outline"}
-                      size={24}
+                      size={ms(24)}
                       color={colors.primary}
                     />
                     <Text
@@ -789,7 +804,7 @@ const CategoriesScreen = ({ navigation }) => {
                     </Text>
                     <Ionicons
                       name="chevron-forward"
-                      size={20}
+                      size={ms(20)}
                       color={colors.textSecondary}
                     />
                   </TouchableOpacity>
@@ -797,7 +812,7 @@ const CategoriesScreen = ({ navigation }) => {
 
                 <View style={styles.inputRow}>
                   <View
-                    style={[styles.inputGroup, { flex: 1, marginRight: 8 }]}
+                    style={[styles.inputGroup, { flex: 1, marginRight: ms(8) }]}
                   >
                     <Text style={[styles.inputLabel, { color: colors.text }]}>
                       Kilómetros
@@ -823,7 +838,9 @@ const CategoriesScreen = ({ navigation }) => {
                     />
                   </View>
 
-                  <View style={[styles.inputGroup, { flex: 1, marginLeft: 8 }]}>
+                  <View
+                    style={[styles.inputGroup, { flex: 1, marginLeft: ms(8) }]}
+                  >
                     <Text style={[styles.inputLabel, { color: colors.text }]}>
                       Intervalo de tiempo
                     </Text>
@@ -899,7 +916,11 @@ const CategoriesScreen = ({ navigation }) => {
 
                 {addError ? (
                   <View style={styles.errorContainer}>
-                    <Ionicons name="alert-circle" size={20} color="#e74c3c" />
+                    <Ionicons
+                      name="alert-circle"
+                      size={ms(20)}
+                      color="#e74c3c"
+                    />
                     <Text style={styles.errorText}>{addError}</Text>
                   </View>
                 ) : null}
@@ -954,7 +975,7 @@ const CategoriesScreen = ({ navigation }) => {
                   Seleccionar Icono
                 </Text>
                 <TouchableOpacity onPress={() => setIconPickerVisible(false)}>
-                  <Ionicons name="close" size={24} color={colors.text} />
+                  <Ionicons name="close" size={ms(24)} color={colors.text} />
                 </TouchableOpacity>
               </View>
 
@@ -983,15 +1004,15 @@ const CategoriesScreen = ({ navigation }) => {
                             : editingIconFor === "add"
                             ? newTypeIcon
                             : "") === item.name
-                            ? 2
-                            : 1,
+                            ? ms(2)
+                            : ms(1),
                       },
                     ]}
                     onPress={() => handleSelectIcon(item.name)}
                   >
                     <Ionicons
                       name={item.name}
-                      size={32}
+                      size={ms(32)}
                       color={
                         (editingIconFor === "edit"
                           ? editIcon
@@ -1036,34 +1057,34 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: ms(20),
     paddingTop: 0,
   },
   scrollContent: {
-    paddingBottom: 100,
+    paddingBottom: ms(100),
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 20,
-    paddingTop: 20,
+    marginBottom: ms(20),
+    paddingTop: ms(20),
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: rf(20),
     fontWeight: "bold",
   },
   helpButton: {
-    padding: 8,
+    padding: ms(8),
   },
   categoryCard: {
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    elevation: 2,
+    borderRadius: ms(12),
+    padding: ms(16),
+    marginBottom: ms(12),
+    elevation: ms(2),
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
-    shadowRadius: 3,
+    shadowRadius: ms(3),
   },
   typeItem: {
     flexDirection: "row",
@@ -1073,91 +1094,91 @@ const styles = StyleSheet.create({
   typeInfo: {
     flexDirection: "row",
     alignItems: "flex-start",
-    gap: 12,
+    gap: ms(12),
     flex: 1,
   },
   typeDetails: {
     flex: 1,
   },
   typeName: {
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "500",
-    marginBottom: 4,
+    marginBottom: ms(4),
   },
   categoryLabel: {
-    fontSize: 12,
-    marginBottom: 8,
+    fontSize: rf(12),
+    marginBottom: ms(8),
     textTransform: "uppercase",
     fontWeight: "600",
   },
   intervalsContainer: {
-    marginTop: 8,
+    marginTop: ms(8),
   },
   intervalRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
-    marginBottom: 4,
+    gap: ms(6),
+    marginBottom: ms(4),
   },
   intervalText: {
-    fontSize: 13,
-    lineHeight: 16,
+    fontSize: rf(13),
+    lineHeight: ms(16),
   },
   editButton: {
-    padding: 8,
-    marginTop: 4,
+    padding: ms(8),
+    marginTop: ms(4),
   },
   actionButtons: {
     flexDirection: "row",
-    gap: 8,
+    gap: ms(8),
   },
   deleteButton: {
-    padding: 8,
-    marginTop: 4,
+    padding: ms(8),
+    marginTop: ms(4),
   },
   dragHandle: {
-    padding: 8,
-    marginTop: 4,
-    marginRight: 4,
+    padding: ms(8),
+    marginTop: ms(4),
+    marginRight: ms(4),
   },
   iconSelector: {
     flexDirection: "row",
     alignItems: "center",
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    gap: 12,
+    borderWidth: ms(1),
+    borderRadius: ms(8),
+    padding: ms(12),
+    gap: ms(12),
   },
   iconSelectorText: {
     flex: 1,
-    fontSize: 16,
+    fontSize: rf(16),
   },
   iconPickerContent: {
     width: "90%",
-    maxWidth: 400,
+    maxWidth: ms(420),
     maxHeight: "80%",
-    borderRadius: 12,
-    padding: 0,
-    elevation: 5,
+    borderRadius: ms(12),
+    padding: ms(0),
+    elevation: ms(5),
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
-    shadowRadius: 4,
+    shadowRadius: ms(4),
   },
   iconGrid: {
-    padding: 20,
+    padding: ms(20),
   },
   iconOption: {
     flex: 1,
     aspectRatio: 1,
-    margin: 6,
-    borderRadius: 12,
+    margin: ms(6),
+    borderRadius: ms(12),
     justifyContent: "center",
     alignItems: "center",
-    padding: 12,
+    padding: ms(12),
   },
   iconLabel: {
-    fontSize: 11,
-    marginTop: 6,
+    fontSize: rf(11),
+    marginTop: ms(6),
     textAlign: "center",
   },
   modalOverlay: {
@@ -1168,90 +1189,90 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     width: "90%",
-    maxWidth: 400,
-    borderRadius: 12,
-    padding: 0,
-    elevation: 5,
+    maxWidth: ms(420),
+    borderRadius: ms(12),
+    padding: ms(0),
+    elevation: ms(5),
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
-    shadowRadius: 4,
+    shadowRadius: ms(4),
   },
   modalHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 20,
+    padding: ms(20),
     borderBottomWidth: 1,
     borderBottomColor: "#e0e0e0",
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: rf(18),
     fontWeight: "bold",
   },
   modalBody: {
-    padding: 20,
+    padding: ms(20),
   },
   typeNameText: {
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "500",
-    marginBottom: 20,
+    marginBottom: ms(20),
     textAlign: "center",
   },
   inputGroup: {
-    marginBottom: 16,
+    marginBottom: ms(16),
   },
   inputLabel: {
-    fontSize: 14,
+    fontSize: rf(14),
     fontWeight: "500",
-    marginBottom: 8,
+    marginBottom: ms(8),
   },
   input: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
+    borderWidth: ms(1),
+    borderRadius: ms(8),
+    padding: ms(12),
+    fontSize: rf(16),
   },
   modalActions: {
     flexDirection: "row",
     justifyContent: "space-between",
-    gap: 12,
-    marginTop: 24,
+    gap: ms(12),
+    marginTop: ms(24),
   },
   cancelButton: {
     flex: 1,
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
+    borderWidth: ms(1),
+    borderRadius: ms(8),
+    padding: ms(12),
     alignItems: "center",
   },
   cancelButtonText: {
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "500",
   },
   saveButton: {
     flex: 1,
-    borderRadius: 8,
-    padding: 12,
+    borderRadius: ms(8),
+    padding: ms(12),
     alignItems: "center",
   },
   saveButtonText: {
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "500",
   },
   fab: {
     position: "absolute",
-    right: 20,
-    bottom: 20,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    right: ms(20),
+    bottom: ms(20),
+    width: ms(60),
+    height: ms(60),
+    borderRadius: ms(30),
     justifyContent: "center",
     alignItems: "center",
-    elevation: 8,
+    elevation: ms(8),
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
-    shadowRadius: 4,
+    shadowRadius: ms(4),
     zIndex: 999,
   },
   inputRow: {
@@ -1260,18 +1281,18 @@ const styles = StyleSheet.create({
   },
   unitSelector: {
     flexDirection: "row",
-    marginBottom: 8,
-    gap: 8,
+    marginBottom: ms(8),
+    gap: ms(8),
   },
   unitButton: {
     flex: 1,
-    borderWidth: 1,
-    borderRadius: 6,
-    padding: 8,
+    borderWidth: ms(1),
+    borderRadius: ms(6),
+    padding: ms(8),
     alignItems: "center",
   },
   unitButtonText: {
-    fontSize: 14,
+    fontSize: rf(14),
     fontWeight: "500",
   },
   errorContainer: {
@@ -1279,15 +1300,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#fee",
     borderColor: "#e74c3c",
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
+    borderWidth: ms(1),
+    borderRadius: ms(8),
+    padding: ms(12),
+    marginBottom: ms(16),
   },
   errorText: {
     color: "#e74c3c",
-    fontSize: 14,
-    marginLeft: 8,
+    fontSize: rf(14),
+    marginLeft: ms(8),
     flex: 1,
   },
 });

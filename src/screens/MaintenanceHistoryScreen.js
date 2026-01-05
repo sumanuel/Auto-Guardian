@@ -26,6 +26,7 @@ import {
   getDateUrgencyColor,
   getKmUrgencyColor,
 } from "../utils/formatUtils";
+import { ms, rf } from "../utils/responsive";
 
 const MaintenanceHistoryScreen = ({ route, navigation }) => {
   const { vehicleId = null, sortByUrgency = false } = route.params || {};
@@ -374,7 +375,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
         ]}
       >
         <View style={styles.typeContainer}>
-          <Ionicons name="build" size={20} color={COLORS.primary} />
+          <Ionicons name="build" size={ms(20)} color={COLORS.primary} />
           <View>
             <Text style={[styles.maintenanceType, { color: colors.text }]}>
               {item.type}
@@ -393,7 +394,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
             flexDirection: "row",
             alignItems: "center",
             justifyContent: "space-between",
-            gap: 10,
+            gap: ms(10),
           }}
         >
           {!isCompleted(item) && (
@@ -404,7 +405,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
               >
                 <Ionicons
                   name="create-outline"
-                  size={20}
+                  size={ms(20)}
                   color={COLORS.warning}
                 />
               </TouchableOpacity>
@@ -414,7 +415,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
               >
                 <Ionicons
                   name="checkmark-circle-outline"
-                  size={20}
+                  size={ms(20)}
                   color={COLORS.success}
                 />
               </TouchableOpacity>
@@ -427,7 +428,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
             >
               <Ionicons
                 name="create-outline"
-                size={20}
+                size={ms(20)}
                 color={COLORS.warning}
               />
             </TouchableOpacity>
@@ -436,7 +437,11 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
             onPress={() => handleDelete(item.id, item.type)}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
-            <Ionicons name="trash-outline" size={20} color={COLORS.danger} />
+            <Ionicons
+              name="trash-outline"
+              size={ms(20)}
+              color={COLORS.danger}
+            />
           </TouchableOpacity>
         </View>
       </View>
@@ -445,7 +450,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
         <View style={styles.infoRow}>
           <Ionicons
             name="calendar-outline"
-            size={16}
+            size={ms(16)}
             color={colors.textSecondary}
           />
           <Text style={[styles.infoText, { color: colors.text }]}>
@@ -457,7 +462,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
           <View style={styles.infoRow}>
             <Ionicons
               name="speedometer-outline"
-              size={16}
+              size={ms(16)}
               color={colors.textSecondary}
             />
             <Text style={[styles.infoText, { color: colors.text }]}>
@@ -470,7 +475,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
           <View style={styles.infoRow}>
             <Ionicons
               name="cash-outline"
-              size={16}
+              size={ms(16)}
               color={colors.textSecondary}
             />
             <Text style={[styles.infoText, styles.costText]}>
@@ -509,7 +514,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
               keyExtractor={(photo) => photo.id}
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingRight: 12 }}
+              contentContainerStyle={{ paddingRight: ms(12) }}
             />
           </View>
         )}
@@ -520,9 +525,9 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
           <View style={styles.nextServiceHeader}>
             <Ionicons
               name="checkmark-circle"
-              size={16}
+              size={ms(16)}
               color={COLORS.success}
-              style={{ marginRight: 8 }}
+              style={{ marginRight: ms(8) }}
             />
             <Text style={[styles.nextServiceLabel, { color: colors.text }]}>
               Realizado el:
@@ -530,7 +535,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
             <Text
               style={[
                 styles.nextServiceText,
-                { color: colors.text, marginLeft: 8 },
+                { color: colors.text, marginLeft: ms(8) },
               ]}
             >
               {item.completedAt
@@ -545,9 +550,9 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
             <View style={styles.nextServiceHeader}>
               <Ionicons
                 name="alert-circle-outline"
-                size={16}
+                size={ms(16)}
                 color={COLORS.warning}
-                style={{ marginRight: 8 }}
+                style={{ marginRight: ms(8) }}
               />
               <Text style={[styles.nextServiceLabel, { color: colors.text }]}>
                 Próximo servicio:
@@ -558,7 +563,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
                 <View style={styles.nextServiceItem}>
                   <Ionicons
                     name="speedometer-outline"
-                    size={14}
+                    size={ms(14)}
                     color={getKmUrgencyColor(
                       vehicle?.currentKm,
                       item.nextServiceKm
@@ -586,7 +591,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
                 <View style={styles.nextServiceItem}>
                   <Ionicons
                     name="calendar-outline"
-                    size={14}
+                    size={ms(14)}
                     color={getDateUrgencyColor(item.nextServiceDate)}
                   />
                   <Text
@@ -613,7 +618,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
     <View style={styles.emptyState}>
       <Ionicons
         name="clipboard-outline"
-        size={60}
+        size={ms(60)}
         color={colors.textSecondary}
       />
       <Text style={[styles.emptyTitle, { color: colors.text }]}>
@@ -706,7 +711,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
             >
               <Ionicons
                 name="information-circle-outline"
-                size={24}
+                size={ms(24)}
                 color={colors.primary}
               />
             </TouchableOpacity>
@@ -725,7 +730,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
             >
               <Ionicons
                 name="information-circle-outline"
-                size={24}
+                size={ms(24)}
                 color={colors.primary}
               />
             </TouchableOpacity>
@@ -758,7 +763,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
                   style={styles.modalCloseButton}
                   onPress={closeImageModal}
                 >
-                  <Ionicons name="close-circle" size={36} color="#fff" />
+                  <Ionicons name="close-circle" size={ms(36)} color="#fff" />
                 </TouchableOpacity>
                 {selectedImage && (
                   <Image
@@ -789,7 +794,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
               <View style={styles.approveModalHeader}>
                 <Ionicons
                   name="checkmark-circle-outline"
-                  size={48}
+                  size={ms(48)}
                   color={COLORS.success}
                 />
                 <Text
@@ -819,7 +824,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
                     ]}
                   >
                     {scheduleNext && (
-                      <Ionicons name="checkmark" size={16} color="#fff" />
+                      <Ionicons name="checkmark" size={ms(16)} color="#fff" />
                     )}
                   </View>
                   <Text style={[styles.checkboxText, { color: colors.text }]}>
@@ -888,7 +893,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
                 Editar mantenimiento
               </Text>
               <TouchableOpacity onPress={() => setEditModalVisible(false)}>
-                <Ionicons name="close" size={24} color={colors.text} />
+                <Ionicons name="close" size={ms(24)} color={colors.text} />
               </TouchableOpacity>
             </View>
 
@@ -915,7 +920,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
                   >
                     <Ionicons
                       name="calendar-outline"
-                      size={20}
+                      size={ms(20)}
                       color={colors.primary}
                     />
                     <Text
@@ -1134,117 +1139,117 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    padding: 16,
+    padding: ms(16),
     borderBottomWidth: 1,
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: rf(20),
     fontWeight: "bold",
   },
   headerSubtitle: {
-    fontSize: 14,
-    marginTop: 4,
+    fontSize: rf(14),
+    marginTop: ms(4),
   },
   listContent: {
-    padding: 16,
+    padding: ms(16),
     flexGrow: 1,
   },
   tabsContainer: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 8,
-    marginBottom: 8,
+    marginTop: ms(8),
+    marginBottom: ms(8),
     position: "relative",
   },
   infoIcon: {
     position: "absolute",
-    right: 16,
-    padding: 4,
+    right: ms(16),
+    padding: ms(4),
   },
   tab: {
-    paddingVertical: 8,
-    paddingHorizontal: 24,
-    borderRadius: 20,
-    marginHorizontal: 4,
-    elevation: 2,
+    paddingVertical: ms(8),
+    paddingHorizontal: ms(24),
+    borderRadius: ms(20),
+    marginHorizontal: ms(4),
+    elevation: ms(2),
   },
   tabActive: {
-    elevation: 4,
+    elevation: ms(4),
   },
   tabText: {
-    fontSize: 15,
+    fontSize: rf(15),
     fontWeight: "600",
   },
   maintenanceCard: {
-    borderRadius: 12,
-    marginBottom: 16,
-    elevation: 2,
+    borderRadius: ms(12),
+    marginBottom: ms(16),
+    elevation: ms(2),
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: ms(4),
     overflow: "hidden",
   },
   cardHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 16,
+    padding: ms(16),
     borderBottomWidth: 1,
   },
   typeContainer: {
     flexDirection: "row",
     alignItems: "center",
     flex: 1,
-    marginRight: 8,
+    marginRight: ms(8),
   },
   maintenanceType: {
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "bold",
   },
   vehicleName: {
-    fontSize: 12,
-    marginTop: 2,
+    fontSize: rf(12),
+    marginTop: ms(2),
   },
   cardBody: {
-    padding: 16,
+    padding: ms(16),
   },
   infoRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: ms(8),
   },
   infoText: {
-    fontSize: 14,
-    marginLeft: 8,
+    fontSize: rf(14),
+    marginLeft: ms(8),
   },
   costText: {
     fontWeight: "600",
     color: COLORS.primary,
   },
   notesContainer: {
-    marginTop: 8,
-    padding: 12,
-    borderRadius: 8,
+    marginTop: ms(8),
+    padding: ms(12),
+    borderRadius: ms(8),
   },
   notesLabel: {
-    fontSize: 12,
+    fontSize: rf(12),
     fontWeight: "600",
-    marginBottom: 4,
+    marginBottom: ms(4),
   },
   notesText: {
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: rf(14),
+    lineHeight: ms(20),
   },
   photoContainer: {
-    marginTop: 12,
-    borderRadius: 8,
+    marginTop: ms(12),
+    borderRadius: ms(8),
     overflow: "hidden",
     position: "relative",
   },
   photoThumbnail: {
     width: "100%",
-    height: 150,
+    height: ms(150),
   },
   photoOverlay: {
     position: "absolute",
@@ -1252,28 +1257,28 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: "rgba(0, 0, 0, 0.6)",
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingVertical: ms(8),
+    paddingHorizontal: ms(12),
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: ms(8),
   },
   photoOverlayText: {
     color: "#fff",
-    fontSize: 14,
+    fontSize: rf(14),
     fontWeight: "600",
   },
   cardFooter: {
-    padding: 16,
+    padding: ms(16),
     borderTopWidth: 1,
   },
   nextServiceHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: ms(8),
   },
   nextServiceLabel: {
-    fontSize: 13,
+    fontSize: rf(13),
     fontWeight: "600",
   },
   nextServiceInfo: {
@@ -1283,27 +1288,27 @@ const styles = StyleSheet.create({
   nextServiceItem: {
     flexDirection: "row",
     alignItems: "center",
-    marginRight: 8,
+    marginRight: ms(8),
   },
   nextServiceText: {
-    fontSize: 13,
+    fontSize: rf(13),
     fontWeight: "500",
   },
   emptyState: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 32,
+    padding: ms(32),
   },
   emptyTitle: {
-    fontSize: 18,
+    fontSize: rf(18),
     fontWeight: "bold",
-    marginTop: 16,
+    marginTop: ms(16),
   },
   emptySubtitle: {
-    fontSize: 14,
+    fontSize: rf(14),
     textAlign: "center",
-    marginTop: 8,
+    marginTop: ms(8),
   },
   modalContainer: {
     flex: 1,
@@ -1319,12 +1324,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    padding: ms(20),
   },
   modalCloseButton: {
     position: "absolute",
-    top: 40,
-    right: 20,
+    top: ms(40),
+    right: ms(20),
     zIndex: 10,
   },
   modalImage: {
@@ -1336,87 +1341,87 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    padding: ms(20),
   },
   approveModalContent: {
-    borderRadius: 16,
-    padding: 24,
+    borderRadius: ms(16),
+    padding: ms(24),
     width: "100%",
-    maxWidth: 400,
-    elevation: 8,
+    maxWidth: ms(420),
+    elevation: ms(8),
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
-    shadowRadius: 8,
+    shadowRadius: ms(8),
   },
   approveModalHeader: {
     alignItems: "center",
-    marginBottom: 24,
+    marginBottom: ms(24),
   },
   approveModalTitle: {
-    fontSize: 20,
+    fontSize: rf(20),
     fontWeight: "bold",
-    marginTop: 16,
-    marginBottom: 8,
+    marginTop: ms(16),
+    marginBottom: ms(8),
   },
   approveModalMessage: {
-    fontSize: 16,
+    fontSize: rf(16),
     textAlign: "center",
-    lineHeight: 22,
+    lineHeight: ms(22),
   },
   checkboxContainer: {
-    marginBottom: 24,
+    marginBottom: ms(24),
   },
   checkboxRow: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 8,
+    paddingVertical: ms(8),
   },
   checkbox: {
-    width: 24,
-    height: 24,
-    borderRadius: 4,
-    borderWidth: 2,
+    width: ms(24),
+    height: ms(24),
+    borderRadius: ms(4),
+    borderWidth: ms(2),
     borderColor: COLORS.primary,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 12,
+    marginRight: ms(12),
   },
   checkboxChecked: {
     backgroundColor: COLORS.primary,
   },
   checkboxText: {
-    fontSize: 16,
+    fontSize: rf(16),
     flex: 1,
   },
   checkboxHint: {
-    fontSize: 14,
-    marginTop: 8,
-    marginLeft: 36,
+    fontSize: rf(14),
+    marginTop: ms(8),
+    marginLeft: ms(36),
     fontStyle: "italic",
   },
   approveModalButtons: {
     flexDirection: "row",
     justifyContent: "space-between",
-    gap: 12,
+    gap: ms(12),
   },
   approveModalButton: {
     flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
+    paddingVertical: ms(12),
+    paddingHorizontal: ms(24),
+    borderRadius: ms(8),
     alignItems: "center",
   },
   cancelButton: {
     backgroundColor: "transparent",
-    borderWidth: 1,
+    borderWidth: ms(1),
     borderColor: COLORS.border,
   },
   confirmButton: {
     backgroundColor: COLORS.success,
   },
   approveModalButtonText: {
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "600",
   },
   editModalOverlay: {
@@ -1424,29 +1429,29 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    padding: ms(20),
   },
   editModalContent: {
-    borderRadius: 16,
-    padding: 24,
+    borderRadius: ms(16),
+    padding: ms(24),
     width: "100%",
-    maxWidth: 400,
+    maxWidth: ms(420),
     maxHeight: "80%",
     flex: 1,
-    elevation: 8,
+    elevation: ms(8),
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
-    shadowRadius: 8,
+    shadowRadius: ms(8),
   },
   editModalHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: ms(20),
   },
   editModalTitle: {
-    fontSize: 20,
+    fontSize: rf(20),
     fontWeight: "bold",
   },
   editModalScroll: {
@@ -1459,36 +1464,36 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   inputGroup: {
-    marginBottom: 20,
+    marginBottom: ms(20),
   },
   costInputGroup: {
-    marginBottom: 20,
+    marginBottom: ms(20),
     marginTop: -5,
   },
   label: {
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "600",
-    marginBottom: 8,
+    marginBottom: ms(8),
   },
   input: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
+    borderWidth: ms(1),
+    borderRadius: ms(8),
+    padding: ms(12),
+    fontSize: rf(16),
   },
   textArea: {
-    height: 80,
+    height: ms(80),
     textAlignVertical: "top",
   },
   photoPreview: {
     width: "100%",
-    height: 200,
-    borderRadius: 8,
-    marginBottom: 12,
+    height: ms(200),
+    borderRadius: ms(8),
+    marginBottom: ms(12),
   },
   photoActions: {
     flexDirection: "row",
-    gap: 12,
+    gap: ms(12),
   },
   photoButton: {
     flex: 1,
@@ -1496,44 +1501,44 @@ const styles = StyleSheet.create({
   editModalFooter: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 20,
-    gap: 12,
+    marginTop: ms(20),
+    gap: ms(12),
   },
   editModalCancelButton: {
     flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
+    paddingVertical: ms(12),
+    paddingHorizontal: ms(24),
+    borderRadius: ms(8),
     alignItems: "center",
-    borderWidth: 1,
+    borderWidth: ms(1),
     borderColor: COLORS.border,
   },
   editModalCancelText: {
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "600",
   },
   dateButton: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    borderWidth: 1,
+    gap: ms(8),
+    paddingVertical: ms(12),
+    paddingHorizontal: ms(16),
+    borderRadius: ms(8),
+    borderWidth: ms(1),
   },
   dateButtonText: {
-    fontSize: 16,
+    fontSize: rf(16),
   },
   editModalSaveButton: {
     flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
+    paddingVertical: ms(12),
+    paddingHorizontal: ms(24),
+    borderRadius: ms(8),
     alignItems: "center",
     backgroundColor: COLORS.primary,
   },
   editModalSaveText: {
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "600",
     color: "white",
   },

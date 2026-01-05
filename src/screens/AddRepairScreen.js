@@ -14,6 +14,7 @@ import DatePicker from "../components/common/DatePicker";
 import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
 import { useDialog } from "../hooks/useDialog";
+import { ms, rf } from "../utils/responsive";
 
 const AddRepairScreen = ({ route, navigation }) => {
   const { vehicleId, repair } = route.params || {};
@@ -379,48 +380,48 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    padding: 20,
+    padding: ms(20),
   },
   vehicleName: {
-    fontSize: 20,
+    fontSize: rf(20),
     fontWeight: "bold",
-    marginBottom: 20,
+    marginBottom: ms(20),
   },
   inputGroup: {
-    marginBottom: 20,
+    marginBottom: ms(20),
   },
   label: {
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "600",
-    marginBottom: 8,
+    marginBottom: ms(8),
   },
   input: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
+    borderWidth: ms(1),
+    borderRadius: ms(8),
+    padding: ms(12),
+    fontSize: rf(16),
   },
   textArea: {
-    minHeight: 100,
+    minHeight: ms(100),
   },
   photoContainer: {
-    gap: 12,
+    gap: ms(12),
   },
   photoPreview: {
     width: "100%",
-    height: 200,
-    borderRadius: 12,
+    height: ms(200),
+    borderRadius: ms(12),
   },
   photoActions: {
     flexDirection: "row",
-    gap: 12,
+    gap: ms(12),
   },
   photoButton: {
     flex: 1,
   },
   submitButton: {
-    marginTop: 16,
-    marginBottom: 32,
+    marginTop: ms(16),
+    marginBottom: ms(32),
   },
 });
 

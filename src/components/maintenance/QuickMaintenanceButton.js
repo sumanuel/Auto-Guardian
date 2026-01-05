@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useTheme } from "../../context/ThemeContext";
 import { COLORS } from "../../data/constants";
+import { ms, rf } from "../../utils/responsive";
 
 const QuickMaintenanceButton = ({
   icon,
@@ -19,7 +20,7 @@ const QuickMaintenanceButton = ({
       activeOpacity={0.7}
     >
       <View style={[styles.iconCircle, { backgroundColor: color + "20" }]}>
-        <Ionicons name={icon} size={24} color={color} />
+        <Ionicons name={icon} size={ms(24)} color={color} />
       </View>
       <Text style={[styles.label, { color: colors.text }]} numberOfLines={2}>
         {label}
@@ -31,19 +32,19 @@ const QuickMaintenanceButton = ({
 const styles = StyleSheet.create({
   container: {
     alignItems: "center",
-    width: 90,
-    marginHorizontal: 8,
+    width: ms(105),
+    marginHorizontal: ms(8),
   },
   iconCircle: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: ms(64),
+    height: ms(64),
+    borderRadius: ms(32),
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: ms(8),
   },
   label: {
-    fontSize: 12,
+    fontSize: rf(12),
     textAlign: "center",
     fontWeight: "500",
   },

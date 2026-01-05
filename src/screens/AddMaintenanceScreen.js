@@ -19,6 +19,7 @@ import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
 import { COLORS } from "../data/constants";
 import { useDialog } from "../hooks/useDialog";
+import { ms, rf } from "../utils/responsive";
 
 const AddMaintenanceScreen = ({ navigation, route }) => {
   const { vehicleId, quickType, maintenanceData } = route.params || {};
@@ -403,7 +404,7 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
             >
               <Ionicons
                 name="information-circle-outline"
-                size={24}
+                size={ms(24)}
                 color={colors.primary}
               />
             </TouchableOpacity>
@@ -488,7 +489,7 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
                       ? "radio-button-on"
                       : "radio-button-off"
                   }
-                  size={20}
+                  size={ms(20)}
                   color={colors.primary}
                 />
                 <Text style={[styles.radioLabel, { color: colors.text }]}>
@@ -505,7 +506,7 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
                       ? "radio-button-on"
                       : "radio-button-off"
                   }
-                  size={20}
+                  size={ms(20)}
                   color={colors.primary}
                 />
                 <Text style={[styles.radioLabel, { color: colors.text }]}>
@@ -620,7 +621,7 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
             </Text>
             <Ionicons
               name={showOptionalFields ? "chevron-up" : "chevron-down"}
-              size={20}
+              size={ms(20)}
               color={colors.primary}
             />
           </TouchableOpacity>
@@ -770,7 +771,7 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
                 Editar mantenimiento
               </Text>
               <TouchableOpacity onPress={() => setEditModalVisible(false)}>
-                <Ionicons name="close" size={24} color={colors.text} />
+                <Ionicons name="close" size={ms(24)} color={colors.text} />
               </TouchableOpacity>
             </View>
 
@@ -972,81 +973,81 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    padding: 20,
+    padding: ms(20),
   },
   vehicleName: {
-    fontSize: 20,
+    fontSize: rf(20),
     fontWeight: "bold",
-    marginBottom: 20,
+    marginBottom: ms(20),
   },
   section: {
-    marginBottom: 20,
+    marginBottom: ms(20),
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "600",
-    marginBottom: 12,
+    marginBottom: ms(12),
   },
   typesScroll: {
-    marginBottom: 12,
+    marginBottom: ms(12),
   },
   typeChip: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    marginRight: 8,
-    borderWidth: 1,
+    paddingHorizontal: ms(16),
+    paddingVertical: ms(8),
+    borderRadius: ms(20),
+    marginRight: ms(8),
+    borderWidth: ms(1),
   },
   typeChipActive: {
     backgroundColor: COLORS.primary,
   },
   typeChipText: {
-    fontSize: 14,
+    fontSize: rf(14),
   },
   typeChipTextActive: {
     color: "#fff",
     fontWeight: "600",
   },
   inputGroup: {
-    marginBottom: 20,
+    marginBottom: ms(20),
   },
   label: {
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "600",
-    marginBottom: 8,
+    marginBottom: ms(8),
   },
   input: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
+    borderWidth: ms(1),
+    borderRadius: ms(8),
+    padding: ms(12),
+    fontSize: rf(16),
   },
   textArea: {
-    minHeight: 100,
+    minHeight: ms(100),
   },
   radioGroup: {
     flexDirection: "row",
-    gap: 16,
-    marginVertical: 8,
+    gap: ms(16),
+    marginVertical: ms(8),
   },
   radioOption: {
     flexDirection: "row",
     alignItems: "center",
   },
   radioLabel: {
-    marginLeft: 6,
+    marginLeft: ms(6),
   },
   photoContainer: {
-    gap: 12,
+    gap: ms(12),
   },
   photoPreview: {
     width: "100%",
-    height: 200,
-    borderRadius: 12,
+    height: ms(200),
+    borderRadius: ms(12),
   },
   photoActions: {
     flexDirection: "row",
-    gap: 12,
+    gap: ms(12),
   },
   photoButton: {
     flex: 1,
@@ -1055,80 +1056,80 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    marginBottom: 16,
-    borderRadius: 8,
-    borderWidth: 1,
+    paddingVertical: ms(12),
+    paddingHorizontal: ms(16),
+    marginBottom: ms(16),
+    borderRadius: ms(8),
+    borderWidth: ms(1),
   },
   optionalToggleText: {
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "500",
   },
   optionalFieldsContainer: {
-    marginBottom: 16,
+    marginBottom: ms(16),
   },
   helperText: {
-    fontSize: 12,
-    marginTop: 4,
+    fontSize: rf(12),
+    marginTop: ms(4),
     fontStyle: "italic",
   },
   submitButton: {
-    marginTop: 16,
-    marginBottom: 32,
+    marginTop: ms(16),
+    marginBottom: ms(32),
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: ms(16),
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: rf(20),
     fontWeight: "bold",
   },
   infoIcon: {
-    padding: 4,
+    padding: ms(4),
   },
   editIconContainer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 12,
-    marginBottom: 16,
+    paddingVertical: ms(12),
+    marginBottom: ms(16),
   },
   editIconText: {
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "500",
-    marginLeft: 8,
+    marginLeft: ms(8),
   },
   editModalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    padding: ms(20),
   },
   editModalContent: {
-    borderRadius: 16,
-    padding: 24,
+    borderRadius: ms(16),
+    padding: ms(24),
     width: "100%",
-    maxWidth: 400,
+    maxWidth: ms(420),
     maxHeight: "80%",
-    elevation: 8,
+    elevation: ms(8),
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
-    shadowRadius: 8,
+    shadowRadius: ms(8),
   },
   editModalHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: ms(20),
   },
   editModalTitle: {
-    fontSize: 20,
+    fontSize: rf(20),
     fontWeight: "bold",
   },
   editModalScroll: {
@@ -1137,32 +1138,32 @@ const styles = StyleSheet.create({
   editModalFooter: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 20,
-    gap: 12,
+    marginTop: ms(20),
+    gap: ms(12),
   },
   editModalCancelButton: {
     flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
+    paddingVertical: ms(12),
+    paddingHorizontal: ms(24),
+    borderRadius: ms(8),
     alignItems: "center",
-    borderWidth: 1,
+    borderWidth: ms(1),
     borderColor: COLORS.border,
   },
   editModalCancelText: {
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "600",
   },
   editModalSaveButton: {
     flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
+    paddingVertical: ms(12),
+    paddingHorizontal: ms(24),
+    borderRadius: ms(8),
     alignItems: "center",
     backgroundColor: COLORS.primary,
   },
   editModalSaveText: {
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "600",
     color: "white",
   },

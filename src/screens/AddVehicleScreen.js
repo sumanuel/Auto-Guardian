@@ -16,6 +16,7 @@ import Button from "../components/common/Button";
 import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
 import { useDialog } from "../hooks/useDialog";
+import { ms, rf } from "../utils/responsive";
 
 const AddVehicleScreen = ({ navigation, route }) => {
   const { addVehicle, updateVehicle } = useApp();
@@ -41,7 +42,7 @@ const AddVehicleScreen = ({ navigation, route }) => {
         scrollViewRef.current,
         (x, y) => {
           scrollViewRef.current.scrollTo({
-            y: y - 100,
+            y: y - ms(100),
             animated: true,
           });
         },
@@ -222,7 +223,7 @@ const AddVehicleScreen = ({ navigation, route }) => {
                 >
                   <Ionicons
                     name="camera"
-                    size={40}
+                    size={ms(40)}
                     color={colors.textSecondary}
                   />
                   <Text
@@ -461,16 +462,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    padding: 20,
+    padding: ms(20),
   },
   photoSection: {
     alignItems: "center",
-    marginBottom: 24,
+    marginBottom: ms(24),
   },
   photoContainer: {
-    width: 150,
-    height: 150,
-    borderRadius: 12,
+    width: ms(150),
+    height: ms(150),
+    borderRadius: ms(12),
     overflow: "hidden",
   },
   photo: {
@@ -482,30 +483,30 @@ const styles = StyleSheet.create({
     height: "100%",
     justifyContent: "center",
     alignItems: "center",
-    borderWidth: 2,
+    borderWidth: ms(2),
     borderStyle: "dashed",
   },
   photoText: {
-    marginTop: 8,
-    fontSize: 14,
+    marginTop: ms(8),
+    fontSize: rf(14),
   },
   inputGroup: {
-    marginBottom: 20,
+    marginBottom: ms(20),
   },
   label: {
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "600",
-    marginBottom: 8,
+    marginBottom: ms(8),
   },
   input: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
+    borderWidth: ms(1),
+    borderRadius: ms(8),
+    padding: ms(12),
+    fontSize: rf(16),
   },
   submitButton: {
-    marginTop: 16,
-    marginBottom: 32,
+    marginTop: ms(16),
+    marginBottom: ms(32),
   },
 });
 

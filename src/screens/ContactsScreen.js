@@ -11,6 +11,7 @@ import {
 import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
 import { useDialog } from "../hooks/useDialog";
+import { ms, rf } from "../utils/responsive";
 
 const ContactsScreen = ({ navigation }) => {
   const { contacts, removeContact } = useApp();
@@ -146,7 +147,7 @@ const ContactsScreen = ({ navigation }) => {
         ]}
       >
         <View style={styles.nameContainer}>
-          <Ionicons name="person" size={20} color={colors.primary} />
+          <Ionicons name="person" size={ms(20)} color={colors.primary} />
           <View>
             <Text style={[styles.contactName, { color: colors.text }]}>
               {item.notes || item.name}
@@ -166,7 +167,11 @@ const ContactsScreen = ({ navigation }) => {
             onPress={() => navigation.navigate("AddContact", { contact: item })}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
-            <Ionicons name="create-outline" size={20} color={colors.primary} />
+            <Ionicons
+              name="create-outline"
+              size={ms(20)}
+              color={colors.primary}
+            />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.actionButton}
@@ -182,14 +187,14 @@ const ContactsScreen = ({ navigation }) => {
             }
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
-            <Ionicons name="trash-outline" size={20} color="#ff4444" />
+            <Ionicons name="trash-outline" size={ms(20)} color="#ff4444" />
           </TouchableOpacity>
         </View>
       </View>
 
       <View style={styles.cardBody}>
         <View style={styles.infoRow}>
-          <Ionicons name="call-outline" size={16} color={colors.primary} />
+          <Ionicons name="call-outline" size={ms(16)} color={colors.primary} />
           <Text style={[styles.contactDetail, { color: colors.primary }]}>
             {item.phone}
           </Text>
@@ -199,21 +204,25 @@ const ContactsScreen = ({ navigation }) => {
               onPress={() => handleCall(item.phone)}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <Ionicons name="call" size={20} color={colors.primary} />
+              <Ionicons name="call" size={ms(20)} color={colors.primary} />
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.iconButton}
               onPress={() => handleSMS(item.phone)}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <Ionicons name="chatbubble-outline" size={20} color="#007AFF" />
+              <Ionicons
+                name="chatbubble-outline"
+                size={ms(20)}
+                color="#007AFF"
+              />
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.iconButton}
               onPress={() => handleWhatsApp(item.phone)}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <Ionicons name="logo-whatsapp" size={20} color="#25D366" />
+              <Ionicons name="logo-whatsapp" size={ms(20)} color="#25D366" />
             </TouchableOpacity>
           </View>
         </View>
@@ -222,7 +231,11 @@ const ContactsScreen = ({ navigation }) => {
             style={styles.infoRow}
             onPress={() => handleEmail(item.email)}
           >
-            <Ionicons name="mail-outline" size={16} color={colors.primary} />
+            <Ionicons
+              name="mail-outline"
+              size={ms(16)}
+              color={colors.primary}
+            />
             <Text style={[styles.contactDetail, { color: colors.primary }]}>
               {item.email}
             </Text>
@@ -234,7 +247,11 @@ const ContactsScreen = ({ navigation }) => {
 
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
-      <Ionicons name="people-outline" size={80} color={colors.textSecondary} />
+      <Ionicons
+        name="people-outline"
+        size={ms(80)}
+        color={colors.textSecondary}
+      />
       <Text style={[styles.emptyTitle, { color: colors.text }]}>
         No hay contactos registrados
       </Text>
@@ -269,7 +286,7 @@ const ContactsScreen = ({ navigation }) => {
           >
             <Ionicons
               name="information-circle-outline"
-              size={24}
+              size={ms(24)}
               color={colors.primary}
             />
           </TouchableOpacity>
@@ -291,7 +308,7 @@ const ContactsScreen = ({ navigation }) => {
           onPress={() => navigation.navigate("AddContact")}
           activeOpacity={0.8}
         >
-          <Ionicons name="add" size={30} color="#fff" />
+          <Ionicons name="add" size={ms(30)} color="#fff" />
         </TouchableOpacity>
       </View>
     </DialogComponent>
@@ -306,92 +323,92 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 20,
-    paddingTop: 20,
-    paddingHorizontal: 20,
+    marginBottom: ms(20),
+    paddingTop: ms(20),
+    paddingHorizontal: ms(20),
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: rf(20),
     fontWeight: "bold",
-    marginBottom: 4,
+    marginBottom: ms(4),
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: rf(16),
   },
   emptyContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 32,
+    padding: ms(32),
   },
   emptyState: {
     alignItems: "center",
   },
   emptyTitle: {
-    fontSize: 20,
+    fontSize: rf(20),
     fontWeight: "bold",
-    marginTop: 16,
-    marginBottom: 8,
+    marginTop: ms(16),
+    marginBottom: ms(8),
   },
   emptySubtitle: {
-    fontSize: 14,
+    fontSize: rf(14),
     textAlign: "center",
   },
   listContent: {
-    padding: 16,
-    paddingBottom: 100,
+    padding: ms(16),
+    paddingBottom: ms(100),
   },
   contactCard: {
-    borderRadius: 12,
-    marginBottom: 12,
-    elevation: 2,
+    borderRadius: ms(12),
+    marginBottom: ms(12),
+    elevation: ms(2),
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: ms(4),
     overflow: "hidden",
   },
   cardHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 16,
-    borderBottomWidth: 1,
+    padding: ms(16),
+    borderBottomWidth: ms(1),
   },
   nameContainer: {
     flexDirection: "row",
     alignItems: "center",
     flex: 1,
-    marginRight: 8,
+    marginRight: ms(8),
   },
   contactName: {
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "bold",
-    marginLeft: 8,
+    marginLeft: ms(8),
   },
   contactAlias: {
-    fontSize: 12,
-    marginTop: 2,
-    marginLeft: 8,
+    fontSize: rf(12),
+    marginTop: ms(2),
+    marginLeft: ms(8),
   },
   contactActions: {
     flexDirection: "row",
     alignItems: "center",
   },
   actionButton: {
-    padding: 8,
-    marginLeft: 8,
+    padding: ms(8),
+    marginLeft: ms(8),
   },
   cardBody: {
-    padding: 16,
+    padding: ms(16),
   },
   infoRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: ms(8),
   },
   contactDetail: {
-    fontSize: 14,
-    marginLeft: 8,
+    fontSize: rf(14),
+    marginLeft: ms(8),
     flex: 1,
   },
   actionIcons: {
@@ -399,26 +416,26 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   iconButton: {
-    padding: 4,
-    marginLeft: 8,
+    padding: ms(4),
+    marginLeft: ms(8),
   },
   fab: {
     position: "absolute",
-    right: 20,
-    bottom: 20,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    right: ms(20),
+    bottom: ms(20),
+    width: ms(60),
+    height: ms(60),
+    borderRadius: ms(30),
     justifyContent: "center",
     alignItems: "center",
-    elevation: 5,
+    elevation: ms(5),
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
-    shadowRadius: 4,
+    shadowRadius: ms(4),
   },
   helpButton: {
-    padding: 8,
+    padding: ms(8),
   },
 });
 

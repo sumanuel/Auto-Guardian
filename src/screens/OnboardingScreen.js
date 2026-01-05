@@ -10,6 +10,7 @@ import {
   View,
 } from "react-native";
 import { useTheme } from "../context/ThemeContext";
+import { ms, rf } from "../utils/responsive";
 
 const { width, height } = Dimensions.get("window");
 
@@ -156,16 +157,16 @@ const styles = StyleSheet.create({
   skipContainer: {
     flexDirection: "row",
     justifyContent: "flex-end",
-    paddingHorizontal: 20,
-    paddingTop: 50,
+    paddingHorizontal: ms(20),
+    paddingTop: ms(50),
   },
   skipButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+    paddingVertical: ms(8),
+    paddingHorizontal: ms(16),
   },
   skipText: {
     color: "#fff",
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "600",
   },
   scrollView: {
@@ -176,64 +177,64 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 40,
+    paddingHorizontal: ms(40),
   },
   iconContainer: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+    width: ms(120),
+    height: ms(120),
+    borderRadius: ms(60),
     backgroundColor: "rgba(255, 255, 255, 0.2)",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 40,
+    marginBottom: ms(40),
   },
   icon: {
-    fontSize: 60,
+    fontSize: rf(60),
   },
   textContainer: {
     alignItems: "center",
-    maxWidth: 300,
+    maxWidth: ms(300),
   },
   title: {
-    fontSize: 28,
+    fontSize: rf(28),
     fontWeight: "bold",
     color: "#fff",
     textAlign: "center",
-    marginBottom: 20,
+    marginBottom: ms(20),
   },
   description: {
-    fontSize: 16,
+    fontSize: rf(16),
     color: "rgba(255, 255, 255, 0.9)",
     textAlign: "center",
-    lineHeight: 24,
+    lineHeight: ms(24),
   },
   footer: {
-    paddingHorizontal: 20,
-    paddingBottom: 40,
-    paddingTop: 20,
+    paddingHorizontal: ms(20),
+    paddingBottom: ms(40),
+    paddingTop: ms(20),
   },
   indicatorContainer: {
     flexDirection: "row",
     justifyContent: "center",
-    marginBottom: 30,
+    marginBottom: ms(30),
   },
   indicator: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    marginHorizontal: 5,
+    width: ms(10),
+    height: ms(10),
+    borderRadius: ms(5),
+    marginHorizontal: ms(5),
   },
   activeIndicator: {
-    width: 20,
+    width: ms(20),
   },
   nextButton: {
-    paddingVertical: 15,
-    paddingHorizontal: 30,
-    borderRadius: 25,
+    paddingVertical: ms(15),
+    paddingHorizontal: ms(30),
+    borderRadius: ms(25),
     alignItems: "center",
   },
   nextButtonText: {
-    fontSize: 18,
+    fontSize: rf(18),
     fontWeight: "bold",
   },
 });

@@ -1,9 +1,8 @@
-﻿import React from "react";
-import { View, TextInput, StyleSheet } from "react-native";
+﻿import { Ionicons } from "@expo/vector-icons";
+import { StyleSheet, TextInput, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import { Ionicons } from "@expo/vector-icons";
-import { COLORS } from "../../data/constants";
 import { useTheme } from "../../context/ThemeContext";
+import { ms, rf } from "../../utils/responsive";
 
 const SearchBar = ({
   value,
@@ -21,7 +20,7 @@ const SearchBar = ({
     >
       <Ionicons
         name="search"
-        size={20}
+        size={ms(20)}
         color={colors.textSecondary}
         style={styles.icon}
       />
@@ -36,7 +35,7 @@ const SearchBar = ({
         <TouchableOpacity onPress={onClear} style={styles.clearButton}>
           <Ionicons
             name="close-circle"
-            size={20}
+            size={ms(20)}
             color={colors.textSecondary}
           />
         </TouchableOpacity>
@@ -49,24 +48,24 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    elevation: 2,
+    borderRadius: ms(10),
+    paddingHorizontal: ms(12),
+    paddingVertical: ms(8),
+    elevation: ms(2),
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
-    shadowRadius: 2,
+    shadowRadius: ms(2),
   },
   icon: {
-    marginRight: 8,
+    marginRight: ms(8),
   },
   input: {
     flex: 1,
-    fontSize: 16,
-    paddingVertical: 4,
+    fontSize: rf(16),
+    paddingVertical: ms(4),
   },
   clearButton: {
-    padding: 4,
+    padding: ms(4),
   },
 });
 

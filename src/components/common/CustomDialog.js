@@ -1,7 +1,7 @@
-import React from "react";
-import { View, Text, StyleSheet, Modal, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { COLORS } from "../../data/constants";
+import { ms, rf } from "../../utils/responsive";
 
 /**
  * CustomDialog - Reemplazo moderno para Alert.alert
@@ -101,7 +101,7 @@ const CustomDialog = ({ visible, onClose, config }) => {
           >
             <Ionicons
               name={typeConfig.icon}
-              size={48}
+              size={ms(48)}
               color={typeConfig.color}
             />
           </View>
@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    padding: ms(20),
   },
   overlayTouch: {
     position: "absolute",
@@ -176,48 +176,48 @@ const styles = StyleSheet.create({
   },
   dialogContainer: {
     backgroundColor: "#fff",
-    borderRadius: 20,
+    borderRadius: ms(20),
     width: "100%",
-    maxWidth: 400,
+    maxWidth: ms(400),
     overflow: "hidden",
-    elevation: 10,
+    elevation: ms(10),
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: ms(4) },
     shadowOpacity: 0.3,
-    shadowRadius: 8,
+    shadowRadius: ms(8),
   },
   iconContainer: {
-    paddingVertical: 24,
+    paddingVertical: ms(24),
     alignItems: "center",
     justifyContent: "center",
   },
   content: {
-    paddingHorizontal: 24,
-    paddingBottom: 24,
+    paddingHorizontal: ms(24),
+    paddingBottom: ms(24),
   },
   title: {
-    fontSize: 20,
+    fontSize: rf(20),
     fontWeight: "bold",
     color: "#333",
     textAlign: "center",
-    marginBottom: 8,
+    marginBottom: ms(8),
   },
   message: {
-    fontSize: 16,
+    fontSize: rf(16),
     color: "#666",
     textAlign: "center",
-    lineHeight: 24,
+    lineHeight: ms(24),
   },
   buttonContainer: {
     flexDirection: "row",
-    borderTopWidth: 1,
+    borderTopWidth: ms(1),
     borderTopColor: "#f0f0f0",
   },
   buttonContainerColumn: {
     flexDirection: "column",
   },
   button: {
-    paddingVertical: 16,
+    paddingVertical: ms(16),
     alignItems: "center",
     justifyContent: "center",
   },
@@ -226,11 +226,11 @@ const styles = StyleSheet.create({
   },
   buttonHalf: {
     flex: 1,
-    borderRightWidth: 0.5,
+    borderRightWidth: ms(0.5),
     borderRightColor: "#f0f0f0",
   },
   buttonColumn: {
-    borderBottomWidth: 0.5,
+    borderBottomWidth: ms(0.5),
     borderBottomColor: "#f0f0f0",
   },
   buttonPrimary: {
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f9fafb",
   },
   buttonText: {
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "600",
     color: "#333",
   },

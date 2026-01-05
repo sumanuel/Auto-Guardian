@@ -15,6 +15,7 @@ import {
   getVehicleDocuments,
 } from "../services/vehicleDocumentService";
 import { getDocumentExpiryColor } from "../utils/formatUtils";
+import { ms, rf } from "../utils/responsive";
 
 const VehicleDocumentsScreen = ({ navigation, route }) => {
   const { vehicleId, vehicle } = route.params;
@@ -114,7 +115,7 @@ const VehicleDocumentsScreen = ({ navigation, route }) => {
         <View style={styles.documentInfo}>
           <Ionicons
             name="document-text-outline"
-            size={24}
+            size={ms(24)}
             color={colors.primary}
           />
           <View style={styles.documentDetails}>
@@ -149,13 +150,17 @@ const VehicleDocumentsScreen = ({ navigation, route }) => {
               })
             }
           >
-            <Ionicons name="create-outline" size={20} color={colors.primary} />
+            <Ionicons
+              name="create-outline"
+              size={ms(20)}
+              color={colors.primary}
+            />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.deleteButton}
             onPress={() => handleDeleteDocument(item)}
           >
-            <Ionicons name="trash-outline" size={20} color="#E53935" />
+            <Ionicons name="trash-outline" size={ms(20)} color="#E53935" />
           </TouchableOpacity>
         </View>
       </View>
@@ -181,7 +186,7 @@ const VehicleDocumentsScreen = ({ navigation, route }) => {
             <View style={styles.emptyContainer}>
               <Ionicons
                 name="document-text-outline"
-                size={64}
+                size={ms(64)}
                 color={colors.textSecondary}
               />
               <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
@@ -205,7 +210,7 @@ const VehicleDocumentsScreen = ({ navigation, route }) => {
             navigation.navigate("AddDocument", { vehicleId, vehicle })
           }
         >
-          <Ionicons name="add" size={24} color="white" />
+          <Ionicons name="add" size={ms(24)} color="white" />
         </TouchableOpacity>
       </View>
     </DialogComponent>
@@ -217,31 +222,31 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   vehicleHeader: {
-    padding: 20,
-    paddingBottom: 10,
+    padding: ms(20),
+    paddingBottom: ms(10),
     alignItems: "center",
   },
   vehicleName: {
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "600",
   },
   listContainer: {
-    padding: 20,
+    padding: ms(20),
     paddingTop: 0,
-    paddingBottom: 100,
+    paddingBottom: ms(100),
   },
   documentCard: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    elevation: 2,
+    borderRadius: ms(12),
+    padding: ms(16),
+    marginBottom: ms(12),
+    elevation: ms(2),
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
-    shadowRadius: 2,
+    shadowRadius: ms(2),
   },
   documentInfo: {
     flexDirection: "row",
@@ -250,72 +255,72 @@ const styles = StyleSheet.create({
   },
   documentDetails: {
     flex: 1,
-    marginLeft: 12,
+    marginLeft: ms(12),
   },
   documentType: {
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "600",
-    marginBottom: 4,
+    marginBottom: ms(4),
   },
   issueDate: {
-    fontSize: 14,
-    marginBottom: 2,
+    fontSize: rf(14),
+    marginBottom: ms(2),
   },
   expiryDate: {
-    fontSize: 14,
-    marginBottom: 2,
+    fontSize: rf(14),
+    marginBottom: ms(2),
   },
   expiryContainer: {
-    marginTop: 4,
+    marginTop: ms(4),
   },
   expiryStatus: {
-    fontSize: 14,
+    fontSize: rf(14),
     fontWeight: "500",
   },
   actionButtons: {
     flexDirection: "row",
-    gap: 8,
+    gap: ms(8),
   },
   editButton: {
-    padding: 8,
-    borderRadius: 6,
+    padding: ms(8),
+    borderRadius: ms(6),
   },
   deleteButton: {
-    padding: 8,
-    borderRadius: 6,
+    padding: ms(8),
+    borderRadius: ms(6),
   },
   emptyContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingVertical: 60,
+    paddingVertical: ms(60),
   },
   emptyText: {
-    fontSize: 18,
+    fontSize: rf(18),
     fontWeight: "600",
-    marginTop: 16,
+    marginTop: ms(16),
     textAlign: "center",
   },
   emptySubtext: {
-    fontSize: 14,
-    marginTop: 8,
+    fontSize: rf(14),
+    marginTop: ms(8),
     textAlign: "center",
-    paddingHorizontal: 40,
+    paddingHorizontal: ms(40),
   },
   floatingAddButton: {
     position: "absolute",
-    bottom: 20,
-    right: 20,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    bottom: ms(20),
+    right: ms(20),
+    width: ms(60),
+    height: ms(60),
+    borderRadius: ms(30),
     justifyContent: "center",
     alignItems: "center",
-    elevation: 8,
+    elevation: ms(8),
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
-    shadowRadius: 4,
+    shadowRadius: ms(4),
   },
 });
 

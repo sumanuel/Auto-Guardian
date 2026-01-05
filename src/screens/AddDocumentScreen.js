@@ -18,6 +18,7 @@ import {
   getVehicleDocuments,
   updateVehicleDocument,
 } from "../services/vehicleDocumentService";
+import { ms, rf } from "../utils/responsive";
 
 const AddDocumentScreen = ({ navigation, route }) => {
   const { vehicleId, vehicle, document } = route.params;
@@ -312,7 +313,7 @@ const AddDocumentScreen = ({ navigation, route }) => {
               </Text>
               <Ionicons
                 name="chevron-down"
-                size={20}
+                size={ms(20)}
                 color={colors.textSecondary}
               />
             </TouchableOpacity>
@@ -382,7 +383,7 @@ const AddDocumentScreen = ({ navigation, route }) => {
                   Seleccionar Tipo
                 </Text>
                 <TouchableOpacity onPress={() => setShowTypePicker(false)}>
-                  <Ionicons name="close" size={24} color={colors.text} />
+                  <Ionicons name="close" size={ms(24)} color={colors.text} />
                 </TouchableOpacity>
               </View>
 
@@ -407,59 +408,59 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: 20,
+    padding: ms(20),
   },
   vehicleName: {
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "600",
-    marginBottom: 20,
+    marginBottom: ms(20),
     textAlign: "center",
   },
   section: {
-    marginBottom: 20,
+    marginBottom: ms(20),
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "600",
-    marginBottom: 8,
+    marginBottom: ms(8),
   },
   selector: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
+    borderWidth: ms(1),
+    borderRadius: ms(8),
+    padding: ms(12),
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
   selectorText: {
-    fontSize: 16,
+    fontSize: rf(16),
     flex: 1,
   },
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 30,
-    gap: 12,
+    marginTop: ms(30),
+    gap: ms(12),
   },
   cancelButton: {
     flex: 1,
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
+    borderWidth: ms(1),
+    borderRadius: ms(8),
+    padding: ms(12),
     alignItems: "center",
   },
   cancelButtonText: {
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "500",
   },
   saveButton: {
     flex: 1,
-    borderRadius: 8,
-    padding: 12,
+    borderRadius: ms(8),
+    padding: ms(12),
     alignItems: "center",
   },
   saveButtonText: {
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "500",
     color: "white",
   },
@@ -472,36 +473,36 @@ const styles = StyleSheet.create({
   modalContent: {
     width: "90%",
     maxHeight: "80%",
-    borderRadius: 12,
+    borderRadius: ms(12),
   },
   modalHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 20,
-    borderBottomWidth: 1,
+    padding: ms(20),
+    borderBottomWidth: ms(1),
     borderBottomColor: "#e0e0e0",
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: rf(18),
     fontWeight: "bold",
   },
   typeList: {
-    padding: 20,
+    padding: ms(20),
   },
   typeOption: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 8,
+    borderWidth: ms(1),
+    borderRadius: ms(8),
+    padding: ms(16),
+    marginBottom: ms(8),
   },
   typeOptionText: {
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "500",
-    marginBottom: 4,
+    marginBottom: ms(4),
   },
   typeOptionDescription: {
-    fontSize: 14,
+    fontSize: rf(14),
   },
 });
 

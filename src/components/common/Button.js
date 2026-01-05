@@ -1,17 +1,25 @@
-﻿import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
-import { Ionicons } from '@expo/vector-icons';
-import { COLORS } from '../../data/constants';
+﻿import { Ionicons } from "@expo/vector-icons";
+import { StyleSheet, Text } from "react-native";
+import { TouchableOpacity } from "react-native-gesture-handler";
+import { COLORS } from "../../data/constants";
+import { ms, rf } from "../../utils/responsive";
 
-const Button = ({ title, onPress, variant = 'primary', icon, loading, disabled, style }) => {
+const Button = ({
+  title,
+  onPress,
+  variant = "primary",
+  icon,
+  loading,
+  disabled,
+  style,
+}) => {
   const getButtonStyle = () => {
     switch (variant) {
-      case 'outline':
+      case "outline":
         return [styles.button, styles.buttonOutline, style];
-      case 'danger':
+      case "danger":
         return [styles.button, styles.buttonDanger, style];
-      case 'secondary':
+      case "secondary":
         return [styles.button, styles.buttonSecondary, style];
       default:
         return [styles.button, styles.buttonPrimary, style];
@@ -20,9 +28,9 @@ const Button = ({ title, onPress, variant = 'primary', icon, loading, disabled, 
 
   const getTextStyle = () => {
     switch (variant) {
-      case 'outline':
+      case "outline":
         return [styles.buttonText, styles.textOutline];
-      case 'danger':
+      case "danger":
         return [styles.buttonText, styles.textDanger];
       default:
         return styles.buttonText;
@@ -41,7 +49,12 @@ const Button = ({ title, onPress, variant = 'primary', icon, loading, disabled, 
       ) : (
         <>
           {icon && (
-            <Ionicons name={icon} size={20} color={variant === 'outline' ? COLORS.primary : '#fff'} style={styles.icon} />
+            <Ionicons
+              name={icon}
+              size={ms(20)}
+              color={variant === "outline" ? COLORS.primary : "#fff"}
+              style={styles.icon}
+            />
           )}
           <Text style={getTextStyle()}>{title}</Text>
         </>
@@ -52,13 +65,13 @@ const Button = ({ title, onPress, variant = 'primary', icon, loading, disabled, 
 
 const styles = StyleSheet.create({
   button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    minHeight: 50,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: ms(14),
+    paddingHorizontal: ms(24),
+    borderRadius: ms(8),
+    minHeight: ms(50),
   },
   buttonPrimary: {
     backgroundColor: COLORS.primary,
@@ -67,26 +80,26 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.secondary,
   },
   buttonOutline: {
-    backgroundColor: 'transparent',
-    borderWidth: 2,
+    backgroundColor: "transparent",
+    borderWidth: ms(2),
     borderColor: COLORS.primary,
   },
   buttonDanger: {
     backgroundColor: COLORS.danger,
   },
   buttonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#fff',
+    fontSize: rf(16),
+    fontWeight: "600",
+    color: "#fff",
   },
   textOutline: {
     color: COLORS.primary,
   },
   textDanger: {
-    color: '#fff',
+    color: "#fff",
   },
   icon: {
-    marginRight: 8,
+    marginRight: ms(8),
   },
 });
 

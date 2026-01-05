@@ -1,10 +1,10 @@
-﻿import React from "react";
-import { View, Text, StyleSheet, Image } from "react-native";
+﻿import { Ionicons } from "@expo/vector-icons";
+import { Image, StyleSheet, Text, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import { Ionicons } from "@expo/vector-icons";
-import { formatKm } from "../../utils/formatUtils";
-import { COLORS } from "../../data/constants";
 import { useTheme } from "../../context/ThemeContext";
+import { COLORS } from "../../data/constants";
+import { formatKm } from "../../utils/formatUtils";
+import { ms, rf } from "../../utils/responsive";
 
 const VehicleCard = ({
   vehicle,
@@ -74,7 +74,11 @@ const VehicleCard = ({
                   { backgroundColor: colors.disabled },
                 ]}
               >
-                <Ionicons name="car" size={40} color={colors.textTertiary} />
+                <Ionicons
+                  name="car"
+                  size={ms(40)}
+                  color={colors.textTertiary}
+                />
               </View>
             )}
           </View>
@@ -96,7 +100,7 @@ const VehicleCard = ({
             <View style={styles.kmContainer}>
               <Ionicons
                 name="speedometer-outline"
-                size={16}
+                size={ms(16)}
                 color={colors.primary}
               />
               <Text style={[styles.kmText, { color: colors.primary }]}>
@@ -108,7 +112,7 @@ const VehicleCard = ({
               <View style={styles.badge}>
                 <Ionicons
                   name="time-outline"
-                  size={14}
+                  size={ms(14)}
                   color={COLORS.warning}
                 />
                 <Text style={styles.badgeText}>
@@ -123,7 +127,7 @@ const VehicleCard = ({
             <TouchableOpacity style={styles.actionButton} onPress={handleEdit}>
               <Ionicons
                 name="create-outline"
-                size={22}
+                size={ms(22)}
                 color={colors.primary}
               />
             </TouchableOpacity>
@@ -131,7 +135,11 @@ const VehicleCard = ({
               style={styles.actionButton}
               onPress={handleDelete}
             >
-              <Ionicons name="trash-outline" size={22} color={colors.danger} />
+              <Ionicons
+                name="trash-outline"
+                size={ms(22)}
+                color={colors.danger}
+              />
             </TouchableOpacity>
           </View>
         </View>
@@ -142,30 +150,30 @@ const VehicleCard = ({
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 12,
-    marginBottom: 16,
-    elevation: 2,
+    borderRadius: ms(12),
+    marginBottom: ms(16),
+    elevation: ms(2),
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: ms(4),
   },
   cardContent: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 16,
+    padding: ms(16),
   },
   imageContainer: {
-    marginRight: 16,
+    marginRight: ms(16),
   },
   vehicleImage: {
-    width: 70,
-    height: 70,
-    borderRadius: 8,
+    width: ms(70),
+    height: ms(70),
+    borderRadius: ms(8),
   },
   imagePlaceholder: {
-    width: 70,
-    height: 70,
-    borderRadius: 8,
+    width: ms(70),
+    height: ms(70),
+    borderRadius: ms(8),
     justifyContent: "center",
     alignItems: "center",
   },
@@ -173,45 +181,45 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   name: {
-    fontSize: 18,
+    fontSize: rf(18),
     fontWeight: "bold",
-    marginBottom: 4,
+    marginBottom: ms(4),
   },
   details: {
-    fontSize: 14,
-    marginBottom: 6,
+    fontSize: rf(14),
+    marginBottom: ms(6),
   },
   kmContainer: {
     flexDirection: "row",
     alignItems: "center",
   },
   kmText: {
-    fontSize: 14,
-    marginLeft: 6,
+    fontSize: rf(14),
+    marginLeft: ms(6),
     fontWeight: "600",
   },
   badge: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 6,
+    marginTop: ms(6),
     backgroundColor: "#FFF9E6",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
+    paddingHorizontal: ms(8),
+    paddingVertical: ms(4),
+    borderRadius: ms(12),
     alignSelf: "flex-start",
   },
   badgeText: {
-    fontSize: 12,
+    fontSize: rf(12),
     color: COLORS.warning,
-    marginLeft: 4,
+    marginLeft: ms(4),
     fontWeight: "600",
   },
   actions: {
     flexDirection: "column",
-    gap: 8,
+    gap: ms(8),
   },
   actionButton: {
-    padding: 4,
+    padding: ms(4),
   },
 });
 

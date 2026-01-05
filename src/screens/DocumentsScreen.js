@@ -12,6 +12,7 @@ import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
 import { useDialog } from "../hooks/useDialog";
 import { getVehicleDocuments } from "../services/vehicleDocumentService";
+import { ms, rf } from "../utils/responsive";
 
 const DocumentsScreen = ({ navigation }) => {
   const { vehicles } = useApp();
@@ -76,7 +77,7 @@ const DocumentsScreen = ({ navigation }) => {
           <View style={styles.documentItem}>
             <Ionicons
               name="document-text-outline"
-              size={16}
+              size={ms(16)}
               color={colors.textSecondary}
             />
             <Text
@@ -91,7 +92,7 @@ const DocumentsScreen = ({ navigation }) => {
       <View style={styles.arrowContainer}>
         <Ionicons
           name="chevron-forward"
-          size={20}
+          size={ms(20)}
           color={colors.textSecondary}
         />
       </View>
@@ -118,7 +119,7 @@ const DocumentsScreen = ({ navigation }) => {
           >
             <Ionicons
               name="information-circle-outline"
-              size={24}
+              size={ms(24)}
               color={colors.primary}
             />
           </TouchableOpacity>
@@ -134,7 +135,7 @@ const DocumentsScreen = ({ navigation }) => {
             <View style={styles.emptyContainer}>
               <Ionicons
                 name="car-outline"
-                size={64}
+                size={ms(64)}
                 color={colors.textSecondary}
               />
               <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
@@ -161,75 +162,75 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 20,
-    paddingTop: 20,
-    paddingHorizontal: 20,
+    marginBottom: ms(20),
+    paddingTop: ms(20),
+    paddingHorizontal: ms(20),
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: rf(20),
     fontWeight: "bold",
   },
   listContainer: {
-    padding: 20,
+    padding: ms(20),
     paddingTop: 0,
   },
   vehicleCard: {
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    elevation: 2,
+    borderRadius: ms(12),
+    padding: ms(16),
+    marginBottom: ms(12),
+    elevation: ms(2),
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
-    shadowRadius: 3,
+    shadowRadius: ms(3),
   },
   vehicleInfo: {
     flex: 1,
   },
   vehicleHeader: {
-    marginBottom: 8,
+    marginBottom: ms(8),
   },
   vehicleName: {
-    fontSize: 18,
+    fontSize: rf(18),
     fontWeight: "bold",
-    marginBottom: 4,
+    marginBottom: ms(4),
   },
   documentsRow: {
     flexDirection: "row",
-    gap: 16,
+    gap: ms(16),
   },
   documentItem: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
+    gap: ms(4),
   },
   documentText: {
-    fontSize: 13,
+    fontSize: rf(13),
   },
   arrowContainer: {
-    marginLeft: 12,
+    marginLeft: ms(12),
   },
   emptyContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingVertical: 60,
+    paddingVertical: ms(60),
   },
   emptyText: {
-    fontSize: 18,
+    fontSize: rf(18),
     fontWeight: "600",
-    marginTop: 16,
+    marginTop: ms(16),
     textAlign: "center",
   },
   emptySubtext: {
-    fontSize: 14,
-    marginTop: 8,
+    fontSize: rf(14),
+    marginTop: ms(8),
     textAlign: "center",
-    paddingHorizontal: 40,
+    paddingHorizontal: ms(40),
   },
   helpButton: {
-    padding: 8,
+    padding: ms(8),
   },
 });
 

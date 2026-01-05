@@ -16,6 +16,7 @@ import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
 import { COLORS } from "../data/constants";
 import { useDialog } from "../hooks/useDialog";
+import { ms, rf } from "../utils/responsive";
 
 const HomeScreen = ({ navigation }) => {
   const {
@@ -107,7 +108,7 @@ const HomeScreen = ({ navigation }) => {
     <View style={styles.emptyState}>
       <Ionicons
         name="car-sport-outline"
-        size={80}
+        size={ms(80)}
         color={colors.textSecondary}
       />
       <Text style={[styles.emptyTitle, { color: colors.text }]}>
@@ -157,7 +158,7 @@ const HomeScreen = ({ navigation }) => {
               >
                 <Ionicons
                   name="notifications"
-                  size={24}
+                  size={ms(24)}
                   color={
                     alertSummary.totalOverdue > 0
                       ? COLORS.danger
@@ -208,7 +209,7 @@ const HomeScreen = ({ navigation }) => {
             >
               <Ionicons
                 name="information-circle-outline"
-                size={24}
+                size={ms(24)}
                 color={colors.primary}
               />
             </TouchableOpacity>
@@ -238,7 +239,7 @@ const HomeScreen = ({ navigation }) => {
                 <View style={styles.noResultsContainer}>
                   <Ionicons
                     name="search-outline"
-                    size={60}
+                    size={ms(60)}
                     color={colors.textSecondary}
                   />
                   <Text
@@ -261,7 +262,7 @@ const HomeScreen = ({ navigation }) => {
             onPress={() => navigation.navigate("AddVehicle")}
             activeOpacity={0.8}
           >
-            <Ionicons name="add" size={30} color="#fff" />
+            <Ionicons name="add" size={ms(30)} color="#fff" />
           </TouchableOpacity>
         )}
       </View>
@@ -280,9 +281,9 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: COLORS.primary,
-    padding: 20,
-    paddingTop: 50,
-    paddingBottom: 30,
+    padding: ms(20),
+    paddingTop: ms(50),
+    paddingBottom: ms(30),
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
@@ -291,51 +292,51 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerTitle: {
-    fontSize: 28,
+    fontSize: rf(28),
     fontWeight: "bold",
     color: "#fff",
-    marginBottom: 4,
+    marginBottom: ms(4),
   },
   headerSubtitle: {
-    fontSize: 16,
+    fontSize: rf(16),
     color: "#fff",
     opacity: 0.9,
   },
   alertBadge: {
     position: "relative",
-    padding: 8,
+    padding: ms(8),
   },
   alertCount: {
     position: "absolute",
-    top: 4,
-    right: 4,
-    minWidth: 20,
-    height: 20,
-    borderRadius: 10,
+    top: ms(4),
+    right: ms(4),
+    minWidth: ms(20),
+    height: ms(20),
+    borderRadius: ms(10),
     justifyContent: "center",
     alignItems: "center",
-    borderWidth: 2,
+    borderWidth: ms(2),
     borderColor: "#fff",
   },
   alertCountText: {
     color: "#fff",
-    fontSize: 12,
+    fontSize: rf(12),
     fontWeight: "bold",
   },
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: ms(16),
+    paddingVertical: ms(12),
   },
   searchBarContainer: {
     flex: 1,
   },
   helpButton: {
-    padding: 8,
+    padding: ms(8),
   },
   listContent: {
-    padding: 16,
+    padding: ms(16),
   },
   scrollContent: {
     flexGrow: 1,
@@ -344,47 +345,47 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingVertical: 60,
+    paddingVertical: ms(60),
   },
   noResultsText: {
-    fontSize: 16,
-    marginTop: 16,
+    fontSize: rf(16),
+    marginTop: ms(16),
   },
   emptyState: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 32,
+    padding: ms(32),
   },
   emptyTitle: {
-    fontSize: 20,
+    fontSize: rf(20),
     fontWeight: "bold",
-    marginTop: 16,
-    marginBottom: 8,
+    marginTop: ms(16),
+    marginBottom: ms(8),
   },
   emptySubtitle: {
-    fontSize: 14,
+    fontSize: rf(14),
     textAlign: "center",
-    marginBottom: 24,
+    marginBottom: ms(24),
   },
   emptyButton: {
-    minWidth: 200,
+    minWidth: ms(200),
   },
   fab: {
     position: "absolute",
-    right: 20,
-    bottom: 20,
+    right: ms(20),
+    bottom: ms(20),
     backgroundColor: COLORS.primary,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: ms(60),
+    height: ms(60),
+    borderRadius: ms(30),
     justifyContent: "center",
     alignItems: "center",
-    elevation: 5,
+    elevation: ms(5),
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
-    shadowRadius: 4,
+    shadowRadius: ms(4),
   },
 });
 

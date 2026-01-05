@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { useTheme } from "../../context/ThemeContext";
 import { COLORS } from "../../data/constants";
+import { ms, rf } from "../../utils/responsive";
 
 const AlertModal = ({ visible, onClose, summary }) => {
   const { colors } = useTheme();
@@ -50,7 +51,7 @@ const AlertModal = ({ visible, onClose, summary }) => {
                   <View style={styles.iconContainer}>
                     <Ionicons
                       name="alert-circle"
-                      size={32}
+                      size={ms(32)}
                       color={COLORS.warning}
                     />
                   </View>
@@ -63,7 +64,7 @@ const AlertModal = ({ visible, onClose, summary }) => {
                   <View style={[styles.iconContainer, styles.iconSuccess]}>
                     <Ionicons
                       name="checkmark-circle"
-                      size={32}
+                      size={ms(32)}
                       color={COLORS.success}
                     />
                   </View>
@@ -74,7 +75,11 @@ const AlertModal = ({ visible, onClose, summary }) => {
               )}
             </View>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <Ionicons name="close" size={24} color={colors.textSecondary} />
+              <Ionicons
+                name="close"
+                size={ms(24)}
+                color={colors.textSecondary}
+              />
             </TouchableOpacity>
           </View>
 
@@ -100,7 +105,7 @@ const AlertModal = ({ visible, onClose, summary }) => {
                     <View style={styles.sectionHeader}>
                       <Ionicons
                         name="warning"
-                        size={20}
+                        size={ms(20)}
                         color={COLORS.danger}
                       />
                       <Text
@@ -156,7 +161,7 @@ const AlertModal = ({ visible, onClose, summary }) => {
                     <View style={styles.sectionHeader}>
                       <Ionicons
                         name="alert-circle-outline"
-                        size={20}
+                        size={ms(20)}
                         color={COLORS.warning}
                       />
                       <Text
@@ -227,7 +232,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    padding: ms(20),
   },
   overlayTouch: {
     position: "absolute",
@@ -237,20 +242,20 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   modalContainer: {
-    borderRadius: 20,
+    borderRadius: ms(20),
     width: "100%",
-    maxWidth: 500,
+    maxWidth: ms(520),
     maxHeight: "80%",
-    elevation: 10,
+    elevation: ms(10),
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
-    shadowRadius: 8,
+    shadowRadius: ms(8),
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: 20,
+    padding: ms(20),
     borderBottomWidth: 1,
   },
   headerContent: {
@@ -259,87 +264,87 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   iconContainer: {
-    marginRight: 12,
+    marginRight: ms(12),
   },
   iconSuccess: {
     backgroundColor: "#f0fdf4",
-    borderRadius: 20,
-    padding: 4,
+    borderRadius: ms(20),
+    padding: ms(4),
   },
   title: {
-    fontSize: 20,
+    fontSize: rf(20),
     fontWeight: "bold",
   },
   closeButton: {
-    padding: 4,
+    padding: ms(4),
   },
   content: {
-    maxHeight: 400,
-    padding: 20,
+    maxHeight: ms(420),
+    padding: ms(20),
   },
   emptyState: {
-    paddingVertical: 40,
+    paddingVertical: ms(40),
     alignItems: "center",
   },
   emptyText: {
-    fontSize: 16,
+    fontSize: rf(16),
     textAlign: "center",
-    lineHeight: 24,
+    lineHeight: ms(24),
   },
   section: {
-    marginBottom: 24,
+    marginBottom: ms(24),
   },
   sectionHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 12,
-    gap: 8,
+    marginBottom: ms(12),
+    gap: ms(8),
   },
   sectionTitle: {
-    fontSize: 14,
+    fontSize: rf(14),
     fontWeight: "bold",
     letterSpacing: 0.5,
   },
   alertCard: {
     flexDirection: "row",
-    borderRadius: 12,
-    marginBottom: 12,
+    borderRadius: ms(12),
+    marginBottom: ms(12),
     overflow: "hidden",
   },
   alertIndicator: {
-    width: 4,
+    width: ms(4),
   },
   alertContent: {
     flex: 1,
-    padding: 16,
+    padding: ms(16),
   },
   alertVehicle: {
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "bold",
-    marginBottom: 4,
+    marginBottom: ms(4),
   },
   alertMaintenance: {
-    fontSize: 14,
-    marginBottom: 4,
+    fontSize: rf(14),
+    marginBottom: ms(4),
   },
   alertReason: {
-    fontSize: 13,
+    fontSize: rf(13),
     color: COLORS.danger,
     fontWeight: "500",
   },
   footer: {
-    padding: 20,
+    padding: ms(20),
     borderTopWidth: 1,
   },
   button: {
     backgroundColor: COLORS.primary,
-    paddingVertical: 14,
-    borderRadius: 12,
+    paddingVertical: ms(14),
+    borderRadius: ms(12),
     alignItems: "center",
   },
   buttonText: {
     color: "#fff",
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "bold",
   },
 });

@@ -16,6 +16,7 @@ import Button from "../components/common/Button";
 import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
 import { formatDate } from "../utils/dateUtils";
+import { ms, rf } from "../utils/responsive";
 
 const AddExpenseScreen = ({ route, navigation }) => {
   const { vehicleId, expense } = route.params || {};
@@ -139,7 +140,7 @@ const AddExpenseScreen = ({ route, navigation }) => {
           >
             <Ionicons
               name="calendar-outline"
-              size={20}
+              size={ms(20)}
               color={colors.primary}
             />
             <Text style={[styles.dateText, { color: colors.text }]}>
@@ -225,59 +226,59 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: 20,
+    padding: ms(20),
   },
   section: {
-    marginBottom: 24,
+    marginBottom: ms(24),
   },
   label: {
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "600",
-    marginBottom: 8,
+    marginBottom: ms(8),
   },
   input: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
+    borderWidth: ms(1),
+    borderRadius: ms(8),
+    padding: ms(12),
+    fontSize: rf(16),
   },
   dateButton: {
     flexDirection: "row",
     alignItems: "center",
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    gap: 8,
+    borderWidth: ms(1),
+    borderRadius: ms(8),
+    padding: ms(12),
+    gap: ms(8),
   },
   dateText: {
-    fontSize: 16,
+    fontSize: rf(16),
   },
   costContainer: {
     flexDirection: "row",
     alignItems: "center",
   },
   currencySymbol: {
-    fontSize: 20,
+    fontSize: rf(20),
     fontWeight: "600",
-    marginRight: 8,
+    marginRight: ms(8),
   },
   costInput: {
     flex: 1,
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
+    borderWidth: ms(1),
+    borderRadius: ms(8),
+    padding: ms(12),
+    fontSize: rf(16),
   },
   textArea: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    minHeight: 100,
+    borderWidth: ms(1),
+    borderRadius: ms(8),
+    padding: ms(12),
+    fontSize: rf(16),
+    minHeight: ms(100),
   },
   saveButton: {
-    marginTop: 8,
-    marginBottom: 40,
+    marginTop: ms(8),
+    marginBottom: ms(40),
   },
 });
 

@@ -29,6 +29,7 @@ import {
   getMaintenanceUrgency,
   getUrgencyColor,
 } from "../utils/formatUtils";
+import { ms, rf } from "../utils/responsive";
 
 const VehicleDetailScreen = ({ navigation, route }) => {
   const { vehicleId } = route.params;
@@ -218,7 +219,7 @@ const VehicleDetailScreen = ({ navigation, route }) => {
             <View style={styles.nextServiceContainer}>
               {nextServiceInfo.map((info, index) => (
                 <View key={index} style={styles.nextServiceItem}>
-                  <Ionicons name={info.icon} size={14} color={info.color} />
+                  <Ionicons name={info.icon} size={ms(14)} color={info.color} />
                   <Text
                     style={[
                       styles.nextServiceText,
@@ -308,7 +309,7 @@ const VehicleDetailScreen = ({ navigation, route }) => {
                 { backgroundColor: colors.inputBackground },
               ]}
             >
-              <Ionicons name="car" size={60} color={colors.textSecondary} />
+              <Ionicons name="car" size={ms(60)} color={colors.textSecondary} />
             </View>
           )}
           <View style={styles.headerInfo}>
@@ -329,7 +330,7 @@ const VehicleDetailScreen = ({ navigation, route }) => {
               >
                 <Ionicons
                   name="information-circle-outline"
-                  size={24}
+                  size={ms(24)}
                   color={colors.primary}
                 />
               </TouchableOpacity>
@@ -361,7 +362,7 @@ const VehicleDetailScreen = ({ navigation, route }) => {
           ]}
         >
           <View style={styles.kmInfo}>
-            <Ionicons name="speedometer" size={32} color={colors.primary} />
+            <Ionicons name="speedometer" size={ms(32)} color={colors.primary} />
             <View style={styles.kmTextContainer}>
               <Text style={[styles.kmLabel, { color: colors.textSecondary }]}>
                 Kilometraje actual
@@ -375,7 +376,11 @@ const VehicleDetailScreen = ({ navigation, route }) => {
             style={styles.editKmButton}
             onPress={() => navigation.navigate("UpdateKm", { vehicle })}
           >
-            <Ionicons name="create-outline" size={20} color={colors.primary} />
+            <Ionicons
+              name="create-outline"
+              size={ms(20)}
+              color={colors.primary}
+            />
           </TouchableOpacity>
         </View>
 
@@ -477,7 +482,7 @@ const VehicleDetailScreen = ({ navigation, route }) => {
               <View style={styles.emptyState}>
                 <Ionicons
                   name="clipboard-outline"
-                  size={40}
+                  size={ms(40)}
                   color={colors.textSecondary}
                 />
                 <Text
@@ -490,7 +495,7 @@ const VehicleDetailScreen = ({ navigation, route }) => {
                   onPress={() =>
                     navigation.navigate("AddMaintenance", { vehicleId })
                   }
-                  style={{ marginTop: 16 }}
+                  style={{ marginTop: ms(16) }}
                 />
               </View>
             ) : (
@@ -641,7 +646,7 @@ const VehicleDetailScreen = ({ navigation, route }) => {
                     >
                       <Ionicons
                         name="checkmark-circle"
-                        size={20}
+                        size={ms(20)}
                         color="#fff"
                       />
                       <Text style={styles.modalButtonTextConfirm}>
@@ -669,24 +674,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   header: {
-    padding: 20,
+    padding: ms(20),
     flexDirection: "row",
     alignItems: "center",
     borderBottomWidth: 1,
   },
   vehicleImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 12,
-    marginRight: 16,
+    width: ms(100),
+    height: ms(100),
+    borderRadius: ms(12),
+    marginRight: ms(16),
   },
   imagePlaceholder: {
-    width: 100,
-    height: 100,
-    borderRadius: 12,
+    width: ms(100),
+    height: ms(100),
+    borderRadius: ms(12),
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 16,
+    marginRight: ms(16),
   },
   headerInfo: {
     flex: 1,
@@ -695,156 +700,156 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 4,
+    marginBottom: ms(4),
   },
   vehicleName: {
-    fontSize: 22,
+    fontSize: rf(22),
     fontWeight: "bold",
   },
   vehicleDetails: {
-    fontSize: 16,
-    marginBottom: 4,
+    fontSize: rf(16),
+    marginBottom: ms(4),
   },
   vehiclePlate: {
-    fontSize: 14,
+    fontSize: rf(14),
   },
   helpButton: {
-    padding: 8,
+    padding: ms(8),
   },
   kmSection: {
-    margin: 16,
-    padding: 16,
-    borderRadius: 12,
+    margin: ms(16),
+    padding: ms(16),
+    borderRadius: ms(12),
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    elevation: 2,
+    elevation: ms(2),
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: ms(4),
   },
   kmInfo: {
     flexDirection: "row",
     alignItems: "center",
   },
   kmTextContainer: {
-    marginLeft: 12,
+    marginLeft: ms(12),
   },
   kmLabel: {
-    fontSize: 14,
+    fontSize: rf(14),
   },
   kmValue: {
-    fontSize: 24,
+    fontSize: rf(24),
     fontWeight: "bold",
   },
   editKmButton: {
-    padding: 8,
+    padding: ms(8),
   },
   quickActionsSection: {
-    marginHorizontal: 16,
-    marginBottom: 16,
-    padding: 16,
-    borderRadius: 12,
-    elevation: 2,
+    marginHorizontal: ms(16),
+    marginBottom: ms(16),
+    padding: ms(16),
+    borderRadius: ms(12),
+    elevation: ms(2),
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: ms(4),
   },
   quickActionsScroll: {
-    paddingVertical: 8,
+    paddingVertical: ms(8),
   },
   statsSection: {
-    marginHorizontal: 16,
-    marginBottom: 16,
-    padding: 16,
-    borderRadius: 12,
-    elevation: 2,
+    marginHorizontal: ms(16),
+    marginBottom: ms(16),
+    padding: ms(16),
+    borderRadius: ms(12),
+    elevation: ms(2),
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: ms(4),
   },
   statsGrid: {
     flexDirection: "row",
     justifyContent: "space-around",
-    marginTop: 12,
+    marginTop: ms(12),
   },
   statItem: {
     alignItems: "center",
   },
   statValue: {
-    fontSize: 20,
+    fontSize: rf(20),
     fontWeight: "bold",
     color: COLORS.primary,
-    marginBottom: 4,
+    marginBottom: ms(4),
   },
   statLabel: {
-    fontSize: 12,
+    fontSize: rf(12),
     color: COLORS.gray,
   },
   section: {
-    marginHorizontal: 16,
-    marginBottom: 16,
-    padding: 16,
-    borderRadius: 12,
-    elevation: 2,
+    marginHorizontal: ms(16),
+    marginBottom: ms(16),
+    padding: ms(16),
+    borderRadius: ms(12),
+    elevation: ms(2),
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: ms(4),
   },
   sectionHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: ms(12),
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: rf(18),
     fontWeight: "bold",
-    marginBottom: 12,
+    marginBottom: ms(12),
   },
   viewAllText: {
     color: COLORS.primary,
-    fontSize: 14,
+    fontSize: rf(14),
     fontWeight: "600",
   },
   maintenanceItem: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 12,
+    paddingVertical: ms(12),
     borderBottomWidth: 1,
   },
   urgencyIndicator: {
-    width: 4,
+    width: ms(4),
     height: "100%",
-    marginRight: 12,
-    borderRadius: 2,
+    marginRight: ms(12),
+    borderRadius: ms(2),
   },
   maintenanceContent: {
     flex: 1,
-    marginRight: 8,
+    marginRight: ms(8),
   },
   maintenanceType: {
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "600",
-    marginBottom: 4,
+    marginBottom: ms(4),
   },
   maintenanceDate: {
-    fontSize: 14,
+    fontSize: rf(14),
   },
   maintenanceKm: {
-    fontSize: 12,
+    fontSize: rf(12),
   },
   nextServiceContainer: {
-    marginTop: 6,
-    gap: 4,
+    marginTop: ms(6),
+    gap: ms(4),
   },
   nextServiceItem: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: ms(6),
   },
   nextServiceText: {
-    fontSize: 12,
+    fontSize: rf(12),
     color: COLORS.primary,
     fontWeight: "500",
   },
@@ -853,33 +858,33 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   maintenanceCost: {
-    fontSize: 14,
+    fontSize: rf(14),
     fontWeight: "600",
     color: COLORS.primary,
   },
   emptyState: {
     alignItems: "center",
-    paddingVertical: 32,
+    paddingVertical: ms(32),
   },
   emptyText: {
-    fontSize: 14,
-    marginTop: 8,
+    fontSize: rf(14),
+    marginTop: ms(8),
   },
   historyButtonContainer: {
     alignItems: "center",
-    paddingVertical: 16,
+    paddingVertical: ms(16),
   },
   historyCount: {
-    fontSize: 14,
-    marginBottom: 12,
+    fontSize: rf(14),
+    marginBottom: ms(12),
     fontWeight: "500",
   },
   actions: {
-    padding: 16,
-    paddingBottom: 32,
+    padding: ms(16),
+    paddingBottom: ms(32),
   },
   actionButton: {
-    marginBottom: 12,
+    marginBottom: ms(12),
   },
   modalOverlay: {
     flex: 1,
@@ -888,58 +893,58 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalContent: {
-    borderRadius: 16,
-    padding: 24,
+    borderRadius: ms(16),
+    padding: ms(24),
     width: "90%",
-    maxWidth: 400,
+    maxWidth: ms(420),
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: rf(20),
     fontWeight: "bold",
-    marginBottom: 16,
+    marginBottom: ms(16),
     textAlign: "center",
   },
   modalBody: {
-    gap: 12,
+    gap: ms(12),
   },
   modalLabel: {
-    fontSize: 14,
+    fontSize: rf(14),
     fontWeight: "600",
-    marginTop: 8,
+    marginTop: ms(8),
   },
   modalValue: {
-    fontSize: 16,
-    paddingVertical: 4,
+    fontSize: rf(16),
+    paddingVertical: ms(4),
   },
   separator: {
     height: 1,
-    marginVertical: 12,
+    marginVertical: ms(12),
   },
   modalSectionTitle: {
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "bold",
     color: COLORS.primary,
-    marginBottom: 8,
+    marginBottom: ms(8),
   },
   modalInput: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
+    borderWidth: ms(1),
+    borderRadius: ms(8),
+    padding: ms(12),
+    fontSize: rf(16),
   },
   modalButtons: {
     flexDirection: "row",
-    gap: 12,
-    marginTop: 16,
+    gap: ms(12),
+    marginTop: ms(16),
   },
   modalButton: {
     flex: 1,
-    padding: 14,
-    borderRadius: 8,
+    padding: ms(14),
+    borderRadius: ms(8),
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    gap: 8,
+    gap: ms(8),
   },
   modalButtonCancel: {
     backgroundColor: "#f0f0f0",
@@ -948,12 +953,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#00C851",
   },
   modalButtonTextCancel: {
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "600",
     color: "#666",
   },
   modalButtonTextConfirm: {
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "600",
     color: "#fff",
   },

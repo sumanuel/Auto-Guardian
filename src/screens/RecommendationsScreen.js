@@ -1,5 +1,6 @@
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useTheme } from "../context/ThemeContext";
+import { ms, rf } from "../utils/responsive";
 
 const RecommendationsScreen = ({ navigation }) => {
   const { colors } = useTheme();
@@ -74,7 +75,7 @@ const RecommendationsScreen = ({ navigation }) => {
         <Text
           style={[
             styles.sectionTitle,
-            { color: colors.primary, marginTop: 30 },
+            { color: colors.primary, marginTop: ms(30) },
           ]}
         >
           Recomendaciones por Estación del Año / Clima
@@ -105,27 +106,27 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingHorizontal: ms(20),
+    paddingTop: ms(20),
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: rf(18),
     fontWeight: "bold",
-    marginBottom: 20,
+    marginBottom: ms(20),
   },
   recCard: {
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    borderRadius: ms(12),
+    padding: ms(16),
+    marginBottom: ms(12),
   },
   recTitle: {
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "600",
-    marginBottom: 8,
+    marginBottom: ms(8),
   },
   recContent: {
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: rf(14),
+    lineHeight: ms(20),
   },
 });
 

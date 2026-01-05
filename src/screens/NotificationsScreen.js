@@ -20,6 +20,7 @@ import {
   insertNotification,
 } from "../database/notifications";
 import { scheduleAllNotifications } from "../services/notificationService";
+import { ms, rf } from "../utils/responsive";
 
 const NotificationsScreen = () => {
   const { colors } = useTheme();
@@ -173,7 +174,7 @@ const NotificationsScreen = () => {
         </Text>
       </View>
       <TouchableOpacity onPress={() => handleDelete(item.id)}>
-        <Ionicons name="trash-outline" size={24} color={colors.primary} />
+        <Ionicons name="trash-outline" size={ms(24)} color={colors.primary} />
       </TouchableOpacity>
     </View>
   );
@@ -192,7 +193,7 @@ const NotificationsScreen = () => {
         ]}
       >
         <View style={styles.alertSectionHeader}>
-          <Ionicons name="notifications" size={24} color={colors.primary} />
+          <Ionicons name="notifications" size={ms(24)} color={colors.primary} />
           <Text style={[styles.alertSectionTitle, { color: colors.text }]}>
             Notificaciones de Alertas
           </Text>
@@ -230,7 +231,7 @@ const NotificationsScreen = () => {
             name={
               alertNotificationsEnabled ? "checkmark-circle" : "close-circle"
             }
-            size={20}
+            size={ms(20)}
             color={alertNotificationsEnabled ? "#fff" : colors.textSecondary}
           />
         </TouchableOpacity>
@@ -250,7 +251,7 @@ const NotificationsScreen = () => {
         style={[styles.addButton, { backgroundColor: colors.primary }]}
         onPress={() => setModalVisible(true)}
       >
-        <Ionicons name="add" size={24} color="white" />
+        <Ionicons name="add" size={ms(24)} color="white" />
       </TouchableOpacity>
 
       <Modal visible={modalVisible} animationType="slide" transparent>
@@ -391,80 +392,80 @@ const NotificationsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    padding: ms(20),
   },
   header: {
-    fontSize: 24,
+    fontSize: rf(24),
     fontWeight: "bold",
-    marginBottom: 20,
+    marginBottom: ms(20),
   },
   notificationItem: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 15,
-    marginBottom: 10,
-    borderRadius: 8,
+    padding: ms(15),
+    marginBottom: ms(10),
+    borderRadius: ms(8),
   },
   notificationContent: {
     flex: 1,
   },
   title: {
-    fontSize: 18,
+    fontSize: rf(18),
     fontWeight: "bold",
   },
   body: {
-    fontSize: 14,
-    marginVertical: 5,
+    fontSize: rf(14),
+    marginVertical: ms(5),
   },
   details: {
-    fontSize: 12,
+    fontSize: rf(12),
   },
   empty: {
     textAlign: "center",
-    marginTop: 50,
-    fontSize: 16,
+    marginTop: ms(50),
+    fontSize: rf(16),
   },
   addButton: {
     position: "absolute",
-    bottom: 20,
-    right: 20,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    bottom: ms(20),
+    right: ms(20),
+    width: ms(60),
+    height: ms(60),
+    borderRadius: ms(30),
     justifyContent: "center",
     alignItems: "center",
   },
   alertSection: {
-    margin: 15,
-    padding: 15,
-    borderRadius: 10,
-    borderWidth: 1,
+    margin: ms(15),
+    padding: ms(15),
+    borderRadius: ms(10),
+    borderWidth: ms(1),
   },
   alertSectionHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 10,
+    marginBottom: ms(10),
   },
   alertSectionTitle: {
-    fontSize: 18,
+    fontSize: rf(18),
     fontWeight: "bold",
-    marginLeft: 10,
+    marginLeft: ms(10),
   },
   alertSectionDescription: {
-    fontSize: 14,
-    marginBottom: 15,
-    lineHeight: 20,
+    fontSize: rf(14),
+    marginBottom: ms(15),
+    lineHeight: ms(20),
   },
   alertToggle: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: 12,
-    borderRadius: 8,
-    borderWidth: 1,
+    padding: ms(12),
+    borderRadius: ms(8),
+    borderWidth: ms(1),
   },
   alertToggleText: {
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "500",
   },
   modalContainer: {
@@ -475,70 +476,70 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     width: "90%",
-    padding: 20,
-    borderRadius: 10,
+    padding: ms(20),
+    borderRadius: ms(10),
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: rf(20),
     fontWeight: "bold",
-    marginBottom: 20,
+    marginBottom: ms(20),
     textAlign: "center",
   },
   input: {
-    borderWidth: 1,
-    borderRadius: 5,
-    padding: 10,
-    marginBottom: 15,
+    borderWidth: ms(1),
+    borderRadius: ms(5),
+    padding: ms(10),
+    marginBottom: ms(15),
   },
   timeLabel: {
-    fontSize: 16,
-    marginBottom: 10,
+    fontSize: rf(16),
+    marginBottom: ms(10),
   },
   timeContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 15,
+    marginBottom: ms(15),
   },
   pickerContainer: {
     flex: 1,
-    marginHorizontal: 5,
+    marginHorizontal: ms(5),
   },
   pickerLabel: {
-    fontSize: 14,
-    marginBottom: 5,
+    fontSize: rf(14),
+    marginBottom: ms(5),
     textAlign: "center",
   },
   input: {
-    borderWidth: 1,
-    borderRadius: 5,
-    padding: 10,
-    marginBottom: 15,
+    borderWidth: ms(1),
+    borderRadius: ms(5),
+    padding: ms(10),
+    marginBottom: ms(15),
     textAlign: "center",
   },
   daysLabel: {
-    fontSize: 16,
-    marginBottom: 10,
+    fontSize: rf(16),
+    marginBottom: ms(10),
   },
   daysContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    marginBottom: 20,
+    marginBottom: ms(20),
   },
   dayButton: {
-    padding: 10,
-    margin: 5,
-    borderRadius: 5,
-    borderWidth: 1,
+    padding: ms(10),
+    margin: ms(5),
+    borderRadius: ms(5),
+    borderWidth: ms(1),
   },
   modalButtons: {
     flexDirection: "row",
     justifyContent: "space-between",
   },
   button: {
-    padding: 10,
-    borderRadius: 5,
+    padding: ms(10),
+    borderRadius: ms(5),
     flex: 1,
-    marginHorizontal: 5,
+    marginHorizontal: ms(5),
     alignItems: "center",
   },
 });

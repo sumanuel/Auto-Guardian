@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useTheme } from "../context/ThemeContext";
+import { ms, rf } from "../utils/responsive";
 
 const LearnCarScreen = ({ navigation }) => {
   const { colors } = useTheme();
@@ -47,7 +48,7 @@ const LearnCarScreen = ({ navigation }) => {
           >
             <Ionicons
               name="warning"
-              size={20}
+              size={ms(20)}
               color="#ff6b35"
               style={styles.icon}
             />
@@ -67,7 +68,7 @@ const LearnCarScreen = ({ navigation }) => {
         <Text
           style={[
             styles.sectionTitle,
-            { color: colors.primary, marginTop: 30 },
+            { color: colors.primary, marginTop: ms(30) },
           ]}
         >
           Buenas Prácticas de Conducción y Cuidado
@@ -83,7 +84,7 @@ const LearnCarScreen = ({ navigation }) => {
           >
             <Ionicons
               name="checkmark-circle"
-              size={20}
+              size={ms(20)}
               color={colors.primary}
               style={styles.icon}
             />
@@ -104,57 +105,57 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingHorizontal: ms(20),
+    paddingTop: ms(20),
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: rf(18),
     fontWeight: "bold",
-    marginBottom: 5,
+    marginBottom: ms(5),
   },
   sectionSubtitle: {
-    fontSize: 14,
-    marginBottom: 15,
+    fontSize: rf(14),
+    marginBottom: ms(15),
     fontStyle: "italic",
   },
   introText: {
-    fontSize: 14,
-    marginBottom: 15,
+    fontSize: rf(14),
+    marginBottom: ms(15),
     fontStyle: "italic",
   },
   alertCard: {
     flexDirection: "row",
     alignItems: "flex-start",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    borderRadius: ms(12),
+    padding: ms(16),
+    marginBottom: ms(12),
   },
   practiceCard: {
     flexDirection: "row",
     alignItems: "flex-start",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    borderRadius: ms(12),
+    padding: ms(16),
+    marginBottom: ms(12),
   },
   icon: {
-    marginRight: 12,
-    marginTop: 2,
+    marginRight: ms(12),
+    marginTop: ms(2),
   },
   textContainer: {
     flex: 1,
   },
   alertTitle: {
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "600",
-    marginBottom: 4,
+    marginBottom: ms(4),
   },
   alertContent: {
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: rf(14),
+    lineHeight: ms(20),
   },
   practiceContent: {
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: rf(14),
+    lineHeight: ms(20),
     flex: 1,
   },
 });

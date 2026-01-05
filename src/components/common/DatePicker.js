@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { useTheme } from "../../context/ThemeContext";
 import { formatDate } from "../../utils/dateUtils";
+import { ms, rf } from "../../utils/responsive";
 
 const DatePicker = ({ value, onChange, label, style }) => {
   const { colors } = useTheme();
@@ -56,7 +57,11 @@ const DatePicker = ({ value, onChange, label, style }) => {
         ]}
         onPress={() => setShow(true)}
       >
-        <Ionicons name="calendar-outline" size={20} color={colors.primary} />
+        <Ionicons
+          name="calendar-outline"
+          size={ms(20)}
+          color={colors.primary}
+        />
         <Text style={[styles.dateButtonText, { color: colors.text }]}>
           {formatDate(date)}
         </Text>
@@ -75,23 +80,23 @@ const DatePicker = ({ value, onChange, label, style }) => {
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 16,
+    marginBottom: ms(16),
   },
   label: {
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "600",
-    marginBottom: 8,
+    marginBottom: ms(8),
   },
   dateButton: {
     flexDirection: "row",
     alignItems: "center",
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    gap: 8,
+    borderWidth: ms(1),
+    borderRadius: ms(8),
+    padding: ms(12),
+    gap: ms(8),
   },
   dateButtonText: {
-    fontSize: 16,
+    fontSize: rf(16),
   },
 });
 

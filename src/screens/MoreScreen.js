@@ -10,6 +10,7 @@ import {
   View,
 } from "react-native";
 import { useTheme } from "../context/ThemeContext";
+import { ms, rf } from "../utils/responsive";
 
 const MoreScreen = () => {
   const navigation = useNavigation();
@@ -87,7 +88,7 @@ const MoreScreen = () => {
               <View style={styles.menuItemLeft}>
                 <Ionicons
                   name={option.icon}
-                  size={24}
+                  size={ms(24)}
                   color={option.comingSoon ? colors.disabled : colors.primary}
                 />
                 <Text
@@ -121,7 +122,7 @@ const MoreScreen = () => {
               {!option.comingSoon && (
                 <Ionicons
                   name="chevron-forward"
-                  size={20}
+                  size={ms(20)}
                   color={colors.textTertiary}
                 />
               )}
@@ -148,54 +149,54 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: 20,
+    padding: ms(20),
   },
   title: {
-    fontSize: 28,
+    fontSize: rf(28),
     fontWeight: "bold",
-    marginBottom: 20,
+    marginBottom: ms(20),
   },
   menuContainer: {
-    borderRadius: 12,
+    borderRadius: ms(12),
     overflow: "hidden",
   },
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: 16,
-    borderBottomWidth: 1,
+    padding: ms(16),
+    borderBottomWidth: ms(1),
     borderBottomColor: "#f0f0f0",
   },
   menuItemLeft: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
+    gap: ms(12),
   },
   menuItemText: {
-    fontSize: 16,
+    fontSize: rf(16),
     fontWeight: "500",
   },
   comingSoonBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
+    paddingHorizontal: ms(12),
+    paddingVertical: ms(4),
+    borderRadius: ms(12),
   },
   comingSoonBadgeText: {
-    fontSize: 12,
+    fontSize: rf(12),
   },
   footer: {
-    marginTop: 40,
+    marginTop: ms(40),
     alignItems: "center",
-    paddingVertical: 20,
+    paddingVertical: ms(20),
   },
   footerText: {
-    fontSize: 18,
+    fontSize: rf(18),
     fontWeight: "bold",
   },
   footerSubtext: {
-    fontSize: 14,
-    marginTop: 4,
+    fontSize: rf(14),
+    marginTop: ms(4),
   },
 });
 
