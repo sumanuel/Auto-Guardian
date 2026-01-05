@@ -5,7 +5,6 @@ import {
   Modal,
   RefreshControl,
   ScrollView,
-  StyleSheet,
   Text,
   TextInput,
   View,
@@ -17,6 +16,7 @@ import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
 import { COLORS } from "../data/constants";
 import { useDialog } from "../hooks/useDialog";
+import { useResponsive } from "../hooks/useResponsive";
 import { getMaintenanceTypes } from "../services/maintenanceService";
 import { formatDate, formatRelativeDate } from "../utils/dateUtils";
 import {
@@ -42,6 +42,270 @@ const VehicleDetailScreen = ({ navigation, route }) => {
   } = useApp();
   const { DialogComponent, showDialog } = useDialog();
   const { colors } = useTheme();
+  const { scale, verticalScale, moderateScale } = useResponsive();
+
+  const responsiveStyles = {
+    container: {
+      flex: 1,
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    header: {
+      padding: scale(20),
+      flexDirection: "row",
+      alignItems: "center",
+      borderBottomWidth: 1,
+    },
+    vehicleImage: {
+      width: scale(100),
+      height: verticalScale(100),
+      borderRadius: scale(12),
+      marginRight: scale(16),
+    },
+    imagePlaceholder: {
+      width: scale(100),
+      height: verticalScale(100),
+      borderRadius: scale(12),
+      justifyContent: "center",
+      alignItems: "center",
+      marginRight: scale(16),
+    },
+    headerInfo: {
+      flex: 1,
+    },
+    titleContainer: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: verticalScale(4),
+    },
+    vehicleName: {
+      fontSize: moderateScale(22),
+      fontWeight: "bold",
+    },
+    vehicleDetails: {
+      fontSize: moderateScale(16),
+      marginBottom: verticalScale(4),
+    },
+    vehiclePlate: {
+      fontSize: moderateScale(14),
+    },
+    helpButton: {
+      padding: scale(8),
+    },
+    kmSection: {
+      margin: scale(16),
+      padding: scale(16),
+      borderRadius: scale(12),
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      elevation: 2,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+    },
+    kmInfo: {
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    kmTextContainer: {
+      marginLeft: scale(12),
+    },
+    kmLabel: {
+      fontSize: moderateScale(14),
+    },
+    kmValue: {
+      fontSize: moderateScale(24),
+      fontWeight: "bold",
+    },
+    editKmButton: {
+      padding: scale(8),
+    },
+    quickActionsSection: {
+      marginHorizontal: scale(16),
+      marginBottom: verticalScale(16),
+      padding: scale(16),
+      borderRadius: scale(12),
+      elevation: 2,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+    },
+    sectionTitle: {
+      fontSize: moderateScale(18),
+      fontWeight: "bold",
+      marginBottom: verticalScale(16),
+    },
+    quickActionsGrid: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: scale(12),
+    },
+    quickActionButton: {
+      flex: 1,
+      minWidth: scale(140),
+      paddingVertical: verticalScale(16),
+      paddingHorizontal: scale(16),
+      borderRadius: scale(12),
+      flexDirection: "row",
+      alignItems: "center",
+      gap: scale(8),
+      elevation: 2,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+    },
+    quickActionText: {
+      fontSize: moderateScale(14),
+      fontWeight: "600",
+      flex: 1,
+    },
+    maintenanceSection: {
+      marginHorizontal: scale(16),
+      marginBottom: verticalScale(20),
+    },
+    maintenanceItem: {
+      paddingVertical: verticalScale(12),
+      paddingHorizontal: scale(16),
+      borderBottomWidth: 1,
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    urgencyIndicator: {
+      width: scale(4),
+      height: "100%",
+      borderRadius: scale(2),
+    },
+    maintenanceContent: {
+      flex: 1,
+      marginLeft: scale(12),
+    },
+    maintenanceType: {
+      fontSize: moderateScale(16),
+      fontWeight: "600",
+    },
+    maintenanceDate: {
+      fontSize: moderateScale(14),
+      marginTop: verticalScale(2),
+    },
+    maintenanceKm: {
+      fontSize: moderateScale(14),
+      marginTop: verticalScale(2),
+    },
+    nextServiceContainer: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: scale(8),
+      marginTop: verticalScale(8),
+    },
+    nextServiceItem: {
+      paddingHorizontal: scale(8),
+      paddingVertical: verticalScale(4),
+      borderRadius: scale(12),
+    },
+    nextServiceText: {
+      fontSize: moderateScale(12),
+      fontWeight: "500",
+    },
+    maintenanceCost: {
+      fontSize: moderateScale(16),
+      fontWeight: "bold",
+      marginTop: verticalScale(8),
+    },
+    emptyState: {
+      alignItems: "center",
+      paddingVertical: verticalScale(40),
+    },
+    emptyStateText: {
+      fontSize: moderateScale(16),
+      textAlign: "center",
+      marginTop: verticalScale(16),
+    },
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: "rgba(0, 0, 0, 0.5)",
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    modalContent: {
+      width: "90%",
+      maxWidth: scale(400),
+      borderRadius: scale(16),
+      padding: scale(24),
+      elevation: 5,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+    },
+    modalTitle: {
+      fontSize: moderateScale(20),
+      fontWeight: "bold",
+      marginBottom: verticalScale(16),
+      textAlign: "center",
+    },
+    modalBody: {
+      gap: verticalScale(12),
+    },
+    modalLabel: {
+      fontSize: moderateScale(14),
+      fontWeight: "600",
+      marginTop: verticalScale(8),
+    },
+    modalValue: {
+      fontSize: moderateScale(16),
+      paddingVertical: verticalScale(4),
+    },
+    separator: {
+      height: 1,
+      marginVertical: verticalScale(12),
+    },
+    modalSectionTitle: {
+      fontSize: moderateScale(16),
+      fontWeight: "bold",
+      color: COLORS.primary,
+      marginBottom: verticalScale(8),
+    },
+    modalInput: {
+      borderWidth: 1,
+      borderRadius: scale(8),
+      padding: scale(12),
+      fontSize: moderateScale(16),
+    },
+    modalButtons: {
+      flexDirection: "row",
+      gap: scale(12),
+      marginTop: verticalScale(16),
+    },
+    modalButton: {
+      flex: 1,
+      padding: scale(14),
+      borderRadius: scale(8),
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
+      gap: scale(8),
+    },
+    modalButtonCancel: {
+      backgroundColor: "#f0f0f0",
+    },
+    modalButtonConfirm: {
+      backgroundColor: "#00C851",
+    },
+    modalButtonTextCancel: {
+      fontSize: moderateScale(16),
+      fontWeight: "600",
+      color: "#666",
+    },
+    modalButtonTextConfirm: {
+      fontSize: moderateScale(16),
+      fontWeight: "600",
+      color: "#fff",
+    },
+  };
 
   const [vehicle, setVehicle] = useState(null);
   const [recentMaintenances, setRecentMaintenances] = useState([]);
@@ -185,7 +449,10 @@ const VehicleDetailScreen = ({ navigation, route }) => {
     return (
       <TouchableOpacity
         key={item.id}
-        style={[styles.maintenanceItem, { borderBottomColor: colors.border }]}
+        style={[
+          responsiveStyles.maintenanceItem,
+          { borderBottomColor: colors.border },
+        ]}
         onPress={() => {
           navigation.navigate("MaintenanceHistory", {
             vehicleId,
@@ -194,20 +461,31 @@ const VehicleDetailScreen = ({ navigation, route }) => {
         }}
       >
         <View
-          style={[styles.urgencyIndicator, { backgroundColor: urgencyColor }]}
+          style={[
+            responsiveStyles.urgencyIndicator,
+            { backgroundColor: urgencyColor },
+          ]}
         />
-        <View style={styles.maintenanceContent}>
-          <Text style={[styles.maintenanceType, { color: colors.text }]}>
+        <View style={responsiveStyles.maintenanceContent}>
+          <Text
+            style={[responsiveStyles.maintenanceType, { color: colors.text }]}
+          >
             {item.type}
           </Text>
           <Text
-            style={[styles.maintenanceDate, { color: colors.textSecondary }]}
+            style={[
+              responsiveStyles.maintenanceDate,
+              { color: colors.textSecondary },
+            ]}
           >
             {formatRelativeDate(item.date)}
           </Text>
           {item.km && (
             <Text
-              style={[styles.maintenanceKm, { color: colors.textSecondary }]}
+              style={[
+                responsiveStyles.maintenanceKm,
+                { color: colors.textSecondary },
+              ]}
             >
               a los {formatKm(item.km)}
             </Text>
@@ -215,13 +493,13 @@ const VehicleDetailScreen = ({ navigation, route }) => {
 
           {/* Información de próximo servicio */}
           {nextServiceInfo.length > 0 && (
-            <View style={styles.nextServiceContainer}>
+            <View style={responsiveStyles.nextServiceContainer}>
               {nextServiceInfo.map((info, index) => (
-                <View key={index} style={styles.nextServiceItem}>
+                <View key={index} style={responsiveStyles.nextServiceItem}>
                   <Ionicons name={info.icon} size={14} color={info.color} />
                   <Text
                     style={[
-                      styles.nextServiceText,
+                      responsiveStyles.nextServiceText,
                       { color: info.color, fontWeight: "600" },
                     ]}
                   >
@@ -233,7 +511,7 @@ const VehicleDetailScreen = ({ navigation, route }) => {
           )}
         </View>
         {item.cost && (
-          <Text style={styles.maintenanceCost}>
+          <Text style={responsiveStyles.maintenanceCost}>
             {formatCurrency(item.cost)}
           </Text>
         )}
@@ -271,7 +549,7 @@ const VehicleDetailScreen = ({ navigation, route }) => {
   if (!vehicle) {
     return (
       <DialogComponent>
-        <View style={styles.loadingContainer}>
+        <View style={responsiveStyles.loadingContainer}>
           <Text>Cargando...</Text>
         </View>
       </DialogComponent>
@@ -281,7 +559,10 @@ const VehicleDetailScreen = ({ navigation, route }) => {
   return (
     <DialogComponent>
       <ScrollView
-        style={[styles.container, { backgroundColor: colors.background }]}
+        style={[
+          responsiveStyles.container,
+          { backgroundColor: colors.background },
+        ]}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
@@ -289,7 +570,7 @@ const VehicleDetailScreen = ({ navigation, route }) => {
         {/* Header con imagen del vehículo */}
         <View
           style={[
-            styles.header,
+            responsiveStyles.header,
             {
               backgroundColor: colors.cardBackground,
               borderBottomColor: colors.border,
@@ -299,25 +580,27 @@ const VehicleDetailScreen = ({ navigation, route }) => {
           {vehicle.photo ? (
             <Image
               source={{ uri: vehicle.photo }}
-              style={styles.vehicleImage}
+              style={responsiveStyles.vehicleImage}
             />
           ) : (
             <View
               style={[
-                styles.imagePlaceholder,
+                responsiveStyles.imagePlaceholder,
                 { backgroundColor: colors.inputBackground },
               ]}
             >
               <Ionicons name="car" size={60} color={colors.textSecondary} />
             </View>
           )}
-          <View style={styles.headerInfo}>
-            <View style={styles.titleContainer}>
-              <Text style={[styles.vehicleName, { color: colors.text }]}>
+          <View style={responsiveStyles.headerInfo}>
+            <View style={responsiveStyles.titleContainer}>
+              <Text
+                style={[responsiveStyles.vehicleName, { color: colors.text }]}
+              >
                 {vehicle.name}
               </Text>
               <TouchableOpacity
-                style={styles.helpButton}
+                style={responsiveStyles.helpButton}
                 onPress={() =>
                   showDialog({
                     title: "Detalle del Vehículo",
@@ -335,14 +618,20 @@ const VehicleDetailScreen = ({ navigation, route }) => {
               </TouchableOpacity>
             </View>
             <Text
-              style={[styles.vehicleDetails, { color: colors.textSecondary }]}
+              style={[
+                responsiveStyles.vehicleDetails,
+                { color: colors.textSecondary },
+              ]}
             >
               {vehicle.brand} {vehicle.model}{" "}
               {vehicle.year ? `(${vehicle.year})` : ""}
             </Text>
             {vehicle.plate && (
               <Text
-                style={[styles.vehiclePlate, { color: colors.textSecondary }]}
+                style={[
+                  responsiveStyles.vehiclePlate,
+                  { color: colors.textSecondary },
+                ]}
               >
                 Placa: {vehicle.plate}
               </Text>
@@ -353,26 +642,31 @@ const VehicleDetailScreen = ({ navigation, route }) => {
         {/* Kilometraje actual */}
         <View
           style={[
-            styles.kmSection,
+            responsiveStyles.kmSection,
             {
               backgroundColor: colors.cardBackground,
               shadowColor: colors.shadow,
             },
           ]}
         >
-          <View style={styles.kmInfo}>
+          <View style={responsiveStyles.kmInfo}>
             <Ionicons name="speedometer" size={32} color={colors.primary} />
-            <View style={styles.kmTextContainer}>
-              <Text style={[styles.kmLabel, { color: colors.textSecondary }]}>
+            <View style={responsiveStyles.kmTextContainer}>
+              <Text
+                style={[
+                  responsiveStyles.kmLabel,
+                  { color: colors.textSecondary },
+                ]}
+              >
                 Kilometraje actual
               </Text>
-              <Text style={[styles.kmValue, { color: colors.text }]}>
+              <Text style={[responsiveStyles.kmValue, { color: colors.text }]}>
                 {formatKm(vehicle.currentKm)}
               </Text>
             </View>
           </View>
           <TouchableOpacity
-            style={styles.editKmButton}
+            style={responsiveStyles.editKmButton}
             onPress={() => navigation.navigate("UpdateKm", { vehicle })}
           >
             <Ionicons name="create-outline" size={20} color={colors.primary} />
@@ -382,20 +676,20 @@ const VehicleDetailScreen = ({ navigation, route }) => {
         {/* Acciones rápidas de mantenimiento */}
         <View
           style={[
-            styles.quickActionsSection,
+            responsiveStyles.quickActionsSection,
             {
               backgroundColor: colors.cardBackground,
               shadowColor: colors.shadow,
             },
           ]}
         >
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+          <Text style={[responsiveStyles.sectionTitle, { color: colors.text }]}>
             Acciones Rápidas
           </Text>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.quickActionsScroll}
+            contentContainerStyle={responsiveStyles.quickActionsScroll}
           >
             {getQuickMaintenanceTypes().map((type) => (
               <QuickMaintenanceButton
@@ -413,26 +707,30 @@ const VehicleDetailScreen = ({ navigation, route }) => {
         {false && stats && stats.totalServices > 0 && (
           <View
             style={[
-              styles.statsSection,
+              responsiveStyles.statsSection,
               {
                 backgroundColor: colors.cardBackground,
                 shadowColor: colors.shadow,
               },
             ]}
           >
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            <Text
+              style={[responsiveStyles.sectionTitle, { color: colors.text }]}
+            >
               Estadísticas
             </Text>
-            <View style={styles.statsGrid}>
-              <View style={styles.statItem}>
-                <Text style={styles.statValue}>{stats.totalServices}</Text>
-                <Text style={styles.statLabel}>Servicios</Text>
+            <View style={responsiveStyles.statsGrid}>
+              <View style={responsiveStyles.statItem}>
+                <Text style={responsiveStyles.statValue}>
+                  {stats.totalServices}
+                </Text>
+                <Text style={responsiveStyles.statLabel}>Servicios</Text>
               </View>
-              <View style={styles.statItem}>
-                <Text style={styles.statValue}>
+              <View style={responsiveStyles.statItem}>
+                <Text style={responsiveStyles.statValue}>
                   {formatCurrency(stats.totalCost)}
                 </Text>
-                <Text style={styles.statLabel}>Gasto total</Text>
+                <Text style={responsiveStyles.statLabel}>Gasto total</Text>
               </View>
             </View>
           </View>
@@ -442,14 +740,16 @@ const VehicleDetailScreen = ({ navigation, route }) => {
         {upcomingMaintenances.length > 0 && (
           <View
             style={[
-              styles.section,
+              responsiveStyles.section,
               {
                 backgroundColor: colors.cardBackground,
                 shadowColor: colors.shadow,
               },
             ]}
           >
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            <Text
+              style={[responsiveStyles.sectionTitle, { color: colors.text }]}
+            >
               Próximos Mantenimientos
             </Text>
             {upcomingMaintenances.slice(0, 3).map(renderMaintenanceItem)}
@@ -460,28 +760,33 @@ const VehicleDetailScreen = ({ navigation, route }) => {
         {true && (
           <View
             style={[
-              styles.section,
+              responsiveStyles.section,
               {
                 backgroundColor: colors.cardBackground,
                 shadowColor: colors.shadow,
               },
             ]}
           >
-            <View style={styles.sectionHeader}>
-              <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            <View style={responsiveStyles.sectionHeader}>
+              <Text
+                style={[responsiveStyles.sectionTitle, { color: colors.text }]}
+              >
                 Historial Reciente
               </Text>
             </View>
 
             {recentMaintenances.length === 0 ? (
-              <View style={styles.emptyState}>
+              <View style={responsiveStyles.emptyState}>
                 <Ionicons
                   name="clipboard-outline"
                   size={40}
                   color={colors.textSecondary}
                 />
                 <Text
-                  style={[styles.emptyText, { color: colors.textSecondary }]}
+                  style={[
+                    responsiveStyles.emptyText,
+                    { color: colors.textSecondary },
+                  ]}
                 >
                   No hay mantenimientos registrados
                 </Text>
@@ -494,9 +799,12 @@ const VehicleDetailScreen = ({ navigation, route }) => {
                 />
               </View>
             ) : (
-              <View style={styles.historyButtonContainer}>
+              <View style={responsiveStyles.historyButtonContainer}>
                 <Text
-                  style={[styles.historyCount, { color: colors.textSecondary }]}
+                  style={[
+                    responsiveStyles.historyCount,
+                    { color: colors.textSecondary },
+                  ]}
                 >
                   {recentMaintenances.length}{" "}
                   {recentMaintenances.length === 1 ? "registro" : "registros"}
@@ -516,11 +824,11 @@ const VehicleDetailScreen = ({ navigation, route }) => {
         )}
 
         {/* Botón de acción principal */}
-        <View style={styles.actions}>
+        <View style={responsiveStyles.actions}>
           <Button
             title="Agregar Mantenimiento"
             onPress={() => navigation.navigate("AddMaintenance", { vehicleId })}
-            style={styles.actionButton}
+            style={responsiveStyles.actionButton}
           />
         </View>
 
@@ -531,63 +839,94 @@ const VehicleDetailScreen = ({ navigation, route }) => {
           animationType="slide"
           onRequestClose={() => setCompleteModalVisible(false)}
         >
-          <View style={styles.modalOverlay}>
+          <View style={responsiveStyles.modalOverlay}>
             <View
               style={[
-                styles.modalContent,
+                responsiveStyles.modalContent,
                 { backgroundColor: colors.cardBackground },
               ]}
             >
-              <Text style={[styles.modalTitle, { color: colors.text }]}>
+              <Text
+                style={[responsiveStyles.modalTitle, { color: colors.text }]}
+              >
                 Completar Mantenimiento
               </Text>
 
               {selectedMaintenance && (
-                <View style={styles.modalBody}>
+                <View style={responsiveStyles.modalBody}>
                   <Text
-                    style={[styles.modalLabel, { color: colors.textSecondary }]}
+                    style={[
+                      responsiveStyles.modalLabel,
+                      { color: colors.textSecondary },
+                    ]}
                   >
                     Tipo:
                   </Text>
-                  <Text style={[styles.modalValue, { color: colors.text }]}>
+                  <Text
+                    style={[
+                      responsiveStyles.modalValue,
+                      { color: colors.text },
+                    ]}
+                  >
                     {selectedMaintenance.type}
                   </Text>
 
                   <Text
-                    style={[styles.modalLabel, { color: colors.textSecondary }]}
+                    style={[
+                      responsiveStyles.modalLabel,
+                      { color: colors.textSecondary },
+                    ]}
                   >
                     Fecha actual:
                   </Text>
-                  <Text style={[styles.modalValue, { color: colors.text }]}>
+                  <Text
+                    style={[
+                      responsiveStyles.modalValue,
+                      { color: colors.text },
+                    ]}
+                  >
                     {formatDate(new Date())}
                   </Text>
 
                   <Text
-                    style={[styles.modalLabel, { color: colors.textSecondary }]}
+                    style={[
+                      responsiveStyles.modalLabel,
+                      { color: colors.textSecondary },
+                    ]}
                   >
                     Kilometraje actual:
                   </Text>
-                  <Text style={[styles.modalValue, { color: colors.text }]}>
+                  <Text
+                    style={[
+                      responsiveStyles.modalValue,
+                      { color: colors.text },
+                    ]}
+                  >
                     {formatKm(vehicle?.currentKm)}
                   </Text>
 
                   <View
                     style={[
-                      styles.separator,
+                      responsiveStyles.separator,
                       { backgroundColor: colors.border },
                     ]}
                   />
 
-                  <Text style={styles.modalSectionTitle}>Próximo Servicio</Text>
+                  <Text style={responsiveStyles.modalSectionTitle}>
+                    Próximo Servicio
+                  </Text>
 
                   <Text
-                    style={[styles.modalLabel, { color: colors.textSecondary }]}
+                    style={[
+                      responsiveStyles.modalLabel,
+                      { color: colors.textSecondary },
+                    ]}
                   >
                     Kilometraje próximo (opcional):
                   </Text>
                   <TextInput
                     style={[
-                      styles.modalInput,
+                      responsiveStyles.modalInput,
                       {
                         backgroundColor: colors.inputBackground,
                         borderColor: colors.border,
@@ -602,13 +941,16 @@ const VehicleDetailScreen = ({ navigation, route }) => {
                   />
 
                   <Text
-                    style={[styles.modalLabel, { color: colors.textSecondary }]}
+                    style={[
+                      responsiveStyles.modalLabel,
+                      { color: colors.textSecondary },
+                    ]}
                   >
                     Costo (opcional):
                   </Text>
                   <TextInput
                     style={[
-                      styles.modalInput,
+                      responsiveStyles.modalInput,
                       {
                         backgroundColor: colors.inputBackground,
                         borderColor: colors.border,
@@ -622,9 +964,12 @@ const VehicleDetailScreen = ({ navigation, route }) => {
                     keyboardType="numeric"
                   />
 
-                  <View style={styles.modalButtons}>
+                  <View style={responsiveStyles.modalButtons}>
                     <TouchableOpacity
-                      style={[styles.modalButton, styles.modalButtonCancel]}
+                      style={[
+                        responsiveStyles.modalButton,
+                        responsiveStyles.modalButtonCancel,
+                      ]}
                       onPress={() => {
                         setCompleteModalVisible(false);
                         setSelectedMaintenance(null);
@@ -632,11 +977,16 @@ const VehicleDetailScreen = ({ navigation, route }) => {
                         setCost("");
                       }}
                     >
-                      <Text style={styles.modalButtonTextCancel}>Cancelar</Text>
+                      <Text style={responsiveStyles.modalButtonTextCancel}>
+                        Cancelar
+                      </Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                      style={[styles.modalButton, styles.modalButtonConfirm]}
+                      style={[
+                        responsiveStyles.modalButton,
+                        responsiveStyles.modalButtonConfirm,
+                      ]}
                       onPress={confirmCompleteMaintenance}
                     >
                       <Ionicons
@@ -644,7 +994,7 @@ const VehicleDetailScreen = ({ navigation, route }) => {
                         size={20}
                         color="#fff"
                       />
-                      <Text style={styles.modalButtonTextConfirm}>
+                      <Text style={responsiveStyles.modalButtonTextConfirm}>
                         Completar
                       </Text>
                     </TouchableOpacity>
@@ -658,305 +1008,5 @@ const VehicleDetailScreen = ({ navigation, route }) => {
     </DialogComponent>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  header: {
-    padding: 20,
-    flexDirection: "row",
-    alignItems: "center",
-    borderBottomWidth: 1,
-  },
-  vehicleImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 12,
-    marginRight: 16,
-  },
-  imagePlaceholder: {
-    width: 100,
-    height: 100,
-    borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 16,
-  },
-  headerInfo: {
-    flex: 1,
-  },
-  titleContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 4,
-  },
-  vehicleName: {
-    fontSize: 22,
-    fontWeight: "bold",
-  },
-  vehicleDetails: {
-    fontSize: 16,
-    marginBottom: 4,
-  },
-  vehiclePlate: {
-    fontSize: 14,
-  },
-  helpButton: {
-    padding: 8,
-  },
-  kmSection: {
-    margin: 16,
-    padding: 16,
-    borderRadius: 12,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    elevation: 2,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  kmInfo: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  kmTextContainer: {
-    marginLeft: 12,
-  },
-  kmLabel: {
-    fontSize: 14,
-  },
-  kmValue: {
-    fontSize: 24,
-    fontWeight: "bold",
-  },
-  editKmButton: {
-    padding: 8,
-  },
-  quickActionsSection: {
-    marginHorizontal: 16,
-    marginBottom: 16,
-    padding: 16,
-    borderRadius: 12,
-    elevation: 2,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  quickActionsScroll: {
-    paddingVertical: 8,
-  },
-  statsSection: {
-    marginHorizontal: 16,
-    marginBottom: 16,
-    padding: 16,
-    borderRadius: 12,
-    elevation: 2,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  statsGrid: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    marginTop: 12,
-  },
-  statItem: {
-    alignItems: "center",
-  },
-  statValue: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: COLORS.primary,
-    marginBottom: 4,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: COLORS.gray,
-  },
-  section: {
-    marginHorizontal: 16,
-    marginBottom: 16,
-    padding: 16,
-    borderRadius: 12,
-    elevation: 2,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  sectionHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 12,
-  },
-  viewAllText: {
-    color: COLORS.primary,
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  maintenanceItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-  },
-  urgencyIndicator: {
-    width: 4,
-    height: "100%",
-    marginRight: 12,
-    borderRadius: 2,
-  },
-  maintenanceContent: {
-    flex: 1,
-    marginRight: 8,
-  },
-  maintenanceType: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 4,
-  },
-  maintenanceDate: {
-    fontSize: 14,
-  },
-  maintenanceKm: {
-    fontSize: 12,
-  },
-  nextServiceContainer: {
-    marginTop: 6,
-    gap: 4,
-  },
-  nextServiceItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
-  nextServiceText: {
-    fontSize: 12,
-    color: COLORS.primary,
-    fontWeight: "500",
-  },
-  overdueText: {
-    color: COLORS.danger,
-    fontWeight: "600",
-  },
-  maintenanceCost: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: COLORS.primary,
-  },
-  emptyState: {
-    alignItems: "center",
-    paddingVertical: 32,
-  },
-  emptyText: {
-    fontSize: 14,
-    marginTop: 8,
-  },
-  historyButtonContainer: {
-    alignItems: "center",
-    paddingVertical: 16,
-  },
-  historyCount: {
-    fontSize: 14,
-    marginBottom: 12,
-    fontWeight: "500",
-  },
-  actions: {
-    padding: 16,
-    paddingBottom: 32,
-  },
-  actionButton: {
-    marginBottom: 12,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalContent: {
-    borderRadius: 16,
-    padding: 24,
-    width: "90%",
-    maxWidth: 400,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 16,
-    textAlign: "center",
-  },
-  modalBody: {
-    gap: 12,
-  },
-  modalLabel: {
-    fontSize: 14,
-    fontWeight: "600",
-    marginTop: 8,
-  },
-  modalValue: {
-    fontSize: 16,
-    paddingVertical: 4,
-  },
-  separator: {
-    height: 1,
-    marginVertical: 12,
-  },
-  modalSectionTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: COLORS.primary,
-    marginBottom: 8,
-  },
-  modalInput: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-  },
-  modalButtons: {
-    flexDirection: "row",
-    gap: 12,
-    marginTop: 16,
-  },
-  modalButton: {
-    flex: 1,
-    padding: 14,
-    borderRadius: 8,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 8,
-  },
-  modalButtonCancel: {
-    backgroundColor: "#f0f0f0",
-  },
-  modalButtonConfirm: {
-    backgroundColor: "#00C851",
-  },
-  modalButtonTextCancel: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#666",
-  },
-  modalButtonTextConfirm: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#fff",
-  },
-});
 
 export default VehicleDetailScreen;

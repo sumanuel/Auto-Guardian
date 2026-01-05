@@ -1,13 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import {
-  FlatList,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { FlatList, RefreshControl, ScrollView, Text, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import Button from "../components/common/Button";
 import SearchBar from "../components/common/SearchBar";
@@ -16,6 +9,7 @@ import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
 import { COLORS } from "../data/constants";
 import { useDialog } from "../hooks/useDialog";
+import { useResponsive } from "../hooks/useResponsive";
 
 const HomeScreen = ({ navigation }) => {
   const {
@@ -29,6 +23,15 @@ const HomeScreen = ({ navigation }) => {
   } = useApp();
   const { DialogComponent, showDialog } = useDialog();
   const { colors } = useTheme();
+  const { scale, verticalScale, moderateScale, isLargeDevice } =
+    useResponsive();
+
+  const styles = getStyles({
+    scale,
+    verticalScale,
+    moderateScale,
+    isLargeDevice,
+  });
   const [refreshing, setRefreshing] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
   const [filteredVehicles, setFilteredVehicles] = React.useState([]);
@@ -107,7 +110,7 @@ const HomeScreen = ({ navigation }) => {
     <View style={styles.emptyState}>
       <Ionicons
         name="car-sport-outline"
-        size={80}
+        size={moderateScale(80)}
         color={colors.textSecondary}
       />
       <Text style={[styles.emptyTitle, { color: colors.text }]}>
@@ -157,7 +160,7 @@ const HomeScreen = ({ navigation }) => {
               >
                 <Ionicons
                   name="notifications"
-                  size={24}
+                  size={moderateScale(24)}
                   color={
                     alertSummary.totalOverdue > 0
                       ? COLORS.danger
@@ -208,7 +211,7 @@ const HomeScreen = ({ navigation }) => {
             >
               <Ionicons
                 name="information-circle-outline"
-                size={24}
+                size={moderateScale(24)}
                 color={colors.primary}
               />
             </TouchableOpacity>
@@ -238,7 +241,7 @@ const HomeScreen = ({ navigation }) => {
                 <View style={styles.noResultsContainer}>
                   <Ionicons
                     name="search-outline"
-                    size={60}
+                    size={moderateScale(60)}
                     color={colors.textSecondary}
                   />
                   <Text
@@ -261,7 +264,7 @@ const HomeScreen = ({ navigation }) => {
             onPress={() => navigation.navigate("AddVehicle")}
             activeOpacity={0.8}
           >
-            <Ionicons name="add" size={30} color="#fff" />
+            <Ionicons name="add" size={moderateScale(30)} color="#fff" />
           </TouchableOpacity>
         )}
       </View>
@@ -269,123 +272,125 @@ const HomeScreen = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  header: {
-    backgroundColor: COLORS.primary,
-    padding: 20,
-    paddingTop: 50,
-    paddingBottom: 30,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  headerLeft: {
-    flex: 1,
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#fff",
-    marginBottom: 4,
-  },
-  headerSubtitle: {
-    fontSize: 16,
-    color: "#fff",
-    opacity: 0.9,
-  },
-  alertBadge: {
-    position: "relative",
-    padding: 8,
-  },
-  alertCount: {
-    position: "absolute",
-    top: 4,
-    right: 4,
-    minWidth: 20,
-    height: 20,
-    borderRadius: 10,
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 2,
-    borderColor: "#fff",
-  },
-  alertCountText: {
-    color: "#fff",
-    fontSize: 12,
-    fontWeight: "bold",
-  },
-  searchContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  searchBarContainer: {
-    flex: 1,
-  },
-  helpButton: {
-    padding: 8,
-  },
-  listContent: {
-    padding: 16,
-  },
-  scrollContent: {
-    flexGrow: 1,
-  },
-  noResultsContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingVertical: 60,
-  },
-  noResultsText: {
-    fontSize: 16,
-    marginTop: 16,
-  },
-  emptyState: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 32,
-  },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginTop: 16,
-    marginBottom: 8,
-  },
-  emptySubtitle: {
-    fontSize: 14,
-    textAlign: "center",
-    marginBottom: 24,
-  },
-  emptyButton: {
-    minWidth: 200,
-  },
-  fab: {
-    position: "absolute",
-    right: 20,
-    bottom: 20,
-    backgroundColor: COLORS.primary,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: "center",
-    alignItems: "center",
-    elevation: 5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-  },
-});
+function getStyles({ scale, verticalScale, moderateScale }) {
+  return {
+    container: {
+      flex: 1,
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    header: {
+      backgroundColor: COLORS.primary,
+      padding: scale(20),
+      paddingTop: verticalScale(50),
+      paddingBottom: verticalScale(30),
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+    },
+    headerLeft: {
+      flex: 1,
+    },
+    headerTitle: {
+      fontSize: moderateScale(28),
+      fontWeight: "bold",
+      color: "#fff",
+      marginBottom: verticalScale(4),
+    },
+    headerSubtitle: {
+      fontSize: moderateScale(16),
+      color: "#fff",
+      opacity: 0.9,
+    },
+    alertBadge: {
+      position: "relative",
+      padding: scale(8),
+    },
+    alertCount: {
+      position: "absolute",
+      top: verticalScale(4),
+      right: scale(4),
+      minWidth: scale(20),
+      height: verticalScale(20),
+      borderRadius: scale(10),
+      justifyContent: "center",
+      alignItems: "center",
+      borderWidth: 2,
+      borderColor: "#fff",
+    },
+    alertCountText: {
+      color: "#fff",
+      fontSize: moderateScale(12),
+      fontWeight: "bold",
+    },
+    searchContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingHorizontal: scale(16),
+      paddingVertical: verticalScale(12),
+    },
+    searchBarContainer: {
+      flex: 1,
+    },
+    helpButton: {
+      padding: scale(8),
+    },
+    listContent: {
+      padding: scale(16),
+    },
+    scrollContent: {
+      flexGrow: 1,
+    },
+    noResultsContainer: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      paddingVertical: verticalScale(60),
+    },
+    noResultsText: {
+      fontSize: moderateScale(16),
+      marginTop: verticalScale(16),
+    },
+    emptyState: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      padding: scale(32),
+    },
+    emptyTitle: {
+      fontSize: moderateScale(20),
+      fontWeight: "bold",
+      marginTop: verticalScale(16),
+      marginBottom: verticalScale(8),
+    },
+    emptySubtitle: {
+      fontSize: moderateScale(14),
+      textAlign: "center",
+      marginBottom: verticalScale(24),
+    },
+    emptyButton: {
+      minWidth: scale(200),
+    },
+    fab: {
+      position: "absolute",
+      right: scale(20),
+      bottom: verticalScale(20),
+      backgroundColor: COLORS.primary,
+      width: scale(60),
+      height: verticalScale(60),
+      borderRadius: scale(30),
+      justifyContent: "center",
+      alignItems: "center",
+      elevation: 5,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.3,
+      shadowRadius: 4,
+    },
+  };
+}
 
 export default HomeScreen;

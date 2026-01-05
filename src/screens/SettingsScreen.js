@@ -1,9 +1,55 @@
 import { Ionicons } from "@expo/vector-icons";
-import { StyleSheet, Switch, Text, TouchableOpacity, View } from "react-native";
+import { Switch, Text, TouchableOpacity, View } from "react-native";
 import { useTheme } from "../context/ThemeContext";
+import { useResponsive } from "../hooks/useResponsive";
 
 const SettingsScreen = ({ navigation }) => {
   const { isDarkMode, toggleTheme, colors } = useTheme();
+  const { scale, verticalScale, moderateScale } = useResponsive();
+
+  const responsiveStyles = {
+    container: {
+      flex: 1,
+    },
+    content: {
+      flex: 1,
+      padding: scale(20),
+    },
+    title: {
+      fontSize: moderateScale(28),
+      fontWeight: "bold",
+      marginBottom: verticalScale(20),
+    },
+    menuContainer: {
+      borderRadius: scale(12),
+      overflow: "hidden",
+    },
+    menuItem: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      padding: scale(16),
+      borderBottomWidth: 1,
+      borderBottomColor: "#f0f0f0",
+    },
+    menuItemLeft: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: scale(12),
+    },
+    menuItemText: {
+      fontSize: moderateScale(16),
+      fontWeight: "500",
+    },
+    comingSoonBadge: {
+      paddingHorizontal: scale(12),
+      paddingVertical: verticalScale(4),
+      borderRadius: scale(12),
+    },
+    comingSoonBadgeText: {
+      fontSize: moderateScale(12),
+    },
+  };
 
   const settingsOptions = [
     {
@@ -41,22 +87,27 @@ const SettingsScreen = ({ navigation }) => {
   ];
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.content}>
-        <Text style={[styles.title, { color: colors.text }]}>
+    <View
+      style={[
+        responsiveStyles.container,
+        { backgroundColor: colors.background },
+      ]}
+    >
+      <View style={responsiveStyles.content}>
+        <Text style={[responsiveStyles.title, { color: colors.text }]}>
           Configuración
         </Text>
 
         <View
           style={[
-            styles.menuContainer,
+            responsiveStyles.menuContainer,
             { backgroundColor: colors.cardBackground },
           ]}
         >
           {settingsOptions.map((option) => (
             <TouchableOpacity
               key={option.id}
-              style={styles.menuItem}
+              style={responsiveStyles.menuItem}
               disabled={option.comingSoon}
               onPress={() => {
                 if (!option.comingSoon && option.screen) {
@@ -64,7 +115,7 @@ const SettingsScreen = ({ navigation }) => {
                 }
               }}
             >
-              <View style={styles.menuItemLeft}>
+              <View style={responsiveStyles.menuItemLeft}>
                 <Ionicons
                   name={option.icon}
                   size={24}
@@ -72,7 +123,7 @@ const SettingsScreen = ({ navigation }) => {
                 />
                 <Text
                   style={[
-                    styles.menuItemText,
+                    responsiveStyles.menuItemText,
                     {
                       color: option.comingSoon ? colors.disabled : colors.text,
                     },
@@ -91,13 +142,13 @@ const SettingsScreen = ({ navigation }) => {
               ) : option.comingSoon ? (
                 <View
                   style={[
-                    styles.comingSoonBadge,
+                    responsiveStyles.comingSoonBadge,
                     { backgroundColor: colors.disabled },
                   ]}
                 >
                   <Text
                     style={[
-                      styles.comingSoonBadgeText,
+                      responsiveStyles.comingSoonBadgeText,
                       { color: colors.textSecondary },
                     ]}
                   >
@@ -118,49 +169,3 @@ const SettingsScreen = ({ navigation }) => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  content: {
-    flex: 1,
-    padding: 20,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    marginBottom: 20,
-  },
-  menuContainer: {
-    borderRadius: 12,
-    overflow: "hidden",
-  },
-  menuItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
-  },
-  menuItemLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  menuItemText: {
-    fontSize: 16,
-    fontWeight: "500",
-  },
-  comingSoonBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  comingSoonBadgeText: {
-    fontSize: 12,
-  },
-});
-
-export default SettingsScreen;

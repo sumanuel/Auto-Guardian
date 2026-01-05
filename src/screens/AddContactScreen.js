@@ -8,7 +8,6 @@ import {
   Modal,
   Platform,
   ScrollView,
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -18,11 +17,19 @@ import { COUNTRIES } from "../constants/countries";
 import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
 import { useDialog } from "../hooks/useDialog";
+import { useResponsive } from "../hooks/useResponsive";
 
 const AddContactScreen = ({ navigation, route }) => {
   const { addContact, updateContact } = useApp();
   const { colors } = useTheme();
   const { DialogComponent, showDialog } = useDialog();
+  const { scale, verticalScale, moderateScale } = useResponsive();
+
+  const responsiveStyles = getResponsiveStyles({
+    scale,
+    verticalScale,
+    moderateScale,
+  });
   const isEditing = route.params?.contact != null;
   const contactToEdit = route.params?.contact;
 
@@ -252,39 +259,52 @@ const AddContactScreen = ({ navigation, route }) => {
       >
         <ScrollView
           ref={scrollViewRef}
-          style={[styles.container, { backgroundColor: colors.background }]}
+          style={[
+            responsiveStyles.container,
+            { backgroundColor: colors.background },
+          ]}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.header}>
+          <View style={responsiveStyles.header}>
             <TouchableOpacity
-              style={styles.backButton}
+              style={responsiveStyles.backButton}
               onPress={() => navigation.goBack()}
             >
               <Ionicons name="arrow-back" size={24} color={colors.text} />
             </TouchableOpacity>
-            <Text style={[styles.title, { color: colors.text }]}>
+            <Text style={[responsiveStyles.title, { color: colors.text }]}>
               {isEditing ? "Editar Contacto" : "Agregar Contacto"}
             </Text>
           </View>
 
           <TouchableOpacity
-            style={[styles.importButton, { borderColor: colors.primary }]}
+            style={[
+              responsiveStyles.importButton,
+              { borderColor: colors.primary },
+            ]}
             onPress={importContacts}
           >
             <Ionicons name="person-add" size={20} color={colors.primary} />
-            <Text style={[styles.importButtonText, { color: colors.primary }]}>
+            <Text
+              style={[
+                responsiveStyles.importButtonText,
+                { color: colors.primary },
+              ]}
+            >
               Importar desde Contactos
             </Text>
           </TouchableOpacity>
 
-          <View style={styles.form}>
-            <View style={styles.inputContainer}>
-              <Text style={[styles.label, { color: colors.text }]}>Alias</Text>
+          <View style={responsiveStyles.form}>
+            <View style={responsiveStyles.inputContainer}>
+              <Text style={[responsiveStyles.label, { color: colors.text }]}>
+                Alias
+              </Text>
               <TextInput
                 ref={aliasRef}
                 style={[
-                  styles.input,
+                  responsiveStyles.input,
                   { color: colors.text, borderColor: colors.text },
                 ]}
                 value={formData.alias}
@@ -298,14 +318,14 @@ const AddContactScreen = ({ navigation, route }) => {
               />
             </View>
 
-            <View style={styles.inputContainer}>
-              <Text style={[styles.label, { color: colors.text }]}>
+            <View style={responsiveStyles.inputContainer}>
+              <Text style={[responsiveStyles.label, { color: colors.text }]}>
                 Nombre *
               </Text>
               <TextInput
                 ref={nombreRef}
                 style={[
-                  styles.input,
+                  responsiveStyles.input,
                   { color: colors.text, borderColor: colors.text },
                 ]}
                 value={formData.nombre}
@@ -319,18 +339,20 @@ const AddContactScreen = ({ navigation, route }) => {
               />
             </View>
 
-            <View style={styles.inputContainer}>
-              <Text style={[styles.label, { color: colors.text }]}>País *</Text>
+            <View style={responsiveStyles.inputContainer}>
+              <Text style={[responsiveStyles.label, { color: colors.text }]}>
+                País *
+              </Text>
               <TouchableOpacity
                 style={[
-                  styles.countrySelector,
+                  responsiveStyles.countrySelector,
                   { borderColor: selectedCountry ? colors.text : "#ff4444" },
                 ]}
                 onPress={() => setShowCountryModal(true)}
               >
                 <Text
                   style={[
-                    styles.countryText,
+                    responsiveStyles.countryText,
                     {
                       color: selectedCountry
                         ? colors.text
@@ -346,18 +368,20 @@ const AddContactScreen = ({ navigation, route }) => {
               </TouchableOpacity>
             </View>
 
-            <View style={styles.inputContainer}>
-              <Text style={[styles.label, { color: colors.text }]}>
+            <View style={responsiveStyles.inputContainer}>
+              <Text style={[responsiveStyles.label, { color: colors.text }]}>
                 Teléfono *
               </Text>
-              <View style={styles.phoneInputContainer}>
-                <Text style={[styles.countryCode, { color: colors.text }]}>
+              <View style={responsiveStyles.phoneInputContainer}>
+                <Text
+                  style={[responsiveStyles.countryCode, { color: colors.text }]}
+                >
                   {selectedCountry ? selectedCountry.code : "+__"}
                 </Text>
                 <TextInput
                   ref={telefonoRef}
                   style={[
-                    styles.phoneInput,
+                    responsiveStyles.phoneInput,
                     { color: colors.text, borderColor: colors.text },
                   ]}
                   value={formData.telefono}
@@ -373,12 +397,14 @@ const AddContactScreen = ({ navigation, route }) => {
               </View>
             </View>
 
-            <View style={styles.inputContainer}>
-              <Text style={[styles.label, { color: colors.text }]}>Correo</Text>
+            <View style={responsiveStyles.inputContainer}>
+              <Text style={[responsiveStyles.label, { color: colors.text }]}>
+                Correo
+              </Text>
               <TextInput
                 ref={correoRef}
                 style={[
-                  styles.input,
+                  responsiveStyles.input,
                   { color: colors.text, borderColor: colors.text },
                 ]}
                 value={formData.correo}
@@ -393,11 +419,14 @@ const AddContactScreen = ({ navigation, route }) => {
             </View>
 
             <TouchableOpacity
-              style={[styles.saveButton, { backgroundColor: colors.primary }]}
+              style={[
+                responsiveStyles.saveButton,
+                { backgroundColor: colors.primary },
+              ]}
               onPress={handleSave}
               disabled={loading}
             >
-              <Text style={styles.saveButtonText}>
+              <Text style={responsiveStyles.saveButtonText}>
                 {loading
                   ? "Guardando..."
                   : isEditing
@@ -414,20 +443,25 @@ const AddContactScreen = ({ navigation, route }) => {
             transparent={true}
             onRequestClose={() => setShowCountryModal(false)}
           >
-            <View style={styles.modalOverlay}>
+            <View style={responsiveStyles.modalOverlay}>
               <View
                 style={[
-                  styles.modalContent,
+                  responsiveStyles.modalContent,
                   { backgroundColor: colors.cardBackground },
                 ]}
               >
-                <View style={styles.modalHeader}>
-                  <Text style={[styles.modalTitle, { color: colors.text }]}>
+                <View style={responsiveStyles.modalHeader}>
+                  <Text
+                    style={[
+                      responsiveStyles.modalTitle,
+                      { color: colors.text },
+                    ]}
+                  >
                     Seleccionar País
                   </Text>
                   <TouchableOpacity
                     onPress={() => setShowCountryModal(false)}
-                    style={styles.closeButton}
+                    style={responsiveStyles.closeButton}
                   >
                     <Ionicons name="close" size={24} color={colors.text} />
                   </TouchableOpacity>
@@ -439,7 +473,7 @@ const AddContactScreen = ({ navigation, route }) => {
                   renderItem={({ item }) => (
                     <TouchableOpacity
                       style={[
-                        styles.countryItem,
+                        responsiveStyles.countryItem,
                         selectedCountry?.code === item.code && {
                           backgroundColor: colors.primary + "20",
                         },
@@ -447,13 +481,16 @@ const AddContactScreen = ({ navigation, route }) => {
                       onPress={() => handleCountrySelect(item)}
                     >
                       <Text
-                        style={[styles.countryItemText, { color: colors.text }]}
+                        style={[
+                          responsiveStyles.countryItemText,
+                          { color: colors.text },
+                        ]}
                       >
                         {item.flag} {item.name}
                       </Text>
                       <Text
                         style={[
-                          styles.countryCodeText,
+                          responsiveStyles.countryCodeText,
                           { color: colors.textSecondary },
                         ]}
                       >
@@ -474,20 +511,25 @@ const AddContactScreen = ({ navigation, route }) => {
             transparent={true}
             onRequestClose={() => setImportModalVisible(false)}
           >
-            <View style={styles.modalOverlay}>
+            <View style={responsiveStyles.modalOverlay}>
               <View
                 style={[
-                  styles.modalContent,
+                  responsiveStyles.modalContent,
                   { backgroundColor: colors.cardBackground },
                 ]}
               >
-                <View style={styles.modalHeader}>
-                  <Text style={[styles.modalTitle, { color: colors.text }]}>
+                <View style={responsiveStyles.modalHeader}>
+                  <Text
+                    style={[
+                      responsiveStyles.modalTitle,
+                      { color: colors.text },
+                    ]}
+                  >
                     Seleccionar Contacto
                   </Text>
                   <TouchableOpacity
                     onPress={() => setImportModalVisible(false)}
-                    style={styles.closeButton}
+                    style={responsiveStyles.closeButton}
                   >
                     <Ionicons name="close" size={24} color={colors.text} />
                   </TouchableOpacity>
@@ -495,7 +537,7 @@ const AddContactScreen = ({ navigation, route }) => {
 
                 <TextInput
                   style={[
-                    styles.searchInput,
+                    responsiveStyles.searchInput,
                     { color: colors.text, borderColor: colors.text },
                   ]}
                   placeholder="Buscar contacto..."
@@ -515,24 +557,27 @@ const AddContactScreen = ({ navigation, route }) => {
                   keyExtractor={(item) => item.id}
                   renderItem={({ item }) => (
                     <TouchableOpacity
-                      style={styles.contactItem}
+                      style={responsiveStyles.contactItem}
                       onPress={() => selectContact(item)}
                     >
                       <Ionicons
                         name="person"
                         size={24}
                         color={colors.primary}
-                        style={styles.contactIcon}
+                        style={responsiveStyles.contactIcon}
                       />
-                      <View style={styles.contactInfo}>
+                      <View style={responsiveStyles.contactInfo}>
                         <Text
-                          style={[styles.contactName, { color: colors.text }]}
+                          style={[
+                            responsiveStyles.contactName,
+                            { color: colors.text },
+                          ]}
                         >
                           {item.name}
                         </Text>
                         <Text
                           style={[
-                            styles.contactPhone,
+                            responsiveStyles.contactPhone,
                             { color: colors.textSecondary },
                           ]}
                         >
@@ -552,173 +597,175 @@ const AddContactScreen = ({ navigation, route }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 16,
-    paddingTop: 50,
-  },
-  backButton: {
-    marginRight: 16,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  form: {
-    padding: 16,
-  },
-  inputContainer: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: "500",
-    marginBottom: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    backgroundColor: "transparent",
-  },
-  saveButton: {
-    padding: 16,
-    borderRadius: 8,
-    alignItems: "center",
-    marginTop: 20,
-  },
-  saveButtonText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  countrySelector: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    backgroundColor: "transparent",
-  },
-  countryText: {
-    fontSize: 16,
-  },
-  phoneInputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderRadius: 8,
-    backgroundColor: "transparent",
-  },
-  countryCode: {
-    fontSize: 16,
-    paddingLeft: 12,
-    paddingRight: 8,
-    fontWeight: "500",
-  },
-  phoneInput: {
-    flex: 1,
-    padding: 12,
-    fontSize: 16,
-    borderLeftWidth: 1,
-    borderLeftColor: "#ccc",
-    paddingLeft: 12,
-  },
-  helperText: {
-    fontSize: 12,
-    marginTop: 4,
-    fontStyle: "italic",
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "flex-end",
-  },
-  modalContent: {
-    maxHeight: "70%",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    paddingBottom: 20,
-  },
-  modalHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  closeButton: {
-    padding: 4,
-  },
-  countryItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
-  },
-  countryItemText: {
-    fontSize: 16,
-  },
-  countryCodeText: {
-    fontSize: 14,
-    fontWeight: "500",
-  },
-  importButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    marginTop: 10,
-    marginHorizontal: 16,
-  },
-  importButtonText: {
-    fontSize: 16,
-    marginLeft: 8,
-  },
-  contactItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
-  },
-  contactIcon: {
-    marginRight: 12,
-  },
-  contactInfo: {
-    flex: 1,
-  },
-  contactName: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  contactPhone: {
-    fontSize: 14,
-    marginTop: 4,
-  },
-  searchInput: {
-    margin: 16,
-    padding: 12,
-    borderWidth: 1,
-    borderRadius: 8,
-    fontSize: 16,
-  },
-});
+function getResponsiveStyles({ scale, verticalScale, moderateScale }) {
+  return {
+    container: {
+      flex: 1,
+    },
+    header: {
+      flexDirection: "row",
+      alignItems: "center",
+      padding: scale(16),
+      paddingTop: verticalScale(50),
+    },
+    backButton: {
+      marginRight: scale(16),
+    },
+    title: {
+      fontSize: moderateScale(20),
+      fontWeight: "bold",
+    },
+    form: {
+      padding: scale(16),
+    },
+    inputContainer: {
+      marginBottom: verticalScale(20),
+    },
+    label: {
+      fontSize: moderateScale(16),
+      fontWeight: "500",
+      marginBottom: verticalScale(8),
+    },
+    input: {
+      borderWidth: 1,
+      borderRadius: moderateScale(8),
+      padding: scale(12),
+      fontSize: moderateScale(16),
+      backgroundColor: "transparent",
+    },
+    saveButton: {
+      padding: scale(16),
+      borderRadius: moderateScale(8),
+      alignItems: "center",
+      marginTop: verticalScale(20),
+    },
+    saveButtonText: {
+      color: "#fff",
+      fontSize: moderateScale(18),
+      fontWeight: "bold",
+    },
+    countrySelector: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      borderWidth: 1,
+      borderRadius: moderateScale(8),
+      padding: scale(12),
+      backgroundColor: "transparent",
+    },
+    countryText: {
+      fontSize: moderateScale(16),
+    },
+    phoneInputContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      borderWidth: 1,
+      borderRadius: moderateScale(8),
+      backgroundColor: "transparent",
+    },
+    countryCode: {
+      fontSize: moderateScale(16),
+      paddingLeft: scale(12),
+      paddingRight: scale(8),
+      fontWeight: "500",
+    },
+    phoneInput: {
+      flex: 1,
+      padding: scale(12),
+      fontSize: moderateScale(16),
+      borderLeftWidth: 1,
+      borderLeftColor: "#ccc",
+      paddingLeft: scale(12),
+    },
+    helperText: {
+      fontSize: moderateScale(12),
+      marginTop: verticalScale(4),
+      fontStyle: "italic",
+    },
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: "rgba(0, 0, 0, 0.5)",
+      justifyContent: "flex-end",
+    },
+    modalContent: {
+      maxHeight: "70%",
+      borderTopLeftRadius: moderateScale(20),
+      borderTopRightRadius: moderateScale(20),
+      paddingBottom: verticalScale(20),
+    },
+    modalHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      padding: scale(20),
+      borderBottomWidth: 1,
+      borderBottomColor: "#eee",
+    },
+    modalTitle: {
+      fontSize: moderateScale(18),
+      fontWeight: "bold",
+    },
+    closeButton: {
+      padding: scale(4),
+    },
+    countryItem: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      padding: scale(16),
+      borderBottomWidth: 1,
+      borderBottomColor: "#f0f0f0",
+    },
+    countryItemText: {
+      fontSize: moderateScale(16),
+    },
+    countryCodeText: {
+      fontSize: moderateScale(14),
+      fontWeight: "500",
+    },
+    importButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: scale(12),
+      borderRadius: moderateScale(8),
+      borderWidth: 1,
+      marginTop: verticalScale(10),
+      marginHorizontal: scale(16),
+    },
+    importButtonText: {
+      fontSize: moderateScale(16),
+      marginLeft: scale(8),
+    },
+    contactItem: {
+      flexDirection: "row",
+      alignItems: "center",
+      padding: scale(16),
+      borderBottomWidth: 1,
+      borderBottomColor: "#eee",
+    },
+    contactIcon: {
+      marginRight: scale(12),
+    },
+    contactInfo: {
+      flex: 1,
+    },
+    contactName: {
+      fontSize: moderateScale(16),
+      fontWeight: "bold",
+    },
+    contactPhone: {
+      fontSize: moderateScale(14),
+      marginTop: verticalScale(4),
+    },
+    searchInput: {
+      margin: scale(16),
+      padding: scale(12),
+      borderWidth: 1,
+      borderRadius: moderateScale(8),
+      fontSize: moderateScale(16),
+    },
+  };
+}
 
 export default AddContactScreen;

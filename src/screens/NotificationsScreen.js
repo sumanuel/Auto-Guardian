@@ -4,7 +4,6 @@ import {
   Alert,
   FlatList,
   Modal,
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -19,11 +18,19 @@ import {
   initDatabase,
   insertNotification,
 } from "../database/notifications";
+import { useResponsive } from "../hooks/useResponsive";
 import { scheduleAllNotifications } from "../services/notificationService";
 
 const NotificationsScreen = () => {
   const { colors } = useTheme();
   const { notificationsEnabled, getAlertSummary, updateAppBadge } = useApp();
+  const { scale, verticalScale, moderateScale } = useResponsive();
+
+  const responsiveStyles = getResponsiveStyles({
+    scale,
+    verticalScale,
+    moderateScale,
+  });
   const [notifications, setNotifications] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [title, setTitle] = useState("");
@@ -154,16 +161,20 @@ const NotificationsScreen = () => {
   const renderNotification = ({ item }) => (
     <View
       style={[
-        styles.notificationItem,
+        responsiveStyles.notificationItem,
         { backgroundColor: colors.cardBackground },
       ]}
     >
-      <View style={styles.notificationContent}>
-        <Text style={[styles.title, { color: colors.text }]}>{item.title}</Text>
-        <Text style={[styles.body, { color: colors.textSecondary }]}>
+      <View style={responsiveStyles.notificationContent}>
+        <Text style={[responsiveStyles.title, { color: colors.text }]}>
+          {item.title}
+        </Text>
+        <Text style={[responsiveStyles.body, { color: colors.textSecondary }]}>
           {item.body}
         </Text>
-        <Text style={[styles.details, { color: colors.textTertiary }]}>
+        <Text
+          style={[responsiveStyles.details, { color: colors.textTertiary }]}
+        >
           Días:{" "}
           {item.days
             .split(",")
@@ -179,27 +190,34 @@ const NotificationsScreen = () => {
   );
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Text style={[styles.header, { color: colors.text }]}>
+    <View
+      style={[
+        responsiveStyles.container,
+        { backgroundColor: colors.background },
+      ]}
+    >
+      <Text style={[responsiveStyles.header, { color: colors.text }]}>
         Notificaciones Programadas
       </Text>
 
       {/* Sección de notificaciones de alertas */}
       <View
         style={[
-          styles.alertSection,
+          responsiveStyles.alertSection,
           { backgroundColor: colors.cardBackground },
         ]}
       >
-        <View style={styles.alertSectionHeader}>
+        <View style={responsiveStyles.alertSectionHeader}>
           <Ionicons name="notifications" size={24} color={colors.primary} />
-          <Text style={[styles.alertSectionTitle, { color: colors.text }]}>
+          <Text
+            style={[responsiveStyles.alertSectionTitle, { color: colors.text }]}
+          >
             Notificaciones de Alertas
           </Text>
         </View>
         <Text
           style={[
-            styles.alertSectionDescription,
+            responsiveStyles.alertSectionDescription,
             { color: colors.textSecondary },
           ]}
         >
@@ -208,7 +226,7 @@ const NotificationsScreen = () => {
         </Text>
         <TouchableOpacity
           style={[
-            styles.alertToggle,
+            responsiveStyles.alertToggle,
             {
               backgroundColor: alertNotificationsEnabled
                 ? colors.primary
@@ -220,7 +238,7 @@ const NotificationsScreen = () => {
         >
           <Text
             style={[
-              styles.alertToggleText,
+              responsiveStyles.alertToggleText,
               { color: alertNotificationsEnabled ? "#fff" : colors.text },
             ]}
           >
@@ -241,32 +259,37 @@ const NotificationsScreen = () => {
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderNotification}
         ListEmptyComponent={
-          <Text style={[styles.empty, { color: colors.textSecondary }]}>
+          <Text
+            style={[responsiveStyles.empty, { color: colors.textSecondary }]}
+          >
             No hay notificaciones
           </Text>
         }
       />
       <TouchableOpacity
-        style={[styles.addButton, { backgroundColor: colors.primary }]}
+        style={[
+          responsiveStyles.addButton,
+          { backgroundColor: colors.primary },
+        ]}
         onPress={() => setModalVisible(true)}
       >
         <Ionicons name="add" size={24} color="white" />
       </TouchableOpacity>
 
       <Modal visible={modalVisible} animationType="slide" transparent>
-        <View style={styles.modalContainer}>
+        <View style={responsiveStyles.modalContainer}>
           <View
             style={[
-              styles.modalContent,
+              responsiveStyles.modalContent,
               { backgroundColor: colors.cardBackground },
             ]}
           >
-            <Text style={[styles.modalTitle, { color: colors.text }]}>
+            <Text style={[responsiveStyles.modalTitle, { color: colors.text }]}>
               Agregar Notificación
             </Text>
             <TextInput
               style={[
-                styles.input,
+                responsiveStyles.input,
                 { borderColor: colors.textTertiary, color: colors.text },
               ]}
               placeholder="Título"
@@ -276,7 +299,7 @@ const NotificationsScreen = () => {
             />
             <TextInput
               style={[
-                styles.input,
+                responsiveStyles.input,
                 { borderColor: colors.textTertiary, color: colors.text },
               ]}
               placeholder="Cuerpo"
@@ -284,17 +307,19 @@ const NotificationsScreen = () => {
               value={body}
               onChangeText={setBody}
             />
-            <Text style={[styles.timeLabel, { color: colors.text }]}>
+            <Text style={[responsiveStyles.timeLabel, { color: colors.text }]}>
               Hora:
             </Text>
-            <View style={styles.timeContainer}>
-              <View style={styles.pickerContainer}>
-                <Text style={[styles.pickerLabel, { color: colors.text }]}>
+            <View style={responsiveStyles.timeContainer}>
+              <View style={responsiveStyles.pickerContainer}>
+                <Text
+                  style={[responsiveStyles.pickerLabel, { color: colors.text }]}
+                >
                   Hora (1-24)
                 </Text>
                 <TextInput
                   style={[
-                    styles.input,
+                    responsiveStyles.input,
                     { borderColor: colors.textTertiary, color: colors.text },
                   ]}
                   value={selectedHour.toString()}
@@ -312,13 +337,15 @@ const NotificationsScreen = () => {
                   placeholderTextColor={colors.textSecondary}
                 />
               </View>
-              <View style={styles.pickerContainer}>
-                <Text style={[styles.pickerLabel, { color: colors.text }]}>
+              <View style={responsiveStyles.pickerContainer}>
+                <Text
+                  style={[responsiveStyles.pickerLabel, { color: colors.text }]}
+                >
                   Minuto (0-59)
                 </Text>
                 <TextInput
                   style={[
-                    styles.input,
+                    responsiveStyles.input,
                     { borderColor: colors.textTertiary, color: colors.text },
                   ]}
                   value={selectedMinute.toString().padStart(2, "0")}
@@ -337,15 +364,15 @@ const NotificationsScreen = () => {
                 />
               </View>
             </View>
-            <Text style={[styles.daysLabel, { color: colors.text }]}>
+            <Text style={[responsiveStyles.daysLabel, { color: colors.text }]}>
               Días de la semana:
             </Text>
-            <View style={styles.daysContainer}>
+            <View style={responsiveStyles.daysContainer}>
               {daysOfWeek.map((day) => (
                 <TouchableOpacity
                   key={day.key}
                   style={[
-                    styles.dayButton,
+                    responsiveStyles.dayButton,
                     {
                       backgroundColor: selectedDays.includes(day.key)
                         ? colors.primary
@@ -367,15 +394,21 @@ const NotificationsScreen = () => {
                 </TouchableOpacity>
               ))}
             </View>
-            <View style={styles.modalButtons}>
+            <View style={responsiveStyles.modalButtons}>
               <TouchableOpacity
-                style={[styles.button, { backgroundColor: colors.disabled }]}
+                style={[
+                  responsiveStyles.button,
+                  { backgroundColor: colors.disabled },
+                ]}
                 onPress={() => setModalVisible(false)}
               >
                 <Text style={{ color: colors.textSecondary }}>Cancelar</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.button, { backgroundColor: colors.primary }]}
+                style={[
+                  responsiveStyles.button,
+                  { backgroundColor: colors.primary },
+                ]}
                 onPress={handleAddNotification}
               >
                 <Text style={{ color: "white" }}>Agregar</Text>
@@ -388,159 +421,154 @@ const NotificationsScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 20,
-  },
-  notificationItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 15,
-    marginBottom: 10,
-    borderRadius: 8,
-  },
-  notificationContent: {
-    flex: 1,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  body: {
-    fontSize: 14,
-    marginVertical: 5,
-  },
-  details: {
-    fontSize: 12,
-  },
-  empty: {
-    textAlign: "center",
-    marginTop: 50,
-    fontSize: 16,
-  },
-  addButton: {
-    position: "absolute",
-    bottom: 20,
-    right: 20,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  alertSection: {
-    margin: 15,
-    padding: 15,
-    borderRadius: 10,
-    borderWidth: 1,
-  },
-  alertSectionHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  alertSectionTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginLeft: 10,
-  },
-  alertSectionDescription: {
-    fontSize: 14,
-    marginBottom: 15,
-    lineHeight: 20,
-  },
-  alertToggle: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-  },
-  alertToggleText: {
-    fontSize: 16,
-    fontWeight: "500",
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.5)",
-  },
-  modalContent: {
-    width: "90%",
-    padding: 20,
-    borderRadius: 10,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 20,
-    textAlign: "center",
-  },
-  input: {
-    borderWidth: 1,
-    borderRadius: 5,
-    padding: 10,
-    marginBottom: 15,
-  },
-  timeLabel: {
-    fontSize: 16,
-    marginBottom: 10,
-  },
-  timeContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 15,
-  },
-  pickerContainer: {
-    flex: 1,
-    marginHorizontal: 5,
-  },
-  pickerLabel: {
-    fontSize: 14,
-    marginBottom: 5,
-    textAlign: "center",
-  },
-  input: {
-    borderWidth: 1,
-    borderRadius: 5,
-    padding: 10,
-    marginBottom: 15,
-    textAlign: "center",
-  },
-  daysLabel: {
-    fontSize: 16,
-    marginBottom: 10,
-  },
-  daysContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    marginBottom: 20,
-  },
-  dayButton: {
-    padding: 10,
-    margin: 5,
-    borderRadius: 5,
-    borderWidth: 1,
-  },
-  modalButtons: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  button: {
-    padding: 10,
-    borderRadius: 5,
-    flex: 1,
-    marginHorizontal: 5,
-    alignItems: "center",
-  },
-});
+function getResponsiveStyles({ scale, verticalScale, moderateScale }) {
+  return {
+    container: {
+      flex: 1,
+      padding: scale(20),
+    },
+    header: {
+      fontSize: moderateScale(24),
+      fontWeight: "bold",
+      marginBottom: verticalScale(20),
+    },
+    notificationItem: {
+      flexDirection: "row",
+      alignItems: "center",
+      padding: scale(15),
+      marginBottom: verticalScale(10),
+      borderRadius: moderateScale(8),
+    },
+    notificationContent: {
+      flex: 1,
+    },
+    title: {
+      fontSize: moderateScale(18),
+      fontWeight: "bold",
+    },
+    body: {
+      fontSize: moderateScale(14),
+      marginVertical: verticalScale(5),
+    },
+    details: {
+      fontSize: moderateScale(12),
+    },
+    empty: {
+      textAlign: "center",
+      marginTop: verticalScale(50),
+      fontSize: moderateScale(16),
+    },
+    addButton: {
+      position: "absolute",
+      bottom: verticalScale(20),
+      right: scale(20),
+      width: scale(60),
+      height: verticalScale(60),
+      borderRadius: moderateScale(30),
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    alertSection: {
+      margin: scale(15),
+      padding: scale(15),
+      borderRadius: moderateScale(10),
+      borderWidth: 1,
+    },
+    alertSectionHeader: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginBottom: verticalScale(10),
+    },
+    alertSectionTitle: {
+      fontSize: moderateScale(18),
+      fontWeight: "bold",
+      marginLeft: scale(10),
+    },
+    alertSectionDescription: {
+      fontSize: moderateScale(14),
+      marginBottom: verticalScale(15),
+      lineHeight: moderateScale(20),
+    },
+    alertToggle: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      padding: scale(12),
+      borderRadius: moderateScale(8),
+      borderWidth: 1,
+    },
+    alertToggleText: {
+      fontSize: moderateScale(16),
+      fontWeight: "500",
+    },
+    modalContainer: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      backgroundColor: "rgba(0,0,0,0.5)",
+    },
+    modalContent: {
+      width: "90%",
+      padding: scale(20),
+      borderRadius: moderateScale(10),
+    },
+    modalTitle: {
+      fontSize: moderateScale(20),
+      fontWeight: "bold",
+      marginBottom: verticalScale(20),
+      textAlign: "center",
+    },
+    input: {
+      borderWidth: 1,
+      borderRadius: moderateScale(5),
+      padding: scale(10),
+      marginBottom: verticalScale(15),
+    },
+    timeLabel: {
+      fontSize: moderateScale(16),
+      marginBottom: verticalScale(10),
+    },
+    timeContainer: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      marginBottom: verticalScale(15),
+    },
+    pickerContainer: {
+      flex: 1,
+      marginHorizontal: scale(5),
+    },
+    pickerLabel: {
+      fontSize: moderateScale(14),
+      marginBottom: verticalScale(5),
+      textAlign: "center",
+    },
+    daysLabel: {
+      fontSize: moderateScale(16),
+      marginBottom: verticalScale(10),
+    },
+    daysContainer: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      marginBottom: verticalScale(20),
+    },
+    dayButton: {
+      padding: scale(10),
+      margin: scale(5),
+      borderRadius: moderateScale(5),
+      borderWidth: 1,
+    },
+    modalButtons: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+    },
+    button: {
+      padding: scale(10),
+      borderRadius: moderateScale(5),
+      flex: 1,
+      marginHorizontal: scale(5),
+      alignItems: "center",
+    },
+  };
+}
 
 export default NotificationsScreen;

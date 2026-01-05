@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from "react";
 import {
   FlatList,
   Modal,
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -12,6 +11,7 @@ import {
 import DraggableFlatList from "react-native-draggable-flatlist";
 import { useTheme } from "../context/ThemeContext";
 import { useDialog } from "../hooks/useDialog";
+import { useResponsive } from "../hooks/useResponsive";
 import {
   createMaintenanceType,
   deleteMaintenanceType,
@@ -25,6 +25,13 @@ import {
 const CategoriesScreen = ({ navigation }) => {
   const { colors } = useTheme();
   const { DialogComponent, showDialog } = useDialog();
+  const { scale, verticalScale, moderateScale } = useResponsive();
+
+  const responsiveStyles = getResponsiveStyles({
+    scale,
+    verticalScale,
+    moderateScale,
+  });
   const [categories, setCategories] = useState([]);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [addModalVisible, setAddModalVisible] = useState(false);
@@ -93,26 +100,26 @@ const CategoriesScreen = ({ navigation }) => {
   const renderCategoryItem = ({ item, drag, isActive }) => (
     <View
       style={[
-        styles.categoryCard,
+        responsiveStyles.categoryCard,
         {
           backgroundColor: colors.cardBackground,
           opacity: isActive ? 0.8 : 1,
         },
       ]}
     >
-      <View style={styles.typeItem}>
-        <View style={styles.typeInfo}>
+      <View style={responsiveStyles.typeItem}>
+        <View style={responsiveStyles.typeInfo}>
           <Ionicons
             name={item.icon || "build-outline"}
             size={24}
             color={colors.primary}
           />
-          <View style={styles.typeDetails}>
-            <Text style={[styles.typeName, { color: colors.text }]}>
+          <View style={responsiveStyles.typeDetails}>
+            <Text style={[responsiveStyles.typeName, { color: colors.text }]}>
               {item.name}
             </Text>
-            <View style={styles.intervalsContainer}>
-              <View style={styles.intervalRow}>
+            <View style={responsiveStyles.intervalsContainer}>
+              <View style={responsiveStyles.intervalRow}>
                 <Ionicons
                   name="speedometer-outline"
                   size={14}
@@ -120,7 +127,7 @@ const CategoriesScreen = ({ navigation }) => {
                 />
                 <Text
                   style={[
-                    styles.intervalText,
+                    responsiveStyles.intervalText,
                     {
                       color: item.defaultIntervalKm
                         ? colors.textSecondary
@@ -134,7 +141,7 @@ const CategoriesScreen = ({ navigation }) => {
                     : "Por definir"}
                 </Text>
               </View>
-              <View style={styles.intervalRow}>
+              <View style={responsiveStyles.intervalRow}>
                 <Ionicons
                   name="calendar-outline"
                   size={14}
@@ -142,7 +149,7 @@ const CategoriesScreen = ({ navigation }) => {
                 />
                 <Text
                   style={[
-                    styles.intervalText,
+                    responsiveStyles.intervalText,
                     {
                       color:
                         item.defaultIntervalTime || item.defaultIntervalMonths
@@ -169,9 +176,9 @@ const CategoriesScreen = ({ navigation }) => {
             </View>
           </View>
         </View>
-        <View style={styles.actionButtons}>
+        <View style={responsiveStyles.actionButtons}>
           <TouchableOpacity
-            style={styles.dragHandle}
+            style={responsiveStyles.dragHandle}
             onLongPress={drag}
             delayLongPress={100}
           >
@@ -182,13 +189,13 @@ const CategoriesScreen = ({ navigation }) => {
             />
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.editButton}
+            style={responsiveStyles.editButton}
             onPress={() => handleEditType(item)}
           >
             <Ionicons name="create-outline" size={20} color={colors.primary} />
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.deleteButton}
+            style={responsiveStyles.deleteButton}
             onPress={() => handleDeleteType(item)}
           >
             <Ionicons name="trash-outline" size={20} color="#E53935" />
@@ -404,18 +411,18 @@ const CategoriesScreen = ({ navigation }) => {
     <DialogComponent>
       <View
         style={[
-          styles.container,
-          styles.content,
+          responsiveStyles.container,
+          responsiveStyles.content,
           { backgroundColor: colors.background },
         ]}
       >
         {/* Header con título e ícono de ayuda */}
-        <View style={styles.header}>
-          <Text style={[styles.headerTitle, { color: colors.text }]}>
+        <View style={responsiveStyles.header}>
+          <Text style={[responsiveStyles.headerTitle, { color: colors.text }]}>
             Tipos de Mantenimiento
           </Text>
           <TouchableOpacity
-            style={styles.helpButton}
+            style={responsiveStyles.helpButton}
             onPress={() =>
               showDialog({
                 title: "Personalizar Orden",
@@ -438,13 +445,13 @@ const CategoriesScreen = ({ navigation }) => {
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderCategoryItem}
           onDragEnd={handleDragEnd}
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={responsiveStyles.scrollContent}
           showsVerticalScrollIndicator={false}
         />
 
         {/* Botón flotante para agregar */}
         <TouchableOpacity
-          style={[styles.fab, { backgroundColor: colors.primary }]}
+          style={[responsiveStyles.fab, { backgroundColor: colors.primary }]}
           onPress={handleAddType}
           activeOpacity={0.8}
         >
@@ -458,15 +465,17 @@ const CategoriesScreen = ({ navigation }) => {
           transparent={true}
           onRequestClose={handleCancelEdit}
         >
-          <View style={styles.modalOverlay}>
+          <View style={responsiveStyles.modalOverlay}>
             <View
               style={[
-                styles.modalContent,
+                responsiveStyles.modalContent,
                 { backgroundColor: colors.cardBackground },
               ]}
             >
-              <View style={styles.modalHeader}>
-                <Text style={[styles.modalTitle, { color: colors.text }]}>
+              <View style={responsiveStyles.modalHeader}>
+                <Text
+                  style={[responsiveStyles.modalTitle, { color: colors.text }]}
+                >
                   Editar Intervalos
                 </Text>
                 <TouchableOpacity onPress={handleCancelEdit}>
@@ -475,14 +484,19 @@ const CategoriesScreen = ({ navigation }) => {
               </View>
 
               {selectedType && (
-                <View style={styles.modalBody}>
-                  <View style={styles.inputGroup}>
-                    <Text style={[styles.inputLabel, { color: colors.text }]}>
+                <View style={responsiveStyles.modalBody}>
+                  <View style={responsiveStyles.inputGroup}>
+                    <Text
+                      style={[
+                        responsiveStyles.inputLabel,
+                        { color: colors.text },
+                      ]}
+                    >
                       Nombre *
                     </Text>
                     <TextInput
                       style={[
-                        styles.input,
+                        responsiveStyles.input,
                         {
                           backgroundColor: colors.background,
                           color: colors.text,
@@ -496,13 +510,18 @@ const CategoriesScreen = ({ navigation }) => {
                     />
                   </View>
 
-                  <View style={styles.inputGroup}>
-                    <Text style={[styles.inputLabel, { color: colors.text }]}>
+                  <View style={responsiveStyles.inputGroup}>
+                    <Text
+                      style={[
+                        responsiveStyles.inputLabel,
+                        { color: colors.text },
+                      ]}
+                    >
                       Categoría
                     </Text>
                     <TextInput
                       style={[
-                        styles.input,
+                        responsiveStyles.input,
                         {
                           backgroundColor: colors.background,
                           color: colors.text,
@@ -516,13 +535,18 @@ const CategoriesScreen = ({ navigation }) => {
                     />
                   </View>
 
-                  <View style={styles.inputGroup}>
-                    <Text style={[styles.inputLabel, { color: colors.text }]}>
+                  <View style={responsiveStyles.inputGroup}>
+                    <Text
+                      style={[
+                        responsiveStyles.inputLabel,
+                        { color: colors.text },
+                      ]}
+                    >
                       Icono
                     </Text>
                     <TouchableOpacity
                       style={[
-                        styles.iconSelector,
+                        responsiveStyles.iconSelector,
                         {
                           backgroundColor: colors.background,
                           borderColor: colors.border,
@@ -537,7 +561,7 @@ const CategoriesScreen = ({ navigation }) => {
                       />
                       <Text
                         style={[
-                          styles.iconSelectorText,
+                          responsiveStyles.iconSelectorText,
                           { color: colors.text },
                         ]}
                       >
@@ -551,16 +575,24 @@ const CategoriesScreen = ({ navigation }) => {
                     </TouchableOpacity>
                   </View>
 
-                  <View style={styles.inputRow}>
+                  <View style={responsiveStyles.inputRow}>
                     <View
-                      style={[styles.inputGroup, { flex: 1, marginRight: 8 }]}
+                      style={[
+                        responsiveStyles.inputGroup,
+                        { flex: 1, marginRight: 8 },
+                      ]}
                     >
-                      <Text style={[styles.inputLabel, { color: colors.text }]}>
+                      <Text
+                        style={[
+                          responsiveStyles.inputLabel,
+                          { color: colors.text },
+                        ]}
+                      >
                         Kilómetros
                       </Text>
                       <TextInput
                         style={[
-                          styles.input,
+                          responsiveStyles.input,
                           {
                             backgroundColor: colors.background,
                             color: colors.text,
@@ -576,15 +608,23 @@ const CategoriesScreen = ({ navigation }) => {
                     </View>
 
                     <View
-                      style={[styles.inputGroup, { flex: 1, marginLeft: 8 }]}
+                      style={[
+                        responsiveStyles.inputGroup,
+                        { flex: 1, marginLeft: 8 },
+                      ]}
                     >
-                      <Text style={[styles.inputLabel, { color: colors.text }]}>
+                      <Text
+                        style={[
+                          responsiveStyles.inputLabel,
+                          { color: colors.text },
+                        ]}
+                      >
                         Intervalo de tiempo
                       </Text>
-                      <View style={styles.unitSelector}>
+                      <View style={responsiveStyles.unitSelector}>
                         <TouchableOpacity
                           style={[
-                            styles.unitButton,
+                            responsiveStyles.unitButton,
                             editTimeUnit === "days" && {
                               backgroundColor: colors.primary,
                             },
@@ -594,7 +634,7 @@ const CategoriesScreen = ({ navigation }) => {
                         >
                           <Text
                             style={[
-                              styles.unitButtonText,
+                              responsiveStyles.unitButtonText,
                               {
                                 color:
                                   editTimeUnit === "days"
@@ -608,7 +648,7 @@ const CategoriesScreen = ({ navigation }) => {
                         </TouchableOpacity>
                         <TouchableOpacity
                           style={[
-                            styles.unitButton,
+                            responsiveStyles.unitButton,
                             editTimeUnit === "months" && {
                               backgroundColor: colors.primary,
                             },
@@ -618,7 +658,7 @@ const CategoriesScreen = ({ navigation }) => {
                         >
                           <Text
                             style={[
-                              styles.unitButtonText,
+                              responsiveStyles.unitButtonText,
                               {
                                 color:
                                   editTimeUnit === "months"
@@ -633,7 +673,7 @@ const CategoriesScreen = ({ navigation }) => {
                       </View>
                       <TextInput
                         style={[
-                          styles.input,
+                          responsiveStyles.input,
                           {
                             backgroundColor: colors.background,
                             color: colors.text,
@@ -650,23 +690,25 @@ const CategoriesScreen = ({ navigation }) => {
                   </View>
 
                   {editError ? (
-                    <View style={styles.errorContainer}>
+                    <View style={responsiveStyles.errorContainer}>
                       <Ionicons name="alert-circle" size={20} color="#e74c3c" />
-                      <Text style={styles.errorText}>{editError}</Text>
+                      <Text style={responsiveStyles.errorText}>
+                        {editError}
+                      </Text>
                     </View>
                   ) : null}
 
-                  <View style={styles.modalActions}>
+                  <View style={responsiveStyles.modalActions}>
                     <TouchableOpacity
                       style={[
-                        styles.cancelButton,
+                        responsiveStyles.cancelButton,
                         { borderColor: colors.border },
                       ]}
                       onPress={handleCancelEdit}
                     >
                       <Text
                         style={[
-                          styles.cancelButtonText,
+                          responsiveStyles.cancelButtonText,
                           { color: colors.text },
                         ]}
                       >
@@ -675,12 +717,17 @@ const CategoriesScreen = ({ navigation }) => {
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={[
-                        styles.saveButton,
+                        responsiveStyles.saveButton,
                         { backgroundColor: colors.primary },
                       ]}
                       onPress={handleSaveType}
                     >
-                      <Text style={[styles.saveButtonText, { color: "#fff" }]}>
+                      <Text
+                        style={[
+                          responsiveStyles.saveButtonText,
+                          { color: "#fff" },
+                        ]}
+                      >
                         Guardar
                       </Text>
                     </TouchableOpacity>
@@ -698,15 +745,17 @@ const CategoriesScreen = ({ navigation }) => {
           transparent={true}
           onRequestClose={handleCancelAdd}
         >
-          <View style={styles.modalOverlay}>
+          <View style={responsiveStyles.modalOverlay}>
             <View
               style={[
-                styles.modalContent,
+                responsiveStyles.modalContent,
                 { backgroundColor: colors.cardBackground },
               ]}
             >
-              <View style={styles.modalHeader}>
-                <Text style={[styles.modalTitle, { color: colors.text }]}>
+              <View style={responsiveStyles.modalHeader}>
+                <Text
+                  style={[responsiveStyles.modalTitle, { color: colors.text }]}
+                >
                   Nuevo Tipo de Mantenimiento
                 </Text>
                 <TouchableOpacity onPress={handleCancelAdd}>
@@ -714,15 +763,20 @@ const CategoriesScreen = ({ navigation }) => {
                 </TouchableOpacity>
               </View>
 
-              <View style={styles.modalBody}>
-                <View style={styles.inputGroup}>
-                  <Text style={[styles.inputLabel, { color: colors.text }]}>
+              <View style={responsiveStyles.modalBody}>
+                <View style={responsiveStyles.inputGroup}>
+                  <Text
+                    style={[
+                      responsiveStyles.inputLabel,
+                      { color: colors.text },
+                    ]}
+                  >
                     Nombre *
                   </Text>
                   <TextInput
                     ref={newTypeNameRef}
                     style={[
-                      styles.input,
+                      responsiveStyles.input,
                       {
                         backgroundColor: colors.background,
                         color: colors.text,
@@ -739,14 +793,19 @@ const CategoriesScreen = ({ navigation }) => {
                   />
                 </View>
 
-                <View style={styles.inputGroup}>
-                  <Text style={[styles.inputLabel, { color: colors.text }]}>
+                <View style={responsiveStyles.inputGroup}>
+                  <Text
+                    style={[
+                      responsiveStyles.inputLabel,
+                      { color: colors.text },
+                    ]}
+                  >
                     Categoría
                   </Text>
                   <TextInput
                     ref={newTypeCategoryRef}
                     style={[
-                      styles.input,
+                      responsiveStyles.input,
                       {
                         backgroundColor: colors.background,
                         color: colors.text,
@@ -763,13 +822,18 @@ const CategoriesScreen = ({ navigation }) => {
                   />
                 </View>
 
-                <View style={styles.inputGroup}>
-                  <Text style={[styles.inputLabel, { color: colors.text }]}>
+                <View style={responsiveStyles.inputGroup}>
+                  <Text
+                    style={[
+                      responsiveStyles.inputLabel,
+                      { color: colors.text },
+                    ]}
+                  >
                     Icono
                   </Text>
                   <TouchableOpacity
                     style={[
-                      styles.iconSelector,
+                      responsiveStyles.iconSelector,
                       {
                         backgroundColor: colors.background,
                         borderColor: colors.border,
@@ -783,7 +847,10 @@ const CategoriesScreen = ({ navigation }) => {
                       color={colors.primary}
                     />
                     <Text
-                      style={[styles.iconSelectorText, { color: colors.text }]}
+                      style={[
+                        responsiveStyles.iconSelectorText,
+                        { color: colors.text },
+                      ]}
                     >
                       Seleccionar icono
                     </Text>
@@ -795,17 +862,25 @@ const CategoriesScreen = ({ navigation }) => {
                   </TouchableOpacity>
                 </View>
 
-                <View style={styles.inputRow}>
+                <View style={responsiveStyles.inputRow}>
                   <View
-                    style={[styles.inputGroup, { flex: 1, marginRight: 8 }]}
+                    style={[
+                      responsiveStyles.inputGroup,
+                      { flex: 1, marginRight: 8 },
+                    ]}
                   >
-                    <Text style={[styles.inputLabel, { color: colors.text }]}>
+                    <Text
+                      style={[
+                        responsiveStyles.inputLabel,
+                        { color: colors.text },
+                      ]}
+                    >
                       Kilómetros
                     </Text>
                     <TextInput
                       ref={newTypeKmRef}
                       style={[
-                        styles.input,
+                        responsiveStyles.input,
                         {
                           backgroundColor: colors.background,
                           color: colors.text,
@@ -823,14 +898,24 @@ const CategoriesScreen = ({ navigation }) => {
                     />
                   </View>
 
-                  <View style={[styles.inputGroup, { flex: 1, marginLeft: 8 }]}>
-                    <Text style={[styles.inputLabel, { color: colors.text }]}>
+                  <View
+                    style={[
+                      responsiveStyles.inputGroup,
+                      { flex: 1, marginLeft: 8 },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        responsiveStyles.inputLabel,
+                        { color: colors.text },
+                      ]}
+                    >
                       Intervalo de tiempo
                     </Text>
-                    <View style={styles.unitSelector}>
+                    <View style={responsiveStyles.unitSelector}>
                       <TouchableOpacity
                         style={[
-                          styles.unitButton,
+                          responsiveStyles.unitButton,
                           newTypeTimeUnit === "days" && {
                             backgroundColor: colors.primary,
                           },
@@ -840,7 +925,7 @@ const CategoriesScreen = ({ navigation }) => {
                       >
                         <Text
                           style={[
-                            styles.unitButtonText,
+                            responsiveStyles.unitButtonText,
                             {
                               color:
                                 newTypeTimeUnit === "days"
@@ -854,7 +939,7 @@ const CategoriesScreen = ({ navigation }) => {
                       </TouchableOpacity>
                       <TouchableOpacity
                         style={[
-                          styles.unitButton,
+                          responsiveStyles.unitButton,
                           newTypeTimeUnit === "months" && {
                             backgroundColor: colors.primary,
                           },
@@ -864,7 +949,7 @@ const CategoriesScreen = ({ navigation }) => {
                       >
                         <Text
                           style={[
-                            styles.unitButtonText,
+                            responsiveStyles.unitButtonText,
                             {
                               color:
                                 newTypeTimeUnit === "months"
@@ -880,7 +965,7 @@ const CategoriesScreen = ({ navigation }) => {
                     <TextInput
                       ref={newTypeTimeRef}
                       style={[
-                        styles.input,
+                        responsiveStyles.input,
                         {
                           backgroundColor: colors.background,
                           color: colors.text,
@@ -898,34 +983,42 @@ const CategoriesScreen = ({ navigation }) => {
                 </View>
 
                 {addError ? (
-                  <View style={styles.errorContainer}>
+                  <View style={responsiveStyles.errorContainer}>
                     <Ionicons name="alert-circle" size={20} color="#e74c3c" />
-                    <Text style={styles.errorText}>{addError}</Text>
+                    <Text style={responsiveStyles.errorText}>{addError}</Text>
                   </View>
                 ) : null}
 
-                <View style={styles.modalActions}>
+                <View style={responsiveStyles.modalActions}>
                   <TouchableOpacity
                     style={[
-                      styles.cancelButton,
+                      responsiveStyles.cancelButton,
                       { borderColor: colors.border },
                     ]}
                     onPress={handleCancelAdd}
                   >
                     <Text
-                      style={[styles.cancelButtonText, { color: colors.text }]}
+                      style={[
+                        responsiveStyles.cancelButtonText,
+                        { color: colors.text },
+                      ]}
                     >
                       Cancelar
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={[
-                      styles.saveButton,
+                      responsiveStyles.saveButton,
                       { backgroundColor: colors.primary },
                     ]}
                     onPress={handleSaveNewType}
                   >
-                    <Text style={[styles.saveButtonText, { color: "#fff" }]}>
+                    <Text
+                      style={[
+                        responsiveStyles.saveButtonText,
+                        { color: "#fff" },
+                      ]}
+                    >
                       Crear
                     </Text>
                   </TouchableOpacity>
@@ -942,15 +1035,17 @@ const CategoriesScreen = ({ navigation }) => {
           transparent={true}
           onRequestClose={() => setIconPickerVisible(false)}
         >
-          <View style={styles.modalOverlay}>
+          <View style={responsiveStyles.modalOverlay}>
             <View
               style={[
-                styles.iconPickerContent,
+                responsiveStyles.iconPickerContent,
                 { backgroundColor: colors.cardBackground },
               ]}
             >
-              <View style={styles.modalHeader}>
-                <Text style={[styles.modalTitle, { color: colors.text }]}>
+              <View style={responsiveStyles.modalHeader}>
+                <Text
+                  style={[responsiveStyles.modalTitle, { color: colors.text }]}
+                >
                   Seleccionar Icono
                 </Text>
                 <TouchableOpacity onPress={() => setIconPickerVisible(false)}>
@@ -962,11 +1057,11 @@ const CategoriesScreen = ({ navigation }) => {
                 data={availableIcons}
                 numColumns={3}
                 keyExtractor={(item) => item.name}
-                contentContainerStyle={styles.iconGrid}
+                contentContainerStyle={responsiveStyles.iconGrid}
                 renderItem={({ item }) => (
                   <TouchableOpacity
                     style={[
-                      styles.iconOption,
+                      responsiveStyles.iconOption,
                       {
                         backgroundColor: colors.background,
                         borderColor:
@@ -1004,7 +1099,7 @@ const CategoriesScreen = ({ navigation }) => {
                     />
                     <Text
                       style={[
-                        styles.iconLabel,
+                        responsiveStyles.iconLabel,
                         {
                           color:
                             (editingIconFor === "edit"
@@ -1030,266 +1125,268 @@ const CategoriesScreen = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 0,
-  },
-  scrollContent: {
-    paddingBottom: 100,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 20,
-    paddingTop: 20,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  helpButton: {
-    padding: 8,
-  },
-  categoryCard: {
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    elevation: 2,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-  },
-  typeItem: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
-  },
-  typeInfo: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 12,
-    flex: 1,
-  },
-  typeDetails: {
-    flex: 1,
-  },
-  typeName: {
-    fontSize: 16,
-    fontWeight: "500",
-    marginBottom: 4,
-  },
-  categoryLabel: {
-    fontSize: 12,
-    marginBottom: 8,
-    textTransform: "uppercase",
-    fontWeight: "600",
-  },
-  intervalsContainer: {
-    marginTop: 8,
-  },
-  intervalRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    marginBottom: 4,
-  },
-  intervalText: {
-    fontSize: 13,
-    lineHeight: 16,
-  },
-  editButton: {
-    padding: 8,
-    marginTop: 4,
-  },
-  actionButtons: {
-    flexDirection: "row",
-    gap: 8,
-  },
-  deleteButton: {
-    padding: 8,
-    marginTop: 4,
-  },
-  dragHandle: {
-    padding: 8,
-    marginTop: 4,
-    marginRight: 4,
-  },
-  iconSelector: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    gap: 12,
-  },
-  iconSelectorText: {
-    flex: 1,
-    fontSize: 16,
-  },
-  iconPickerContent: {
-    width: "90%",
-    maxWidth: 400,
-    maxHeight: "80%",
-    borderRadius: 12,
-    padding: 0,
-    elevation: 5,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-  },
-  iconGrid: {
-    padding: 20,
-  },
-  iconOption: {
-    flex: 1,
-    aspectRatio: 1,
-    margin: 6,
-    borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 12,
-  },
-  iconLabel: {
-    fontSize: 11,
-    marginTop: 6,
-    textAlign: "center",
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalContent: {
-    width: "90%",
-    maxWidth: 400,
-    borderRadius: 12,
-    padding: 0,
-    elevation: 5,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-  },
-  modalHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e0e0e0",
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  modalBody: {
-    padding: 20,
-  },
-  typeNameText: {
-    fontSize: 16,
-    fontWeight: "500",
-    marginBottom: 20,
-    textAlign: "center",
-  },
-  inputGroup: {
-    marginBottom: 16,
-  },
-  inputLabel: {
-    fontSize: 14,
-    fontWeight: "500",
-    marginBottom: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-  },
-  modalActions: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 12,
-    marginTop: 24,
-  },
-  cancelButton: {
-    flex: 1,
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    alignItems: "center",
-  },
-  cancelButtonText: {
-    fontSize: 16,
-    fontWeight: "500",
-  },
-  saveButton: {
-    flex: 1,
-    borderRadius: 8,
-    padding: 12,
-    alignItems: "center",
-  },
-  saveButtonText: {
-    fontSize: 16,
-    fontWeight: "500",
-  },
-  fab: {
-    position: "absolute",
-    right: 20,
-    bottom: 20,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: "center",
-    alignItems: "center",
-    elevation: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    zIndex: 999,
-  },
-  inputRow: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-  },
-  unitSelector: {
-    flexDirection: "row",
-    marginBottom: 8,
-    gap: 8,
-  },
-  unitButton: {
-    flex: 1,
-    borderWidth: 1,
-    borderRadius: 6,
-    padding: 8,
-    alignItems: "center",
-  },
-  unitButtonText: {
-    fontSize: 14,
-    fontWeight: "500",
-  },
-  errorContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#fee",
-    borderColor: "#e74c3c",
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
-  },
-  errorText: {
-    color: "#e74c3c",
-    fontSize: 14,
-    marginLeft: 8,
-    flex: 1,
-  },
-});
+function getResponsiveStyles({ scale, verticalScale, moderateScale }) {
+  return {
+    container: {
+      flex: 1,
+    },
+    content: {
+      flex: 1,
+      paddingHorizontal: scale(20),
+      paddingTop: 0,
+    },
+    scrollContent: {
+      paddingBottom: verticalScale(100),
+    },
+    header: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: verticalScale(20),
+      paddingTop: verticalScale(20),
+    },
+    headerTitle: {
+      fontSize: moderateScale(20),
+      fontWeight: "bold",
+    },
+    helpButton: {
+      padding: scale(8),
+    },
+    categoryCard: {
+      borderRadius: moderateScale(12),
+      padding: scale(16),
+      marginBottom: verticalScale(12),
+      elevation: 2,
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 3,
+    },
+    typeItem: {
+      flexDirection: "row",
+      alignItems: "flex-start",
+      justifyContent: "space-between",
+    },
+    typeInfo: {
+      flexDirection: "row",
+      alignItems: "flex-start",
+      gap: scale(12),
+      flex: 1,
+    },
+    typeDetails: {
+      flex: 1,
+    },
+    typeName: {
+      fontSize: moderateScale(16),
+      fontWeight: "500",
+      marginBottom: verticalScale(4),
+    },
+    categoryLabel: {
+      fontSize: moderateScale(12),
+      marginBottom: verticalScale(8),
+      textTransform: "uppercase",
+      fontWeight: "600",
+    },
+    intervalsContainer: {
+      marginTop: verticalScale(8),
+    },
+    intervalRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: scale(6),
+      marginBottom: verticalScale(4),
+    },
+    intervalText: {
+      fontSize: moderateScale(13),
+      lineHeight: moderateScale(16),
+    },
+    editButton: {
+      padding: scale(8),
+      marginTop: verticalScale(4),
+    },
+    actionButtons: {
+      flexDirection: "row",
+      gap: scale(8),
+    },
+    deleteButton: {
+      padding: scale(8),
+      marginTop: verticalScale(4),
+    },
+    dragHandle: {
+      padding: scale(8),
+      marginTop: verticalScale(4),
+      marginRight: scale(4),
+    },
+    iconSelector: {
+      flexDirection: "row",
+      alignItems: "center",
+      borderWidth: 1,
+      borderRadius: moderateScale(8),
+      padding: scale(12),
+      gap: scale(12),
+    },
+    iconSelectorText: {
+      flex: 1,
+      fontSize: moderateScale(16),
+    },
+    iconPickerContent: {
+      width: "90%",
+      maxWidth: scale(400),
+      maxHeight: "80%",
+      borderRadius: moderateScale(12),
+      padding: 0,
+      elevation: 5,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+    },
+    iconGrid: {
+      padding: scale(20),
+    },
+    iconOption: {
+      flex: 1,
+      aspectRatio: 1,
+      margin: scale(6),
+      borderRadius: moderateScale(12),
+      justifyContent: "center",
+      alignItems: "center",
+      padding: scale(12),
+    },
+    iconLabel: {
+      fontSize: moderateScale(11),
+      marginTop: verticalScale(6),
+      textAlign: "center",
+    },
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: "rgba(0, 0, 0, 0.5)",
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    modalContent: {
+      width: "90%",
+      maxWidth: scale(400),
+      borderRadius: moderateScale(12),
+      padding: 0,
+      elevation: 5,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+    },
+    modalHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      padding: scale(20),
+      borderBottomWidth: 1,
+      borderBottomColor: "#e0e0e0",
+    },
+    modalTitle: {
+      fontSize: moderateScale(18),
+      fontWeight: "bold",
+    },
+    modalBody: {
+      padding: scale(20),
+    },
+    typeNameText: {
+      fontSize: moderateScale(16),
+      fontWeight: "500",
+      marginBottom: verticalScale(20),
+      textAlign: "center",
+    },
+    inputGroup: {
+      marginBottom: verticalScale(16),
+    },
+    inputLabel: {
+      fontSize: moderateScale(14),
+      fontWeight: "500",
+      marginBottom: verticalScale(8),
+    },
+    input: {
+      borderWidth: 1,
+      borderRadius: moderateScale(8),
+      padding: scale(12),
+      fontSize: moderateScale(16),
+    },
+    modalActions: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      gap: scale(12),
+      marginTop: verticalScale(24),
+    },
+    cancelButton: {
+      flex: 1,
+      borderWidth: 1,
+      borderRadius: moderateScale(8),
+      padding: scale(12),
+      alignItems: "center",
+    },
+    cancelButtonText: {
+      fontSize: moderateScale(16),
+      fontWeight: "500",
+    },
+    saveButton: {
+      flex: 1,
+      borderRadius: moderateScale(8),
+      padding: scale(12),
+      alignItems: "center",
+    },
+    saveButtonText: {
+      fontSize: moderateScale(16),
+      fontWeight: "500",
+    },
+    fab: {
+      position: "absolute",
+      right: scale(20),
+      bottom: verticalScale(20),
+      width: scale(60),
+      height: verticalScale(60),
+      borderRadius: moderateScale(30),
+      justifyContent: "center",
+      alignItems: "center",
+      elevation: 8,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.3,
+      shadowRadius: 4,
+      zIndex: 999,
+    },
+    inputRow: {
+      flexDirection: "row",
+      alignItems: "flex-start",
+    },
+    unitSelector: {
+      flexDirection: "row",
+      marginBottom: verticalScale(8),
+      gap: scale(8),
+    },
+    unitButton: {
+      flex: 1,
+      borderWidth: 1,
+      borderRadius: moderateScale(6),
+      padding: scale(8),
+      alignItems: "center",
+    },
+    unitButtonText: {
+      fontSize: moderateScale(14),
+      fontWeight: "500",
+    },
+    errorContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: "#fee",
+      borderColor: "#e74c3c",
+      borderWidth: 1,
+      borderRadius: moderateScale(8),
+      padding: scale(12),
+      marginBottom: verticalScale(16),
+    },
+    errorText: {
+      color: "#e74c3c",
+      fontSize: moderateScale(14),
+      marginLeft: scale(8),
+      flex: 1,
+    },
+  };
+}
 
 export default CategoriesScreen;

@@ -2,18 +2,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import * as Notifications from "expo-notifications";
 import { useEffect } from "react";
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useTheme } from "../context/ThemeContext";
+import { useResponsive } from "../hooks/useResponsive";
 
 const MoreScreen = () => {
   const navigation = useNavigation();
   const { colors } = useTheme();
+  const { scale, verticalScale, moderateScale } = useResponsive();
 
   useEffect(() => {
     const requestPermissions = async () => {
@@ -62,21 +58,84 @@ const MoreScreen = () => {
     },
   ];
 
+  const responsiveStyles = {
+    container: {
+      flex: 1,
+    },
+    content: {
+      padding: scale(20),
+    },
+    title: {
+      fontSize: moderateScale(24),
+      fontWeight: "bold",
+      marginBottom: verticalScale(24),
+    },
+    menuContainer: {
+      borderRadius: scale(12),
+      overflow: "hidden",
+    },
+    menuItem: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      padding: scale(16),
+      borderBottomWidth: 1,
+      borderBottomColor: "#f0f0f0",
+    },
+    menuItemLeft: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: scale(12),
+    },
+    menuItemText: {
+      fontSize: moderateScale(16),
+      fontWeight: "500",
+    },
+    comingSoonBadge: {
+      paddingHorizontal: scale(12),
+      paddingVertical: verticalScale(4),
+      borderRadius: scale(12),
+    },
+    comingSoonBadgeText: {
+      fontSize: moderateScale(12),
+    },
+    footer: {
+      marginTop: verticalScale(40),
+      alignItems: "center",
+      paddingVertical: verticalScale(20),
+    },
+    footerText: {
+      fontSize: moderateScale(18),
+      fontWeight: "bold",
+    },
+    footerSubtext: {
+      fontSize: moderateScale(14),
+      marginTop: verticalScale(4),
+    },
+  };
+
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScrollView style={styles.content}>
-        <Text style={[styles.title, { color: colors.text }]}>Más opciones</Text>
+    <View
+      style={[
+        responsiveStyles.container,
+        { backgroundColor: colors.background },
+      ]}
+    >
+      <ScrollView style={responsiveStyles.content}>
+        <Text style={[responsiveStyles.title, { color: colors.text }]}>
+          Más opciones
+        </Text>
 
         <View
           style={[
-            styles.menuContainer,
+            responsiveStyles.menuContainer,
             { backgroundColor: colors.cardBackground },
           ]}
         >
           {menuOptions.map((option) => (
             <TouchableOpacity
               key={option.id}
-              style={styles.menuItem}
+              style={responsiveStyles.menuItem}
               disabled={option.comingSoon}
               onPress={() => {
                 if (!option.comingSoon && option.screen) {
@@ -84,7 +143,7 @@ const MoreScreen = () => {
                 }
               }}
             >
-              <View style={styles.menuItemLeft}>
+              <View style={responsiveStyles.menuItemLeft}>
                 <Ionicons
                   name={option.icon}
                   size={24}
@@ -92,7 +151,7 @@ const MoreScreen = () => {
                 />
                 <Text
                   style={[
-                    styles.menuItemText,
+                    responsiveStyles.menuItemText,
                     {
                       color: option.comingSoon ? colors.disabled : colors.text,
                     },
@@ -101,24 +160,23 @@ const MoreScreen = () => {
                   {option.title}
                 </Text>
               </View>
-              {option.comingSoon && (
+              {option.comingSoon ? (
                 <View
                   style={[
-                    styles.comingSoonBadge,
+                    responsiveStyles.comingSoonBadge,
                     { backgroundColor: colors.disabled },
                   ]}
                 >
                   <Text
                     style={[
-                      styles.comingSoonBadgeText,
+                      responsiveStyles.comingSoonBadgeText,
                       { color: colors.textSecondary },
                     ]}
                   >
                     Próximamente
                   </Text>
                 </View>
-              )}
-              {!option.comingSoon && (
+              ) : (
                 <Ionicons
                   name="chevron-forward"
                   size={20}
@@ -129,74 +187,24 @@ const MoreScreen = () => {
           ))}
         </View>
 
-        <View style={styles.footer}>
-          <Text style={[styles.footerText, { color: colors.primary }]}>
+        <View style={responsiveStyles.footer}>
+          <Text
+            style={[responsiveStyles.footerText, { color: colors.primary }]}
+          >
             Auto-Guardian
           </Text>
-          <Text style={[styles.footerSubtext, { color: colors.textSecondary }]}>
-            Versión 1.0.0
+          <Text
+            style={[
+              responsiveStyles.footerSubtext,
+              { color: colors.textSecondary },
+            ]}
+          >
+            Tu compañero de confianza
           </Text>
         </View>
       </ScrollView>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  content: {
-    flex: 1,
-    padding: 20,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    marginBottom: 20,
-  },
-  menuContainer: {
-    borderRadius: 12,
-    overflow: "hidden",
-  },
-  menuItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
-  },
-  menuItemLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  menuItemText: {
-    fontSize: 16,
-    fontWeight: "500",
-  },
-  comingSoonBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  comingSoonBadgeText: {
-    fontSize: 12,
-  },
-  footer: {
-    marginTop: 40,
-    alignItems: "center",
-    paddingVertical: 20,
-  },
-  footerText: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  footerSubtext: {
-    fontSize: 14,
-    marginTop: 4,
-  },
-});
 
 export default MoreScreen;

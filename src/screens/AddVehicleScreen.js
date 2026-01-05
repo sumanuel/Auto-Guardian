@@ -6,7 +6,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -16,11 +15,13 @@ import Button from "../components/common/Button";
 import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
 import { useDialog } from "../hooks/useDialog";
+import { useResponsive } from "../hooks/useResponsive";
 
 const AddVehicleScreen = ({ navigation, route }) => {
   const { addVehicle, updateVehicle } = useApp();
   const { DialogComponent, showDialog } = useDialog();
   const { colors } = useTheme();
+  const { scale, verticalScale, moderateScale } = useResponsive();
   const isEditing = route.params?.vehicle != null;
   const vehicleToEdit = route.params?.vehicle;
 
@@ -188,32 +189,94 @@ const AddVehicleScreen = ({ navigation, route }) => {
     }
   };
 
+  const responsiveStyles = {
+    container: {
+      flex: 1,
+    },
+    scrollView: {
+      flex: 1,
+    },
+    content: {
+      padding: scale(20),
+    },
+    photoSection: {
+      alignItems: "center",
+      marginBottom: verticalScale(24),
+    },
+    photoContainer: {
+      width: scale(150),
+      height: verticalScale(150),
+      borderRadius: scale(12),
+      overflow: "hidden",
+    },
+    photo: {
+      width: "100%",
+      height: "100%",
+    },
+    photoPlaceholder: {
+      width: "100%",
+      height: "100%",
+      justifyContent: "center",
+      alignItems: "center",
+      borderWidth: 2,
+      borderStyle: "dashed",
+    },
+    photoText: {
+      marginTop: verticalScale(8),
+      fontSize: moderateScale(14),
+    },
+    inputGroup: {
+      marginBottom: verticalScale(20),
+    },
+    label: {
+      fontSize: moderateScale(16),
+      fontWeight: "600",
+      marginBottom: verticalScale(8),
+    },
+    input: {
+      borderWidth: 1,
+      borderRadius: scale(8),
+      padding: scale(12),
+      fontSize: moderateScale(16),
+    },
+    submitButton: {
+      marginTop: verticalScale(16),
+      marginBottom: verticalScale(32),
+    },
+  };
+
   return (
     <DialogComponent>
       <KeyboardAvoidingView
-        style={[styles.container, { backgroundColor: colors.background }]}
+        style={[
+          responsiveStyles.container,
+          { backgroundColor: colors.background },
+        ]}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
       >
         <ScrollView
           ref={scrollViewRef}
-          style={styles.scrollView}
-          contentContainerStyle={styles.content}
+          style={responsiveStyles.scrollView}
+          contentContainerStyle={responsiveStyles.content}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
           {/* Foto del vehículo */}
-          <View style={styles.photoSection}>
+          <View style={responsiveStyles.photoSection}>
             <TouchableOpacity
-              style={styles.photoContainer}
+              style={responsiveStyles.photoContainer}
               onPress={showImagePickerOptions}
             >
               {formData.photo ? (
-                <Image source={{ uri: formData.photo }} style={styles.photo} />
+                <Image
+                  source={{ uri: formData.photo }}
+                  style={responsiveStyles.photo}
+                />
               ) : (
                 <View
                   style={[
-                    styles.photoPlaceholder,
+                    responsiveStyles.photoPlaceholder,
                     {
                       backgroundColor: colors.inputBackground,
                       borderColor: colors.border,
@@ -226,7 +289,10 @@ const AddVehicleScreen = ({ navigation, route }) => {
                     color={colors.textSecondary}
                   />
                   <Text
-                    style={[styles.photoText, { color: colors.textSecondary }]}
+                    style={[
+                      responsiveStyles.photoText,
+                      { color: colors.textSecondary },
+                    ]}
                   >
                     Agregar foto
                   </Text>
@@ -235,278 +301,196 @@ const AddVehicleScreen = ({ navigation, route }) => {
             </TouchableOpacity>
           </View>
 
-          {/* Nombre del vehículo */}
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.text }]}>
+          {/* Campos del formulario */}
+          <View style={responsiveStyles.inputGroup}>
+            <Text style={[responsiveStyles.label, { color: colors.text }]}>
               Nombre del vehículo *
             </Text>
             <TextInput
               ref={nameRef}
               style={[
-                styles.input,
+                responsiveStyles.input,
                 {
                   backgroundColor: colors.inputBackground,
                   borderColor: colors.border,
                   color: colors.text,
                 },
               ]}
+              placeholder="Ej: Mi auto"
+              placeholderTextColor={colors.textSecondary}
               value={formData.name}
               onChangeText={(value) => handleInputChange("name", value)}
-              placeholder="Ej: Mi auto, Auto familiar..."
-              placeholderTextColor={colors.textSecondary}
-              returnKeyType="next"
-              onFocus={() => scrollToInput(nameRef)}
               onSubmitEditing={() => brandRef.current?.focus()}
-              blurOnSubmit={false}
             />
           </View>
 
-          {/* Marca */}
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.text }]}>Marca</Text>
+          <View style={responsiveStyles.inputGroup}>
+            <Text style={[responsiveStyles.label, { color: colors.text }]}>
+              Marca
+            </Text>
             <TextInput
               ref={brandRef}
               style={[
-                styles.input,
+                responsiveStyles.input,
                 {
                   backgroundColor: colors.inputBackground,
                   borderColor: colors.border,
                   color: colors.text,
                 },
               ]}
+              placeholder="Ej: Toyota"
+              placeholderTextColor={colors.textSecondary}
               value={formData.brand}
               onChangeText={(value) => handleInputChange("brand", value)}
-              placeholder="Toyota, Honda, Ford..."
-              placeholderTextColor={colors.textSecondary}
-              returnKeyType="next"
-              onFocus={() => scrollToInput(brandRef)}
               onSubmitEditing={() => modelRef.current?.focus()}
-              blurOnSubmit={false}
             />
           </View>
 
-          {/* Modelo */}
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.text }]}>Modelo</Text>
+          <View style={responsiveStyles.inputGroup}>
+            <Text style={[responsiveStyles.label, { color: colors.text }]}>
+              Modelo
+            </Text>
             <TextInput
               ref={modelRef}
               style={[
-                styles.input,
+                responsiveStyles.input,
                 {
                   backgroundColor: colors.inputBackground,
                   borderColor: colors.border,
                   color: colors.text,
                 },
               ]}
+              placeholder="Ej: Corolla"
+              placeholderTextColor={colors.textSecondary}
               value={formData.model}
               onChangeText={(value) => handleInputChange("model", value)}
-              placeholder="Camry, Civic, Focus..."
-              placeholderTextColor={colors.textSecondary}
-              returnKeyType="next"
-              onFocus={() => scrollToInput(modelRef)}
               onSubmitEditing={() => yearRef.current?.focus()}
-              blurOnSubmit={false}
             />
           </View>
 
-          {/* Año */}
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.text }]}>Año</Text>
+          <View style={responsiveStyles.inputGroup}>
+            <Text style={[responsiveStyles.label, { color: colors.text }]}>
+              Año
+            </Text>
             <TextInput
               ref={yearRef}
               style={[
-                styles.input,
+                responsiveStyles.input,
                 {
                   backgroundColor: colors.inputBackground,
                   borderColor: colors.border,
                   color: colors.text,
                 },
               ]}
-              value={formData.year}
-              onChangeText={(value) => handleInputChange("year", value)}
-              placeholder="2024"
+              placeholder="Ej: 2020"
               placeholderTextColor={colors.textSecondary}
               keyboardType="numeric"
-              maxLength={4}
-              returnKeyType="next"
-              onFocus={() => scrollToInput(yearRef)}
+              value={formData.year}
+              onChangeText={(value) => handleInputChange("year", value)}
               onSubmitEditing={() => colorRef.current?.focus()}
-              blurOnSubmit={false}
             />
           </View>
 
-          {/* Color */}
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.text }]}>Color</Text>
+          <View style={responsiveStyles.inputGroup}>
+            <Text style={[responsiveStyles.label, { color: colors.text }]}>
+              Color
+            </Text>
             <TextInput
               ref={colorRef}
               style={[
-                styles.input,
+                responsiveStyles.input,
                 {
                   backgroundColor: colors.inputBackground,
                   borderColor: colors.border,
                   color: colors.text,
                 },
               ]}
+              placeholder="Ej: Rojo"
+              placeholderTextColor={colors.textSecondary}
               value={formData.color}
               onChangeText={(value) => handleInputChange("color", value)}
-              placeholder="Blanco, Negro, Rojo..."
-              placeholderTextColor={colors.textSecondary}
-              returnKeyType="next"
-              onFocus={() => scrollToInput(colorRef)}
               onSubmitEditing={() => plateRef.current?.focus()}
-              blurOnSubmit={false}
             />
           </View>
 
-          {/* Placa */}
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.text }]}>Placa</Text>
+          <View style={responsiveStyles.inputGroup}>
+            <Text style={[responsiveStyles.label, { color: colors.text }]}>
+              Placa
+            </Text>
             <TextInput
               ref={plateRef}
               style={[
-                styles.input,
+                responsiveStyles.input,
                 {
                   backgroundColor: colors.inputBackground,
                   borderColor: colors.border,
                   color: colors.text,
                 },
               ]}
-              value={formData.plate}
-              onChangeText={(value) =>
-                handleInputChange("plate", value.toUpperCase())
-              }
-              placeholder="ABC123"
+              placeholder="Ej: ABC-123"
               placeholderTextColor={colors.textSecondary}
               autoCapitalize="characters"
-              returnKeyType="next"
-              onFocus={() => scrollToInput(plateRef)}
+              value={formData.plate}
+              onChangeText={(value) => handleInputChange("plate", value)}
               onSubmitEditing={() => vinRef.current?.focus()}
-              blurOnSubmit={false}
             />
           </View>
 
-          {/* VIN */}
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.text }]}>
-              VIN (Número de serie)
+          <View style={responsiveStyles.inputGroup}>
+            <Text style={[responsiveStyles.label, { color: colors.text }]}>
+              VIN
             </Text>
             <TextInput
               ref={vinRef}
               style={[
-                styles.input,
+                responsiveStyles.input,
                 {
                   backgroundColor: colors.inputBackground,
                   borderColor: colors.border,
                   color: colors.text,
                 },
               ]}
-              value={formData.vin}
-              onChangeText={(value) =>
-                handleInputChange("vin", value.toUpperCase())
-              }
-              placeholder="1HGBH41JXMN109186"
+              placeholder="Número de identificación del vehículo"
               placeholderTextColor={colors.textSecondary}
               autoCapitalize="characters"
-              returnKeyType="next"
-              onFocus={() => scrollToInput(vinRef)}
+              value={formData.vin}
+              onChangeText={(value) => handleInputChange("vin", value)}
               onSubmitEditing={() => kmRef.current?.focus()}
-              blurOnSubmit={false}
             />
           </View>
 
-          {/* Kilometraje actual */}
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.text }]}>
+          <View style={responsiveStyles.inputGroup}>
+            <Text style={[responsiveStyles.label, { color: colors.text }]}>
               Kilometraje actual
             </Text>
             <TextInput
               ref={kmRef}
               style={[
-                styles.input,
+                responsiveStyles.input,
                 {
                   backgroundColor: colors.inputBackground,
                   borderColor: colors.border,
                   color: colors.text,
                 },
               ]}
-              value={formData.currentKm}
-              onChangeText={(value) => handleInputChange("currentKm", value)}
               placeholder="0"
               placeholderTextColor={colors.textSecondary}
               keyboardType="numeric"
-              returnKeyType="done"
-              onFocus={() => scrollToInput(kmRef)}
-              onSubmitEditing={handleSubmit}
+              value={formData.currentKm}
+              onChangeText={(value) => handleInputChange("currentKm", value)}
             />
           </View>
 
           <Button
-            title={isEditing ? "Actualizar Vehículo" : "Guardar Vehículo"}
+            title={isEditing ? "Actualizar vehículo" : "Agregar vehículo"}
             onPress={handleSubmit}
             loading={loading}
-            style={styles.submitButton}
+            style={responsiveStyles.submitButton}
           />
         </ScrollView>
       </KeyboardAvoidingView>
     </DialogComponent>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  content: {
-    padding: 20,
-  },
-  photoSection: {
-    alignItems: "center",
-    marginBottom: 24,
-  },
-  photoContainer: {
-    width: 150,
-    height: 150,
-    borderRadius: 12,
-    overflow: "hidden",
-  },
-  photo: {
-    width: "100%",
-    height: "100%",
-  },
-  photoPlaceholder: {
-    width: "100%",
-    height: "100%",
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 2,
-    borderStyle: "dashed",
-  },
-  photoText: {
-    marginTop: 8,
-    fontSize: 14,
-  },
-  inputGroup: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-  },
-  submitButton: {
-    marginTop: 16,
-    marginBottom: 32,
-  },
-});
 
 export default AddVehicleScreen;

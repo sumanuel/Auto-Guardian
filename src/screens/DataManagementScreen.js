@@ -4,13 +4,13 @@ import {
   ActivityIndicator,
   SafeAreaView,
   ScrollView,
-  StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import { useTheme } from "../context/ThemeContext";
 import { useDialog } from "../hooks/useDialog";
+import { useResponsive } from "../hooks/useResponsive";
 import {
   exportDatabaseBackup,
   importDatabaseBackupFromUri,
@@ -22,7 +22,114 @@ import { getAllVehicles } from "../services/vehicleService";
 const DataManagementScreen = ({ navigation }) => {
   const { colors } = useTheme();
   const { DialogComponent, showDialog } = useDialog();
+  const { scale, verticalScale, moderateScale } = useResponsive();
   const [backupBusy, setBackupBusy] = useState(false);
+
+  // Crear estilos responsivos
+  const responsiveStyles = {
+    container: {
+      flex: 1,
+    },
+    header: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingHorizontal: scale(20),
+      paddingVertical: verticalScale(15),
+      borderBottomWidth: 1,
+      borderBottomColor: "#f0f0f0",
+    },
+    backButton: {
+      padding: scale(5),
+    },
+    title: {
+      fontSize: moderateScale(20),
+      fontWeight: "bold",
+      flex: 1,
+      textAlign: "center",
+    },
+    infoButton: {
+      padding: scale(5),
+    },
+    content: {
+      flex: 1,
+      padding: scale(20),
+    },
+    card: {
+      borderRadius: scale(12),
+      padding: scale(20),
+      marginBottom: verticalScale(20),
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    cardHeader: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginBottom: verticalScale(20),
+    },
+    cardInfo: {
+      flex: 1,
+      marginLeft: scale(15),
+    },
+    cardTitle: {
+      fontSize: moderateScale(18),
+      fontWeight: "bold",
+      marginBottom: verticalScale(4),
+    },
+    cardSubtitle: {
+      fontSize: moderateScale(14),
+      lineHeight: moderateScale(20),
+    },
+    actionsContainer: {
+      gap: verticalScale(12),
+    },
+    actionButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      paddingVertical: verticalScale(15),
+      paddingHorizontal: scale(20),
+      borderRadius: scale(10),
+      gap: scale(10),
+    },
+    actionButtonText: {
+      color: "#fff",
+      fontSize: moderateScale(16),
+      fontWeight: "600",
+    },
+    buttonDisabled: {
+      opacity: 0.6,
+    },
+    infoContainer: {
+      flexDirection: "row",
+      alignItems: "flex-start",
+      marginTop: verticalScale(20),
+      padding: scale(15),
+      backgroundColor: "rgba(255, 193, 7, 0.1)",
+      borderRadius: scale(8),
+      gap: scale(10),
+    },
+    infoText: {
+      fontSize: moderateScale(14),
+      lineHeight: moderateScale(20),
+      flex: 1,
+    },
+    dataList: {
+      gap: verticalScale(12),
+    },
+    dataItem: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: scale(12),
+    },
+    dataItemText: {
+      fontSize: moderateScale(16),
+      flex: 1,
+    },
+  };
 
   const handleExportData = async () => {
     try {
@@ -109,19 +216,25 @@ const DataManagementScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView
-      style={[styles.container, { backgroundColor: colors.background }]}
+      style={[
+        responsiveStyles.container,
+        { backgroundColor: colors.background },
+      ]}
     >
-      <View style={styles.header}>
+      <View style={responsiveStyles.header}>
         <TouchableOpacity
-          style={styles.backButton}
+          style={responsiveStyles.backButton}
           onPress={() => navigation.goBack()}
         >
           <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={[styles.title, { color: colors.text }]}>
+        <Text style={[responsiveStyles.title, { color: colors.text }]}>
           Gestión de Datos
         </Text>
-        <TouchableOpacity style={styles.infoButton} onPress={showBackupInfo}>
+        <TouchableOpacity
+          style={responsiveStyles.infoButton}
+          onPress={showBackupInfo}
+        >
           <Ionicons
             name="information-circle-outline"
             size={24}
@@ -130,28 +243,41 @@ const DataManagementScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={[styles.card, { backgroundColor: colors.cardBackground }]}>
-          <View style={styles.cardHeader}>
+      <ScrollView
+        style={responsiveStyles.content}
+        showsVerticalScrollIndicator={false}
+      >
+        <View
+          style={[
+            responsiveStyles.card,
+            { backgroundColor: colors.cardBackground },
+          ]}
+        >
+          <View style={responsiveStyles.cardHeader}>
             <Ionicons name="server-outline" size={32} color={colors.primary} />
-            <View style={styles.cardInfo}>
-              <Text style={[styles.cardTitle, { color: colors.text }]}>
+            <View style={responsiveStyles.cardInfo}>
+              <Text
+                style={[responsiveStyles.cardTitle, { color: colors.text }]}
+              >
                 Respaldos y Gestión
               </Text>
               <Text
-                style={[styles.cardSubtitle, { color: colors.textSecondary }]}
+                style={[
+                  responsiveStyles.cardSubtitle,
+                  { color: colors.textSecondary },
+                ]}
               >
                 Exporta e importa tus datos de Auto Guardian
               </Text>
             </View>
           </View>
 
-          <View style={styles.actionsContainer}>
+          <View style={responsiveStyles.actionsContainer}>
             <TouchableOpacity
               style={[
-                styles.actionButton,
+                responsiveStyles.actionButton,
                 { backgroundColor: colors.primary },
-                backupBusy && styles.buttonDisabled,
+                backupBusy && responsiveStyles.buttonDisabled,
               ]}
               onPress={handleExportData}
               disabled={backupBusy}
@@ -161,16 +287,18 @@ const DataManagementScreen = ({ navigation }) => {
               ) : (
                 <>
                   <Ionicons name="download-outline" size={20} color="#fff" />
-                  <Text style={styles.actionButtonText}>Exportar Datos</Text>
+                  <Text style={responsiveStyles.actionButtonText}>
+                    Exportar Datos
+                  </Text>
                 </>
               )}
             </TouchableOpacity>
 
             <TouchableOpacity
               style={[
-                styles.actionButton,
+                responsiveStyles.actionButton,
                 { borderColor: colors.primary, borderWidth: 1 },
-                backupBusy && styles.buttonDisabled,
+                backupBusy && responsiveStyles.buttonDisabled,
               ]}
               onPress={handleImportData}
               disabled={backupBusy}
@@ -185,7 +313,10 @@ const DataManagementScreen = ({ navigation }) => {
                     color={colors.primary}
                   />
                   <Text
-                    style={[styles.actionButtonText, { color: colors.primary }]}
+                    style={[
+                      responsiveStyles.actionButtonText,
+                      { color: colors.primary },
+                    ]}
                   >
                     Importar Datos
                   </Text>
@@ -194,78 +325,103 @@ const DataManagementScreen = ({ navigation }) => {
             </TouchableOpacity>
           </View>
 
-          <View style={styles.infoContainer}>
+          <View style={responsiveStyles.infoContainer}>
             <Ionicons
               name="warning-outline"
               size={20}
               color={colors.textSecondary}
             />
-            <Text style={[styles.infoText, { color: colors.textSecondary }]}>
+            <Text
+              style={[
+                responsiveStyles.infoText,
+                { color: colors.textSecondary },
+              ]}
+            >
               La importación reemplazará todos los datos actuales. Asegúrate de
               tener un respaldo antes de importar.
             </Text>
           </View>
         </View>
 
-        <View style={[styles.card, { backgroundColor: colors.cardBackground }]}>
-          <View style={styles.cardHeader}>
+        <View
+          style={[
+            responsiveStyles.card,
+            { backgroundColor: colors.cardBackground },
+          ]}
+        >
+          <View style={responsiveStyles.cardHeader}>
             <Ionicons
               name="shield-checkmark-outline"
               size={32}
               color={colors.success || "#4CAF50"}
             />
-            <View style={styles.cardInfo}>
-              <Text style={[styles.cardTitle, { color: colors.text }]}>
+            <View style={responsiveStyles.cardInfo}>
+              <Text
+                style={[responsiveStyles.cardTitle, { color: colors.text }]}
+              >
                 Datos Incluidos
               </Text>
               <Text
-                style={[styles.cardSubtitle, { color: colors.textSecondary }]}
+                style={[
+                  responsiveStyles.cardSubtitle,
+                  { color: colors.textSecondary },
+                ]}
               >
                 Información que se respalda
               </Text>
             </View>
           </View>
 
-          <View style={styles.dataList}>
-            <View style={styles.dataItem}>
+          <View style={responsiveStyles.dataList}>
+            <View style={responsiveStyles.dataItem}>
               <Ionicons name="car-outline" size={20} color={colors.primary} />
-              <Text style={[styles.dataItemText, { color: colors.text }]}>
+              <Text
+                style={[responsiveStyles.dataItemText, { color: colors.text }]}
+              >
                 Vehículos registrados
               </Text>
             </View>
-            <View style={styles.dataItem}>
+            <View style={responsiveStyles.dataItem}>
               <Ionicons name="build-outline" size={20} color={colors.primary} />
-              <Text style={[styles.dataItemText, { color: colors.text }]}>
+              <Text
+                style={[responsiveStyles.dataItemText, { color: colors.text }]}
+              >
                 Historial de mantenimientos
               </Text>
             </View>
-            <View style={styles.dataItem}>
+            <View style={responsiveStyles.dataItem}>
               <Ionicons
                 name="document-text-outline"
                 size={20}
                 color={colors.primary}
               />
-              <Text style={[styles.dataItemText, { color: colors.text }]}>
+              <Text
+                style={[responsiveStyles.dataItemText, { color: colors.text }]}
+              >
                 Documentos guardados
               </Text>
             </View>
-            <View style={styles.dataItem}>
+            <View style={responsiveStyles.dataItem}>
               <Ionicons
                 name="person-outline"
                 size={20}
                 color={colors.primary}
               />
-              <Text style={[styles.dataItemText, { color: colors.text }]}>
+              <Text
+                style={[responsiveStyles.dataItemText, { color: colors.text }]}
+              >
                 Contactos y proveedores
               </Text>
             </View>
-            <View style={styles.dataItem}>
+            <View style={responsiveStyles.dataItem}>
               <Ionicons
                 name="settings-outline"
                 size={20}
                 color={colors.primary}
               />
-              <Text style={[styles.dataItemText, { color: colors.text }]}>
+              <Text
+                style={[responsiveStyles.dataItemText, { color: colors.text }]}
+              >
                 Configuración de la app
               </Text>
             </View>
@@ -276,108 +432,5 @@ const DataManagementScreen = ({ navigation }) => {
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
-  },
-  backButton: {
-    padding: 5,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  infoButton: {
-    padding: 5,
-  },
-  content: {
-    flex: 1,
-    padding: 20,
-  },
-  card: {
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  cardHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  cardInfo: {
-    flex: 1,
-    marginLeft: 15,
-  },
-  cardTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 4,
-  },
-  cardSubtitle: {
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  actionsContainer: {
-    gap: 12,
-  },
-  actionButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    borderRadius: 10,
-    gap: 10,
-  },
-  actionButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-  infoContainer: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    marginTop: 20,
-    padding: 15,
-    backgroundColor: "rgba(255, 193, 7, 0.1)",
-    borderRadius: 8,
-    gap: 10,
-  },
-  infoText: {
-    fontSize: 14,
-    lineHeight: 20,
-    flex: 1,
-  },
-  dataList: {
-    gap: 12,
-  },
-  dataItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  dataItemText: {
-    fontSize: 16,
-    flex: 1,
-  },
-});
 
 export default DataManagementScreen;

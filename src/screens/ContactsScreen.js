@@ -3,7 +3,6 @@ import {
   Alert,
   FlatList,
   Linking,
-  StyleSheet,
   Text,
   TouchableOpacity,
   View,
@@ -11,11 +10,19 @@ import {
 import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
 import { useDialog } from "../hooks/useDialog";
+import { useResponsive } from "../hooks/useResponsive";
 
 const ContactsScreen = ({ navigation }) => {
   const { contacts, removeContact } = useApp();
   const { DialogComponent, showDialog } = useDialog();
   const { colors } = useTheme();
+  const { scale, verticalScale, moderateScale } = useResponsive();
+
+  const responsiveStyles = getResponsiveStyles({
+    scale,
+    verticalScale,
+    moderateScale,
+  });
 
   const handleDeleteContact = async (contactId) => {
     try {
@@ -132,44 +139,49 @@ const ContactsScreen = ({ navigation }) => {
   const renderContactCard = ({ item }) => (
     <View
       style={[
-        styles.contactCard,
+        responsiveStyles.contactCard,
         { backgroundColor: colors.cardBackground, shadowColor: colors.shadow },
       ]}
     >
       <View
         style={[
-          styles.cardHeader,
+          responsiveStyles.cardHeader,
           {
             backgroundColor: colors.background,
             borderBottomColor: colors.border,
           },
         ]}
       >
-        <View style={styles.nameContainer}>
+        <View style={responsiveStyles.nameContainer}>
           <Ionicons name="person" size={20} color={colors.primary} />
           <View>
-            <Text style={[styles.contactName, { color: colors.text }]}>
+            <Text
+              style={[responsiveStyles.contactName, { color: colors.text }]}
+            >
               {item.notes || item.name}
             </Text>
             {item.notes && (
               <Text
-                style={[styles.contactAlias, { color: colors.textSecondary }]}
+                style={[
+                  responsiveStyles.contactAlias,
+                  { color: colors.textSecondary },
+                ]}
               >
                 {item.name}
               </Text>
             )}
           </View>
         </View>
-        <View style={styles.contactActions}>
+        <View style={responsiveStyles.contactActions}>
           <TouchableOpacity
-            style={styles.actionButton}
+            style={responsiveStyles.actionButton}
             onPress={() => navigation.navigate("AddContact", { contact: item })}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
             <Ionicons name="create-outline" size={20} color={colors.primary} />
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.actionButton}
+            style={responsiveStyles.actionButton}
             onPress={() =>
               showDialog({
                 title: "Eliminar contacto",
@@ -187,29 +199,31 @@ const ContactsScreen = ({ navigation }) => {
         </View>
       </View>
 
-      <View style={styles.cardBody}>
-        <View style={styles.infoRow}>
+      <View style={responsiveStyles.cardBody}>
+        <View style={responsiveStyles.infoRow}>
           <Ionicons name="call-outline" size={16} color={colors.primary} />
-          <Text style={[styles.contactDetail, { color: colors.primary }]}>
+          <Text
+            style={[responsiveStyles.contactDetail, { color: colors.primary }]}
+          >
             {item.phone}
           </Text>
-          <View style={styles.actionIcons}>
+          <View style={responsiveStyles.actionIcons}>
             <TouchableOpacity
-              style={styles.iconButton}
+              style={responsiveStyles.iconButton}
               onPress={() => handleCall(item.phone)}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
               <Ionicons name="call" size={20} color={colors.primary} />
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.iconButton}
+              style={responsiveStyles.iconButton}
               onPress={() => handleSMS(item.phone)}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
               <Ionicons name="chatbubble-outline" size={20} color="#007AFF" />
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.iconButton}
+              style={responsiveStyles.iconButton}
               onPress={() => handleWhatsApp(item.phone)}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
@@ -219,11 +233,16 @@ const ContactsScreen = ({ navigation }) => {
         </View>
         {item.email && (
           <TouchableOpacity
-            style={styles.infoRow}
+            style={responsiveStyles.infoRow}
             onPress={() => handleEmail(item.email)}
           >
             <Ionicons name="mail-outline" size={16} color={colors.primary} />
-            <Text style={[styles.contactDetail, { color: colors.primary }]}>
+            <Text
+              style={[
+                responsiveStyles.contactDetail,
+                { color: colors.primary },
+              ]}
+            >
               {item.email}
             </Text>
           </TouchableOpacity>
@@ -233,12 +252,17 @@ const ContactsScreen = ({ navigation }) => {
   );
 
   const renderEmptyState = () => (
-    <View style={styles.emptyState}>
+    <View style={responsiveStyles.emptyState}>
       <Ionicons name="people-outline" size={80} color={colors.textSecondary} />
-      <Text style={[styles.emptyTitle, { color: colors.text }]}>
+      <Text style={[responsiveStyles.emptyTitle, { color: colors.text }]}>
         No hay contactos registrados
       </Text>
-      <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>
+      <Text
+        style={[
+          responsiveStyles.emptySubtitle,
+          { color: colors.textSecondary },
+        ]}
+      >
         Agrega contactos de emergencia para tenerlos a mano en caso de necesidad
       </Text>
     </View>
@@ -246,18 +270,30 @@ const ContactsScreen = ({ navigation }) => {
 
   return (
     <DialogComponent>
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={styles.header}>
+      <View
+        style={[
+          responsiveStyles.container,
+          { backgroundColor: colors.background },
+        ]}
+      >
+        <View style={responsiveStyles.header}>
           <View>
-            <Text style={[styles.headerTitle, { color: colors.text }]}>
+            <Text
+              style={[responsiveStyles.headerTitle, { color: colors.text }]}
+            >
               Contactos
             </Text>
-            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+            <Text
+              style={[
+                responsiveStyles.subtitle,
+                { color: colors.textSecondary },
+              ]}
+            >
               {contacts.length} contacto{contacts.length !== 1 ? "s" : ""}
             </Text>
           </View>
           <TouchableOpacity
-            style={styles.helpButton}
+            style={responsiveStyles.helpButton}
             onPress={() =>
               showDialog({
                 title: "Contactos de Confianza",
@@ -276,18 +312,20 @@ const ContactsScreen = ({ navigation }) => {
         </View>
 
         {contacts.length === 0 ? (
-          <View style={styles.emptyContainer}>{renderEmptyState()}</View>
+          <View style={responsiveStyles.emptyContainer}>
+            {renderEmptyState()}
+          </View>
         ) : (
           <FlatList
             data={contacts}
             renderItem={renderContactCard}
             keyExtractor={(item) => item.id.toString()}
-            contentContainerStyle={styles.listContent}
+            contentContainerStyle={responsiveStyles.listContent}
           />
         )}
 
         <TouchableOpacity
-          style={[styles.fab, { backgroundColor: colors.primary }]}
+          style={[responsiveStyles.fab, { backgroundColor: colors.primary }]}
           onPress={() => navigation.navigate("AddContact")}
           activeOpacity={0.8}
         >
@@ -298,128 +336,130 @@ const ContactsScreen = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 20,
-    paddingTop: 20,
-    paddingHorizontal: 20,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 16,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 32,
-  },
-  emptyState: {
-    alignItems: "center",
-  },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginTop: 16,
-    marginBottom: 8,
-  },
-  emptySubtitle: {
-    fontSize: 14,
-    textAlign: "center",
-  },
-  listContent: {
-    padding: 16,
-    paddingBottom: 100,
-  },
-  contactCard: {
-    borderRadius: 12,
-    marginBottom: 12,
-    elevation: 2,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    overflow: "hidden",
-  },
-  cardHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 16,
-    borderBottomWidth: 1,
-  },
-  nameContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-    marginRight: 8,
-  },
-  contactName: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginLeft: 8,
-  },
-  contactAlias: {
-    fontSize: 12,
-    marginTop: 2,
-    marginLeft: 8,
-  },
-  contactActions: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  actionButton: {
-    padding: 8,
-    marginLeft: 8,
-  },
-  cardBody: {
-    padding: 16,
-  },
-  infoRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  contactDetail: {
-    fontSize: 14,
-    marginLeft: 8,
-    flex: 1,
-  },
-  actionIcons: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  iconButton: {
-    padding: 4,
-    marginLeft: 8,
-  },
-  fab: {
-    position: "absolute",
-    right: 20,
-    bottom: 20,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: "center",
-    alignItems: "center",
-    elevation: 5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-  },
-  helpButton: {
-    padding: 8,
-  },
-});
+function getResponsiveStyles({ scale, verticalScale, moderateScale }) {
+  return {
+    container: {
+      flex: 1,
+    },
+    header: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: verticalScale(20),
+      paddingTop: verticalScale(20),
+      paddingHorizontal: scale(20),
+    },
+    headerTitle: {
+      fontSize: moderateScale(20),
+      fontWeight: "bold",
+      marginBottom: verticalScale(4),
+    },
+    subtitle: {
+      fontSize: moderateScale(16),
+    },
+    emptyContainer: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      padding: scale(32),
+    },
+    emptyState: {
+      alignItems: "center",
+    },
+    emptyTitle: {
+      fontSize: moderateScale(20),
+      fontWeight: "bold",
+      marginTop: verticalScale(16),
+      marginBottom: verticalScale(8),
+    },
+    emptySubtitle: {
+      fontSize: moderateScale(14),
+      textAlign: "center",
+    },
+    listContent: {
+      padding: scale(16),
+      paddingBottom: verticalScale(100),
+    },
+    contactCard: {
+      borderRadius: moderateScale(12),
+      marginBottom: verticalScale(12),
+      elevation: 2,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      overflow: "hidden",
+    },
+    cardHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      padding: scale(16),
+      borderBottomWidth: 1,
+    },
+    nameContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      flex: 1,
+      marginRight: scale(8),
+    },
+    contactName: {
+      fontSize: moderateScale(16),
+      fontWeight: "bold",
+      marginLeft: scale(8),
+    },
+    contactAlias: {
+      fontSize: moderateScale(12),
+      marginTop: verticalScale(2),
+      marginLeft: scale(8),
+    },
+    contactActions: {
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    actionButton: {
+      padding: scale(8),
+      marginLeft: scale(8),
+    },
+    cardBody: {
+      padding: scale(16),
+    },
+    infoRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginBottom: verticalScale(8),
+    },
+    contactDetail: {
+      fontSize: moderateScale(14),
+      marginLeft: scale(8),
+      flex: 1,
+    },
+    actionIcons: {
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    iconButton: {
+      padding: scale(4),
+      marginLeft: scale(8),
+    },
+    fab: {
+      position: "absolute",
+      right: scale(20),
+      bottom: verticalScale(20),
+      width: scale(60),
+      height: verticalScale(60),
+      borderRadius: moderateScale(30),
+      justifyContent: "center",
+      alignItems: "center",
+      elevation: 5,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.3,
+      shadowRadius: 4,
+    },
+    helpButton: {
+      padding: scale(8),
+    },
+  };
+}
 
 export default ContactsScreen;
