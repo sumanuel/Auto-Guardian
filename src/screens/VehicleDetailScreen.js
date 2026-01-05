@@ -258,7 +258,7 @@ const VehicleDetailScreen = ({ navigation, route }) => {
   // Obtener los primeros 5 tipos de mantenimiento ordenados por el usuario
   const getQuickMaintenanceTypes = () => {
     const allTypes = getMaintenanceTypes();
-    return allTypes.slice(0, 5).map((type, index) => ({
+    return allTypes.slice(0, 6).map((type, index) => ({
       id: type.id,
       icon: type.icon || "build-outline",
       label: type.name,
