@@ -1046,6 +1046,8 @@ const styles = StyleSheet.create({
   },
   radioLabel: {
     marginLeft: hs(6),
+    fontSize: rf(18),
+    fontWeight: "500",
   },
   photoContainer: {
     gap: vs(12),

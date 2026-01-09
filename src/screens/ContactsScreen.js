@@ -11,7 +11,7 @@ import {
 import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
 import { useDialog } from "../hooks/useDialog";
-import { ms, rf } from "../utils/responsive";
+import { hs, iconSize, ms, rf, s, vs } from "../utils/responsive";
 
 const ContactsScreen = ({ navigation }) => {
   const { contacts, removeContact } = useApp();
@@ -421,18 +421,18 @@ const styles = StyleSheet.create({
   },
   fab: {
     position: "absolute",
-    right: ms(20),
-    bottom: ms(20),
-    width: ms(60),
-    height: ms(60),
-    borderRadius: ms(30),
+    right: hs(20),
+    bottom: vs(20),
+    width: iconSize.xl,
+    height: iconSize.xl,
+    borderRadius: s(30),
     justifyContent: "center",
     alignItems: "center",
-    elevation: ms(5),
+    elevation: s(5),
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
-    shadowRadius: ms(4),
+    shadowRadius: s(4),
   },
   helpButton: {
     padding: ms(8),
