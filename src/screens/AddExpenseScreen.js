@@ -16,7 +16,14 @@ import Button from "../components/common/Button";
 import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
 import { formatDate } from "../utils/dateUtils";
-import { ms, rf } from "../utils/responsive";
+import {
+  borderRadius,
+  iconSize,
+  rf,
+  s,
+  spacing,
+  vs,
+} from "../utils/responsive";
 
 const AddExpenseScreen = ({ route, navigation }) => {
   const { vehicleId, expense } = route.params || {};
@@ -140,7 +147,7 @@ const AddExpenseScreen = ({ route, navigation }) => {
           >
             <Ionicons
               name="calendar-outline"
-              size={ms(20)}
+              size={iconSize.sm}
               color={colors.primary}
             />
             <Text style={[styles.dateText, { color: colors.text }]}>
@@ -226,29 +233,29 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: ms(20),
+    padding: spacing.lg,
   },
   section: {
-    marginBottom: ms(24),
+    marginBottom: spacing.xl,
   },
   label: {
     fontSize: rf(16),
     fontWeight: "600",
-    marginBottom: ms(8),
+    marginBottom: spacing.xs,
   },
   input: {
-    borderWidth: ms(1),
-    borderRadius: ms(8),
-    padding: ms(12),
+    borderWidth: s(1),
+    borderRadius: borderRadius.sm,
+    padding: spacing.sm,
     fontSize: rf(16),
   },
   dateButton: {
     flexDirection: "row",
     alignItems: "center",
-    borderWidth: ms(1),
-    borderRadius: ms(8),
-    padding: ms(12),
-    gap: ms(8),
+    borderWidth: s(1),
+    borderRadius: borderRadius.sm,
+    padding: spacing.sm,
+    gap: spacing.xs,
   },
   dateText: {
     fontSize: rf(16),
@@ -260,25 +267,25 @@ const styles = StyleSheet.create({
   currencySymbol: {
     fontSize: rf(20),
     fontWeight: "600",
-    marginRight: ms(8),
+    marginRight: spacing.xs,
   },
   costInput: {
     flex: 1,
-    borderWidth: ms(1),
-    borderRadius: ms(8),
-    padding: ms(12),
+    borderWidth: s(1),
+    borderRadius: borderRadius.sm,
+    padding: spacing.sm,
     fontSize: rf(16),
   },
   textArea: {
-    borderWidth: ms(1),
-    borderRadius: ms(8),
-    padding: ms(12),
+    borderWidth: s(1),
+    borderRadius: borderRadius.sm,
+    padding: spacing.sm,
     fontSize: rf(16),
-    minHeight: ms(100),
+    minHeight: vs(100),
   },
   saveButton: {
-    marginTop: ms(8),
-    marginBottom: ms(40),
+    marginTop: spacing.xs,
+    marginBottom: vs(40),
   },
 });
 

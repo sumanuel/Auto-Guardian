@@ -22,7 +22,15 @@ import { deleteRepair, getRepairsByVehicle } from "../services/repairService";
 import { formatDate } from "../utils/dateUtils";
 import { formatCurrency } from "../utils/formatUtils";
 import { getMaintenanceIcon } from "../utils/maintenanceIcons";
-import { ms, rf } from "../utils/responsive";
+import {
+  borderRadius,
+  hs,
+  iconSize,
+  rf,
+  s,
+  spacing,
+  vs,
+} from "../utils/responsive";
 
 const InvestmentDetailScreen = ({ route, navigation }) => {
   const { vehicleId } = route.params;
@@ -293,7 +301,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
               >
                 <Ionicons
                   name="calendar-outline"
-                  size={ms(24)}
+                  size={iconSize.md}
                   color={isFiltered ? COLORS.success : colors.primary}
                 />
               </TouchableOpacity>
@@ -303,7 +311,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
               >
                 <Ionicons
                   name="refresh-outline"
-                  size={ms(24)}
+                  size={iconSize.md}
                   color={colors.primary}
                 />
               </TouchableOpacity>
@@ -320,7 +328,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
               >
                 <Ionicons
                   name="information-circle-outline"
-                  size={ms(24)}
+                  size={iconSize.md}
                   color={colors.primary}
                 />
               </TouchableOpacity>
@@ -329,7 +337,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
 
           {/* Tarjeta de total */}
           <View style={[styles.totalCard, { backgroundColor: colors.primary }]}>
-            <Ionicons name="cash-outline" size={ms(40)} color="#fff" />
+            <Ionicons name="cash-outline" size={iconSize.xl} color="#fff" />
             <Text style={styles.totalLabel}>Total Invertido</Text>
             {isFiltered && (
               <Text
@@ -369,7 +377,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                     <View style={styles.categoryInfo}>
                       <Ionicons
                         name={getMaintenanceIcon(category.name)}
-                        size={ms(24)}
+                        size={iconSize.md}
                         color={colors.primary}
                       />
                       <View style={styles.categoryTextContainer}>
@@ -434,7 +442,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
             >
               <Ionicons
                 name="construct"
-                size={ms(24)}
+                size={iconSize.md}
                 color={activeTab === "mantenimientos" ? "#fff" : colors.text}
               />
             </TouchableOpacity>
@@ -453,7 +461,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
             >
               <Ionicons
                 name="build"
-                size={ms(24)}
+                size={iconSize.md}
                 color={activeTab === "reparaciones" ? "#fff" : colors.text}
               />
             </TouchableOpacity>
@@ -472,7 +480,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
             >
               <Ionicons
                 name="cart"
-                size={ms(24)}
+                size={iconSize.md}
                 color={activeTab === "otros" ? "#fff" : colors.text}
               />
             </TouchableOpacity>
@@ -487,7 +495,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                 <View style={styles.emptyState}>
                   <Ionicons
                     name="construct-outline"
-                    size={ms(60)}
+                    size={iconSize.xxl}
                     color={colors.textSecondary}
                   />
                   <Text
@@ -515,7 +523,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                         <View style={styles.maintenanceInfo}>
                           <Ionicons
                             name={getMaintenanceIcon(maintenance.type)}
-                            size={ms(20)}
+                            size={iconSize.sm}
                             color={colors.primary}
                           />
                           <Text
@@ -570,7 +578,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                 <View style={styles.emptyState}>
                   <Ionicons
                     name="build-outline"
-                    size={ms(60)}
+                    size={iconSize.xxl}
                     color={colors.textSecondary}
                   />
                   <Text
@@ -603,7 +611,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                       <View style={styles.maintenanceInfo}>
                         <Ionicons
                           name="build-outline"
-                          size={ms(20)}
+                          size={iconSize.sm}
                           color={colors.primary}
                         />
                         <View style={{ flex: 1 }}>
@@ -635,7 +643,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                       >
                         <Ionicons
                           name="trash-outline"
-                          size={ms(20)}
+                          size={iconSize.sm}
                           color={COLORS.danger}
                         />
                       </TouchableOpacity>
@@ -682,7 +690,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                 <View style={styles.emptyState}>
                   <Ionicons
                     name="wallet-outline"
-                    size={ms(60)}
+                    size={iconSize.xxl}
                     color={colors.textSecondary}
                   />
                   <Text
@@ -715,7 +723,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                       <View style={styles.maintenanceInfo}>
                         <Ionicons
                           name="wallet-outline"
-                          size={ms(20)}
+                          size={iconSize.sm}
                           color={colors.primary}
                         />
                         <View style={{ flex: 1 }}>
@@ -747,7 +755,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                       >
                         <Ionicons
                           name="trash-outline"
-                          size={ms(20)}
+                          size={iconSize.sm}
                           color={COLORS.danger}
                         />
                       </TouchableOpacity>
@@ -797,7 +805,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
             }
             activeOpacity={0.8}
           >
-            <Ionicons name="add" size={ms(30)} color="#fff" />
+            <Ionicons name="add" size={iconSize.lg} color="#fff" />
           </TouchableOpacity>
         )}
       </View>
@@ -821,7 +829,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                 Filtrar por fechas
               </Text>
               <TouchableOpacity onPress={() => setDateFilterModal(false)}>
-                <Ionicons name="close" size={ms(24)} color={colors.text} />
+                <Ionicons name="close" size={iconSize.md} color={colors.text} />
               </TouchableOpacity>
             </View>
 
@@ -875,15 +883,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: ms(20),
-    paddingTop: ms(20),
-    paddingBottom: ms(100),
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: vs(100),
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: ms(20),
+    marginBottom: spacing.lg,
   },
   headerLeft: {
     flex: 1,
@@ -891,71 +899,71 @@ const styles = StyleSheet.create({
   headerRight: {
     flexDirection: "row",
     alignItems: "center",
-    gap: ms(12),
+    gap: spacing.sm,
   },
   filterIcon: {
-    padding: ms(8),
+    padding: spacing.xs,
   },
   vehicleName: {
     fontSize: rf(28),
     fontWeight: "bold",
-    marginBottom: ms(4),
+    marginBottom: spacing.xs,
   },
   vehicleDetails: {
     fontSize: rf(16),
   },
   totalCard: {
-    borderRadius: ms(16),
-    padding: ms(24),
+    borderRadius: borderRadius.lg,
+    padding: spacing.xl,
     alignItems: "center",
-    marginBottom: ms(32),
-    elevation: ms(4),
+    marginBottom: vs(32),
+    elevation: s(4),
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
-    shadowRadius: ms(8),
+    shadowRadius: s(8),
   },
   totalLabel: {
     color: "#fff",
     fontSize: rf(14),
-    marginTop: ms(12),
+    marginTop: spacing.sm,
     opacity: 0.9,
   },
   totalAmount: {
     color: "#fff",
     fontSize: rf(36),
     fontWeight: "bold",
-    marginTop: ms(8),
+    marginTop: spacing.xs,
   },
   totalSubtitle: {
     color: "#fff",
     fontSize: rf(12),
-    marginTop: ms(4),
+    marginTop: spacing.xxs,
     opacity: 0.8,
   },
   sectionTitle: {
     fontSize: rf(20),
     fontWeight: "bold",
-    marginBottom: ms(16),
+    marginBottom: spacing.md,
   },
   categoryCard: {
-    padding: ms(16),
-    borderRadius: ms(12),
-    marginBottom: ms(12),
-    elevation: ms(2),
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
+    marginBottom: spacing.sm,
+    elevation: s(2),
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
-    shadowRadius: ms(3),
+    shadowRadius: s(3),
   },
   categoryHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: ms(12),
+    marginBottom: spacing.sm,
   },
   categoryInfo: {
     flexDirection: "row",
     alignItems: "center",
-    gap: ms(12),
+    gap: spacing.sm,
     flex: 1,
   },
   categoryTextContainer: {
@@ -964,7 +972,7 @@ const styles = StyleSheet.create({
   categoryName: {
     fontSize: rf(16),
     fontWeight: "600",
-    marginBottom: ms(2),
+    marginBottom: spacing.xxs,
   },
   categoryCount: {
     fontSize: rf(12),
@@ -974,32 +982,32 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   progressBarContainer: {
-    height: ms(6),
-    borderRadius: ms(3),
+    height: s(6),
+    borderRadius: borderRadius.xs,
     overflow: "hidden",
   },
   progressBar: {
     height: "100%",
-    borderRadius: ms(3),
+    borderRadius: borderRadius.xs,
   },
   tabsContainer: {
     flexDirection: "row",
-    gap: ms(8),
-    marginBottom: ms(20),
+    gap: spacing.xs,
+    marginBottom: spacing.lg,
   },
   tab: {
     flex: 1,
-    paddingVertical: ms(10),
-    paddingHorizontal: ms(8),
-    borderRadius: ms(8),
+    paddingVertical: vs(10),
+    paddingHorizontal: spacing.xs,
+    borderRadius: borderRadius.sm,
     alignItems: "center",
-    gap: ms(4),
+    gap: spacing.xxs,
   },
   tabActive: {
-    elevation: ms(2),
+    elevation: s(2),
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
-    shadowRadius: ms(3),
+    shadowRadius: s(3),
   },
   tabText: {
     fontSize: rf(12),
@@ -1010,24 +1018,24 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   maintenanceCard: {
-    padding: ms(16),
-    borderRadius: ms(12),
-    marginBottom: ms(12),
-    elevation: ms(2),
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
+    marginBottom: spacing.sm,
+    elevation: s(2),
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
-    shadowRadius: ms(3),
+    shadowRadius: s(3),
   },
   maintenanceHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: ms(8),
+    marginBottom: spacing.xs,
   },
   maintenanceInfo: {
     flexDirection: "row",
     alignItems: "center",
-    gap: ms(8),
+    gap: spacing.xs,
     flex: 1,
   },
   maintenanceType: {
@@ -1040,49 +1048,49 @@ const styles = StyleSheet.create({
   },
   maintenanceDate: {
     fontSize: rf(13),
-    marginBottom: ms(4),
+    marginBottom: spacing.xs,
   },
   maintenanceDescription: {
     fontSize: rf(13),
-    lineHeight: ms(18),
+    lineHeight: rf(18),
   },
   emptyState: {
     alignItems: "center",
-    paddingVertical: ms(60),
+    paddingVertical: vs(60),
   },
   emptyText: {
     fontSize: rf(16),
-    marginTop: ms(16),
+    marginTop: spacing.md,
   },
   emptySubtext: {
     fontSize: rf(14),
-    marginTop: ms(8),
+    marginTop: spacing.xs,
     textAlign: "center",
   },
   expenseCategory: {
     fontSize: rf(12),
-    marginTop: ms(2),
+    marginTop: spacing.xxs,
     textTransform: "capitalize",
   },
   deleteButton: {
-    padding: ms(8),
-    marginRight: ms(8),
+    padding: spacing.xs,
+    marginRight: spacing.xs,
   },
   fab: {
     position: "absolute",
-    right: ms(20),
-    bottom: ms(20),
+    right: spacing.lg,
+    bottom: spacing.lg,
     backgroundColor: COLORS.primary,
-    width: ms(60),
-    height: ms(60),
-    borderRadius: ms(30),
+    width: s(60),
+    height: s(60),
+    borderRadius: s(30),
     justifyContent: "center",
     alignItems: "center",
-    elevation: ms(8),
+    elevation: s(8),
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
-    shadowRadius: ms(4),
+    shadowRadius: s(4),
     zIndex: 999,
   },
   modalOverlay: {
@@ -1090,48 +1098,48 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
     justifyContent: "center",
     alignItems: "center",
-    padding: ms(20),
+    padding: spacing.lg,
   },
   modalContent: {
-    borderRadius: ms(16),
-    padding: ms(24),
+    borderRadius: borderRadius.lg,
+    padding: spacing.xl,
     width: "100%",
-    maxWidth: ms(420),
+    maxWidth: s(420),
     maxHeight: "80%",
-    elevation: ms(8),
+    elevation: s(8),
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
-    shadowRadius: ms(8),
+    shadowRadius: s(8),
   },
   modalHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: ms(20),
+    marginBottom: spacing.lg,
   },
   modalTitle: {
     fontSize: rf(20),
     fontWeight: "bold",
   },
   modalBody: {
-    marginBottom: ms(20),
+    marginBottom: spacing.lg,
   },
   modalFooter: {
     flexDirection: "row",
     justifyContent: "space-between",
-    gap: ms(12),
+    gap: spacing.sm,
   },
   modalButton: {
     flex: 1,
-    paddingVertical: ms(12),
-    paddingHorizontal: ms(24),
-    borderRadius: ms(8),
+    paddingVertical: vs(12),
+    paddingHorizontal: hs(24),
+    borderRadius: borderRadius.sm,
     alignItems: "center",
   },
   cancelButton: {
     backgroundColor: "transparent",
-    borderWidth: ms(1),
+    borderWidth: s(1),
     borderColor: COLORS.border,
   },
   confirmButton: {

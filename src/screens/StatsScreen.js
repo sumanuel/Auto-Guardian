@@ -13,7 +13,14 @@ import { useDialog } from "../hooks/useDialog";
 import { getAllExpenses } from "../services/expenseService";
 import { getAllRepairs } from "../services/repairService";
 import { formatCurrency } from "../utils/formatUtils";
-import { ms, rf } from "../utils/responsive";
+import {
+  borderRadius,
+  iconSize,
+  rf,
+  s,
+  spacing,
+  vs,
+} from "../utils/responsive";
 
 const StatsScreen = ({ navigation }) => {
   const { colors } = useTheme();
@@ -132,7 +139,7 @@ const StatsScreen = ({ navigation }) => {
             >
               <Ionicons
                 name="information-circle-outline"
-                size={ms(24)}
+                size={iconSize.md}
                 color={colors.primary}
               />
             </TouchableOpacity>
@@ -140,7 +147,7 @@ const StatsScreen = ({ navigation }) => {
 
           {/* Card de inversión total */}
           <View style={[styles.totalCard, { backgroundColor: colors.primary }]}>
-            <Ionicons name="cash-outline" size={ms(48)} color="#fff" />
+            <Ionicons name="cash-outline" size={iconSize.xl} color="#fff" />
             <Text style={styles.totalLabel}>Total Invertido</Text>
             <Text style={styles.totalAmount}>
               {formatCurrency(totalInvestment)}
@@ -163,7 +170,7 @@ const StatsScreen = ({ navigation }) => {
             <View style={styles.emptyState}>
               <Ionicons
                 name="car-outline"
-                size={ms(60)}
+                size={iconSize.xxl}
                 color={colors.textSecondary}
               />
               <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
@@ -203,7 +210,7 @@ const StatsScreen = ({ navigation }) => {
                     <View style={styles.statItem}>
                       <Ionicons
                         name="construct-outline"
-                        size={ms(16)}
+                        size={iconSize.sm}
                         color={colors.textSecondary}
                       />
                       <Text
@@ -221,7 +228,7 @@ const StatsScreen = ({ navigation }) => {
                     <View style={styles.statItem}>
                       <Ionicons
                         name="build-outline"
-                        size={ms(16)}
+                        size={iconSize.sm}
                         color={colors.textSecondary}
                       />
                       <Text
@@ -239,7 +246,7 @@ const StatsScreen = ({ navigation }) => {
                     <View style={styles.statItem}>
                       <Ionicons
                         name="wallet-outline"
-                        size={ms(16)}
+                        size={iconSize.sm}
                         color={colors.textSecondary}
                       />
                       <Text
@@ -260,7 +267,7 @@ const StatsScreen = ({ navigation }) => {
                   </Text>
                   <Ionicons
                     name="chevron-forward"
-                    size={ms(20)}
+                    size={iconSize.sm}
                     color={colors.textSecondary}
                   />
                 </View>
@@ -281,8 +288,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: ms(20),
-    paddingBottom: ms(40),
+    paddingHorizontal: spacing.lg,
+    paddingBottom: vs(40),
   },
   title: {
     fontSize: rf(28),
@@ -292,75 +299,75 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: ms(20),
-    paddingTop: ms(20),
+    marginBottom: spacing.lg,
+    paddingTop: spacing.lg,
   },
   totalCard: {
-    borderRadius: ms(16),
-    padding: ms(24),
+    borderRadius: borderRadius.lg,
+    padding: spacing.xl,
     alignItems: "center",
-    marginBottom: ms(32),
-    elevation: ms(4),
+    marginBottom: vs(32),
+    elevation: s(4),
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
-    shadowRadius: ms(8),
+    shadowRadius: s(8),
   },
   totalLabel: {
     color: "#fff",
     fontSize: rf(14),
-    marginTop: ms(12),
+    marginTop: spacing.sm,
     opacity: 0.9,
   },
   totalAmount: {
     color: "#fff",
     fontSize: rf(36),
     fontWeight: "bold",
-    marginTop: ms(8),
+    marginTop: spacing.xs,
   },
   totalSubtitle: {
     color: "#fff",
     fontSize: rf(12),
-    marginTop: ms(4),
+    marginTop: spacing.xxs,
     opacity: 0.8,
   },
   sectionTitle: {
     fontSize: rf(20),
     fontWeight: "bold",
-    marginBottom: ms(16),
+    marginBottom: spacing.md,
   },
   vehicleCard: {
     flexDirection: "row",
-    padding: ms(16),
-    borderRadius: ms(12),
-    marginBottom: ms(12),
-    elevation: ms(2),
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
+    marginBottom: spacing.sm,
+    elevation: s(2),
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
-    shadowRadius: ms(3),
+    shadowRadius: s(3),
     alignItems: "center",
   },
   vehicleInfo: {
     flex: 1,
   },
   vehicleHeader: {
-    marginBottom: ms(8),
+    marginBottom: spacing.xs,
   },
   vehicleName: {
     fontSize: rf(18),
     fontWeight: "bold",
-    marginBottom: ms(4),
+    marginBottom: spacing.xs,
   },
   vehicleDetails: {
     fontSize: rf(14),
   },
   statsRow: {
     flexDirection: "row",
-    gap: ms(16),
+    gap: spacing.md,
   },
   statItem: {
     flexDirection: "row",
     alignItems: "center",
-    gap: ms(4),
+    gap: spacing.xxs,
   },
   statText: {
     fontSize: rf(13),
@@ -368,7 +375,7 @@ const styles = StyleSheet.create({
   costContainer: {
     alignItems: "flex-end",
     flexDirection: "row",
-    gap: ms(8),
+    gap: spacing.xs,
     alignItems: "center",
   },
   costAmount: {
@@ -377,11 +384,11 @@ const styles = StyleSheet.create({
   },
   emptyState: {
     alignItems: "center",
-    paddingVertical: ms(60),
+    paddingVertical: vs(60),
   },
   emptyText: {
     fontSize: rf(16),
-    marginTop: ms(16),
+    marginTop: spacing.md,
   },
 });
 
