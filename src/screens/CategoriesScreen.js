@@ -21,7 +21,16 @@ import {
   updateMaintenanceType,
   updateMaintenanceTypesOrder,
 } from "../services/maintenanceService";
-import { ms, rf } from "../utils/responsive";
+import {
+  borderRadius,
+  hs,
+  iconSize,
+  ms,
+  rf,
+  s,
+  spacing,
+  vs,
+} from "../utils/responsive";
 
 const CategoriesScreen = ({ navigation }) => {
   const { colors } = useTheme();
@@ -105,7 +114,7 @@ const CategoriesScreen = ({ navigation }) => {
         <View style={styles.typeInfo}>
           <Ionicons
             name={item.icon || "build-outline"}
-            size={ms(24)}
+            size={iconSize.md}
             color={colors.primary}
           />
           <View style={styles.typeDetails}>
@@ -116,7 +125,7 @@ const CategoriesScreen = ({ navigation }) => {
               <View style={styles.intervalRow}>
                 <Ionicons
                   name="speedometer-outline"
-                  size={ms(14)}
+                  size={iconSize.sm}
                   color={colors.primary}
                 />
                 <Text
@@ -138,7 +147,7 @@ const CategoriesScreen = ({ navigation }) => {
               <View style={styles.intervalRow}>
                 <Ionicons
                   name="calendar-outline"
-                  size={ms(14)}
+                  size={iconSize.sm}
                   color={colors.primary}
                 />
                 <Text
@@ -178,7 +187,7 @@ const CategoriesScreen = ({ navigation }) => {
           >
             <Ionicons
               name="menu-outline"
-              size={ms(20)}
+              size={iconSize.sm}
               color={colors.textSecondary}
             />
           </TouchableOpacity>
@@ -188,7 +197,7 @@ const CategoriesScreen = ({ navigation }) => {
           >
             <Ionicons
               name="create-outline"
-              size={ms(20)}
+              size={iconSize.sm}
               color={colors.primary}
             />
           </TouchableOpacity>
@@ -196,7 +205,7 @@ const CategoriesScreen = ({ navigation }) => {
             style={styles.deleteButton}
             onPress={() => handleDeleteType(item)}
           >
-            <Ionicons name="trash-outline" size={ms(20)} color="#E53935" />
+            <Ionicons name="trash-outline" size={iconSize.sm} color="#E53935" />
           </TouchableOpacity>
         </View>
       </View>
@@ -432,7 +441,7 @@ const CategoriesScreen = ({ navigation }) => {
           >
             <Ionicons
               name="information-circle-outline"
-              size={ms(24)}
+              size={iconSize.md}
               color={colors.primary}
             />
           </TouchableOpacity>
@@ -453,7 +462,7 @@ const CategoriesScreen = ({ navigation }) => {
           onPress={handleAddType}
           activeOpacity={0.8}
         >
-          <Ionicons name="add" size={ms(30)} color="#fff" />
+          <Ionicons name="add" size={iconSize.lg} color="#fff" />
         </TouchableOpacity>
 
         {/* Modal de edición */}
@@ -475,7 +484,11 @@ const CategoriesScreen = ({ navigation }) => {
                   Editar Intervalos
                 </Text>
                 <TouchableOpacity onPress={handleCancelEdit}>
-                  <Ionicons name="close" size={ms(24)} color={colors.text} />
+                  <Ionicons
+                    name="close"
+                    size={iconSize.md}
+                    color={colors.text}
+                  />
                 </TouchableOpacity>
               </View>
 
@@ -537,7 +550,7 @@ const CategoriesScreen = ({ navigation }) => {
                     >
                       <Ionicons
                         name={editIcon || "build-outline"}
-                        size={ms(24)}
+                        size={iconSize.md}
                         color={colors.primary}
                       />
                       <Text
@@ -550,7 +563,7 @@ const CategoriesScreen = ({ navigation }) => {
                       </Text>
                       <Ionicons
                         name="chevron-forward"
-                        size={ms(20)}
+                        size={iconSize.sm}
                         color={colors.textSecondary}
                       />
                     </TouchableOpacity>
@@ -664,7 +677,7 @@ const CategoriesScreen = ({ navigation }) => {
                     <View style={styles.errorContainer}>
                       <Ionicons
                         name="alert-circle"
-                        size={ms(20)}
+                        size={iconSize.sm}
                         color="#e74c3c"
                       />
                       <Text style={styles.errorText}>{editError}</Text>
@@ -725,7 +738,11 @@ const CategoriesScreen = ({ navigation }) => {
                   Nuevo Tipo de Mantenimiento
                 </Text>
                 <TouchableOpacity onPress={handleCancelAdd}>
-                  <Ionicons name="close" size={ms(24)} color={colors.text} />
+                  <Ionicons
+                    name="close"
+                    size={iconSize.md}
+                    color={colors.text}
+                  />
                 </TouchableOpacity>
               </View>
 
@@ -794,7 +811,7 @@ const CategoriesScreen = ({ navigation }) => {
                   >
                     <Ionicons
                       name={newTypeIcon || "build-outline"}
-                      size={ms(24)}
+                      size={iconSize.md}
                       color={colors.primary}
                     />
                     <Text
@@ -804,7 +821,7 @@ const CategoriesScreen = ({ navigation }) => {
                     </Text>
                     <Ionicons
                       name="chevron-forward"
-                      size={ms(20)}
+                      size={iconSize.sm}
                       color={colors.textSecondary}
                     />
                   </TouchableOpacity>
@@ -918,7 +935,7 @@ const CategoriesScreen = ({ navigation }) => {
                   <View style={styles.errorContainer}>
                     <Ionicons
                       name="alert-circle"
-                      size={ms(20)}
+                      size={iconSize.sm}
                       color="#e74c3c"
                     />
                     <Text style={styles.errorText}>{addError}</Text>
@@ -975,7 +992,11 @@ const CategoriesScreen = ({ navigation }) => {
                   Seleccionar Icono
                 </Text>
                 <TouchableOpacity onPress={() => setIconPickerVisible(false)}>
-                  <Ionicons name="close" size={ms(24)} color={colors.text} />
+                  <Ionicons
+                    name="close"
+                    size={iconSize.md}
+                    color={colors.text}
+                  />
                 </TouchableOpacity>
               </View>
 
@@ -1057,34 +1078,34 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: ms(20),
+    paddingHorizontal: spacing.lg,
     paddingTop: 0,
   },
   scrollContent: {
-    paddingBottom: ms(100),
+    paddingBottom: vs(100),
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: ms(20),
-    paddingTop: ms(20),
+    marginBottom: spacing.lg,
+    paddingTop: spacing.lg,
   },
   headerTitle: {
     fontSize: rf(20),
     fontWeight: "bold",
   },
   helpButton: {
-    padding: ms(8),
+    padding: spacing.xs,
   },
   categoryCard: {
-    borderRadius: ms(12),
-    padding: ms(16),
-    marginBottom: ms(12),
-    elevation: ms(2),
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    marginBottom: spacing.sm,
+    elevation: s(2),
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
-    shadowRadius: ms(3),
+    shadowRadius: s(3),
   },
   typeItem: {
     flexDirection: "row",
@@ -1094,7 +1115,7 @@ const styles = StyleSheet.create({
   typeInfo: {
     flexDirection: "row",
     alignItems: "flex-start",
-    gap: ms(12),
+    gap: spacing.md,
     flex: 1,
   },
   typeDetails: {
@@ -1103,51 +1124,51 @@ const styles = StyleSheet.create({
   typeName: {
     fontSize: rf(16),
     fontWeight: "500",
-    marginBottom: ms(4),
+    marginBottom: spacing.xs,
   },
   categoryLabel: {
     fontSize: rf(12),
-    marginBottom: ms(8),
+    marginBottom: spacing.xs,
     textTransform: "uppercase",
     fontWeight: "600",
   },
   intervalsContainer: {
-    marginTop: ms(8),
+    marginTop: spacing.xs,
   },
   intervalRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: ms(6),
-    marginBottom: ms(4),
+    gap: spacing.xs,
+    marginBottom: spacing.xs,
   },
   intervalText: {
     fontSize: rf(13),
-    lineHeight: ms(16),
+    lineHeight: rf(16),
   },
   editButton: {
-    padding: ms(8),
-    marginTop: ms(4),
+    padding: spacing.xs,
+    marginTop: spacing.xs,
   },
   actionButtons: {
     flexDirection: "row",
-    gap: ms(8),
+    gap: spacing.xs,
   },
   deleteButton: {
-    padding: ms(8),
-    marginTop: ms(4),
+    padding: spacing.xs,
+    marginTop: spacing.xs,
   },
   dragHandle: {
-    padding: ms(8),
-    marginTop: ms(4),
-    marginRight: ms(4),
+    padding: spacing.xs,
+    marginTop: spacing.xs,
+    marginRight: spacing.xs,
   },
   iconSelector: {
     flexDirection: "row",
     alignItems: "center",
-    borderWidth: ms(1),
-    borderRadius: ms(8),
-    padding: ms(12),
-    gap: ms(12),
+    borderWidth: s(1),
+    borderRadius: borderRadius.sm,
+    padding: spacing.sm,
+    gap: spacing.md,
   },
   iconSelectorText: {
     flex: 1,
@@ -1155,30 +1176,30 @@ const styles = StyleSheet.create({
   },
   iconPickerContent: {
     width: "90%",
-    maxWidth: ms(420),
+    maxWidth: s(420),
     maxHeight: "80%",
-    borderRadius: ms(12),
-    padding: ms(0),
-    elevation: ms(5),
+    borderRadius: borderRadius.md,
+    padding: 0,
+    elevation: s(5),
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
-    shadowRadius: ms(4),
+    shadowRadius: s(4),
   },
   iconGrid: {
-    padding: ms(20),
+    padding: spacing.lg,
   },
   iconOption: {
     flex: 1,
     aspectRatio: 1,
-    margin: ms(6),
-    borderRadius: ms(12),
+    margin: spacing.xs,
+    borderRadius: borderRadius.md,
     justifyContent: "center",
     alignItems: "center",
-    padding: ms(12),
+    padding: spacing.sm,
   },
   iconLabel: {
     fontSize: rf(11),
-    marginTop: ms(6),
+    marginTop: spacing.xs,
     textAlign: "center",
   },
   modalOverlay: {
@@ -1189,19 +1210,19 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     width: "90%",
-    maxWidth: ms(420),
-    borderRadius: ms(12),
-    padding: ms(0),
-    elevation: ms(5),
+    maxWidth: s(420),
+    borderRadius: borderRadius.md,
+    padding: 0,
+    elevation: s(5),
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
-    shadowRadius: ms(4),
+    shadowRadius: s(4),
   },
   modalHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: ms(20),
+    padding: spacing.lg,
     borderBottomWidth: 1,
     borderBottomColor: "#e0e0e0",
   },
@@ -1210,39 +1231,39 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   modalBody: {
-    padding: ms(20),
+    padding: spacing.lg,
   },
   typeNameText: {
     fontSize: rf(16),
     fontWeight: "500",
-    marginBottom: ms(20),
+    marginBottom: spacing.lg,
     textAlign: "center",
   },
   inputGroup: {
-    marginBottom: ms(16),
+    marginBottom: spacing.md,
   },
   inputLabel: {
     fontSize: rf(14),
     fontWeight: "500",
-    marginBottom: ms(8),
+    marginBottom: spacing.xs,
   },
   input: {
-    borderWidth: ms(1),
-    borderRadius: ms(8),
-    padding: ms(12),
+    borderWidth: s(1),
+    borderRadius: borderRadius.sm,
+    padding: spacing.sm,
     fontSize: rf(16),
   },
   modalActions: {
     flexDirection: "row",
     justifyContent: "space-between",
-    gap: ms(12),
-    marginTop: ms(24),
+    gap: spacing.md,
+    marginTop: spacing.xl,
   },
   cancelButton: {
     flex: 1,
-    borderWidth: ms(1),
-    borderRadius: ms(8),
-    padding: ms(12),
+    borderWidth: s(1),
+    borderRadius: borderRadius.sm,
+    padding: spacing.sm,
     alignItems: "center",
   },
   cancelButtonText: {
@@ -1251,8 +1272,8 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     flex: 1,
-    borderRadius: ms(8),
-    padding: ms(12),
+    borderRadius: borderRadius.sm,
+    padding: spacing.sm,
     alignItems: "center",
   },
   saveButtonText: {
@@ -1261,18 +1282,18 @@ const styles = StyleSheet.create({
   },
   fab: {
     position: "absolute",
-    right: ms(20),
-    bottom: ms(20),
-    width: ms(60),
-    height: ms(60),
-    borderRadius: ms(30),
+    right: hs(20),
+    bottom: vs(20),
+    width: iconSize.xl,
+    height: iconSize.xl,
+    borderRadius: s(30),
     justifyContent: "center",
     alignItems: "center",
-    elevation: ms(8),
+    elevation: s(8),
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
-    shadowRadius: ms(4),
+    shadowRadius: s(4),
     zIndex: 999,
   },
   inputRow: {
@@ -1281,18 +1302,18 @@ const styles = StyleSheet.create({
   },
   unitSelector: {
     flexDirection: "row",
-    marginBottom: ms(8),
-    gap: ms(8),
+    marginBottom: spacing.xs,
+    gap: spacing.xs,
   },
   unitButton: {
     flex: 1,
-    borderWidth: ms(1),
-    borderRadius: ms(6),
-    padding: ms(8),
+    borderWidth: s(1),
+    borderRadius: borderRadius.xs,
+    padding: spacing.xs,
     alignItems: "center",
   },
   unitButtonText: {
-    fontSize: rf(14),
+    fontSize: rf(16),
     fontWeight: "500",
   },
   errorContainer: {
@@ -1300,15 +1321,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#fee",
     borderColor: "#e74c3c",
-    borderWidth: ms(1),
-    borderRadius: ms(8),
-    padding: ms(12),
-    marginBottom: ms(16),
+    borderWidth: s(1),
+    borderRadius: borderRadius.sm,
+    padding: spacing.sm,
+    marginBottom: spacing.md,
   },
   errorText: {
     color: "#e74c3c",
     fontSize: rf(14),
-    marginLeft: ms(8),
+    marginLeft: spacing.xs,
     flex: 1,
   },
 });

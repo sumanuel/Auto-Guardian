@@ -148,6 +148,7 @@ export const borderRadius = {
  * Get responsive icon sizes
  */
 export const iconSize = {
+  xs: s(16),
   sm: s(20),
   md: s(28),
   lg: s(44),

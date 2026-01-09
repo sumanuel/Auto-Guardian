@@ -18,7 +18,15 @@ import {
   isDocumentTypeInUse,
   updateDocumentType,
 } from "../services/documentService";
-import { ms, rf } from "../utils/responsive";
+import {
+  borderRadius,
+  hs,
+  iconSize,
+  rf,
+  s,
+  spacing,
+  vs,
+} from "../utils/responsive";
 
 const DocumentTypesScreen = ({ navigation }) => {
   const { colors } = useTheme();
@@ -58,7 +66,7 @@ const DocumentTypesScreen = ({ navigation }) => {
         <View style={styles.typeInfo}>
           <Ionicons
             name="document-text-outline"
-            size={ms(24)}
+            size={iconSize.md}
             color={colors.primary}
           />
           <View style={styles.typeDetails}>
@@ -84,7 +92,7 @@ const DocumentTypesScreen = ({ navigation }) => {
           >
             <Ionicons
               name="create-outline"
-              size={ms(20)}
+              size={iconSize.sm}
               color={colors.primary}
             />
           </TouchableOpacity>
@@ -92,7 +100,7 @@ const DocumentTypesScreen = ({ navigation }) => {
             style={styles.deleteButton}
             onPress={() => handleDeleteType(item)}
           >
-            <Ionicons name="trash-outline" size={ms(20)} color="#E53935" />
+            <Ionicons name="trash-outline" size={iconSize.sm} color="#E53935" />
           </TouchableOpacity>
         </View>
       </View>
@@ -235,7 +243,7 @@ const DocumentTypesScreen = ({ navigation }) => {
           >
             <Ionicons
               name="information-circle-outline"
-              size={ms(24)}
+              size={iconSize.md}
               color={colors.primary}
             />
           </TouchableOpacity>
@@ -259,7 +267,7 @@ const DocumentTypesScreen = ({ navigation }) => {
             setAddModalVisible(true);
           }}
         >
-          <Ionicons name="add" size={ms(24)} color="white" />
+          <Ionicons name="add" size={iconSize.md} color="white" />
         </TouchableOpacity>
 
         {/* Modal para editar tipo de documento */}
@@ -281,7 +289,11 @@ const DocumentTypesScreen = ({ navigation }) => {
                   Editar Tipo de Documento
                 </Text>
                 <TouchableOpacity onPress={() => setEditModalVisible(false)}>
-                  <Ionicons name="close" size={ms(24)} color={colors.text} />
+                  <Ionicons
+                    name="close"
+                    size={iconSize.md}
+                    color={colors.text}
+                  />
                 </TouchableOpacity>
               </View>
 
@@ -335,7 +347,9 @@ const DocumentTypesScreen = ({ navigation }) => {
                     style={[styles.button, styles.cancelButton]}
                     onPress={() => setEditModalVisible(false)}
                   >
-                    <Text style={{ color: colors.textSecondary }}>
+                    <Text
+                      style={{ color: colors.textSecondary, fontSize: rf(16) }}
+                    >
                       Cancelar
                     </Text>
                   </TouchableOpacity>
@@ -343,7 +357,9 @@ const DocumentTypesScreen = ({ navigation }) => {
                     style={[styles.button, { backgroundColor: colors.primary }]}
                     onPress={handleSaveType}
                   >
-                    <Text style={{ color: "white" }}>Guardar</Text>
+                    <Text style={{ color: "white", fontSize: rf(16) }}>
+                      Guardar
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -370,7 +386,11 @@ const DocumentTypesScreen = ({ navigation }) => {
                   Nuevo Tipo de Documento
                 </Text>
                 <TouchableOpacity onPress={() => setAddModalVisible(false)}>
-                  <Ionicons name="close" size={ms(24)} color={colors.text} />
+                  <Ionicons
+                    name="close"
+                    size={iconSize.md}
+                    color={colors.text}
+                  />
                 </TouchableOpacity>
               </View>
 
@@ -430,7 +450,9 @@ const DocumentTypesScreen = ({ navigation }) => {
                     style={[styles.button, styles.cancelButton]}
                     onPress={() => setAddModalVisible(false)}
                   >
-                    <Text style={{ color: colors.textSecondary }}>
+                    <Text
+                      style={{ color: colors.textSecondary, fontSize: rf(16) }}
+                    >
                       Cancelar
                     </Text>
                   </TouchableOpacity>
@@ -438,7 +460,9 @@ const DocumentTypesScreen = ({ navigation }) => {
                     style={[styles.button, { backgroundColor: colors.primary }]}
                     onPress={handleAddType}
                   >
-                    <Text style={{ color: "white" }}>Crear</Text>
+                    <Text style={{ color: "white", fontSize: rf(16) }}>
+                      Crear
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -456,15 +480,15 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: ms(20),
+    paddingHorizontal: spacing.lg,
     paddingTop: 0,
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: ms(20),
-    paddingTop: ms(20),
+    marginBottom: spacing.lg,
+    paddingTop: spacing.lg,
   },
   headerTitle: {
     fontSize: rf(20),
@@ -472,21 +496,21 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     paddingTop: 0,
-    paddingBottom: ms(100),
+    paddingBottom: vs(100),
   },
   documentTypeCard: {
-    borderRadius: ms(12),
-    marginBottom: ms(12),
-    elevation: ms(2),
+    borderRadius: borderRadius.md,
+    marginBottom: spacing.sm,
+    elevation: s(2),
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
-    shadowRadius: ms(2),
+    shadowRadius: s(2),
   },
   typeItem: {
     flexDirection: "row",
     alignItems: "center",
-    padding: ms(16),
+    padding: spacing.md,
   },
   typeInfo: {
     flex: 1,
@@ -495,12 +519,12 @@ const styles = StyleSheet.create({
   },
   typeDetails: {
     flex: 1,
-    marginLeft: ms(12),
+    marginLeft: spacing.md,
   },
   typeName: {
     fontSize: rf(16),
     fontWeight: "600",
-    marginBottom: ms(4),
+    marginBottom: spacing.xs,
   },
   descriptionText: {
     fontSize: rf(14),
@@ -508,30 +532,30 @@ const styles = StyleSheet.create({
   },
   actionButtons: {
     flexDirection: "row",
-    gap: ms(8),
+    gap: spacing.xs,
   },
   editButton: {
-    padding: ms(8),
-    borderRadius: ms(6),
+    padding: spacing.xs,
+    borderRadius: borderRadius.xs,
   },
   deleteButton: {
-    padding: ms(8),
-    borderRadius: ms(6),
+    padding: spacing.xs,
+    borderRadius: borderRadius.xs,
   },
   floatingAddButton: {
     position: "absolute",
-    bottom: ms(20),
-    right: ms(20),
-    width: ms(60),
-    height: ms(60),
-    borderRadius: ms(30),
+    bottom: vs(20),
+    right: hs(20),
+    width: iconSize.xl,
+    height: iconSize.xl,
+    borderRadius: s(30),
     justifyContent: "center",
     alignItems: "center",
-    elevation: ms(8),
+    elevation: s(8),
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
-    shadowRadius: ms(4),
+    shadowRadius: s(4),
   },
   modalOverlay: {
     flex: 1,
@@ -541,20 +565,20 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     width: "90%",
-    maxWidth: ms(420),
-    borderRadius: ms(12),
-    padding: ms(0),
-    elevation: ms(5),
+    maxWidth: s(420),
+    borderRadius: borderRadius.md,
+    padding: 0,
+    elevation: s(5),
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
-    shadowRadius: ms(4),
+    shadowRadius: s(4),
   },
   modalHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: ms(20),
-    borderBottomWidth: ms(1),
+    padding: spacing.lg,
+    borderBottomWidth: s(1),
     borderBottomColor: "#e0e0e0",
   },
   modalTitle: {
@@ -562,46 +586,46 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   modalBody: {
-    padding: ms(20),
+    padding: spacing.lg,
   },
   label: {
     fontSize: rf(16),
     fontWeight: "600",
-    marginBottom: ms(8),
-    marginTop: ms(16),
+    marginBottom: spacing.xs,
+    marginTop: spacing.md,
   },
   input: {
-    borderWidth: ms(1),
-    borderRadius: ms(8),
-    padding: ms(12),
+    borderWidth: s(1),
+    borderRadius: borderRadius.sm,
+    padding: spacing.sm,
     fontSize: rf(16),
   },
   textArea: {
-    minHeight: ms(80),
+    minHeight: s(80),
     textAlignVertical: "top",
   },
   errorText: {
     color: "#E53935",
     fontSize: rf(14),
-    marginTop: ms(8),
+    marginTop: spacing.xs,
   },
   modalButtons: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: ms(24),
+    marginTop: spacing.xl,
   },
   button: {
     flex: 1,
-    padding: ms(12),
-    borderRadius: ms(8),
+    padding: spacing.md,
+    borderRadius: borderRadius.sm,
     alignItems: "center",
-    marginHorizontal: ms(4),
+    marginHorizontal: spacing.xs,
   },
   cancelButton: {
     backgroundColor: "#f5f5f5",
   },
   helpButton: {
-    padding: ms(8),
+    padding: spacing.xs,
   },
 });
 
