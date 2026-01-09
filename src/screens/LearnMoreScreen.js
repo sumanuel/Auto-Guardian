@@ -2,7 +2,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useTheme } from "../context/ThemeContext";
-import { ms, rf } from "../utils/responsive";
+import {
+  borderRadius,
+  iconSize,
+  rf,
+  s,
+  spacing,
+  vs,
+} from "../utils/responsive";
 
 const LearnMoreScreen = () => {
   const navigation = useNavigation();
@@ -66,7 +73,7 @@ const LearnMoreScreen = () => {
               <View style={styles.menuItemLeft}>
                 <Ionicons
                   name={option.icon}
-                  size={ms(24)}
+                  size={iconSize.md}
                   color={colors.primary}
                   style={styles.menuItemIcon}
                 />
@@ -98,24 +105,24 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: ms(20),
-    paddingTop: ms(20),
-    paddingBottom: ms(100),
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: vs(100),
   },
   title: {
     fontSize: rf(24),
     fontWeight: "bold",
-    marginBottom: ms(20),
+    marginBottom: spacing.lg,
   },
   menuContainer: {
-    borderRadius: ms(12),
-    padding: ms(16),
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
   },
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: ms(16),
-    borderBottomWidth: ms(1),
+    paddingVertical: spacing.md,
+    borderBottomWidth: s(1),
     borderBottomColor: "#e0e0e0",
   },
   menuItemLeft: {
@@ -124,7 +131,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   menuItemIcon: {
-    marginRight: ms(12),
+    marginRight: spacing.md,
   },
   textContainer: {
     flex: 1,
@@ -135,7 +142,7 @@ const styles = StyleSheet.create({
   },
   menuItemDescription: {
     fontSize: rf(14),
-    marginTop: ms(2),
+    marginTop: spacing.xs,
   },
 });
 

@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { StyleSheet, Switch, Text, TouchableOpacity, View } from "react-native";
 import { useTheme } from "../context/ThemeContext";
-import { ms, rf } from "../utils/responsive";
+import { borderRadius, iconSize, rf, s, spacing } from "../utils/responsive";
 
 const SettingsScreen = ({ navigation }) => {
   const { isDarkMode, toggleTheme, colors } = useTheme();
@@ -68,7 +68,7 @@ const SettingsScreen = ({ navigation }) => {
               <View style={styles.menuItemLeft}>
                 <Ionicons
                   name={option.icon}
-                  size={ms(24)}
+                  size={iconSize.md}
                   color={option.comingSoon ? colors.disabled : colors.primary}
                 />
                 <Text
@@ -108,7 +108,7 @@ const SettingsScreen = ({ navigation }) => {
               ) : (
                 <Ionicons
                   name="chevron-forward"
-                  size={ms(20)}
+                  size={iconSize.sm}
                   color={colors.textTertiary}
                 />
               )}
@@ -126,38 +126,38 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: ms(20),
+    padding: spacing.lg,
   },
   title: {
     fontSize: rf(28),
     fontWeight: "bold",
-    marginBottom: ms(20),
+    marginBottom: spacing.lg,
   },
   menuContainer: {
-    borderRadius: ms(12),
+    borderRadius: borderRadius.md,
     overflow: "hidden",
   },
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: ms(16),
-    borderBottomWidth: ms(1),
+    padding: spacing.md,
+    borderBottomWidth: s(1),
     borderBottomColor: "#f0f0f0",
   },
   menuItemLeft: {
     flexDirection: "row",
     alignItems: "center",
-    gap: ms(12),
+    gap: spacing.sm,
   },
   menuItemText: {
     fontSize: rf(16),
     fontWeight: "500",
   },
   comingSoonBadge: {
-    paddingHorizontal: ms(12),
-    paddingVertical: ms(4),
-    borderRadius: ms(12),
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xxs,
+    borderRadius: borderRadius.md,
   },
   comingSoonBadgeText: {
     fontSize: rf(12),

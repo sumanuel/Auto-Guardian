@@ -18,7 +18,14 @@ import {
   shareBackupFile,
 } from "../services/backup/backupService";
 import { getAllVehicles } from "../services/vehicleService";
-import { ms, rf } from "../utils/responsive";
+import {
+  borderRadius,
+  iconSize,
+  ms,
+  rf,
+  s,
+  spacing,
+} from "../utils/responsive";
 
 const DataManagementScreen = ({ navigation }) => {
   const { colors } = useTheme();
@@ -117,7 +124,7 @@ const DataManagementScreen = ({ navigation }) => {
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Ionicons name="arrow-back" size={ms(24)} color={colors.text} />
+          <Ionicons name="arrow-back" size={iconSize.md} color={colors.text} />
         </TouchableOpacity>
         <Text style={[styles.title, { color: colors.text }]}>
           Gestión de Datos
@@ -125,7 +132,7 @@ const DataManagementScreen = ({ navigation }) => {
         <TouchableOpacity style={styles.infoButton} onPress={showBackupInfo}>
           <Ionicons
             name="information-circle-outline"
-            size={ms(24)}
+            size={iconSize.md}
             color={colors.primary}
           />
         </TouchableOpacity>
@@ -136,7 +143,7 @@ const DataManagementScreen = ({ navigation }) => {
           <View style={styles.cardHeader}>
             <Ionicons
               name="server-outline"
-              size={ms(32)}
+              size={iconSize.lg}
               color={colors.primary}
             />
             <View style={styles.cardInfo}>
@@ -167,7 +174,7 @@ const DataManagementScreen = ({ navigation }) => {
                 <>
                   <Ionicons
                     name="download-outline"
-                    size={ms(20)}
+                    size={iconSize.sm}
                     color="#fff"
                   />
                   <Text style={styles.actionButtonText}>Exportar Datos</Text>
@@ -190,7 +197,7 @@ const DataManagementScreen = ({ navigation }) => {
                 <>
                   <Ionicons
                     name="cloud-upload-outline"
-                    size={ms(20)}
+                    size={iconSize.sm}
                     color={colors.primary}
                   />
                   <Text
@@ -206,7 +213,7 @@ const DataManagementScreen = ({ navigation }) => {
           <View style={styles.infoContainer}>
             <Ionicons
               name="warning-outline"
-              size={ms(20)}
+              size={iconSize.sm}
               color={colors.textSecondary}
             />
             <Text style={[styles.infoText, { color: colors.textSecondary }]}>
@@ -220,7 +227,7 @@ const DataManagementScreen = ({ navigation }) => {
           <View style={styles.cardHeader}>
             <Ionicons
               name="shield-checkmark-outline"
-              size={ms(32)}
+              size={iconSize.lg}
               color={colors.success || "#4CAF50"}
             />
             <View style={styles.cardInfo}>
@@ -239,7 +246,7 @@ const DataManagementScreen = ({ navigation }) => {
             <View style={styles.dataItem}>
               <Ionicons
                 name="car-outline"
-                size={ms(20)}
+                size={iconSize.sm}
                 color={colors.primary}
               />
               <Text style={[styles.dataItemText, { color: colors.text }]}>
@@ -249,7 +256,7 @@ const DataManagementScreen = ({ navigation }) => {
             <View style={styles.dataItem}>
               <Ionicons
                 name="build-outline"
-                size={ms(20)}
+                size={iconSize.sm}
                 color={colors.primary}
               />
               <Text style={[styles.dataItemText, { color: colors.text }]}>
@@ -259,7 +266,7 @@ const DataManagementScreen = ({ navigation }) => {
             <View style={styles.dataItem}>
               <Ionicons
                 name="document-text-outline"
-                size={ms(20)}
+                size={iconSize.sm}
                 color={colors.primary}
               />
               <Text style={[styles.dataItemText, { color: colors.text }]}>
@@ -269,7 +276,7 @@ const DataManagementScreen = ({ navigation }) => {
             <View style={styles.dataItem}>
               <Ionicons
                 name="person-outline"
-                size={ms(20)}
+                size={iconSize.sm}
                 color={colors.primary}
               />
               <Text style={[styles.dataItemText, { color: colors.text }]}>
@@ -279,7 +286,7 @@ const DataManagementScreen = ({ navigation }) => {
             <View style={styles.dataItem}>
               <Ionicons
                 name="settings-outline"
-                size={ms(20)}
+                size={iconSize.sm}
                 color={colors.primary}
               />
               <Text style={[styles.dataItemText, { color: colors.text }]}>
@@ -302,64 +309,64 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: ms(20),
-    paddingVertical: ms(15),
-    borderBottomWidth: ms(1),
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    borderBottomWidth: s(1),
     borderBottomColor: "#f0f0f0",
   },
   backButton: {
-    padding: ms(5),
+    padding: spacing.xs,
   },
   title: {
     fontSize: rf(20),
     fontWeight: "bold",
   },
   infoButton: {
-    padding: ms(5),
+    padding: spacing.xs,
   },
   content: {
     flex: 1,
-    padding: ms(20),
+    padding: spacing.lg,
   },
   card: {
-    borderRadius: ms(12),
-    padding: ms(20),
-    marginBottom: ms(20),
+    borderRadius: borderRadius.md,
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: ms(4),
-    elevation: ms(3),
+    shadowRadius: s(4),
+    elevation: s(3),
   },
   cardHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: ms(20),
+    marginBottom: spacing.lg,
   },
   cardInfo: {
     flex: 1,
-    marginLeft: ms(15),
+    marginLeft: spacing.md,
   },
   cardTitle: {
     fontSize: rf(18),
     fontWeight: "bold",
-    marginBottom: ms(4),
+    marginBottom: spacing.xs,
   },
   cardSubtitle: {
     fontSize: rf(14),
-    lineHeight: ms(20),
+    lineHeight: rf(20),
   },
   actionsContainer: {
-    gap: ms(12),
+    gap: spacing.md,
   },
   actionButton: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: ms(15),
-    paddingHorizontal: ms(20),
-    borderRadius: ms(10),
-    gap: ms(10),
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    borderRadius: borderRadius.md,
+    gap: spacing.md,
   },
   actionButtonText: {
     color: "#fff",
@@ -372,24 +379,24 @@ const styles = StyleSheet.create({
   infoContainer: {
     flexDirection: "row",
     alignItems: "flex-start",
-    marginTop: ms(20),
-    padding: ms(15),
+    marginTop: spacing.lg,
+    padding: spacing.md,
     backgroundColor: "rgba(255, 193, 7, 0.1)",
-    borderRadius: ms(8),
-    gap: ms(10),
+    borderRadius: borderRadius.sm,
+    gap: spacing.md,
   },
   infoText: {
     fontSize: rf(14),
-    lineHeight: ms(20),
+    lineHeight: rf(20),
     flex: 1,
   },
   dataList: {
-    gap: ms(12),
+    gap: spacing.md,
   },
   dataItem: {
     flexDirection: "row",
     alignItems: "center",
-    gap: ms(12),
+    gap: spacing.md,
   },
   dataItemText: {
     fontSize: rf(16),

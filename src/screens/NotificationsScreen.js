@@ -20,7 +20,15 @@ import {
   insertNotification,
 } from "../database/notifications";
 import { scheduleAllNotifications } from "../services/notificationService";
-import { ms, rf } from "../utils/responsive";
+import {
+  borderRadius,
+  hs,
+  iconSize,
+  rf,
+  s,
+  spacing,
+  vs,
+} from "../utils/responsive";
 
 const NotificationsScreen = () => {
   const { colors } = useTheme();
@@ -174,7 +182,11 @@ const NotificationsScreen = () => {
         </Text>
       </View>
       <TouchableOpacity onPress={() => handleDelete(item.id)}>
-        <Ionicons name="trash-outline" size={ms(24)} color={colors.primary} />
+        <Ionicons
+          name="trash-outline"
+          size={iconSize.md}
+          color={colors.primary}
+        />
       </TouchableOpacity>
     </View>
   );
@@ -193,7 +205,11 @@ const NotificationsScreen = () => {
         ]}
       >
         <View style={styles.alertSectionHeader}>
-          <Ionicons name="notifications" size={ms(24)} color={colors.primary} />
+          <Ionicons
+            name="notifications"
+            size={iconSize.md}
+            color={colors.primary}
+          />
           <Text style={[styles.alertSectionTitle, { color: colors.text }]}>
             Notificaciones de Alertas
           </Text>
@@ -231,7 +247,7 @@ const NotificationsScreen = () => {
             name={
               alertNotificationsEnabled ? "checkmark-circle" : "close-circle"
             }
-            size={ms(20)}
+            size={iconSize.sm}
             color={alertNotificationsEnabled ? "#fff" : colors.textSecondary}
           />
         </TouchableOpacity>
@@ -251,7 +267,7 @@ const NotificationsScreen = () => {
         style={[styles.addButton, { backgroundColor: colors.primary }]}
         onPress={() => setModalVisible(true)}
       >
-        <Ionicons name="add" size={ms(24)} color="white" />
+        <Ionicons name="add" size={iconSize.md} color="white" />
       </TouchableOpacity>
 
       <Modal visible={modalVisible} animationType="slide" transparent>
@@ -392,19 +408,19 @@ const NotificationsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: ms(20),
+    padding: spacing.lg,
   },
   header: {
     fontSize: rf(24),
     fontWeight: "bold",
-    marginBottom: ms(20),
+    marginBottom: spacing.lg,
   },
   notificationItem: {
     flexDirection: "row",
     alignItems: "center",
-    padding: ms(15),
-    marginBottom: ms(10),
-    borderRadius: ms(8),
+    padding: spacing.md,
+    marginBottom: spacing.sm,
+    borderRadius: borderRadius.sm,
   },
   notificationContent: {
     flex: 1,
@@ -415,54 +431,54 @@ const styles = StyleSheet.create({
   },
   body: {
     fontSize: rf(14),
-    marginVertical: ms(5),
+    marginVertical: spacing.xs,
   },
   details: {
     fontSize: rf(12),
   },
   empty: {
     textAlign: "center",
-    marginTop: ms(50),
+    marginTop: vs(50),
     fontSize: rf(16),
   },
   addButton: {
     position: "absolute",
-    bottom: ms(20),
-    right: ms(20),
-    width: ms(60),
-    height: ms(60),
-    borderRadius: ms(30),
+    bottom: vs(20),
+    right: hs(20),
+    width: iconSize.xl,
+    height: iconSize.xl,
+    borderRadius: borderRadius.xl,
     justifyContent: "center",
     alignItems: "center",
   },
   alertSection: {
-    margin: ms(15),
-    padding: ms(15),
-    borderRadius: ms(10),
-    borderWidth: ms(1),
+    margin: spacing.md,
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
+    borderWidth: s(1),
   },
   alertSectionHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: ms(10),
+    marginBottom: spacing.sm,
   },
   alertSectionTitle: {
     fontSize: rf(18),
     fontWeight: "bold",
-    marginLeft: ms(10),
+    marginLeft: spacing.sm,
   },
   alertSectionDescription: {
     fontSize: rf(14),
-    marginBottom: ms(15),
-    lineHeight: ms(20),
+    marginBottom: spacing.md,
+    lineHeight: rf(20),
   },
   alertToggle: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: ms(12),
-    borderRadius: ms(8),
-    borderWidth: ms(1),
+    padding: spacing.sm,
+    borderRadius: borderRadius.sm,
+    borderWidth: s(1),
   },
   alertToggleText: {
     fontSize: rf(16),
@@ -476,70 +492,63 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     width: "90%",
-    padding: ms(20),
-    borderRadius: ms(10),
+    padding: spacing.lg,
+    borderRadius: borderRadius.md,
   },
   modalTitle: {
     fontSize: rf(20),
     fontWeight: "bold",
-    marginBottom: ms(20),
+    marginBottom: spacing.lg,
     textAlign: "center",
   },
   input: {
-    borderWidth: ms(1),
-    borderRadius: ms(5),
-    padding: ms(10),
-    marginBottom: ms(15),
+    borderWidth: s(1),
+    borderRadius: borderRadius.xs,
+    padding: spacing.sm,
+    marginBottom: spacing.md,
   },
   timeLabel: {
     fontSize: rf(16),
-    marginBottom: ms(10),
+    marginBottom: spacing.sm,
   },
   timeContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: ms(15),
+    marginBottom: spacing.md,
   },
   pickerContainer: {
     flex: 1,
-    marginHorizontal: ms(5),
+    marginHorizontal: spacing.xs,
   },
   pickerLabel: {
     fontSize: rf(14),
-    marginBottom: ms(5),
-    textAlign: "center",
-  },
-  input: {
-    borderWidth: ms(1),
-    borderRadius: ms(5),
-    padding: ms(10),
-    marginBottom: ms(15),
+    marginBottom: spacing.xs,
     textAlign: "center",
   },
   daysLabel: {
     fontSize: rf(16),
-    marginBottom: ms(10),
+    marginBottom: spacing.sm,
   },
   daysContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    marginBottom: ms(20),
+    marginBottom: spacing.lg,
   },
   dayButton: {
-    padding: ms(10),
-    margin: ms(5),
-    borderRadius: ms(5),
-    borderWidth: ms(1),
+    padding: spacing.sm,
+    margin: spacing.xs,
+    borderRadius: borderRadius.xs,
+    borderWidth: s(1),
   },
   modalButtons: {
     flexDirection: "row",
     justifyContent: "space-between",
   },
   button: {
-    padding: ms(10),
-    borderRadius: ms(5),
+    padding: spacing.sm,
+    borderRadius: borderRadius.xs,
     flex: 1,
-    marginHorizontal: ms(5),
+    marginHorizontal: spacing.xs,
     alignItems: "center",
   },
 });

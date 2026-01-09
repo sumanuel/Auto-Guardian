@@ -5,7 +5,14 @@ import { FlatList, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
 import { COLORS } from "../data/constants";
-import { ms, rf } from "../utils/responsive";
+import {
+  borderRadius,
+  iconSize,
+  rf,
+  s,
+  spacing,
+  vs,
+} from "../utils/responsive";
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -38,7 +45,7 @@ const VehiclesTab = ({ summary }) => {
         <View style={styles.alertIcon}>
           <Ionicons
             name={item.type === "overdue" ? "alert-circle" : "warning"}
-            size={ms(24)}
+            size={iconSize.md}
             color={item.type === "overdue" ? COLORS.danger : COLORS.warning}
           />
         </View>
@@ -78,7 +85,7 @@ const VehiclesTab = ({ summary }) => {
               <View style={styles.sectionHeader}>
                 <Ionicons
                   name="alert-circle"
-                  size={ms(20)}
+                  size={iconSize.sm}
                   color={COLORS.danger}
                 />
                 <Text style={[styles.sectionTitle, { color: COLORS.danger }]}>
@@ -98,7 +105,11 @@ const VehiclesTab = ({ summary }) => {
           {urgentAlerts.length > 0 && (
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Ionicons name="warning" size={ms(20)} color={COLORS.warning} />
+                <Ionicons
+                  name="warning"
+                  size={iconSize.sm}
+                  color={COLORS.warning}
+                />
                 <Text style={[styles.sectionTitle, { color: COLORS.warning }]}>
                   Urgentes ({urgentAlerts.length})
                 </Text>
@@ -208,7 +219,11 @@ const DocumentsTab = () => {
       >
         <View style={styles.alertHeader}>
           <View style={styles.alertIcon}>
-            <Ionicons name="document-text" size={ms(24)} color={iconColor} />
+            <Ionicons
+              name="document-text"
+              size={iconSize.md}
+              color={iconColor}
+            />
           </View>
           <View style={styles.alertContent}>
             <Text style={[styles.alertVehicle, { color: colors.text }]}>
@@ -251,7 +266,7 @@ const DocumentsTab = () => {
         <View style={styles.emptyState}>
           <Ionicons
             name="document-outline"
-            size={ms(60)}
+            size={iconSize.xxl}
             color={colors.textSecondary}
           />
           <Text style={[styles.emptyTitle, { color: colors.text }]}>
@@ -264,7 +279,7 @@ const DocumentsTab = () => {
       ) : (
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Ionicons name="time" size={ms(20)} color={COLORS.warning} />
+            <Ionicons name="time" size={iconSize.sm} color={COLORS.warning} />
             <Text style={[styles.sectionTitle, { color: COLORS.warning }]}>
               Urgentes ({expiringDocuments.length})
             </Text>
@@ -306,11 +321,7 @@ const AlertSummaryScreen = ({ navigation, route }) => {
           children={() => <VehiclesTab summary={summary} />}
           options={{
             tabBarIcon: ({ color, size }) => (
-              <Ionicons
-                name="car-sport-outline"
-                size={ms(size)}
-                color={color}
-              />
+              <Ionicons name="car-sport-outline" size={size} color={color} />
             ),
           }}
         />
@@ -319,7 +330,7 @@ const AlertSummaryScreen = ({ navigation, route }) => {
           component={DocumentsTab}
           options={{
             tabBarIcon: ({ color, size }) => (
-              <Ionicons name="document-outline" size={ms(size)} color={color} />
+              <Ionicons name="document-outline" size={size} color={color} />
             ),
           }}
         />
@@ -333,17 +344,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingTop: ms(50),
-    paddingHorizontal: ms(16),
-    paddingBottom: ms(16),
-    borderBottomWidth: ms(1),
+    paddingTop: vs(50),
+    paddingHorizontal: spacing.md,
+    paddingBottom: spacing.md,
+    borderBottomWidth: s(1),
     borderBottomColor: "#e0e0e0",
     flexDirection: "row",
     alignItems: "center",
   },
   backButton: {
-    padding: ms(8),
-    marginRight: ms(8),
+    padding: spacing.xs,
+    marginRight: spacing.xs,
   },
   headerContent: {
     flex: 1,
@@ -351,13 +362,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   iconContainer: {
-    width: ms(48),
-    height: ms(48),
-    borderRadius: ms(24),
+    width: iconSize.xl,
+    height: iconSize.xl,
+    borderRadius: borderRadius.xl,
     backgroundColor: COLORS.warning + "20",
     justifyContent: "center",
     alignItems: "center",
-    marginRight: ms(12),
+    marginRight: spacing.md,
   },
   iconSuccess: {
     backgroundColor: COLORS.success + "20",
@@ -368,19 +379,19 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: ms(16),
+    padding: spacing.md,
   },
   emptyState: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingVertical: ms(60),
+    paddingVertical: vs(60),
   },
   emptyTitle: {
     fontSize: rf(20),
     fontWeight: "bold",
-    marginTop: ms(16),
-    marginBottom: ms(8),
+    marginTop: spacing.md,
+    marginBottom: spacing.xs,
   },
   emptyText: {
     fontSize: rf(16),
@@ -389,39 +400,39 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: rf(16),
     textAlign: "center",
-    padding: ms(20),
+    padding: spacing.lg,
   },
   tabContainer: {
     flex: 1,
-    padding: ms(16),
+    padding: spacing.md,
   },
   section: {
-    marginBottom: ms(24),
+    marginBottom: spacing.xl,
   },
   sectionHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: ms(12),
+    marginBottom: spacing.md,
   },
   sectionTitle: {
     fontSize: rf(18),
     fontWeight: "bold",
-    marginLeft: ms(8),
+    marginLeft: spacing.xs,
   },
   alertItem: {
-    padding: ms(16),
-    marginBottom: ms(8),
-    borderRadius: ms(8),
-    borderWidth: ms(1),
+    padding: spacing.md,
+    marginBottom: spacing.xs,
+    borderRadius: borderRadius.sm,
+    borderWidth: s(1),
     borderColor: "#e0e0e0",
   },
   alertHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: ms(8),
+    marginBottom: spacing.xs,
   },
   alertIcon: {
-    marginRight: ms(12),
+    marginRight: spacing.md,
   },
   alertContent: {
     flex: 1,

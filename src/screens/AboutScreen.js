@@ -2,7 +2,15 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useTheme } from "../context/ThemeContext";
-import { ms, rf } from "../utils/responsive";
+import {
+  borderRadius,
+  hs,
+  iconSize,
+  rf,
+  s,
+  spacing,
+  vs,
+} from "../utils/responsive";
 
 const AboutScreen = () => {
   const { colors, isDarkMode } = useTheme();
@@ -44,7 +52,7 @@ const AboutScreen = () => {
           end={{ x: 1, y: 1 }}
         >
           <View style={styles.iconContainer}>
-            <Ionicons name="car-sport" size={ms(60)} color="#fff" />
+            <Ionicons name="car-sport" size={iconSize.xxl} color="#fff" />
           </View>
           <Text style={styles.title}>Auto-Guardian</Text>
           <Text style={styles.subtitle}>
@@ -61,7 +69,7 @@ const AboutScreen = () => {
             <View style={styles.cardHeader}>
               <Ionicons
                 name="book-outline"
-                size={ms(24)}
+                size={iconSize.md}
                 color={colors.primary}
               />
               <Text style={[styles.cardTitle, { color: colors.text }]}>
@@ -91,7 +99,11 @@ const AboutScreen = () => {
             style={[styles.card, { backgroundColor: colors.cardBackground }]}
           >
             <View style={styles.cardHeader}>
-              <Ionicons name="people" size={ms(24)} color={colors.primary} />
+              <Ionicons
+                name="people"
+                size={iconSize.md}
+                color={colors.primary}
+              />
               <Text style={[styles.cardTitle, { color: colors.text }]}>
                 Para quién es esta app
               </Text>
@@ -107,7 +119,7 @@ const AboutScreen = () => {
                 >
                   <Ionicons
                     name={feature.icon}
-                    size={ms(24)}
+                    size={iconSize.md}
                     color={colors.primary}
                   />
                 </View>
@@ -122,7 +134,7 @@ const AboutScreen = () => {
 
           {/* Footer */}
           <View style={styles.footer}>
-            <Ionicons name="heart" size={ms(20)} color={colors.primary} />
+            <Ionicons name="heart" size={iconSize.sm} color={colors.primary} />
             <Text style={[styles.footerText, { color: colors.textSecondary }]}>
               Hecho con amor para cuidar tu auto
             </Text>
@@ -141,34 +153,34 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   header: {
-    paddingTop: ms(40),
-    paddingBottom: ms(40),
-    paddingHorizontal: ms(24),
+    paddingTop: vs(40),
+    paddingBottom: vs(40),
+    paddingHorizontal: hs(24),
     alignItems: "center",
-    borderBottomLeftRadius: ms(30),
-    borderBottomRightRadius: ms(30),
+    borderBottomLeftRadius: s(30),
+    borderBottomRightRadius: s(30),
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
-    shadowRadius: ms(8),
-    elevation: ms(8),
+    shadowRadius: s(8),
+    elevation: s(8),
   },
   iconContainer: {
-    width: ms(100),
-    height: ms(100),
-    borderRadius: ms(50),
+    width: s(100),
+    height: s(100),
+    borderRadius: s(50),
     backgroundColor: "rgba(255, 255, 255, 0.2)",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: ms(16),
-    borderWidth: ms(3),
+    marginBottom: spacing.md,
+    borderWidth: s(3),
     borderColor: "rgba(255, 255, 255, 0.3)",
   },
   title: {
     fontSize: rf(32),
     fontWeight: "bold",
     color: "#fff",
-    marginBottom: ms(8),
+    marginBottom: spacing.xs,
     textAlign: "center",
   },
   subtitle: {
@@ -179,23 +191,23 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   content: {
-    padding: ms(20),
+    padding: spacing.lg,
   },
   card: {
-    borderRadius: ms(16),
-    padding: ms(20),
-    marginBottom: ms(20),
+    borderRadius: borderRadius.lg,
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: ms(4),
-    elevation: ms(3),
+    shadowRadius: s(4),
+    elevation: s(3),
   },
   cardHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: ms(16),
-    gap: ms(12),
+    marginBottom: spacing.md,
+    gap: spacing.sm,
   },
   cardTitle: {
     fontSize: rf(20),
@@ -203,35 +215,35 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: rf(15),
-    lineHeight: ms(24),
-    marginBottom: ms(12),
+    lineHeight: rf(24),
+    marginBottom: spacing.sm,
     textAlign: "justify",
   },
   featureItem: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: ms(16),
-    gap: ms(12),
+    marginBottom: spacing.md,
+    gap: spacing.sm,
   },
   iconBadge: {
-    width: ms(48),
-    height: ms(48),
-    borderRadius: ms(24),
+    width: s(48),
+    height: s(48),
+    borderRadius: s(24),
     alignItems: "center",
     justifyContent: "center",
   },
   featureText: {
     flex: 1,
     fontSize: rf(14),
-    lineHeight: ms(20),
+    lineHeight: rf(20),
   },
   footer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: ms(8),
-    marginTop: ms(20),
-    marginBottom: ms(40),
+    gap: spacing.xs,
+    marginTop: spacing.lg,
+    marginBottom: vs(40),
   },
   footerText: {
     fontSize: rf(14),

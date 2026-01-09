@@ -1,6 +1,6 @@
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useTheme } from "../context/ThemeContext";
-import { ms, rf } from "../utils/responsive";
+import { borderRadius, ms, rf, spacing } from "../utils/responsive";
 
 const RecommendationsScreen = ({ navigation }) => {
   const { colors } = useTheme();
@@ -106,27 +106,27 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: ms(20),
-    paddingTop: ms(20),
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
   },
   sectionTitle: {
     fontSize: rf(18),
     fontWeight: "bold",
-    marginBottom: ms(20),
+    marginBottom: spacing.lg,
   },
   recCard: {
-    borderRadius: ms(12),
-    padding: ms(16),
-    marginBottom: ms(12),
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    marginBottom: spacing.sm,
   },
   recTitle: {
     fontSize: rf(16),
     fontWeight: "600",
-    marginBottom: ms(8),
+    marginBottom: spacing.sm,
   },
   recContent: {
     fontSize: rf(14),
-    lineHeight: ms(20),
+    lineHeight: rf(20),
   },
 });
 

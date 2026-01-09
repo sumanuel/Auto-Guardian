@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useTheme } from "../context/ThemeContext";
-import { ms, rf } from "../utils/responsive";
+import { borderRadius, iconSize, ms, rf, spacing } from "../utils/responsive";
 
 const LearnCarScreen = ({ navigation }) => {
   const { colors } = useTheme();
@@ -48,7 +48,7 @@ const LearnCarScreen = ({ navigation }) => {
           >
             <Ionicons
               name="warning"
-              size={ms(20)}
+              size={iconSize.sm}
               color="#ff6b35"
               style={styles.icon}
             />
@@ -84,7 +84,7 @@ const LearnCarScreen = ({ navigation }) => {
           >
             <Ionicons
               name="checkmark-circle"
-              size={ms(20)}
+              size={iconSize.sm}
               color={colors.primary}
               style={styles.icon}
             />
@@ -105,41 +105,41 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: ms(20),
-    paddingTop: ms(20),
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
   },
   sectionTitle: {
     fontSize: rf(18),
     fontWeight: "bold",
-    marginBottom: ms(5),
+    marginBottom: spacing.xs,
   },
   sectionSubtitle: {
     fontSize: rf(14),
-    marginBottom: ms(15),
+    marginBottom: spacing.md,
     fontStyle: "italic",
   },
   introText: {
     fontSize: rf(14),
-    marginBottom: ms(15),
+    marginBottom: spacing.md,
     fontStyle: "italic",
   },
   alertCard: {
     flexDirection: "row",
     alignItems: "flex-start",
-    borderRadius: ms(12),
-    padding: ms(16),
-    marginBottom: ms(12),
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    marginBottom: spacing.sm,
   },
   practiceCard: {
     flexDirection: "row",
     alignItems: "flex-start",
-    borderRadius: ms(12),
-    padding: ms(16),
-    marginBottom: ms(12),
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    marginBottom: spacing.sm,
   },
   icon: {
-    marginRight: ms(12),
-    marginTop: ms(2),
+    marginRight: spacing.md,
+    marginTop: spacing.xs,
   },
   textContainer: {
     flex: 1,
@@ -147,15 +147,15 @@ const styles = StyleSheet.create({
   alertTitle: {
     fontSize: rf(16),
     fontWeight: "600",
-    marginBottom: ms(4),
+    marginBottom: spacing.xs,
   },
   alertContent: {
     fontSize: rf(14),
-    lineHeight: ms(20),
+    lineHeight: rf(20),
   },
   practiceContent: {
     fontSize: rf(14),
-    lineHeight: ms(20),
+    lineHeight: rf(20),
     flex: 1,
   },
 });

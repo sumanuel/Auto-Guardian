@@ -10,7 +10,14 @@ import {
   View,
 } from "react-native";
 import { useTheme } from "../context/ThemeContext";
-import { ms, rf } from "../utils/responsive";
+import {
+  borderRadius,
+  iconSize,
+  rf,
+  s,
+  spacing,
+  vs,
+} from "../utils/responsive";
 
 const MoreScreen = () => {
   const navigation = useNavigation();
@@ -88,7 +95,7 @@ const MoreScreen = () => {
               <View style={styles.menuItemLeft}>
                 <Ionicons
                   name={option.icon}
-                  size={ms(24)}
+                  size={iconSize.md}
                   color={option.comingSoon ? colors.disabled : colors.primary}
                 />
                 <Text
@@ -122,7 +129,7 @@ const MoreScreen = () => {
               {!option.comingSoon && (
                 <Ionicons
                   name="chevron-forward"
-                  size={ms(20)}
+                  size={iconSize.sm}
                   color={colors.textTertiary}
                 />
               )}
@@ -149,46 +156,46 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: ms(20),
+    padding: spacing.lg,
   },
   title: {
     fontSize: rf(28),
     fontWeight: "bold",
-    marginBottom: ms(20),
+    marginBottom: spacing.lg,
   },
   menuContainer: {
-    borderRadius: ms(12),
+    borderRadius: borderRadius.md,
     overflow: "hidden",
   },
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: ms(16),
-    borderBottomWidth: ms(1),
+    padding: spacing.md,
+    borderBottomWidth: s(1),
     borderBottomColor: "#f0f0f0",
   },
   menuItemLeft: {
     flexDirection: "row",
     alignItems: "center",
-    gap: ms(12),
+    gap: spacing.sm,
   },
   menuItemText: {
     fontSize: rf(16),
     fontWeight: "500",
   },
   comingSoonBadge: {
-    paddingHorizontal: ms(12),
-    paddingVertical: ms(4),
-    borderRadius: ms(12),
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xxs,
+    borderRadius: borderRadius.md,
   },
   comingSoonBadgeText: {
     fontSize: rf(12),
   },
   footer: {
-    marginTop: ms(40),
+    marginTop: vs(40),
     alignItems: "center",
-    paddingVertical: ms(20),
+    paddingVertical: spacing.lg,
   },
   footerText: {
     fontSize: rf(18),
@@ -196,7 +203,7 @@ const styles = StyleSheet.create({
   },
   footerSubtext: {
     fontSize: rf(14),
-    marginTop: ms(4),
+    marginTop: spacing.xxs,
   },
 });
 
