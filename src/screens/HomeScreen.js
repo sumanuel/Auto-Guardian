@@ -16,7 +16,7 @@ import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
 import { COLORS } from "../data/constants";
 import { useDialog } from "../hooks/useDialog";
-import { ms, rf } from "../utils/responsive";
+import { hs, iconSize, ms, rf, s, spacing, vs } from "../utils/responsive";
 
 const HomeScreen = ({ navigation }) => {
   const {
@@ -158,7 +158,7 @@ const HomeScreen = ({ navigation }) => {
               >
                 <Ionicons
                   name="notifications"
-                  size={ms(24)}
+                  size={iconSize.md}
                   color={
                     alertSummary.totalOverdue > 0
                       ? COLORS.danger
@@ -209,7 +209,7 @@ const HomeScreen = ({ navigation }) => {
             >
               <Ionicons
                 name="information-circle-outline"
-                size={ms(24)}
+                size={iconSize.md}
                 color={colors.primary}
               />
             </TouchableOpacity>
@@ -239,7 +239,7 @@ const HomeScreen = ({ navigation }) => {
                 <View style={styles.noResultsContainer}>
                   <Ionicons
                     name="search-outline"
-                    size={ms(60)}
+                    size={iconSize.xxl}
                     color={colors.textSecondary}
                   />
                   <Text
@@ -262,7 +262,7 @@ const HomeScreen = ({ navigation }) => {
             onPress={() => navigation.navigate("AddVehicle")}
             activeOpacity={0.8}
           >
-            <Ionicons name="add" size={ms(30)} color="#fff" />
+            <Ionicons name="add" size={iconSize.lg} color="#fff" />
           </TouchableOpacity>
         )}
       </View>
@@ -281,9 +281,9 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: COLORS.primary,
-    padding: ms(20),
-    paddingTop: ms(50),
-    paddingBottom: ms(30),
+    paddingHorizontal: hs(20),
+    paddingTop: vs(50),
+    paddingBottom: vs(30),
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
@@ -295,7 +295,7 @@ const styles = StyleSheet.create({
     fontSize: rf(28),
     fontWeight: "bold",
     color: "#fff",
-    marginBottom: ms(4),
+    marginBottom: vs(4),
   },
   headerSubtitle: {
     fontSize: rf(16),
@@ -304,18 +304,18 @@ const styles = StyleSheet.create({
   },
   alertBadge: {
     position: "relative",
-    padding: ms(8),
+    padding: spacing.sm,
   },
   alertCount: {
     position: "absolute",
-    top: ms(4),
-    right: ms(4),
-    minWidth: ms(20),
-    height: ms(20),
-    borderRadius: ms(10),
+    top: s(4),
+    right: s(4),
+    minWidth: s(20),
+    height: s(20),
+    borderRadius: s(10),
     justifyContent: "center",
     alignItems: "center",
-    borderWidth: ms(2),
+    borderWidth: s(2),
     borderColor: "#fff",
   },
   alertCountText: {
@@ -326,17 +326,17 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: ms(16),
-    paddingVertical: ms(12),
+    paddingHorizontal: hs(16),
+    paddingVertical: vs(12),
   },
   searchBarContainer: {
     flex: 1,
   },
   helpButton: {
-    padding: ms(8),
+    padding: spacing.sm,
   },
   listContent: {
-    padding: ms(16),
+    padding: spacing.lg,
   },
   scrollContent: {
     flexGrow: 1,
@@ -345,47 +345,47 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingVertical: ms(60),
+    paddingVertical: vs(60),
   },
   noResultsText: {
     fontSize: rf(16),
-    marginTop: ms(16),
+    marginTop: vs(16),
   },
   emptyState: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: ms(32),
+    padding: spacing.xxl,
   },
   emptyTitle: {
     fontSize: rf(20),
     fontWeight: "bold",
-    marginTop: ms(16),
-    marginBottom: ms(8),
+    marginTop: vs(16),
+    marginBottom: vs(8),
   },
   emptySubtitle: {
     fontSize: rf(14),
     textAlign: "center",
-    marginBottom: ms(24),
+    marginBottom: vs(24),
   },
   emptyButton: {
-    minWidth: ms(200),
+    minWidth: s(200),
   },
   fab: {
     position: "absolute",
-    right: ms(20),
-    bottom: ms(20),
+    right: hs(20),
+    bottom: vs(20),
     backgroundColor: COLORS.primary,
-    width: ms(60),
-    height: ms(60),
-    borderRadius: ms(30),
+    width: s(60),
+    height: s(60),
+    borderRadius: s(30),
     justifyContent: "center",
     alignItems: "center",
-    elevation: ms(5),
+    elevation: s(5),
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
-    shadowRadius: ms(4),
+    shadowRadius: s(4),
   },
 });
 

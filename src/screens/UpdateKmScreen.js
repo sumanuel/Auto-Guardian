@@ -11,7 +11,7 @@ import Button from "../components/common/Button";
 import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
 import { useDialog } from "../hooks/useDialog";
-import { ms, rf } from "../utils/responsive";
+import { borderRadius, hs, rf, s, spacing, vs } from "../utils/responsive";
 
 const UpdateKmScreen = ({ navigation, route }) => {
   const { vehicle } = route.params;
@@ -136,43 +136,44 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: ms(20),
+    paddingHorizontal: hs(20),
+    paddingVertical: vs(20),
   },
   title: {
     fontSize: rf(24),
     fontWeight: "bold",
-    marginBottom: ms(8),
+    marginBottom: vs(8),
   },
   subtitle: {
     fontSize: rf(16),
-    marginBottom: ms(24),
+    marginBottom: vs(24),
   },
   currentKmContainer: {
-    padding: ms(16),
-    borderRadius: ms(8),
-    marginBottom: ms(24),
+    padding: spacing.lg,
+    borderRadius: borderRadius.sm,
+    marginBottom: vs(24),
   },
   label: {
     fontSize: rf(14),
-    marginBottom: ms(4),
+    marginBottom: vs(4),
   },
   currentKm: {
     fontSize: rf(28),
     fontWeight: "bold",
   },
   inputGroup: {
-    marginBottom: ms(24),
+    marginBottom: vs(24),
   },
   input: {
-    borderWidth: ms(1),
-    borderRadius: ms(8),
-    padding: ms(12),
+    borderWidth: s(1),
+    borderRadius: borderRadius.sm,
+    padding: spacing.md,
     fontSize: rf(24),
     fontWeight: "bold",
     textAlign: "center",
   },
   submitButton: {
-    marginTop: ms(16),
+    marginTop: spacing.md,
   },
 });
 

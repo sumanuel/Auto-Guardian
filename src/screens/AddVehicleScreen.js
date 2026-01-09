@@ -16,7 +16,15 @@ import Button from "../components/common/Button";
 import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
 import { useDialog } from "../hooks/useDialog";
-import { ms, rf } from "../utils/responsive";
+import {
+  borderRadius,
+  hs,
+  iconSize,
+  rf,
+  s,
+  spacing,
+  vs,
+} from "../utils/responsive";
 
 const AddVehicleScreen = ({ navigation, route }) => {
   const { addVehicle, updateVehicle } = useApp();
@@ -42,7 +50,7 @@ const AddVehicleScreen = ({ navigation, route }) => {
         scrollViewRef.current,
         (x, y) => {
           scrollViewRef.current.scrollTo({
-            y: y - ms(100),
+            y: y - vs(100),
             animated: true,
           });
         },
@@ -223,7 +231,7 @@ const AddVehicleScreen = ({ navigation, route }) => {
                 >
                   <Ionicons
                     name="camera"
-                    size={ms(40)}
+                    size={iconSize.lg}
                     color={colors.textSecondary}
                   />
                   <Text
@@ -462,16 +470,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    padding: ms(20),
+    paddingHorizontal: hs(20),
+    paddingVertical: vs(20),
   },
   photoSection: {
     alignItems: "center",
-    marginBottom: ms(24),
+    marginBottom: spacing.xl,
   },
   photoContainer: {
-    width: ms(150),
-    height: ms(150),
-    borderRadius: ms(12),
+    width: s(150),
+    height: s(150),
+    borderRadius: borderRadius.md,
     overflow: "hidden",
   },
   photo: {
@@ -483,30 +492,30 @@ const styles = StyleSheet.create({
     height: "100%",
     justifyContent: "center",
     alignItems: "center",
-    borderWidth: ms(2),
+    borderWidth: s(2),
     borderStyle: "dashed",
   },
   photoText: {
-    marginTop: ms(8),
+    marginTop: spacing.sm,
     fontSize: rf(14),
   },
   inputGroup: {
-    marginBottom: ms(20),
+    marginBottom: spacing.lg,
   },
   label: {
     fontSize: rf(16),
     fontWeight: "600",
-    marginBottom: ms(8),
+    marginBottom: spacing.sm,
   },
   input: {
-    borderWidth: ms(1),
-    borderRadius: ms(8),
-    padding: ms(12),
+    borderWidth: s(1),
+    borderRadius: borderRadius.sm,
+    padding: spacing.md,
     fontSize: rf(16),
   },
   submitButton: {
-    marginTop: ms(16),
-    marginBottom: ms(32),
+    marginTop: spacing.md,
+    marginBottom: vs(32),
   },
 });
 

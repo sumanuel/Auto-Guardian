@@ -19,7 +19,16 @@ import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
 import { COLORS } from "../data/constants";
 import { useDialog } from "../hooks/useDialog";
-import { ms, rf } from "../utils/responsive";
+import {
+  borderRadius,
+  hs,
+  iconSize,
+  ms,
+  rf,
+  s,
+  spacing,
+  vs,
+} from "../utils/responsive";
 
 const AddMaintenanceScreen = ({ navigation, route }) => {
   const { vehicleId, quickType, maintenanceData } = route.params || {};
@@ -404,7 +413,7 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
             >
               <Ionicons
                 name="information-circle-outline"
-                size={ms(24)}
+                size={iconSize.md}
                 color={colors.primary}
               />
             </TouchableOpacity>
@@ -489,7 +498,7 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
                       ? "radio-button-on"
                       : "radio-button-off"
                   }
-                  size={ms(20)}
+                  size={iconSize.md}
                   color={colors.primary}
                 />
                 <Text style={[styles.radioLabel, { color: colors.text }]}>
@@ -506,7 +515,7 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
                       ? "radio-button-on"
                       : "radio-button-off"
                   }
-                  size={ms(20)}
+                  size={iconSize.md}
                   color={colors.primary}
                 />
                 <Text style={[styles.radioLabel, { color: colors.text }]}>
@@ -621,7 +630,7 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
             </Text>
             <Ionicons
               name={showOptionalFields ? "chevron-up" : "chevron-down"}
-              size={ms(20)}
+              size={iconSize.md}
               color={colors.primary}
             />
           </TouchableOpacity>
@@ -771,7 +780,7 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
                 Editar mantenimiento
               </Text>
               <TouchableOpacity onPress={() => setEditModalVisible(false)}>
-                <Ionicons name="close" size={ms(24)} color={colors.text} />
+                <Ionicons name="close" size={iconSize.md} color={colors.text} />
               </TouchableOpacity>
             </View>
 
@@ -973,30 +982,31 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    padding: ms(20),
+    paddingHorizontal: hs(20),
+    paddingVertical: vs(20),
   },
   vehicleName: {
     fontSize: rf(20),
     fontWeight: "bold",
-    marginBottom: ms(20),
+    marginBottom: vs(20),
   },
   section: {
-    marginBottom: ms(20),
+    marginBottom: vs(20),
   },
   sectionTitle: {
     fontSize: rf(16),
     fontWeight: "600",
-    marginBottom: ms(12),
+    marginBottom: vs(12),
   },
   typesScroll: {
-    marginBottom: ms(12),
+    marginBottom: vs(12),
   },
   typeChip: {
-    paddingHorizontal: ms(16),
-    paddingVertical: ms(8),
-    borderRadius: ms(20),
-    marginRight: ms(8),
-    borderWidth: ms(1),
+    paddingHorizontal: hs(16),
+    paddingVertical: vs(8),
+    borderRadius: borderRadius.xl,
+    marginRight: hs(8),
+    borderWidth: s(1),
   },
   typeChipActive: {
     backgroundColor: COLORS.primary,
@@ -1009,45 +1019,45 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   inputGroup: {
-    marginBottom: ms(20),
+    marginBottom: vs(20),
   },
   label: {
     fontSize: rf(16),
     fontWeight: "600",
-    marginBottom: ms(8),
+    marginBottom: vs(8),
   },
   input: {
-    borderWidth: ms(1),
-    borderRadius: ms(8),
-    padding: ms(12),
+    borderWidth: s(1),
+    borderRadius: borderRadius.sm,
+    padding: spacing.md,
     fontSize: rf(16),
   },
   textArea: {
-    minHeight: ms(100),
+    minHeight: s(100),
   },
   radioGroup: {
     flexDirection: "row",
-    gap: ms(16),
-    marginVertical: ms(8),
+    gap: hs(16),
+    marginVertical: vs(8),
   },
   radioOption: {
     flexDirection: "row",
     alignItems: "center",
   },
   radioLabel: {
-    marginLeft: ms(6),
+    marginLeft: hs(6),
   },
   photoContainer: {
-    gap: ms(12),
+    gap: vs(12),
   },
   photoPreview: {
     width: "100%",
-    height: ms(200),
-    borderRadius: ms(12),
+    height: s(200),
+    borderRadius: borderRadius.md,
   },
   photoActions: {
     flexDirection: "row",
-    gap: ms(12),
+    gap: hs(12),
   },
   photoButton: {
     flex: 1,
@@ -1056,40 +1066,40 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: ms(12),
-    paddingHorizontal: ms(16),
-    marginBottom: ms(16),
-    borderRadius: ms(8),
-    borderWidth: ms(1),
+    paddingVertical: vs(12),
+    paddingHorizontal: hs(16),
+    marginBottom: vs(16),
+    borderRadius: borderRadius.sm,
+    borderWidth: s(1),
   },
   optionalToggleText: {
     fontSize: rf(16),
     fontWeight: "500",
   },
   optionalFieldsContainer: {
-    marginBottom: ms(16),
+    marginBottom: vs(16),
   },
   helperText: {
     fontSize: rf(12),
-    marginTop: ms(4),
+    marginTop: vs(4),
     fontStyle: "italic",
   },
   submitButton: {
-    marginTop: ms(16),
-    marginBottom: ms(32),
+    marginTop: spacing.md,
+    marginBottom: vs(32),
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: ms(16),
+    marginBottom: vs(16),
   },
   headerTitle: {
     fontSize: rf(20),
     fontWeight: "bold",
   },
   infoIcon: {
-    padding: ms(4),
+    padding: spacing.sm,
   },
   editIconContainer: {
     flexDirection: "row",
