@@ -292,6 +292,7 @@ const AppNavigator = () => {
       <Tab.Navigator
         screenOptions={({ route }) => ({
           headerShown: false,
+          tabBarLabelPosition: "below-icon",
           tabBarIcon: ({ focused, color, size }) => {
             let iconName;
 
@@ -307,7 +308,13 @@ const AppNavigator = () => {
                 : "ellipsis-horizontal-circle-outline";
             }
 
-            return <Ionicons name={iconName} size={ms(size)} color={color} />;
+            return (
+              <Ionicons
+                name={iconName}
+                size={ms(tablet ? size - 1 : size)}
+                color={color}
+              />
+            );
           },
           tabBarActiveTintColor: colors.primary,
           tabBarInactiveTintColor: colors.tabBarInactive,
@@ -338,13 +345,22 @@ const AppNavigator = () => {
             shadowOpacity: 0.1,
             shadowRadius: ms(3),
           },
+          tabBarItemStyle: {
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+          },
           tabBarLabelStyle: {
             fontSize: rf(13),
             fontWeight: "600",
             marginBottom: ms(4),
+            textAlign: "center",
+            gap: ms(2),
           },
           tabBarIconStyle: {
             marginTop: ms(4),
+            height: ms(24),
+            width: ms(24),
           },
         })}
       >
