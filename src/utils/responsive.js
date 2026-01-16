@@ -6,7 +6,8 @@ const BASE_HEIGHT = 812;
 
 // Scale limits to prevent UI from becoming too small or too large
 const MIN_SCALE = 0.85; // Allow slight shrinking for very small devices
-const MAX_SCALE = 1.6; // Cap scaling for very large screens
+const MAX_SCALE_PHONE = 1.6; // Cap scaling for phones
+const MAX_SCALE_TABLET = 3.5; // Higher cap for tablets to ensure UI is large enough
 
 // Clamp function to keep values within bounds
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
@@ -16,7 +17,7 @@ const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
  */
 const getWidthScale = () => {
   const { width } = Dimensions.get("window");
-  return clamp(width / BASE_WIDTH, MIN_SCALE, MAX_SCALE);
+  return clamp(width / BASE_WIDTH, MIN_SCALE, MAX_SCALE_PHONE);
 };
 
 /**
@@ -24,16 +25,50 @@ const getWidthScale = () => {
  */
 const getHeightScale = () => {
   const { height } = Dimensions.get("window");
-  return clamp(height / BASE_HEIGHT, MIN_SCALE, MAX_SCALE);
+  return clamp(height / BASE_HEIGHT, MIN_SCALE, MAX_SCALE_PHONE);
+};
+
+/**
+ * Device type detection
+ */
+export const isTablet = () => {
+  const { width, height } = Dimensions.get("window");
+  const minDimension = Math.min(width, height);
+  return minDimension >= 600;
+};
+
+export const isSmallDevice = () => {
+  const { width, height } = Dimensions.get("window");
+  const minDimension = Math.min(width, height);
+  return minDimension < 375;
+};
+
+export const isLargeDevice = () => {
+  const { width, height } = Dimensions.get("window");
+  const minDimension = Math.min(width, height);
+  return minDimension > 800;
 };
 
 /**
  * Get the minimum scale (useful for balanced scaling)
  */
 const getScale = () => {
-  const widthScale = getWidthScale();
-  const heightScale = getHeightScale();
-  return Math.min(widthScale, heightScale);
+  const { width, height } = Dimensions.get("window");
+  const isTab = isTablet();
+  const baseWidth = isTab ? 600 : BASE_WIDTH; // Smaller base for tablets to get more scaling
+  const baseHeight = isTab ? 1024 : BASE_HEIGHT;
+  const widthScale = clamp(
+    width / baseWidth,
+    MIN_SCALE,
+    isTab ? MAX_SCALE_TABLET : MAX_SCALE_PHONE
+  );
+  const heightScale = clamp(
+    height / baseHeight,
+    MIN_SCALE,
+    isTab ? MAX_SCALE_TABLET : MAX_SCALE_PHONE
+  );
+  const maxScale = isTab ? MAX_SCALE_TABLET : MAX_SCALE_PHONE;
+  return Math.min(widthScale, heightScale, maxScale);
 };
 
 /**
@@ -62,7 +97,7 @@ export const ms = (size, factor = 0.7) => {
  * @param {number} factor - Scaling intensity (0-1, default 0.8 for typography)
  * @returns {number} Scaled and rounded font size
  */
-export const rf = (fontSize, factor = 0.8) => {
+export const rf = (fontSize, factor = isTablet() ? 1.0 : 0.8) => {
   const scaled = ms(fontSize, factor);
   return Math.round(PixelRatio.roundToNearestPixel(scaled));
 };
@@ -90,27 +125,6 @@ export const hs = (size) => {
  */
 export const screenWidth = Dimensions.get("window").width;
 export const screenHeight = Dimensions.get("window").height;
-
-/**
- * Device type detection
- */
-export const isTablet = () => {
-  const { width, height } = Dimensions.get("window");
-  const minDimension = Math.min(width, height);
-  return minDimension >= 600;
-};
-
-export const isSmallDevice = () => {
-  const { width, height } = Dimensions.get("window");
-  const minDimension = Math.min(width, height);
-  return minDimension < 375;
-};
-
-export const isLargeDevice = () => {
-  const { width, height } = Dimensions.get("window");
-  const minDimension = Math.min(width, height);
-  return minDimension > 800;
-};
 
 /**
  * Platform-specific scaling adjustments
