@@ -2,7 +2,7 @@
   "expo": {
     "name": "Auto-Guardian",
     "slug": "Auto-Guardian",
-    "version": "0.1.1.260105",
+    "version": "0.1.1.260119",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "scheme": "autoguardian",
@@ -12,13 +12,14 @@
       "supportsTablet": true
     },
     "android": {
+      "versionCode": 2,
       "adaptiveIcon": {
         "backgroundColor": "#2196F3",
         "foregroundImage": "./assets/icon.png"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.jpradadev.AutoGuardian",
+      "package": "com.trenkit.autoguardian",
       "permissions": [
         "android.permission.CALL_PHONE",
         "android.permission.SEND_SMS",
