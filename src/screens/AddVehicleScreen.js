@@ -25,6 +25,10 @@ import {
   spacing,
   vs,
 } from "../utils/responsive";
+import {
+  deleteVehiclePhotoIfOwnedAsync,
+  persistVehiclePhotoAsync,
+} from "../utils/vehiclePhotoStorage";
 
 const AddVehicleScreen = ({ navigation, route }) => {
   const { addVehicle, updateVehicle } = useApp();
@@ -54,7 +58,7 @@ const AddVehicleScreen = ({ navigation, route }) => {
             animated: true,
           });
         },
-        () => {}
+        () => {},
       );
     }
   };
@@ -97,7 +101,8 @@ const AddVehicleScreen = ({ navigation, route }) => {
     });
 
     if (!result.canceled) {
-      handleInputChange("photo", result.assets[0].uri);
+      const persistedUri = await persistVehiclePhotoAsync(result.assets[0].uri);
+      handleInputChange("photo", persistedUri);
     }
   };
 
@@ -120,7 +125,8 @@ const AddVehicleScreen = ({ navigation, route }) => {
     });
 
     if (!result.canceled) {
-      handleInputChange("photo", result.assets[0].uri);
+      const persistedUri = await persistVehiclePhotoAsync(result.assets[0].uri);
+      handleInputChange("photo", persistedUri);
     }
   };
 
@@ -168,6 +174,15 @@ const AddVehicleScreen = ({ navigation, route }) => {
         year: formData.year ? parseInt(formData.year) : null,
         currentKm: parseInt(formData.currentKm) || 0,
       };
+
+      // Si estamos editando y se cambió la foto, eliminar la anterior si era un archivo interno de la app
+      if (isEditing) {
+        const oldPhoto = vehicleToEdit?.photo || null;
+        const newPhoto = vehicleData.photo || null;
+        if (oldPhoto && oldPhoto !== newPhoto) {
+          await deleteVehiclePhotoIfOwnedAsync(oldPhoto);
+        }
+      }
 
       if (isEditing) {
         await updateVehicle(vehicleToEdit.id, vehicleData);
