@@ -41,13 +41,13 @@ const MoreScreen = () => {
       comingSoon: false,
       screen: "SettingsScreen",
     },
-    {
-      id: 2,
-      title: "Contactos",
-      icon: "people-outline",
-      comingSoon: false,
-      screen: "Contacts",
-    },
+    // {
+    //   id: 2,
+    //   title: "Contactos",
+    //   icon: "people-outline",
+    //   comingSoon: false,
+    //   screen: "Contacts",
+    // },
     {
       id: 3,
       title: "Tips & Guías",

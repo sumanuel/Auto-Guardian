@@ -7,7 +7,7 @@ import { useTheme } from "../context/ThemeContext";
 import { isTablet, ms, rf } from "../utils/responsive";
 
 // Screens
-import AddContactScreen from "../screens/AddContactScreen";
+// import AddContactScreen from "../screens/AddContactScreen";
 import AddDocumentScreen from "../screens/AddDocumentScreen";
 import AddExpenseScreen from "../screens/AddExpenseScreen";
 import AddMaintenanceScreen from "../screens/AddMaintenanceScreen";
@@ -15,7 +15,7 @@ import AddRepairScreen from "../screens/AddRepairScreen";
 import AddVehicleScreen from "../screens/AddVehicleScreen";
 import AlertSummaryScreen from "../screens/AlertSummaryScreen";
 import CategoriesScreen from "../screens/CategoriesScreen";
-import ContactsScreen from "../screens/ContactsScreen";
+// import ContactsScreen from "../screens/ContactsScreen";
 import DataManagementScreen from "../screens/DataManagementScreen";
 import DocumentsScreen from "../screens/DocumentsScreen";
 import HomeScreen from "../screens/HomeScreen";
@@ -254,6 +254,7 @@ const MoreStack = () => {
         component={require("../screens/DocumentTypesScreen").default}
         options={{ title: "Tipos de Documentos" }}
       />
+      {/*
       <Stack.Screen
         name="Contacts"
         component={ContactsScreen}
@@ -264,6 +265,7 @@ const MoreStack = () => {
         component={AddContactScreen}
         options={{ title: "Agregar Contacto" }}
       />
+      */}
       <Stack.Screen
         name="NotificationsScreen"
         component={NotificationsScreen}
@@ -328,8 +330,8 @@ const AppNavigator = () => {
                   ? ms(24)
                   : 34
                 : tablet
-                ? ms(16)
-                : 44,
+                  ? ms(16)
+                  : 44,
             paddingTop: tablet ? ms(8) : 8,
             height:
               Platform.OS === "ios"
@@ -337,8 +339,8 @@ const AppNavigator = () => {
                   ? ms(84)
                   : 95
                 : tablet
-                ? ms(84)
-                : 96,
+                  ? ms(84)
+                  : 96,
             elevation: ms(8),
             shadowColor: colors.shadow,
             shadowOffset: { width: 0, height: ms(-2) },

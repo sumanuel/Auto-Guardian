@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
-import * as Contacts from "expo-contacts";
+// CONTACTOS DESHABILITADO: se removió `expo-contacts` para pasar revisión (permisos sensibles).
+// import * as Contacts from "expo-contacts";
 import { useRef, useState } from "react";
 import {
   Alert,
@@ -33,7 +34,7 @@ const AddContactScreen = ({ navigation, route }) => {
     // Si estamos editando y el teléfono tiene un código de país, extraer el número local
     if (contactToEdit?.phone) {
       const country = COUNTRIES.find((c) =>
-        contactToEdit.phone.startsWith(c.code)
+        contactToEdit.phone.startsWith(c.code),
       );
       if (country) {
         telefono = contactToEdit.phone.replace(country.code, "");
@@ -82,7 +83,7 @@ const AddContactScreen = ({ navigation, route }) => {
             animated: true,
           });
         },
-        () => {}
+        () => {},
       );
     }
   };
@@ -93,7 +94,7 @@ const AddContactScreen = ({ navigation, route }) => {
       if (status !== "granted") {
         Alert.alert(
           "Permiso denegado",
-          "Necesitas permitir el acceso a contactos."
+          "Necesitas permitir el acceso a contactos.",
         );
         return;
       }
@@ -109,8 +110,8 @@ const AddContactScreen = ({ navigation, route }) => {
           (contact) =>
             contact.name &&
             contact.phoneNumbers &&
-            contact.phoneNumbers.length > 0
-        )
+            contact.phoneNumbers.length > 0,
+        ),
       );
       setImportModalVisible(true);
     } catch (error) {
@@ -406,8 +407,8 @@ const AddContactScreen = ({ navigation, route }) => {
                 {loading
                   ? "Guardando..."
                   : isEditing
-                  ? "Actualizar"
-                  : "Guardar"}
+                    ? "Actualizar"
+                    : "Guardar"}
               </Text>
             </TouchableOpacity>
           </View>
@@ -515,7 +516,7 @@ const AddContactScreen = ({ navigation, route }) => {
                       contact.name
                         .toLowerCase()
                         .includes(searchText.toLowerCase()) ||
-                      contact.phoneNumbers[0].number.includes(searchText)
+                      contact.phoneNumbers[0].number.includes(searchText),
                   )}
                   keyExtractor={(item) => item.id}
                   renderItem={({ item }) => (

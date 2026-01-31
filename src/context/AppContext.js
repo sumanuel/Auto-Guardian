@@ -1,6 +1,5 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createContext, useContext, useEffect, useState } from "react";
-import * as contactService from "../services/contactService";
+// import * as contactService from "../services/contactService";
 import { cleanOrphanedRecords, initDatabase } from "../services/database";
 import * as documentService from "../services/documentService";
 import * as expenseService from "../services/expenseService";
@@ -14,7 +13,6 @@ const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
   const [vehicles, setVehicles] = useState([]);
-  const [contacts, setContacts] = useState([]);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
@@ -35,7 +33,6 @@ export const AppProvider = ({ children }) => {
       setUrgentNotificationShown(false);
 
       await loadVehicles();
-      await loadContacts();
 
       // Inicializar notificaciones (solo funciona en build, no en Expo Go)
       try {
@@ -49,7 +46,7 @@ export const AppProvider = ({ children }) => {
         }
       } catch (notifError) {
         console.log(
-          "⚠️ Notificaciones no disponibles en Expo Go. Funcionarán en build de producción."
+          "⚠️ Notificaciones no disponibles en Expo Go. Funcionarán en build de producción.",
         );
         setNotificationsEnabled(false);
       }
@@ -122,74 +119,15 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  // Funciones de contactos
-  const loadContacts = async () => {
-    try {
-      // Migrar contactos desde AsyncStorage a SQLite si existen
-      const storedContacts = await AsyncStorage.getItem("contacts");
-      if (storedContacts) {
-        const contactsData = JSON.parse(storedContacts);
-        if (contactsData.length > 0) {
-          console.log("Migrando contactos desde AsyncStorage a SQLite...");
-          contactsData.forEach((contact) => {
-            try {
-              contactService.createContact({
-                name: contact.name,
-                phone: contact.phone,
-                email: contact.email,
-                notes: contact.notes,
-              });
-            } catch (error) {
-              console.error("Error migrando contacto:", contact.name, error);
-            }
-          });
-          // Limpiar AsyncStorage después de la migración
-          await AsyncStorage.removeItem("contacts");
-          console.log("Migración de contactos completada");
-        }
-      }
-
-      // Cargar contactos desde SQLite
-      const contactsFromDB = contactService.getAllContacts();
-      setContacts(contactsFromDB);
-    } catch (error) {
-      console.error("Error cargando contactos:", error);
-    }
-  };
-
-  const addContact = async (contactData) => {
-    try {
-      const newContactId = contactService.createContact(contactData);
-      // Recargar contactos desde la base de datos para asegurar consistencia
-      await loadContacts();
-      return newContactId;
-    } catch (error) {
-      console.error("Error agregando contacto:", error);
-      throw error;
-    }
-  };
-
-  const updateContact = async (id, contactData) => {
-    try {
-      contactService.updateContact(id, contactData);
-      // Recargar contactos desde la base de datos para asegurar consistencia
-      await loadContacts();
-    } catch (error) {
-      console.error("Error actualizando contacto:", error);
-      throw error;
-    }
-  };
-
-  const removeContact = async (id) => {
-    try {
-      contactService.deleteContact(id);
-      // Recargar contactos desde la base de datos para asegurar consistencia
-      await loadContacts();
-    } catch (error) {
-      console.error("Error eliminando contacto:", error);
-      throw error;
-    }
-  };
+  /*
+   * CONTACTOS DESHABILITADO
+   * - Se comenta la carga/CRUD de contactos para evitar el uso de permisos sensibles
+   *   y dependencias relacionadas con libreta de contactos.
+   */
+  // const loadContacts = async () => {};
+  // const addContact = async (_contactData) => {};
+  // const updateContact = async (_id, _contactData) => {};
+  // const removeContact = async (_id) => {};
 
   // Funciones de mantenimiento
   const getVehicleMaintenances = (vehicleId) => {
@@ -201,7 +139,7 @@ export const AppProvider = ({ children }) => {
     const allMaintenances = [];
     vehicles.forEach((vehicle) => {
       const maintenances = maintenanceService.getMaintenancesByVehicle(
-        vehicle.id
+        vehicle.id,
       );
       maintenances.forEach((maintenance) => {
         allMaintenances.push({
@@ -357,7 +295,7 @@ export const AppProvider = ({ children }) => {
       for (const vehicle of vehiclesList) {
         const upcomingMaintenances = getUpcomingMaintenances(
           vehicle.id,
-          vehicle.currentKm
+          vehicle.currentKm,
         );
 
         for (const maintenance of upcomingMaintenances) {
@@ -378,15 +316,15 @@ export const AppProvider = ({ children }) => {
           // Verificar por fecha
           if (maintenance.nextServiceDate && !isOverdue && !isUrgent) {
             const nextDate = new Date(
-              maintenance.nextServiceDate.split("T")[0]
+              maintenance.nextServiceDate.split("T")[0],
             );
             const today = new Date(
               now.getFullYear(),
               now.getMonth(),
-              now.getDate()
+              now.getDate(),
             );
             const daysRemaining = Math.floor(
-              (nextDate - today) / (1000 * 60 * 60 * 24)
+              (nextDate - today) / (1000 * 60 * 60 * 24),
             );
 
             if (daysRemaining < 0) {
@@ -436,7 +374,7 @@ export const AppProvider = ({ children }) => {
       } catch (error) {
         console.error(
           "❌ Error counting expiring documents for summary:",
-          error
+          error,
         );
       }
 
@@ -472,7 +410,7 @@ export const AppProvider = ({ children }) => {
       // Programar notificaciones semanales de alertas si están habilitadas
       if (notificationsEnabled && totalAlerts > 0) {
         await notificationService.scheduleAlertNotifications(() =>
-          Promise.resolve(alertSummary)
+          Promise.resolve(alertSummary),
         );
       }
     } catch (error) {
@@ -493,7 +431,7 @@ export const AppProvider = ({ children }) => {
       for (const vehicle of vehicles) {
         const upcomingMaintenances = getUpcomingMaintenances(
           vehicle.id,
-          vehicle.currentKm
+          vehicle.currentKm,
         );
 
         for (const maintenance of upcomingMaintenances) {
@@ -533,7 +471,7 @@ export const AppProvider = ({ children }) => {
             const today = new Date(todayStr + "T00:00:00");
 
             const daysRemaining = Math.floor(
-              (nextDate - today) / (1000 * 60 * 60 * 24)
+              (nextDate - today) / (1000 * 60 * 60 * 24),
             );
 
             if (daysRemaining < 0) {
@@ -581,7 +519,7 @@ export const AppProvider = ({ children }) => {
       ) {
         await notificationService.checkAndNotifyPendingMaintenances(
           vehicles,
-          getUpcomingMaintenances
+          getUpcomingMaintenances,
         );
         setUrgentNotificationShown(true);
       }
@@ -610,7 +548,6 @@ export const AppProvider = ({ children }) => {
 
   const value = {
     vehicles,
-    contacts,
     selectedVehicle,
     setSelectedVehicle,
     loading,
@@ -621,11 +558,6 @@ export const AppProvider = ({ children }) => {
     updateVehicle,
     removeVehicle,
     updateVehicleKilometers,
-    // Contact functions
-    loadContacts,
-    addContact,
-    updateContact,
-    removeContact,
     // Maintenance functions
     getVehicleMaintenances,
     getAllMaintenances,
