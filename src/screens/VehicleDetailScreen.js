@@ -14,6 +14,7 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import Button from "../components/common/Button";
 import QuickMaintenanceButton from "../components/maintenance/QuickMaintenanceButton";
 import { useApp } from "../context/AppContext";
+import { useAppSettings } from "../context/AppSettingsContext";
 import { useTheme } from "../context/ThemeContext";
 import { COLORS } from "../data/constants";
 import { useDialog } from "../hooks/useDialog";
@@ -53,6 +54,7 @@ const VehicleDetailScreen = ({ navigation, route }) => {
   } = useApp();
   const { DialogComponent, showDialog } = useDialog();
   const { colors } = useTheme();
+  const { currencySymbol } = useAppSettings();
   const tablet = isTablet();
 
   const vehicleImageSize = tablet ? ms(100, 1) : ms(100);
@@ -91,7 +93,7 @@ const VehicleDetailScreen = ({ navigation, route }) => {
       const recent = getRecentMaintenances(vehicleId, 5);
       const upcoming = getUpcomingMaintenances(
         vehicleId,
-        foundVehicle.currentKm
+        foundVehicle.currentKm,
       );
       const statistics = getMaintenanceStats(vehicleId);
 
@@ -161,7 +163,7 @@ const VehicleDetailScreen = ({ navigation, route }) => {
     const urgency = getMaintenanceUrgency(
       vehicle?.currentKm,
       item.nextServiceKm,
-      item.nextServiceDate
+      item.nextServiceDate,
     );
     const urgencyColor = getUrgencyColor(urgency);
 
@@ -186,7 +188,7 @@ const VehicleDetailScreen = ({ navigation, route }) => {
       const dateInfo = formatDaysRemaining(item.nextServiceDate);
       if (dateInfo) {
         const daysRemaining = Math.floor(
-          (new Date(item.nextServiceDate) - new Date()) / (1000 * 60 * 60 * 24)
+          (new Date(item.nextServiceDate) - new Date()) / (1000 * 60 * 60 * 24),
         );
         nextServiceInfo.push({
           icon: "calendar-outline",
@@ -253,7 +255,7 @@ const VehicleDetailScreen = ({ navigation, route }) => {
         </View>
         {item.cost && (
           <Text style={styles.maintenanceCost}>
-            {formatCurrency(item.cost)}
+            {formatCurrency(item.cost, currencySymbol)}
           </Text>
         )}
       </TouchableOpacity>
@@ -465,7 +467,7 @@ const VehicleDetailScreen = ({ navigation, route }) => {
               </View>
               <View style={styles.statItem}>
                 <Text style={styles.statValue}>
-                  {formatCurrency(stats.totalCost)}
+                  {formatCurrency(stats.totalCost, currencySymbol)}
                 </Text>
                 <Text style={styles.statLabel}>Gasto total</Text>
               </View>

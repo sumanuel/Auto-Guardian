@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import Constants from "expo-constants";
 import * as Notifications from "expo-notifications";
 import { useEffect } from "react";
 import {
@@ -9,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useAppSettings } from "../context/AppSettingsContext";
 import { useTheme } from "../context/ThemeContext";
 import {
   borderRadius,
@@ -22,6 +24,13 @@ import {
 const MoreScreen = () => {
   const navigation = useNavigation();
   const { colors } = useTheme();
+  const {
+    storeUpdateAvailable,
+    storeLatestVersion,
+    openStoreUpdate,
+    updateAvailable,
+    applyUpdate,
+  } = useAppSettings();
 
   useEffect(() => {
     const requestPermissions = async () => {
@@ -34,6 +43,30 @@ const MoreScreen = () => {
   }, []);
 
   const menuOptions = [
+    ...(storeUpdateAvailable
+      ? [
+          {
+            id: -1,
+            title: storeLatestVersion
+              ? `Nueva versión en Play Store (${storeLatestVersion})`
+              : "Nueva versión en Play Store",
+            icon: "logo-google-playstore",
+            comingSoon: false,
+            onPress: openStoreUpdate,
+          },
+        ]
+      : []),
+    ...(updateAvailable
+      ? [
+          {
+            id: 0,
+            title: "Actualización disponible",
+            icon: "download-outline",
+            comingSoon: false,
+            onPress: applyUpdate,
+          },
+        ]
+      : []),
     {
       id: 1,
       title: "Configuración",
@@ -87,7 +120,12 @@ const MoreScreen = () => {
               style={styles.menuItem}
               disabled={option.comingSoon}
               onPress={() => {
-                if (!option.comingSoon && option.screen) {
+                if (option.comingSoon) return;
+                if (typeof option.onPress === "function") {
+                  option.onPress();
+                  return;
+                }
+                if (option.screen) {
                   navigation.navigate(option.screen);
                 }
               }}
@@ -142,7 +180,7 @@ const MoreScreen = () => {
             Auto-Guardian
           </Text>
           <Text style={[styles.footerSubtext, { color: colors.textSecondary }]}>
-            Versión 1.0.0
+            Versión {Constants?.expoConfig?.version || "-"}
           </Text>
         </View>
       </ScrollView>

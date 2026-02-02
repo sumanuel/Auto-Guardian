@@ -1,10 +1,14 @@
 // Formatear moneda
-export const formatCurrency = (amount) => {
+export const formatCurrency = (amount, currencySymbol = "$") => {
   if (!amount && amount !== 0) return "-";
-  return new Intl.NumberFormat("es-MX", {
-    style: "currency",
-    currency: "MXN",
-  }).format(amount);
+
+  const numeric = Number(amount);
+  const formatted = new Intl.NumberFormat("es-MX", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(Number.isFinite(numeric) ? numeric : 0);
+
+  return `${currencySymbol}${formatted}`;
 };
 
 // Formatear kilometraje
@@ -17,7 +21,7 @@ export const formatKm = (km) => {
 export const getMaintenanceUrgency = (
   currentKm,
   nextServiceKm,
-  nextServiceDate
+  nextServiceDate,
 ) => {
   let urgency = "low"; // low, medium, high
 
@@ -35,7 +39,7 @@ export const getMaintenanceUrgency = (
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const daysRemaining = Math.floor(
-      (nextDate - today) / (1000 * 60 * 60 * 24)
+      (nextDate - today) / (1000 * 60 * 60 * 24),
     );
     if (daysRemaining <= 0) urgency = "high";
     else if (daysRemaining <= 7) urgency = "high";
@@ -87,7 +91,7 @@ export const formatDaysRemaining = (nextServiceDate) => {
   const todayDate = new Date(todayStr + "T00:00:00");
 
   const daysRemaining = Math.floor(
-    (nextDate - todayDate) / (1000 * 60 * 60 * 24)
+    (nextDate - todayDate) / (1000 * 60 * 60 * 24),
   );
 
   if (daysRemaining < 0) {

@@ -63,6 +63,12 @@
       "router": {},
       "eas": {
         "projectId": "1cfe475d-fd7b-4af5-aa6f-d30cad92a24d"
+      },
+      "storeUpdate": {
+        "androidPackage": "com.trenkit.autoguardian",
+        "versionCheckUrl": "https://raw.githubusercontent.com/sumanuel/autoguardian-update/main/version.json",
+        "timeoutMs": 7000,
+        "allowDevChecks": false
       }
     }
   }

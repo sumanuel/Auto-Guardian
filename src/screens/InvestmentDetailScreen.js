@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import DatePicker from "../components/common/DatePicker";
 import { useApp } from "../context/AppContext";
+import { useAppSettings } from "../context/AppSettingsContext";
 import { useTheme } from "../context/ThemeContext";
 import { COLORS } from "../data/constants";
 import { useDialog } from "../hooks/useDialog";
@@ -35,6 +36,7 @@ import {
 const InvestmentDetailScreen = ({ route, navigation }) => {
   const { vehicleId } = route.params;
   const { colors } = useTheme();
+  const { currencySymbol } = useAppSettings();
   const { vehicles, getAllMaintenances } = useApp();
   const { DialogComponent, showDialog } = useDialog();
   const [vehicle, setVehicle] = useState(null);
@@ -52,7 +54,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
   useFocusEffect(
     React.useCallback(() => {
       loadData();
-    }, [vehicleId, vehicles])
+    }, [vehicleId, vehicles]),
   );
 
   useEffect(() => {
@@ -95,7 +97,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
       };
 
       vehicleMaintenances = vehicleMaintenances.filter((m) =>
-        isDateInRange(m.date)
+        isDateInRange(m.date),
       );
       vehicleExpenses = vehicleExpenses.filter((e) => isDateInRange(e.date));
       vehicleRepairs = vehicleRepairs.filter((r) => isDateInRange(r.date));
@@ -108,15 +110,15 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
     // Calcular total (mantenimientos + movimientos + reparaciones)
     const maintenanceTotal = vehicleMaintenances.reduce(
       (sum, m) => sum + (m.cost || 0),
-      0
+      0,
     );
     const expenseTotal = vehicleExpenses.reduce(
       (sum, e) => sum + (e.cost || 0),
-      0
+      0,
     );
     const repairTotal = vehicleRepairs.reduce(
       (sum, r) => sum + (r.cost || 0),
-      0
+      0,
     );
     setTotalCost(maintenanceTotal + expenseTotal + repairTotal);
 
@@ -125,11 +127,11 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
 
     // Mantenimientos (mantenimientos con costo)
     const servicesWithCost = vehicleMaintenances.filter(
-      (m) => m.cost && m.cost > 0
+      (m) => m.cost && m.cost > 0,
     );
     const servicesTotal = servicesWithCost.reduce(
       (sum, m) => sum + (m.cost || 0),
-      0
+      0,
     );
     if (servicesWithCost.length > 0) {
       stats.push({
@@ -142,7 +144,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
     // Reparaciones
     const repairsTotal = vehicleRepairs.reduce(
       (sum, r) => sum + (r.cost || 0),
-      0
+      0,
     );
     if (vehicleRepairs.length > 0) {
       stats.push({
@@ -155,7 +157,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
     // Otros (gastos)
     const expensesTotal = vehicleExpenses.reduce(
       (sum, e) => sum + (e.cost || 0),
-      0
+      0,
     );
     if (vehicleExpenses.length > 0) {
       stats.push({
@@ -346,7 +348,9 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                 Desde {formatDate(dateFrom)} hasta {formatDate(dateTo)}
               </Text>
             )}
-            <Text style={styles.totalAmount}>{formatCurrency(totalCost)}</Text>
+            <Text style={styles.totalAmount}>
+              {formatCurrency(totalCost, currencySymbol)}
+            </Text>
             <Text style={styles.totalSubtitle}>
               {maintenances.length}{" "}
               {maintenances.length === 1 ? "mantenimiento" : "mantenimientos"} •{" "}
@@ -400,7 +404,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                     <Text
                       style={[styles.categoryAmount, { color: colors.primary }]}
                     >
-                      {formatCurrency(category.total)}
+                      {formatCurrency(category.total, currencySymbol)}
                     </Text>
                   </View>
                   {/* Barra de progreso */}
@@ -541,7 +545,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                             { color: colors.primary },
                           ]}
                         >
-                          {formatCurrency(maintenance.cost)}
+                          {formatCurrency(maintenance.cost, currencySymbol)}
                         </Text>
                       </View>
                       <Text
@@ -653,7 +657,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                           { color: colors.primary },
                         ]}
                       >
-                        {formatCurrency(repair.cost)}
+                        {formatCurrency(repair.cost, currencySymbol)}
                       </Text>
                     </View>
                     <Text
@@ -765,7 +769,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                           { color: colors.primary },
                         ]}
                       >
-                        {formatCurrency(expense.cost)}
+                        {formatCurrency(expense.cost, currencySymbol)}
                       </Text>
                     </View>
                     <Text

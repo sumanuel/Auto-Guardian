@@ -14,6 +14,7 @@ import {
   View,
 } from "react-native";
 import { useApp } from "../context/AppContext";
+import { useAppSettings } from "../context/AppSettingsContext";
 import { useTheme } from "../context/ThemeContext";
 import { COLORS } from "../data/constants";
 import { useDialog } from "../hooks/useDialog";
@@ -49,6 +50,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
   } = useApp();
   const { DialogComponent, showDialog } = useDialog();
   const { colors } = useTheme();
+  const { currencySymbol } = useAppSettings();
 
   const vehicle = vehicleId ? vehicles.find((v) => v.id === vehicleId) : null;
   const [maintenances, setMaintenances] = useState([]);
@@ -142,21 +144,21 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
           : Infinity;
         const aDaysDiff = a.nextServiceDate
           ? Math.floor(
-              (new Date(a.nextServiceDate) - now) / (1000 * 60 * 60 * 24)
+              (new Date(a.nextServiceDate) - now) / (1000 * 60 * 60 * 24),
             )
           : Infinity;
         const bDaysDiff = b.nextServiceDate
           ? Math.floor(
-              (new Date(b.nextServiceDate) - now) / (1000 * 60 * 60 * 24)
+              (new Date(b.nextServiceDate) - now) / (1000 * 60 * 60 * 24),
             )
           : Infinity;
         const aUrgency = Math.min(
           aKmDiff >= 0 ? aKmDiff / 100 : -1000,
-          aDaysDiff >= 0 ? aDaysDiff : -1000
+          aDaysDiff >= 0 ? aDaysDiff : -1000,
         );
         const bUrgency = Math.min(
           bKmDiff >= 0 ? bKmDiff / 100 : -1000,
-          bDaysDiff >= 0 ? bDaysDiff : -1000
+          bDaysDiff >= 0 ? bDaysDiff : -1000,
         );
         return aUrgency - bUrgency;
       });
@@ -299,7 +301,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
       // Si se debe programar el próximo mantenimiento, crear uno nuevo
       if (scheduleNext) {
         const vehicle = vehicles.find(
-          (v) => v.id === selectedMaintenance.vehicleId
+          (v) => v.id === selectedMaintenance.vehicleId,
         );
 
         let nextServiceKm = null;
@@ -318,11 +320,11 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
           const originalDate = new Date(selectedMaintenance.date);
           const nextDate = new Date(selectedMaintenance.nextServiceDate);
           const daysDiff = Math.floor(
-            (nextDate - originalDate) / (1000 * 60 * 60 * 24)
+            (nextDate - originalDate) / (1000 * 60 * 60 * 24),
           );
           const currentDate = new Date();
           nextServiceDate = new Date(
-            currentDate.getTime() + daysDiff * 24 * 60 * 60 * 1000
+            currentDate.getTime() + daysDiff * 24 * 60 * 60 * 1000,
           )
             .toISOString()
             .split("T")[0];
@@ -488,7 +490,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
               color={colors.textSecondary}
             />
             <Text style={[styles.infoText, styles.costText]}>
-              {formatCurrency(item.cost)}
+              {formatCurrency(item.cost, currencySymbol)}
             </Text>
           </View>
         )}
@@ -550,8 +552,8 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
               {item.completedAt
                 ? formatDate(item.completedAt)
                 : item.updatedAt
-                ? formatDate(item.updatedAt)
-                : "-"}
+                  ? formatDate(item.updatedAt)
+                  : "-"}
             </Text>
           </View>
         ) : (
@@ -575,7 +577,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
                     size={iconSize.sm}
                     color={getKmUrgencyColor(
                       vehicle?.currentKm,
-                      item.nextServiceKm
+                      item.nextServiceKm,
                     )}
                   />
                   <Text
@@ -584,7 +586,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
                       {
                         color: getKmUrgencyColor(
                           vehicle?.currentKm,
-                          item.nextServiceKm
+                          item.nextServiceKm,
                         ),
                         fontWeight: "600",
                       },
@@ -592,7 +594,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
                   >
                     {formatKmRemaining(
                       vehicle?.currentKm,
-                      item.nextServiceKm
+                      item.nextServiceKm,
                     ) || `A los ${formatKm(item.nextServiceKm)}`}
                   </Text>
                 </View>

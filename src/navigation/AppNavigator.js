@@ -16,6 +16,7 @@ import AddVehicleScreen from "../screens/AddVehicleScreen";
 import AlertSummaryScreen from "../screens/AlertSummaryScreen";
 import CategoriesScreen from "../screens/CategoriesScreen";
 // import ContactsScreen from "../screens/ContactsScreen";
+import CurrencySettingsScreen from "../screens/CurrencySettingsScreen";
 import DataManagementScreen from "../screens/DataManagementScreen";
 import DocumentsScreen from "../screens/DocumentsScreen";
 import HomeScreen from "../screens/HomeScreen";
@@ -223,6 +224,11 @@ const MoreStack = () => {
         name="SettingsScreen"
         component={SettingsScreen}
         options={{ title: "Configuración" }}
+      />
+      <Stack.Screen
+        name="CurrencySettings"
+        component={CurrencySettingsScreen}
+        options={{ title: "Moneda" }}
       />
       <Stack.Screen
         name="LearnMore"

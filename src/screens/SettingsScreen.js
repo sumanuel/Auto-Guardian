@@ -39,6 +39,12 @@ const SettingsScreen = ({ navigation }) => {
       icon: "server-outline",
       screen: "DataManagement", // Placeholder screen name
     },
+    {
+      id: 6,
+      title: "Moneda",
+      icon: "cash-outline",
+      screen: "CurrencySettings",
+    },
   ];
 
   return (
