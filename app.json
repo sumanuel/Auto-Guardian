@@ -68,7 +68,7 @@
         "androidPackage": "com.trenkit.autoguardian",
         "versionCheckUrl": "https://raw.githubusercontent.com/sumanuel/autoguardian-update/main/version.json",
         "timeoutMs": 7000,
-        "allowDevChecks": false
+        "allowDevChecks": true
       }
     }
   }
