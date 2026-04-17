@@ -3,7 +3,7 @@
     "name": "Auto-Guardian",
     "slug": "Auto-Guardian",
     "version": "0.1.1.260203",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/icon.png",
     "scheme": "autoguardian",
     "userInterfaceStyle": "automatic",
