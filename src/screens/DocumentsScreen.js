@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
-import React, { useState } from "react";
+import { useCallback, useState } from "react";
 import {
   FlatList,
   StyleSheet,
@@ -12,7 +12,85 @@ import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
 import { useDialog } from "../hooks/useDialog";
 import { getVehicleDocuments } from "../services/vehicleDocumentService";
-import { ms, rf } from "../utils/responsive";
+import { getDocumentExpiryColor } from "../utils/formatUtils";
+import {
+  borderRadius,
+  hs,
+  iconSize,
+  ms,
+  rf,
+  s,
+  spacing,
+  vs,
+} from "../utils/responsive";
+
+const getDocumentHealth = (documents) => {
+  if (!documents.length) {
+    return {
+      label: "Sin archivos",
+      color: "#6B7280",
+      tone: "rgba(107,114,128,0.12)",
+      urgentCount: 0,
+    };
+  }
+
+  const urgentCount = documents.filter((document) => {
+    if (!document.expiry_date) return false;
+    const expiry = new Date(document.expiry_date + "T00:00:00");
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const daysRemaining = Math.floor((expiry - today) / (1000 * 60 * 60 * 24));
+    return daysRemaining <= 15;
+  }).length;
+
+  if (urgentCount > 0) {
+    return {
+      label: `${urgentCount} por revisar`,
+      color: "#ff6b00",
+      tone: "rgba(255,107,0,0.12)",
+      urgentCount,
+    };
+  }
+
+  return {
+    label: "Al día",
+    color: "#00C851",
+    tone: "rgba(0,200,81,0.12)",
+    urgentCount: 0,
+  };
+};
+
+const getNextExpiryText = (documents) => {
+  const documentsWithExpiry = documents.filter(
+    (document) => document.expiry_date,
+  );
+  if (!documentsWithExpiry.length) return "Sin vencimientos registrados";
+
+  const nextDocument = [...documentsWithExpiry].sort(
+    (a, b) => new Date(a.expiry_date) - new Date(b.expiry_date),
+  )[0];
+
+  const expiryColor = getDocumentExpiryColor(nextDocument.expiry_date);
+  const expiry = new Date(nextDocument.expiry_date + "T00:00:00");
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const daysRemaining = Math.floor((expiry - today) / (1000 * 60 * 60 * 24));
+
+  if (daysRemaining < 0)
+    return {
+      text: `${nextDocument.type_document} vencido`,
+      color: expiryColor,
+    };
+  if (daysRemaining === 0)
+    return {
+      text: `${nextDocument.type_document} vence hoy`,
+      color: expiryColor,
+    };
+  return {
+    text: `${nextDocument.type_document} en ${daysRemaining} días`,
+    color: expiryColor,
+  };
+};
 
 const DocumentsScreen = ({ navigation }) => {
   const { vehicles } = useApp();
@@ -20,13 +98,7 @@ const DocumentsScreen = ({ navigation }) => {
   const { colors } = useTheme();
   const [vehiclesWithDocs, setVehiclesWithDocs] = useState([]);
 
-  useFocusEffect(
-    React.useCallback(() => {
-      loadVehiclesWithDocuments();
-    }, [vehicles])
-  );
-
-  const loadVehiclesWithDocuments = () => {
+  const loadVehiclesWithDocuments = useCallback(() => {
     const vehiclesWithDocuments = vehicles.map((vehicle) => {
       const documents = getVehicleDocuments(vehicle.id);
       return {
@@ -36,7 +108,13 @@ const DocumentsScreen = ({ navigation }) => {
       };
     });
     setVehiclesWithDocs(vehiclesWithDocuments);
-  };
+  }, [vehicles]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadVehiclesWithDocuments();
+    }, [loadVehiclesWithDocuments]),
+  );
 
   // Usar datos del estado si existen, sino calcular
   const displayVehicles =
@@ -62,52 +140,146 @@ const DocumentsScreen = ({ navigation }) => {
         styles.vehicleCard,
         {
           backgroundColor: colors.cardBackground,
+          borderColor: colors.border,
           shadowColor: colors.shadow,
         },
       ]}
       onPress={() => handleVehiclePress(item.id)}
     >
-      <View style={styles.vehicleInfo}>
-        <View style={styles.vehicleHeader}>
-          <Text style={[styles.vehicleName, { color: colors.text }]}>
-            {item.name}
-          </Text>
-        </View>
-        <View style={styles.documentsRow}>
-          <View style={styles.documentItem}>
-            <Ionicons
-              name="document-text-outline"
-              size={ms(16)}
-              color={colors.textSecondary}
-            />
-            <Text
-              style={[styles.documentText, { color: colors.textSecondary }]}
-            >
-              {item.documentCount}{" "}
-              {item.documentCount === 1 ? "documento" : "documentos"}
-            </Text>
-          </View>
-        </View>
-      </View>
-      <View style={styles.arrowContainer}>
-        <Ionicons
-          name="chevron-forward"
-          size={ms(20)}
-          color={colors.textSecondary}
-        />
-      </View>
+      {(() => {
+        const health = getDocumentHealth(item.documents);
+        const nextExpiry = getNextExpiryText(item.documents);
+
+        return (
+          <>
+            <View style={styles.vehicleInfo}>
+              <View style={styles.vehicleHeader}>
+                <View
+                  style={[
+                    styles.vehicleIconWrap,
+                    { backgroundColor: colors.inputBackground },
+                  ]}
+                >
+                  <Ionicons
+                    name="car-sport-outline"
+                    size={iconSize.sm}
+                    color={colors.primary}
+                  />
+                </View>
+                <View style={styles.vehicleTitleWrap}>
+                  <View style={styles.vehicleTitleRow}>
+                    <Text style={[styles.vehicleName, { color: colors.text }]}>
+                      {item.name}
+                    </Text>
+                    <View
+                      style={[
+                        styles.statusPill,
+                        { backgroundColor: health.tone },
+                      ]}
+                    >
+                      <Text
+                        style={[styles.statusPillText, { color: health.color }]}
+                      >
+                        {health.label}
+                      </Text>
+                    </View>
+                  </View>
+                  <Text
+                    style={[
+                      styles.vehicleHint,
+                      { color: colors.textSecondary },
+                    ]}
+                  >
+                    {item.documentCount}{" "}
+                    {item.documentCount === 1 ? "documento" : "documentos"}{" "}
+                    registrados
+                  </Text>
+                </View>
+              </View>
+
+              <View style={styles.documentsRow}>
+                <View
+                  style={[
+                    styles.metaPill,
+                    { backgroundColor: colors.inputBackground },
+                  ]}
+                >
+                  <Ionicons
+                    name="document-text-outline"
+                    size={iconSize.xs}
+                    color={colors.primary}
+                  />
+                  <Text
+                    style={[
+                      styles.documentText,
+                      { color: colors.textSecondary },
+                    ]}
+                  >
+                    Expediente activo
+                  </Text>
+                </View>
+                <View
+                  style={[
+                    styles.metaPill,
+                    { backgroundColor: colors.inputBackground },
+                  ]}
+                >
+                  <Ionicons
+                    name="time-outline"
+                    size={iconSize.xs}
+                    color={nextExpiry.color || colors.textSecondary}
+                  />
+                  <Text
+                    style={[
+                      styles.documentText,
+                      { color: nextExpiry.color || colors.textSecondary },
+                    ]}
+                  >
+                    {nextExpiry.text}
+                  </Text>
+                </View>
+              </View>
+            </View>
+            <View style={styles.arrowContainer}>
+              <Ionicons
+                name="chevron-forward"
+                size={ms(20)}
+                color={colors.textSecondary}
+              />
+            </View>
+          </>
+        );
+      })()}
     </TouchableOpacity>
+  );
+
+  const totalDocuments = displayVehicles.reduce(
+    (sum, vehicle) => sum + vehicle.documentCount,
+    0,
   );
 
   return (
     <DialogComponent>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.header}>
-          <Text style={[styles.headerTitle, { color: colors.text }]}>
-            Documentos
-          </Text>
+          <View style={styles.headerTitleWrap}>
+            <Text style={[styles.headerEyebrow, { color: colors.primary }]}>
+              Centro documental
+            </Text>
+            <Text style={[styles.headerTitle, { color: colors.text }]}>
+              Documentos
+            </Text>
+            <Text
+              style={[styles.headerSubtitle, { color: colors.textSecondary }]}
+            >
+              Controla vencimientos, expedientes y estado legal por vehículo.
+            </Text>
+          </View>
           <TouchableOpacity
-            style={styles.helpButton}
+            style={[
+              styles.helpButton,
+              { backgroundColor: colors.inputBackground },
+            ]}
             onPress={() =>
               showDialog({
                 title: "Gestión de Documentos",
@@ -123,6 +295,47 @@ const DocumentsScreen = ({ navigation }) => {
               color={colors.primary}
             />
           </TouchableOpacity>
+        </View>
+
+        <View style={styles.summaryRow}>
+          <View
+            style={[
+              styles.summaryCard,
+              {
+                backgroundColor: colors.cardBackground,
+                borderColor: colors.border,
+                shadowColor: colors.shadow,
+              },
+            ]}
+          >
+            <Text style={[styles.summaryValue, { color: colors.text }]}>
+              {displayVehicles.length}
+            </Text>
+            <Text
+              style={[styles.summaryLabel, { color: colors.textSecondary }]}
+            >
+              Vehículos
+            </Text>
+          </View>
+          <View
+            style={[
+              styles.summaryCard,
+              {
+                backgroundColor: colors.cardBackground,
+                borderColor: colors.border,
+                shadowColor: colors.shadow,
+              },
+            ]}
+          >
+            <Text style={[styles.summaryValue, { color: colors.text }]}>
+              {totalDocuments}
+            </Text>
+            <Text
+              style={[styles.summaryLabel, { color: colors.textSecondary }]}
+            >
+              Documentos
+            </Text>
+          </View>
         </View>
 
         <FlatList
@@ -161,52 +374,133 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: ms(20),
+    alignItems: "flex-start",
+    marginBottom: ms(16),
     paddingTop: ms(20),
     paddingHorizontal: ms(20),
   },
+  headerTitleWrap: {
+    flex: 1,
+    paddingRight: hs(12),
+  },
+  headerEyebrow: {
+    fontSize: rf(12),
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.7,
+    marginBottom: vs(4),
+  },
   headerTitle: {
-    fontSize: rf(20),
-    fontWeight: "bold",
+    fontSize: rf(28),
+    fontWeight: "800",
+  },
+  headerSubtitle: {
+    fontSize: rf(14),
+    lineHeight: rf(20),
+    marginTop: vs(6),
+  },
+  summaryRow: {
+    flexDirection: "row",
+    gap: ms(12),
+    paddingHorizontal: ms(20),
+    marginBottom: ms(18),
+  },
+  summaryCard: {
+    flex: 1,
+    borderWidth: 1,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    elevation: s(2),
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: s(8),
+  },
+  summaryValue: {
+    fontSize: rf(22),
+    fontWeight: "800",
+    marginBottom: vs(2),
+  },
+  summaryLabel: {
+    fontSize: rf(12),
+    fontWeight: "600",
   },
   listContainer: {
     padding: ms(20),
     paddingTop: 0,
+    paddingBottom: ms(32),
   },
   vehicleCard: {
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: ms(12),
+    borderRadius: ms(18),
+    borderWidth: 1,
     padding: ms(16),
     marginBottom: ms(12),
     elevation: ms(2),
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: ms(3),
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: ms(10),
   },
   vehicleInfo: {
     flex: 1,
   },
   vehicleHeader: {
-    marginBottom: ms(8),
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginBottom: ms(10),
+  },
+  vehicleIconWrap: {
+    width: s(42),
+    height: s(42),
+    borderRadius: s(21),
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: hs(12),
+  },
+  vehicleTitleWrap: {
+    flex: 1,
+  },
+  vehicleTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: hs(8),
   },
   vehicleName: {
     fontSize: rf(18),
-    fontWeight: "bold",
-    marginBottom: ms(4),
+    fontWeight: "800",
+    flex: 1,
+  },
+  vehicleHint: {
+    fontSize: rf(13),
+    marginTop: ms(4),
+  },
+  statusPill: {
+    paddingHorizontal: hs(10),
+    paddingVertical: vs(6),
+    borderRadius: s(999),
+  },
+  statusPillText: {
+    fontSize: rf(10),
+    fontWeight: "800",
+    textTransform: "uppercase",
   },
   documentsRow: {
     flexDirection: "row",
-    gap: ms(16),
+    flexWrap: "wrap",
+    gap: ms(8),
   },
-  documentItem: {
+  metaPill: {
     flexDirection: "row",
     alignItems: "center",
-    gap: ms(4),
+    gap: ms(6),
+    paddingHorizontal: hs(10),
+    paddingVertical: vs(6),
+    borderRadius: s(999),
   },
   documentText: {
     fontSize: rf(13),
+    fontWeight: "600",
   },
   arrowContainer: {
     marginLeft: ms(12),
@@ -230,7 +524,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: ms(40),
   },
   helpButton: {
-    padding: ms(8),
+    width: s(42),
+    height: s(42),
+    borderRadius: s(21),
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
 

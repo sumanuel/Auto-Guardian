@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FlatList, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
@@ -16,8 +16,79 @@ import {
 
 const Tab = createMaterialTopTabNavigator();
 
+const SummaryHero = ({ summary }) => {
+  const { colors } = useTheme();
+  const overdueCount =
+    summary?.alerts?.filter((item) => item.type === "overdue").length || 0;
+  const urgentCount =
+    summary?.alerts?.filter((item) => item.type === "urgent").length || 0;
+  const totalDocuments = summary?.totalDocuments || 0;
+
+  return (
+    <View
+      style={[
+        styles.heroPanel,
+        { backgroundColor: colors.cardBackground, borderColor: colors.border },
+      ]}
+    >
+      <Text style={[styles.heroEyebrow, { color: colors.primary }]}>
+        Centro de alertas
+      </Text>
+      <Text style={[styles.heroTitle, { color: colors.text }]}>
+        Prioridades activas
+      </Text>
+      <Text style={[styles.heroSubtitle, { color: colors.textSecondary }]}>
+        Revisa vencimientos, mantenimientos críticos y documentos próximos a
+        expirar.
+      </Text>
+      <View style={styles.heroStatsRow}>
+        <View
+          style={[
+            styles.heroStatCard,
+            { backgroundColor: colors.inputBackground },
+          ]}
+        >
+          <Text style={[styles.heroStatValue, { color: colors.text }]}>
+            {overdueCount}
+          </Text>
+          <Text style={[styles.heroStatLabel, { color: colors.textSecondary }]}>
+            Vencidos
+          </Text>
+        </View>
+        <View
+          style={[
+            styles.heroStatCard,
+            { backgroundColor: colors.inputBackground },
+          ]}
+        >
+          <Text style={[styles.heroStatValue, { color: colors.text }]}>
+            {urgentCount}
+          </Text>
+          <Text style={[styles.heroStatLabel, { color: colors.textSecondary }]}>
+            Urgentes
+          </Text>
+        </View>
+        <View
+          style={[
+            styles.heroStatCard,
+            { backgroundColor: colors.inputBackground },
+          ]}
+        >
+          <Text style={[styles.heroStatValue, { color: colors.text }]}>
+            {totalDocuments}
+          </Text>
+          <Text style={[styles.heroStatLabel, { color: colors.textSecondary }]}>
+            Docs
+          </Text>
+        </View>
+      </View>
+    </View>
+  );
+};
+
 // Componente para el tab de Vehículos
-const VehiclesTab = ({ summary }) => {
+const VehiclesTab = ({ route }) => {
+  const summary = route?.params?.summary;
   const { colors } = useTheme();
 
   if (!summary) {
@@ -39,10 +110,23 @@ const VehiclesTab = ({ summary }) => {
 
   const renderAlertItem = ({ item }) => (
     <View
-      style={[styles.alertItem, { backgroundColor: colors.cardBackground }]}
+      style={[
+        styles.alertItem,
+        { backgroundColor: colors.cardBackground, borderColor: colors.border },
+      ]}
     >
       <View style={styles.alertHeader}>
-        <View style={styles.alertIcon}>
+        <View
+          style={[
+            styles.alertIcon,
+            {
+              backgroundColor:
+                item.type === "overdue"
+                  ? "rgba(244,67,54,0.14)"
+                  : "rgba(255,170,0,0.14)",
+            },
+          ]}
+        >
           <Ionicons
             name={item.type === "overdue" ? "alert-circle" : "warning"}
             size={iconSize.md}
@@ -135,11 +219,7 @@ const DocumentsTab = () => {
   const [expiringDocuments, setExpiringDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadExpiringDocuments();
-  }, []);
-
-  const loadExpiringDocuments = async () => {
+  const loadExpiringDocuments = useCallback(async () => {
     try {
       setLoading(true);
       const documents = await getExpiringDocuments(30);
@@ -152,7 +232,11 @@ const DocumentsTab = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [getExpiringDocuments, updateAppBadge]);
+
+  useEffect(() => {
+    loadExpiringDocuments();
+  }, [loadExpiringDocuments]);
 
   const renderDocumentItem = ({ item }) => {
     const today = new Date();
@@ -215,10 +299,18 @@ const DocumentsTab = () => {
 
     return (
       <View
-        style={[styles.alertItem, { backgroundColor: colors.cardBackground }]}
+        style={[
+          styles.alertItem,
+          {
+            backgroundColor: colors.cardBackground,
+            borderColor: colors.border,
+          },
+        ]}
       >
         <View style={styles.alertHeader}>
-          <View style={styles.alertIcon}>
+          <View
+            style={[styles.alertIcon, { backgroundColor: `${iconColor}18` }]}
+          >
             <Ionicons
               name="document-text"
               size={iconSize.md}
@@ -302,23 +394,28 @@ const AlertSummaryScreen = ({ navigation, route }) => {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      {/* Header */}
-      <View
-        style={[styles.header, { backgroundColor: colors.cardBackground }]}
-      ></View>
+      <View style={[styles.header, { backgroundColor: colors.background }]}>
+        <SummaryHero summary={summary} />
+      </View>
 
       {/* Tabs */}
       <Tab.Navigator
         screenOptions={{
           tabBarActiveTintColor: colors.primary,
           tabBarInactiveTintColor: colors.textSecondary,
-          tabBarStyle: { backgroundColor: colors.cardBackground },
+          tabBarStyle: {
+            backgroundColor: colors.cardBackground,
+            borderRadius: borderRadius.lg,
+            marginHorizontal: spacing.md,
+            marginBottom: spacing.md,
+          },
           tabBarIndicatorStyle: { backgroundColor: colors.primary },
         }}
       >
         <Tab.Screen
           name="Vehículos"
-          children={() => <VehiclesTab summary={summary} />}
+          component={VehiclesTab}
+          initialParams={{ summary }}
           options={{
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="car-sport-outline" size={size} color={color} />
@@ -344,13 +441,49 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingTop: vs(50),
+    paddingTop: vs(18),
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.md,
-    borderBottomWidth: s(1),
-    borderBottomColor: "#e0e0e0",
+  },
+  heroPanel: {
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    padding: spacing.lg,
+  },
+  heroEyebrow: {
+    fontSize: rf(12),
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.7,
+    marginBottom: spacing.xs,
+  },
+  heroTitle: {
+    fontSize: rf(24),
+    fontWeight: "800",
+    marginBottom: spacing.xs,
+  },
+  heroSubtitle: {
+    fontSize: rf(14),
+    lineHeight: rf(20),
+  },
+  heroStatsRow: {
     flexDirection: "row",
-    alignItems: "center",
+    gap: spacing.sm,
+    marginTop: spacing.md,
+  },
+  heroStatCard: {
+    flex: 1,
+    borderRadius: borderRadius.md,
+    padding: spacing.sm,
+  },
+  heroStatValue: {
+    fontSize: rf(18),
+    fontWeight: "800",
+    marginBottom: vs(2),
+  },
+  heroStatLabel: {
+    fontSize: rf(11),
+    fontWeight: "600",
   },
   backButton: {
     padding: spacing.xs,
@@ -422,31 +555,35 @@ const styles = StyleSheet.create({
   alertItem: {
     padding: spacing.md,
     marginBottom: spacing.xs,
-    borderRadius: borderRadius.sm,
+    borderRadius: borderRadius.md,
     borderWidth: s(1),
-    borderColor: "#e0e0e0",
+  },
+  alertIcon: {
+    width: s(40),
+    height: s(40),
+    borderRadius: s(20),
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: spacing.md,
   },
   alertHeader: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: spacing.xs,
   },
-  alertIcon: {
-    marginRight: spacing.md,
-  },
   alertContent: {
     flex: 1,
   },
   alertVehicle: {
     fontSize: rf(16),
-    fontWeight: "bold",
+    fontWeight: "700",
   },
   alertMaintenance: {
     fontSize: rf(14),
   },
   alertReason: {
-    fontSize: rf(14),
-    fontStyle: "italic",
+    fontSize: rf(13),
+    lineHeight: rf(18),
   },
 });
 

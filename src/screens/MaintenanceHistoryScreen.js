@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   FlatList,
   Image,
@@ -18,6 +18,7 @@ import { useAppSettings } from "../context/AppSettingsContext";
 import { useTheme } from "../context/ThemeContext";
 import { COLORS } from "../data/constants";
 import { useDialog } from "../hooks/useDialog";
+import { getMaintenanceTypes } from "../services/maintenanceService";
 import { formatDate } from "../utils/dateUtils";
 import {
   formatCurrency,
@@ -27,6 +28,7 @@ import {
   getDateUrgencyColor,
   getKmUrgencyColor,
 } from "../utils/formatUtils";
+import { getMaintenanceIcon } from "../utils/maintenanceIcons";
 import {
   borderRadius,
   hs,
@@ -37,6 +39,14 @@ import {
   spacing,
   vs,
 } from "../utils/responsive";
+
+const QUICK_ACTION_COLORS = [
+  "#FF9800",
+  "#4CAF50",
+  "#F44336",
+  "#9C27B0",
+  "#2196F3",
+];
 
 const MaintenanceHistoryScreen = ({ route, navigation }) => {
   const { vehicleId = null, sortByUrgency = false } = route.params || {};
@@ -51,6 +61,15 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
   const { DialogComponent, showDialog } = useDialog();
   const { colors } = useTheme();
   const { currencySymbol } = useAppSettings();
+  const maintenanceTypeColorMap = useMemo(() => {
+    const allTypes = getMaintenanceTypes();
+
+    return allTypes.reduce((accumulator, type, index) => {
+      accumulator[type.name] =
+        QUICK_ACTION_COLORS[index % QUICK_ACTION_COLORS.length];
+      return accumulator;
+    }, {});
+  }, []);
 
   const vehicle = vehicleId ? vehicles.find((v) => v.id === vehicleId) : null;
   const [maintenances, setMaintenances] = useState([]);
@@ -87,16 +106,16 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
 
   useEffect(() => {
     loadMaintenances();
-  }, [vehicleId]);
+  }, [loadMaintenances]);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener("focus", () => {
       loadMaintenances();
     });
     return unsubscribe;
-  }, [navigation]);
+  }, [loadMaintenances, navigation]);
 
-  const loadMaintenances = () => {
+  const loadMaintenances = useCallback(() => {
     let data;
     if (vehicleId) {
       data = getVehicleMaintenances(vehicleId);
@@ -165,7 +184,13 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
       data = sorted;
     }
     setMaintenances(data);
-  };
+  }, [
+    vehicle?.currentKm,
+    vehicleId,
+    getAllMaintenances,
+    getVehicleMaintenances,
+    sortByUrgency,
+  ]);
 
   // Filtrar mantenimientos según tab activa
   const filteredMaintenances = maintenances.filter((item) => {
@@ -178,6 +203,11 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
 
   // Saber si el item está realizado
   const isCompleted = (item) => !item.nextServiceKm && !item.nextServiceDate;
+
+  const inProgressCount = maintenances.filter(
+    (item) => item.nextServiceKm || item.nextServiceDate,
+  ).length;
+  const completedCount = maintenances.length - inProgressCount;
 
   const handleDelete = (id, type) => {
     showDialog({
@@ -193,7 +223,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
             try {
               await removeMaintenance(id);
               loadMaintenances();
-            } catch (error) {
+            } catch (_error) {
               showDialog({
                 title: "Error",
                 message: "No se pudo eliminar el registro",
@@ -369,136 +399,189 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
     }
   };
 
-  const renderMaintenanceItem = ({ item }) => (
-    <View
-      style={[
-        styles.maintenanceCard,
-        { backgroundColor: colors.cardBackground, shadowColor: colors.shadow },
-      ]}
-    >
+  const renderMaintenanceItem = ({ item }) => {
+    const completed = isCompleted(item);
+    const maintenanceColor =
+      maintenanceTypeColorMap[item.type] || colors.primary;
+    const maintenanceIcon = getMaintenanceIcon(item.type);
+    const scheduleColor = item.nextServiceKm
+      ? getKmUrgencyColor(vehicle?.currentKm, item.nextServiceKm)
+      : item.nextServiceDate
+        ? getDateUrgencyColor(item.nextServiceDate)
+        : COLORS.success;
+
+    return (
       <View
         style={[
-          styles.cardHeader,
+          styles.maintenanceCard,
           {
-            backgroundColor: colors.background,
-            borderBottomColor: colors.border,
+            backgroundColor: colors.cardBackground,
+            borderColor: colors.border,
+            shadowColor: colors.shadow,
           },
         ]}
       >
-        <View style={styles.typeContainer}>
-          <Ionicons name="build" size={iconSize.md} color={COLORS.primary} />
-          <View>
-            <Text style={[styles.maintenanceType, { color: colors.text }]}>
-              {item.type}
-            </Text>
-            {!vehicleId && item.vehicleName && (
-              <Text
-                style={[styles.vehicleName, { color: colors.textSecondary }]}
-              >
-                {item.vehicleName}
-              </Text>
-            )}
+        <View style={styles.cardTopRow}>
+          <View style={styles.cardIdentity}>
+            <View
+              style={[
+                styles.cardIconWrap,
+                { backgroundColor: `${maintenanceColor}20` },
+              ]}
+            >
+              <Ionicons
+                name={maintenanceIcon}
+                size={iconSize.md}
+                color={maintenanceColor}
+              />
+            </View>
+            <View style={styles.cardTitleWrap}>
+              <View style={styles.cardTitleRow}>
+                <Text style={[styles.maintenanceType, { color: colors.text }]}>
+                  {item.type}
+                </Text>
+                <View
+                  style={[
+                    styles.statusPill,
+                    {
+                      backgroundColor: completed
+                        ? "rgba(76, 175, 80, 0.14)"
+                        : `${scheduleColor}16`,
+                    },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.statusPillText,
+                      { color: completed ? COLORS.success : scheduleColor },
+                    ]}
+                  >
+                    {completed ? "Realizado" : "En curso"}
+                  </Text>
+                </View>
+              </View>
+              {!vehicleId && item.vehicleName && (
+                <Text
+                  style={[styles.vehicleName, { color: colors.textSecondary }]}
+                >
+                  {item.vehicleName}
+                </Text>
+              )}
+            </View>
           </View>
-        </View>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: spacing.sm,
-          }}
-        >
-          {!isCompleted(item) && (
-            <>
-              <TouchableOpacity
-                onPress={() => handleEdit(item.id)}
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              >
-                <Ionicons
-                  name="create-outline"
-                  size={iconSize.md}
-                  color={COLORS.warning}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => handleApprove(item.id)}
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              >
-                <Ionicons
-                  name="checkmark-circle-outline"
-                  size={iconSize.md}
-                  color={COLORS.success}
-                />
-              </TouchableOpacity>
-            </>
-          )}
-          {isCompleted(item) && (
+
+          <View style={styles.cardActions}>
             <TouchableOpacity
+              style={[
+                styles.iconAction,
+                { backgroundColor: colors.inputBackground },
+              ]}
               onPress={() => handleEdit(item.id)}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
               <Ionicons
                 name="create-outline"
-                size={iconSize.md}
+                size={iconSize.sm}
                 color={COLORS.warning}
               />
             </TouchableOpacity>
-          )}
-          <TouchableOpacity
-            onPress={() => handleDelete(item.id, item.type)}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            {!completed && (
+              <TouchableOpacity
+                style={[
+                  styles.iconAction,
+                  { backgroundColor: colors.inputBackground },
+                ]}
+                onPress={() => handleApprove(item.id)}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Ionicons
+                  name="checkmark-circle-outline"
+                  size={iconSize.sm}
+                  color={COLORS.success}
+                />
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity
+              style={[
+                styles.iconAction,
+                { backgroundColor: colors.inputBackground },
+              ]}
+              onPress={() => handleDelete(item.id, item.type)}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <Ionicons
+                name="trash-outline"
+                size={iconSize.sm}
+                color={COLORS.danger}
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <View style={styles.metaGrid}>
+          <View
+            style={[
+              styles.metaPill,
+              { backgroundColor: colors.inputBackground },
+            ]}
           >
             <Ionicons
-              name="trash-outline"
-              size={iconSize.md}
-              color={COLORS.danger}
+              name="calendar-outline"
+              size={iconSize.xs}
+              color={colors.primary}
             />
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      <View style={styles.cardBody}>
-        <View style={styles.infoRow}>
-          <Ionicons
-            name="calendar-outline"
-            size={iconSize.sm}
-            color={colors.textSecondary}
-          />
-          <Text style={[styles.infoText, { color: colors.text }]}>
-            {formatDate(item.date)}
-          </Text>
-        </View>
-
-        {item.km && (
-          <View style={styles.infoRow}>
-            <Ionicons
-              name="speedometer-outline"
-              size={iconSize.sm}
-              color={colors.textSecondary}
-            />
-            <Text style={[styles.infoText, { color: colors.text }]}>
-              {formatKm(item.km)}
+            <Text style={[styles.metaPillText, { color: colors.text }]}>
+              {formatDate(item.date)}
             </Text>
           </View>
-        )}
-
-        {item.cost && (
-          <View style={styles.infoRow}>
-            <Ionicons
-              name="cash-outline"
-              size={iconSize.sm}
-              color={colors.textSecondary}
-            />
-            <Text style={[styles.infoText, styles.costText]}>
-              {formatCurrency(item.cost, currencySymbol)}
-            </Text>
-          </View>
-        )}
+          {item.km && (
+            <View
+              style={[
+                styles.metaPill,
+                { backgroundColor: colors.inputBackground },
+              ]}
+            >
+              <Ionicons
+                name="speedometer-outline"
+                size={iconSize.xs}
+                color={colors.primary}
+              />
+              <Text style={[styles.metaPillText, { color: colors.text }]}>
+                {formatKm(item.km)}
+              </Text>
+            </View>
+          )}
+          {item.cost && (
+            <View
+              style={[
+                styles.metaPill,
+                { backgroundColor: colors.inputBackground },
+              ]}
+            >
+              <Ionicons
+                name="wallet-outline"
+                size={iconSize.xs}
+                color={maintenanceColor}
+              />
+              <Text style={[styles.metaPillText, styles.costText]}>
+                {formatCurrency(item.cost, currencySymbol)}
+              </Text>
+            </View>
+          )}
+        </View>
 
         {item.notes && (
-          <View style={styles.notesContainer}>
-            <Text style={[styles.notesLabel, { color: colors.text }]}>
-              Notas:
+          <View
+            style={[
+              styles.notesContainer,
+              {
+                backgroundColor: colors.inputBackground,
+                borderColor: colors.border,
+              },
+            ]}
+          >
+            <Text style={[styles.notesLabel, { color: colors.textSecondary }]}>
+              Observaciones
             </Text>
             <Text style={[styles.notesText, { color: colors.text }]}>
               {item.notes}
@@ -525,105 +608,78 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
               keyExtractor={(photo) => photo.id}
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingRight: spacing.sm }}
+              contentContainerStyle={styles.photoStrip}
             />
           </View>
         )}
-      </View>
 
-      <View style={styles.cardFooter}>
-        {isCompleted(item) ? (
-          <View style={styles.nextServiceHeader}>
-            <Ionicons
-              name="checkmark-circle"
-              size={iconSize.sm}
-              color={COLORS.success}
-              style={{ marginRight: hs(8) }}
-            />
-            <Text style={[styles.nextServiceLabel, { color: colors.text }]}>
-              Realizado el:
-            </Text>
-            <Text
-              style={[
-                styles.nextServiceText,
-                { color: colors.text, marginLeft: spacing.xs },
-              ]}
-            >
-              {item.completedAt
-                ? formatDate(item.completedAt)
-                : item.updatedAt
-                  ? formatDate(item.updatedAt)
-                  : "-"}
-            </Text>
-          </View>
-        ) : (
-          <>
-            <View style={styles.nextServiceHeader}>
-              <Ionicons
-                name="alert-circle-outline"
-                size={iconSize.sm}
-                color={COLORS.warning}
-                style={{ marginRight: spacing.xs }}
-              />
-              <Text style={[styles.nextServiceLabel, { color: colors.text }]}>
-                Próximo servicio:
+        <View style={[styles.cardFooter, { borderTopColor: colors.border }]}>
+          {completed ? (
+            <View style={styles.footerInfoRow}>
+              <View
+                style={[
+                  styles.footerBadge,
+                  { backgroundColor: "rgba(76, 175, 80, 0.14)" },
+                ]}
+              >
+                <Ionicons
+                  name="checkmark-circle"
+                  size={iconSize.xs}
+                  color={COLORS.success}
+                />
+                <Text
+                  style={[styles.footerBadgeText, { color: COLORS.success }]}
+                >
+                  Completado
+                </Text>
+              </View>
+              <Text
+                style={[styles.footerText, { color: colors.textSecondary }]}
+              >
+                {item.completedAt
+                  ? formatDate(item.completedAt)
+                  : item.updatedAt
+                    ? formatDate(item.updatedAt)
+                    : "-"}
               </Text>
             </View>
-            <View className={styles.nextServiceInfo}>
-              {item.nextServiceKm ? (
-                <View style={styles.nextServiceItem}>
-                  <Ionicons
-                    name="speedometer-outline"
-                    size={iconSize.sm}
-                    color={getKmUrgencyColor(
-                      vehicle?.currentKm,
-                      item.nextServiceKm,
-                    )}
-                  />
-                  <Text
-                    style={[
-                      styles.nextServiceText,
-                      {
-                        color: getKmUrgencyColor(
-                          vehicle?.currentKm,
-                          item.nextServiceKm,
-                        ),
-                        fontWeight: "600",
-                      },
-                    ]}
-                  >
-                    {formatKmRemaining(
-                      vehicle?.currentKm,
-                      item.nextServiceKm,
-                    ) || `A los ${formatKm(item.nextServiceKm)}`}
-                  </Text>
-                </View>
-              ) : item.nextServiceDate ? (
-                <View style={styles.nextServiceItem}>
-                  <Ionicons
-                    name="calendar-outline"
-                    size={iconSize.sm}
-                    color={getDateUrgencyColor(item.nextServiceDate)}
-                  />
-                  <Text
-                    style={[
-                      styles.nextServiceText,
-                      {
-                        color: getDateUrgencyColor(item.nextServiceDate),
-                        fontWeight: "600",
-                      },
-                    ]}
-                  >
-                    {formatDaysRemaining(item.nextServiceDate)}
-                  </Text>
-                </View>
-              ) : null}
+          ) : (
+            <View style={styles.footerInfoRow}>
+              <View
+                style={[
+                  styles.footerBadge,
+                  { backgroundColor: `${scheduleColor}14` },
+                ]}
+              >
+                <Ionicons
+                  name={
+                    item.nextServiceKm
+                      ? "speedometer-outline"
+                      : "calendar-outline"
+                  }
+                  size={iconSize.xs}
+                  color={scheduleColor}
+                />
+                <Text
+                  style={[styles.footerBadgeText, { color: scheduleColor }]}
+                >
+                  Próximo servicio
+                </Text>
+              </View>
+              <Text style={[styles.footerText, { color: scheduleColor }]}>
+                {item.nextServiceKm
+                  ? formatKmRemaining(vehicle?.currentKm, item.nextServiceKm) ||
+                    `A los ${formatKm(item.nextServiceKm)}`
+                  : item.nextServiceDate
+                    ? formatDaysRemaining(item.nextServiceDate)
+                    : "Sin programación"}
+              </Text>
             </View>
-          </>
-        )}
+          )}
+        </View>
       </View>
-    </View>
-  );
+    );
+  };
 
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
@@ -653,28 +709,78 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
             },
           ]}
         >
-          <Text style={[styles.headerTitle, { color: colors.text }]}>
-            {vehicle?.name || "Todos los vehículos"}
-          </Text>
-          <Text
-            style={[styles.headerSubtitle, { color: colors.textSecondary }]}
-          >
-            {maintenances.length}{" "}
-            {maintenances.length === 1 ? "registro" : "registros"}
-          </Text>
+          <View style={styles.headerTopRow}>
+            <View style={styles.headerTitleWrap}>
+              <Text style={[styles.headerEyebrow, { color: colors.primary }]}>
+                Bitácora técnica
+              </Text>
+              <Text style={[styles.headerTitle, { color: colors.text }]}>
+                {vehicle?.name || "Todos los vehículos"}
+              </Text>
+              <Text
+                style={[styles.headerSubtitle, { color: colors.textSecondary }]}
+              >
+                {maintenances.length}{" "}
+                {maintenances.length === 1 ? "registro" : "registros"} trazados
+                en el historial
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.summaryRow}>
+            <View
+              style={[
+                styles.summaryCard,
+                {
+                  backgroundColor: colors.inputBackground,
+                  borderColor: colors.border,
+                },
+              ]}
+            >
+              <Text style={[styles.summaryValue, { color: colors.text }]}>
+                {inProgressCount}
+              </Text>
+              <Text
+                style={[styles.summaryLabel, { color: colors.textSecondary }]}
+              >
+                En curso
+              </Text>
+            </View>
+            <View
+              style={[
+                styles.summaryCard,
+                {
+                  backgroundColor: colors.inputBackground,
+                  borderColor: colors.border,
+                },
+              ]}
+            >
+              <Text style={[styles.summaryValue, { color: colors.text }]}>
+                {completedCount}
+              </Text>
+              <Text
+                style={[styles.summaryLabel, { color: colors.textSecondary }]}
+              >
+                Realizados
+              </Text>
+            </View>
+          </View>
         </View>
 
         {/* Tabs para filtrar */}
-        <View style={styles.tabsContainer}>
+        <View
+          style={[styles.tabsContainer, { backgroundColor: colors.background }]}
+        >
           <TouchableOpacity
             style={[
               styles.tab,
-              activeTab === "inProgress" && styles.tabActive,
               {
                 backgroundColor:
                   activeTab === "inProgress"
                     ? colors.primary
                     : colors.cardBackground,
+                borderColor:
+                  activeTab === "inProgress" ? colors.primary : colors.border,
               },
             ]}
             onPress={() => setActiveTab("inProgress")}
@@ -691,10 +797,11 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
           <TouchableOpacity
             style={[
               styles.tab,
-              activeTab === "done" && styles.tabActive,
               {
                 backgroundColor:
                   activeTab === "done" ? colors.primary : colors.cardBackground,
+                borderColor:
+                  activeTab === "done" ? colors.primary : colors.border,
               },
             ]}
             onPress={() => setActiveTab("done")}
@@ -754,6 +861,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={styles.listContent}
           ListEmptyComponent={renderEmptyState}
+          showsVerticalScrollIndicator={false}
         />
 
         {/* Modal para ver imagen en pantalla completa */}
@@ -1159,26 +1267,66 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: spacing.lg,
+    paddingBottom: spacing.md,
     borderBottomWidth: 1,
   },
+  headerTopRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+  },
+  headerTitleWrap: {
+    flex: 1,
+  },
+  headerEyebrow: {
+    fontSize: rf(12),
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.7,
+    marginBottom: vs(4),
+  },
   headerTitle: {
-    fontSize: rf(20),
-    fontWeight: "bold",
+    fontSize: rf(24),
+    fontWeight: "800",
   },
   headerSubtitle: {
     fontSize: rf(14),
     marginTop: vs(4),
+    lineHeight: rf(20),
+  },
+  summaryRow: {
+    flexDirection: "row",
+    gap: hs(10),
+    marginTop: vs(16),
+  },
+  summaryCard: {
+    flex: 1,
+    borderWidth: 1,
+    borderRadius: borderRadius.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  summaryValue: {
+    fontSize: rf(20),
+    fontWeight: "800",
+    marginBottom: vs(2),
+  },
+  summaryLabel: {
+    fontSize: rf(12),
+    fontWeight: "600",
   },
   listContent: {
     padding: spacing.lg,
     flexGrow: 1,
+    paddingBottom: spacing.xxl,
   },
   tabsContainer: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: vs(8),
-    marginBottom: vs(8),
+    marginTop: vs(10),
+    marginBottom: vs(4),
+    paddingHorizontal: hs(16),
     position: "relative",
   },
   infoIcon: {
@@ -1192,64 +1340,109 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.xl,
     marginHorizontal: hs(4),
     elevation: s(2),
-  },
-  tabActive: {
-    elevation: s(4),
+    borderWidth: 1,
   },
   tabText: {
     fontSize: rf(15),
     fontWeight: "600",
   },
   maintenanceCard: {
-    borderRadius: borderRadius.md,
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
     marginBottom: vs(16),
-    elevation: s(2),
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: s(4),
-    overflow: "hidden",
+    elevation: s(3),
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: s(10),
+    padding: spacing.md,
   },
-  cardHeader: {
+  cardTopRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
-    padding: spacing.lg,
-    borderBottomWidth: 1,
+    alignItems: "flex-start",
+    gap: hs(12),
+    marginBottom: vs(14),
   },
-  typeContainer: {
+  cardIdentity: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    flex: 1,
+  },
+  cardIconWrap: {
+    width: s(46),
+    height: s(46),
+    borderRadius: s(23),
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: hs(12),
+  },
+  cardTitleWrap: {
+    flex: 1,
+  },
+  cardTitleRow: {
     flexDirection: "row",
     alignItems: "center",
-    flex: 1,
-    marginRight: hs(8),
+    justifyContent: "space-between",
+    gap: hs(8),
   },
   maintenanceType: {
     fontSize: rf(16),
-    fontWeight: "bold",
+    fontWeight: "800",
+    flex: 1,
+  },
+  statusPill: {
+    paddingHorizontal: hs(10),
+    paddingVertical: vs(6),
+    borderRadius: s(999),
+  },
+  statusPillText: {
+    fontSize: rf(10),
+    fontWeight: "800",
+    textTransform: "uppercase",
   },
   vehicleName: {
     fontSize: rf(12),
-    marginTop: vs(2),
+    marginTop: vs(4),
   },
-  cardBody: {
-    padding: spacing.lg,
+  cardActions: {
+    flexDirection: "row",
+    gap: hs(8),
   },
-  infoRow: {
+  iconAction: {
+    width: s(34),
+    height: s(34),
+    borderRadius: s(17),
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  metaGrid: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: vs(8),
+    flexWrap: "wrap",
+    gap: hs(8),
+    marginBottom: vs(12),
   },
-  infoText: {
-    fontSize: rf(14),
-    marginLeft: hs(8),
+  metaPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: hs(10),
+    paddingVertical: vs(6),
+    borderRadius: s(999),
+  },
+  metaPillText: {
+    fontSize: rf(12),
+    marginLeft: hs(6),
+    fontWeight: "600",
   },
   costText: {
     fontWeight: "600",
     color: COLORS.primary,
   },
   notesContainer: {
-    marginTop: vs(8),
+    marginTop: vs(4),
     padding: spacing.md,
-    borderRadius: borderRadius.sm,
+    borderRadius: borderRadius.md,
+    borderWidth: 1,
   },
   notesLabel: {
     fontSize: rf(12),
@@ -1262,56 +1455,44 @@ const styles = StyleSheet.create({
   },
   photoContainer: {
     marginTop: vs(12),
-    borderRadius: borderRadius.sm,
-    overflow: "hidden",
-    position: "relative",
+  },
+  photoStrip: {
+    paddingRight: spacing.sm,
   },
   photoThumbnail: {
-    width: "100%",
-    height: s(150),
-  },
-  photoOverlay: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
-    paddingVertical: vs(8),
-    paddingHorizontal: hs(12),
-    flexDirection: "row",
-    alignItems: "center",
-    gap: hs(8),
-  },
-  photoOverlayText: {
-    color: "#fff",
-    fontSize: rf(14),
-    fontWeight: "600",
+    width: s(92),
+    height: s(92),
+    borderRadius: borderRadius.md,
+    marginRight: hs(10),
   },
   cardFooter: {
-    padding: spacing.lg,
     borderTopWidth: 1,
+    paddingTop: spacing.md,
+    marginTop: spacing.md,
   },
-  nextServiceHeader: {
+  footerInfoRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: vs(8),
+    justifyContent: "space-between",
+    gap: hs(10),
   },
-  nextServiceLabel: {
+  footerBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: hs(10),
+    paddingVertical: vs(6),
+    borderRadius: s(999),
+  },
+  footerBadgeText: {
+    fontSize: rf(11),
+    fontWeight: "700",
+    marginLeft: hs(6),
+  },
+  footerText: {
     fontSize: rf(13),
-    fontWeight: "600",
-  },
-  nextServiceInfo: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  nextServiceItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginRight: hs(8),
-  },
-  nextServiceText: {
-    fontSize: rf(13),
-    fontWeight: "500",
+    fontWeight: "700",
+    flexShrink: 1,
+    textAlign: "right",
   },
   emptyState: {
     flex: 1,
@@ -1321,7 +1502,7 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: rf(18),
-    fontWeight: "bold",
+    fontWeight: "800",
     marginTop: vs(16),
   },
   emptySubtitle: {

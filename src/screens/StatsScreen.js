@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -10,6 +10,7 @@ import {
 import { useApp } from "../context/AppContext";
 import { useAppSettings } from "../context/AppSettingsContext";
 import { useTheme } from "../context/ThemeContext";
+import { COLORS } from "../data/constants";
 import { useDialog } from "../hooks/useDialog";
 import { getAllExpenses } from "../services/expenseService";
 import { getAllRepairs } from "../services/repairService";
@@ -31,11 +32,7 @@ const StatsScreen = ({ navigation }) => {
   const [totalInvestment, setTotalInvestment] = useState(0);
   const [vehicleStats, setVehicleStats] = useState([]);
 
-  useEffect(() => {
-    calculateInvestment();
-  }, [vehicles]);
-
-  const calculateInvestment = () => {
+  const calculateInvestment = useCallback(() => {
     const allMaintenances = getAllMaintenances();
 
     // Obtener solo los IDs de vehículos existentes
@@ -111,7 +108,11 @@ const StatsScreen = ({ navigation }) => {
     // Mantener el mismo orden que en HomeScreen (no ordenar por costo)
 
     setVehicleStats(statsPerVehicle);
-  };
+  }, [getAllMaintenances, vehicles]);
+
+  useEffect(() => {
+    calculateInvestment();
+  }, [calculateInvestment]);
 
   const handleVehiclePress = (vehicleId) => {
     navigation.navigate("InvestmentDetail", { vehicleId });
@@ -125,11 +126,23 @@ const StatsScreen = ({ navigation }) => {
           contentContainerStyle={styles.scrollContent}
         >
           <View style={styles.titleContainer}>
-            <Text style={[styles.title, { color: colors.text }]}>
-              Inversión Total
-            </Text>
+            <View style={styles.titleWrap}>
+              <Text style={[styles.eyebrow, { color: colors.primary }]}>
+                Dashboard financiero
+              </Text>
+              <Text style={[styles.title, { color: colors.text }]}>
+                Inversión Total
+              </Text>
+              <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+                Visualiza costos de mantenimiento, reparaciones y gastos por
+                unidad.
+              </Text>
+            </View>
             <TouchableOpacity
-              style={styles.helpButton}
+              style={[
+                styles.helpButton,
+                { backgroundColor: colors.inputBackground },
+              ]}
               onPress={() =>
                 showDialog({
                   title: "Estadísticas de Inversión",
@@ -163,6 +176,72 @@ const StatsScreen = ({ navigation }) => {
             </Text>
           </View>
 
+          <View style={styles.summaryGrid}>
+            <View
+              style={[
+                styles.summaryCard,
+                {
+                  backgroundColor: colors.cardBackground,
+                  borderColor: colors.border,
+                  shadowColor: colors.shadow,
+                },
+              ]}
+            >
+              <Text style={[styles.summaryValue, { color: colors.text }]}>
+                {vehicles.length}
+              </Text>
+              <Text
+                style={[styles.summaryLabel, { color: colors.textSecondary }]}
+              >
+                Vehículos
+              </Text>
+            </View>
+            <View
+              style={[
+                styles.summaryCard,
+                {
+                  backgroundColor: colors.cardBackground,
+                  borderColor: colors.border,
+                  shadowColor: colors.shadow,
+                },
+              ]}
+            >
+              <Text style={[styles.summaryValue, { color: colors.text }]}>
+                {vehicleStats.reduce(
+                  (sum, vehicle) => sum + vehicle.maintenanceCount,
+                  0,
+                )}
+              </Text>
+              <Text
+                style={[styles.summaryLabel, { color: colors.textSecondary }]}
+              >
+                Servicios
+              </Text>
+            </View>
+            <View
+              style={[
+                styles.summaryCard,
+                {
+                  backgroundColor: colors.cardBackground,
+                  borderColor: colors.border,
+                  shadowColor: colors.shadow,
+                },
+              ]}
+            >
+              <Text style={[styles.summaryValue, { color: colors.text }]}>
+                {vehicleStats.reduce(
+                  (sum, vehicle) => sum + vehicle.repairCount,
+                  0,
+                )}
+              </Text>
+              <Text
+                style={[styles.summaryLabel, { color: colors.textSecondary }]}
+              >
+                Reparaciones
+              </Text>
+            </View>
+          </View>
+
           {/* Lista de vehículos */}
           <Text style={[styles.sectionTitle, { color: colors.text }]}>
             Inversión por Vehículo
@@ -187,6 +266,7 @@ const StatsScreen = ({ navigation }) => {
                   styles.vehicleCard,
                   {
                     backgroundColor: colors.cardBackground,
+                    borderColor: colors.border,
                     shadowColor: colors.shadow,
                   },
                 ]}
@@ -194,9 +274,28 @@ const StatsScreen = ({ navigation }) => {
               >
                 <View style={styles.vehicleInfo}>
                   <View style={styles.vehicleHeader}>
-                    <Text style={[styles.vehicleName, { color: colors.text }]}>
-                      {vehicle.name}
-                    </Text>
+                    <View style={styles.vehicleTitleRow}>
+                      <Text
+                        style={[styles.vehicleName, { color: colors.text }]}
+                      >
+                        {vehicle.name}
+                      </Text>
+                      <View
+                        style={[
+                          styles.costPill,
+                          { backgroundColor: colors.inputBackground },
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.costPillText,
+                            { color: colors.primary },
+                          ]}
+                        >
+                          {formatCurrency(vehicle.totalCost, currencySymbol)}
+                        </Text>
+                      </View>
+                    </View>
                     {vehicle.brand && vehicle.model && (
                       <Text
                         style={[
@@ -209,11 +308,16 @@ const StatsScreen = ({ navigation }) => {
                     )}
                   </View>
                   <View style={styles.statsRow}>
-                    <View style={styles.statItem}>
+                    <View
+                      style={[
+                        styles.statItem,
+                        { backgroundColor: colors.inputBackground },
+                      ]}
+                    >
                       <Ionicons
                         name="construct-outline"
                         size={iconSize.sm}
-                        color={colors.textSecondary}
+                        color={colors.primary}
                       />
                       <Text
                         style={[
@@ -227,11 +331,16 @@ const StatsScreen = ({ navigation }) => {
                           : "servicios"}
                       </Text>
                     </View>
-                    <View style={styles.statItem}>
+                    <View
+                      style={[
+                        styles.statItem,
+                        { backgroundColor: colors.inputBackground },
+                      ]}
+                    >
                       <Ionicons
                         name="build-outline"
                         size={iconSize.sm}
-                        color={colors.textSecondary}
+                        color={COLORS.warning}
                       />
                       <Text
                         style={[
@@ -245,11 +354,16 @@ const StatsScreen = ({ navigation }) => {
                           : "reparaciones"}
                       </Text>
                     </View>
-                    <View style={styles.statItem}>
+                    <View
+                      style={[
+                        styles.statItem,
+                        { backgroundColor: colors.inputBackground },
+                      ]}
+                    >
                       <Ionicons
                         name="wallet-outline"
                         size={iconSize.sm}
-                        color={colors.textSecondary}
+                        color={COLORS.success}
                       />
                       <Text
                         style={[
@@ -264,9 +378,6 @@ const StatsScreen = ({ navigation }) => {
                   </View>
                 </View>
                 <View style={styles.costContainer}>
-                  <Text style={[styles.costAmount, { color: colors.primary }]}>
-                    {formatCurrency(vehicle.totalCost, currencySymbol)}
-                  </Text>
                   <Ionicons
                     name="chevron-forward"
                     size={iconSize.sm}
@@ -293,22 +404,45 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingBottom: vs(40),
   },
+  titleWrap: {
+    flex: 1,
+    paddingRight: spacing.md,
+  },
+  eyebrow: {
+    fontSize: rf(12),
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.7,
+    marginBottom: vs(4),
+  },
   title: {
     fontSize: rf(28),
-    fontWeight: "bold",
+    fontWeight: "800",
+  },
+  subtitle: {
+    fontSize: rf(14),
+    lineHeight: rf(20),
+    marginTop: vs(6),
   },
   titleContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
+    alignItems: "flex-start",
     marginBottom: spacing.lg,
     paddingTop: spacing.lg,
+  },
+  helpButton: {
+    width: s(42),
+    height: s(42),
+    borderRadius: s(21),
+    alignItems: "center",
+    justifyContent: "center",
   },
   totalCard: {
     borderRadius: borderRadius.lg,
     padding: spacing.xl,
     alignItems: "center",
-    marginBottom: vs(32),
+    marginBottom: vs(18),
     elevation: s(4),
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
@@ -331,58 +465,100 @@ const styles = StyleSheet.create({
     fontSize: rf(12),
     marginTop: spacing.xxs,
     opacity: 0.8,
+    textAlign: "center",
+  },
+  summaryGrid: {
+    flexDirection: "row",
+    gap: spacing.sm,
+    marginBottom: vs(24),
+  },
+  summaryCard: {
+    flex: 1,
+    borderWidth: 1,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    elevation: s(2),
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: s(8),
+  },
+  summaryValue: {
+    fontSize: rf(20),
+    fontWeight: "800",
+    marginBottom: vs(2),
+  },
+  summaryLabel: {
+    fontSize: rf(12),
+    fontWeight: "600",
   },
   sectionTitle: {
     fontSize: rf(20),
-    fontWeight: "bold",
+    fontWeight: "800",
     marginBottom: spacing.md,
   },
   vehicleCard: {
     flexDirection: "row",
     padding: spacing.md,
-    borderRadius: borderRadius.md,
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
     marginBottom: spacing.sm,
-    elevation: s(2),
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: s(3),
+    elevation: s(3),
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: s(10),
     alignItems: "center",
   },
   vehicleInfo: {
     flex: 1,
   },
   vehicleHeader: {
-    marginBottom: spacing.xs,
+    marginBottom: spacing.sm,
+  },
+  vehicleTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: spacing.sm,
   },
   vehicleName: {
     fontSize: rf(18),
-    fontWeight: "bold",
+    fontWeight: "800",
     marginBottom: spacing.xs,
+    flex: 1,
   },
   vehicleDetails: {
     fontSize: rf(14),
   },
+  costPill: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: s(999),
+  },
+  costPillText: {
+    fontSize: rf(12),
+    fontWeight: "800",
+  },
   statsRow: {
     flexDirection: "row",
-    gap: spacing.md,
+    flexWrap: "wrap",
+    gap: spacing.sm,
   },
   statItem: {
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.xxs,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: s(999),
   },
   statText: {
     fontSize: rf(13),
+    fontWeight: "600",
   },
   costContainer: {
-    alignItems: "flex-end",
     flexDirection: "row",
     gap: spacing.xs,
     alignItems: "center",
-  },
-  costAmount: {
-    fontSize: rf(20),
-    fontWeight: "bold",
   },
   emptyState: {
     alignItems: "center",
