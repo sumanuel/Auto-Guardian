@@ -49,6 +49,18 @@ const QUICK_ACTION_COLORS = [
   "#2196F3",
 ];
 
+const HeroMetricCard = ({ icon, label, value, accent }) => (
+  <View style={[styles.heroMetricCard, { borderColor: accent }]}>
+    <View
+      style={[styles.heroMetricIconWrap, { backgroundColor: `${accent}22` }]}
+    >
+      <Ionicons name={icon} size={iconSize.sm} color="#fff" />
+    </View>
+    <Text style={styles.heroMetricValue}>{value}</Text>
+    <Text style={styles.heroMetricLabel}>{label}</Text>
+  </View>
+);
+
 const MaintenanceHistoryScreen = ({ route, navigation }) => {
   const { vehicleId = null, sortByUrgency = false } = route.params || {};
   const {
@@ -711,14 +723,24 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
             </View>
 
             <View style={styles.summaryRow}>
-              <View style={styles.summaryCard}>
-                <Text style={styles.summaryValue}>{inProgressCount}</Text>
-                <Text style={styles.summaryLabel}>En curso</Text>
-              </View>
-              <View style={styles.summaryCard}>
-                <Text style={styles.summaryValue}>{completedCount}</Text>
-                <Text style={styles.summaryLabel}>Realizados</Text>
-              </View>
+              <HeroMetricCard
+                icon="clipboard-outline"
+                label="Registros"
+                value={maintenances.length}
+                accent="#F2D06B"
+              />
+              <HeroMetricCard
+                icon="time-outline"
+                label="En curso"
+                value={inProgressCount}
+                accent="#FFB26B"
+              />
+              <HeroMetricCard
+                icon="checkmark-done-outline"
+                label="Realizados"
+                value={completedCount}
+                accent="#A7E08A"
+              />
             </View>
           </LinearGradient>
         </View>
@@ -1261,21 +1283,31 @@ const styles = StyleSheet.create({
     gap: hs(10),
     marginTop: vs(16),
   },
-  summaryCard: {
+  heroMetricCard: {
     flex: 1,
+    minHeight: vs(92),
     borderRadius: borderRadius.md,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
+    borderWidth: 1,
     backgroundColor: "rgba(255,255,255,0.14)",
   },
-  summaryValue: {
+  heroMetricIconWrap: {
+    width: s(32),
+    height: s(32),
+    borderRadius: s(16),
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: vs(10),
+  },
+  heroMetricValue: {
     fontSize: rf(20),
     fontWeight: "800",
     marginBottom: vs(2),
     color: "#fff",
   },
-  summaryLabel: {
-    fontSize: rf(12),
+  heroMetricLabel: {
+    fontSize: rf(11),
     fontWeight: "600",
     color: "rgba(255,255,255,0.76)",
   },

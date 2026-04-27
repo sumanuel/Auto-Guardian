@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   FlatList,
   StyleSheet,
@@ -62,20 +62,52 @@ const getExpiryMeta = (expiryDate) => {
   };
 };
 
+const HeroMetricCard = ({ icon, label, value, accent }) => (
+  <View style={[styles.heroMetricCard, { borderColor: accent }]}>
+    <View
+      style={[styles.heroMetricIconWrap, { backgroundColor: `${accent}22` }]}
+    >
+      <Ionicons name={icon} size={iconSize.sm} color="#fff" />
+    </View>
+    <Text style={styles.heroMetricValue}>{value}</Text>
+    <Text style={styles.heroMetricLabel}>{label}</Text>
+  </View>
+);
+
 const VehicleDocumentsScreen = ({ navigation, route }) => {
   const { vehicleId, vehicle } = route.params;
   const { colors } = useTheme();
   const { DialogComponent, showDialog } = useDialog();
   const [documents, setDocuments] = useState([]);
 
-  const expiringCount = documents.filter((document) => {
-    if (!document.expiry_date) {
-      return false;
-    }
+  const documentStats = useMemo(() => {
+    const totals = documents.reduce(
+      (accumulator, document) => {
+        if (!document.expiry_date) {
+          accumulator.valid += 1;
+          return accumulator;
+        }
 
-    const meta = getExpiryMeta(document.expiry_date);
-    return meta.label !== "Sin vencimiento" && meta.label !== "Vence hoy";
-  }).length;
+        const expiry = new Date(document.expiry_date + "T00:00:00");
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const daysRemaining = Math.floor(
+          (expiry - today) / (1000 * 60 * 60 * 24),
+        );
+
+        if (daysRemaining <= 30) {
+          accumulator.review += 1;
+        } else {
+          accumulator.valid += 1;
+        }
+
+        return accumulator;
+      },
+      { total: documents.length, valid: 0, review: 0 },
+    );
+
+    return totals;
+  }, [documents]);
 
   const loadDocuments = useCallback(() => {
     const docs = getVehicleDocuments(vehicleId);
@@ -271,30 +303,25 @@ const VehicleDocumentsScreen = ({ navigation, route }) => {
                 : "documentos cargados"}
             </Text>
 
-            <View style={styles.heroMetaRow}>
-              <View style={styles.heroMetaPill}>
-                <Ionicons
-                  name="document-text-outline"
-                  size={iconSize.xs}
-                  color="#fff"
-                />
-                <Text style={styles.heroMetaText}>
-                  {documents.length}{" "}
-                  {documents.length === 1 ? "archivo" : "archivos"}
-                </Text>
-              </View>
-              {expiringCount > 0 && (
-                <View style={styles.heroMetaPillAlert}>
-                  <Ionicons
-                    name="alert-circle-outline"
-                    size={iconSize.xs}
-                    color="#fff"
-                  />
-                  <Text style={styles.heroMetaText}>
-                    {expiringCount} por revisar
-                  </Text>
-                </View>
-              )}
+            <View style={styles.heroStatsGrid}>
+              <HeroMetricCard
+                icon="document-text-outline"
+                label="Documentos"
+                value={documentStats.total}
+                accent="#F2D06B"
+              />
+              <HeroMetricCard
+                icon="checkmark-done-outline"
+                label="Al día"
+                value={documentStats.valid}
+                accent="#A7E08A"
+              />
+              <HeroMetricCard
+                icon="alert-circle-outline"
+                label="Por revisar"
+                value={documentStats.review}
+                accent="#FFB26B"
+              />
             </View>
           </LinearGradient>
         </View>
@@ -371,33 +398,38 @@ const styles = StyleSheet.create({
     marginTop: vs(6),
     color: "rgba(255,255,255,0.84)",
   },
-  heroMetaRow: {
+  heroStatsGrid: {
     flexDirection: "row",
-    flexWrap: "wrap",
     gap: hs(8),
-    marginTop: vs(14),
+    marginTop: vs(18),
   },
-  heroMetaPill: {
-    flexDirection: "row",
+  heroMetricCard: {
+    flex: 1,
+    minHeight: vs(92),
+    borderRadius: borderRadius.md,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm,
+    borderWidth: 1,
+    backgroundColor: "rgba(255,255,255,0.12)",
+  },
+  heroMetricIconWrap: {
+    width: s(32),
+    height: s(32),
+    borderRadius: s(16),
     alignItems: "center",
-    paddingHorizontal: hs(12),
-    paddingVertical: vs(8),
-    borderRadius: s(999),
-    backgroundColor: "rgba(255,255,255,0.16)",
+    justifyContent: "center",
+    marginBottom: vs(10),
   },
-  heroMetaPillAlert: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: hs(12),
-    paddingVertical: vs(8),
-    borderRadius: s(999),
-    backgroundColor: "rgba(255,255,255,0.24)",
-  },
-  heroMetaText: {
-    fontSize: rf(12),
-    fontWeight: "700",
+  heroMetricValue: {
+    fontSize: rf(16),
+    fontWeight: "800",
     color: "#fff",
-    marginLeft: hs(6),
+    marginBottom: vs(3),
+  },
+  heroMetricLabel: {
+    fontSize: rf(11),
+    fontWeight: "600",
+    color: "rgba(255,255,255,0.74)",
   },
   listContainer: {
     padding: spacing.lg,
