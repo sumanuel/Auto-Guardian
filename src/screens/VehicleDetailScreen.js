@@ -432,56 +432,66 @@ const VehicleDetailScreen = ({ navigation, route }) => {
     });
   };
 
-  const renderRecentItem = (item) => (
-    <TouchableOpacity
-      key={item.id}
-      style={[
-        styles.recentItem,
-        {
-          backgroundColor: colors.inputBackground,
-          borderColor: colors.border,
-        },
-      ]}
-      onPress={() => {
-        navigation.navigate("MaintenanceHistory", {
-          vehicleId,
-        });
-      }}
-      activeOpacity={0.85}
-    >
-      <View
+  const renderRecentItem = (item) => {
+    const maintenanceColor =
+      maintenanceTypeColorMap[item.type] || colors.primary;
+    const maintenanceIcon = getMaintenanceIcon(item.type);
+
+    return (
+      <TouchableOpacity
+        key={item.id}
         style={[
-          styles.recentItemIcon,
-          { backgroundColor: `${colors.primary}18` },
+          styles.recentItem,
+          {
+            backgroundColor: colors.inputBackground,
+            borderColor: colors.border,
+          },
         ]}
+        onPress={() => {
+          navigation.navigate("MaintenanceHistory", {
+            vehicleId,
+          });
+        }}
+        activeOpacity={0.85}
       >
-        <Ionicons
-          name="build-outline"
-          size={iconSize.sm}
-          color={colors.primary}
-        />
-      </View>
-      <View style={styles.recentItemBody}>
-        <Text style={[styles.recentItemTitle, { color: colors.text }]}>
-          {item.type}
-        </Text>
-        <Text style={[styles.recentItemMeta, { color: colors.textSecondary }]}>
-          {formatRelativeDate(item.date)}
-          {item.km ? ` • ${formatKm(item.km)}` : ""}
-        </Text>
-      </View>
-      <View style={styles.recentItemAside}>
-        <Text style={[styles.recentItemCost, { color: colors.text }]}>
-          {item.cost ? formatCurrency(item.cost, currencySymbol) : "Sin costo"}
-        </Text>
-        <Ionicons
-          name="chevron-forward"
-          size={iconSize.sm}
-          color={colors.textSecondary}
-        />
-      </View>
-    </TouchableOpacity>
-  );
+        <View
+          style={[
+            styles.recentItemIcon,
+            { backgroundColor: `${maintenanceColor}20` },
+          ]}
+        >
+          <Ionicons
+            name={maintenanceIcon}
+            size={iconSize.sm}
+            color={maintenanceColor}
+          />
+        </View>
+        <View style={styles.recentItemBody}>
+          <Text style={[styles.recentItemTitle, { color: colors.text }]}>
+            {item.type}
+          </Text>
+          <Text
+            style={[styles.recentItemMeta, { color: colors.textSecondary }]}
+          >
+            {formatRelativeDate(item.date)}
+            {item.km ? ` • ${formatKm(item.km)}` : ""}
+          </Text>
+        </View>
+        <View style={styles.recentItemAside}>
+          <Text style={[styles.recentItemCost, { color: colors.text }]}>
+            {item.cost
+              ? formatCurrency(item.cost, currencySymbol)
+              : "Sin costo"}
+          </Text>
+          <Ionicons
+            name="chevron-forward"
+            size={iconSize.sm}
+            color={colors.textSecondary}
+          />
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   if (!vehicle) {
     return (
