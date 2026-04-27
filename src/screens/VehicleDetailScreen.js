@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useEffect, useState } from "react";
+import { LinearGradient } from "expo-linear-gradient";
+import { useCallback, useEffect, useState } from "react";
 import {
   Image,
   Modal,
@@ -42,6 +43,45 @@ import {
   vs,
 } from "../utils/responsive";
 
+const DetailMetricCard = ({ icon, label, value, accent, inverse = false }) => (
+  <View
+    style={[
+      styles.detailMetricCard,
+      inverse && styles.detailMetricCardInverse,
+      accent ? { borderColor: accent } : null,
+    ]}
+  >
+    <View
+      style={[
+        styles.detailMetricIconWrap,
+        { backgroundColor: inverse ? "rgba(255,255,255,0.12)" : `${accent}18` },
+      ]}
+    >
+      <Ionicons
+        name={icon}
+        size={iconSize.sm}
+        color={inverse ? "#fff" : accent}
+      />
+    </View>
+    <Text
+      style={[
+        styles.detailMetricValue,
+        inverse && styles.detailMetricValueInverse,
+      ]}
+    >
+      {value}
+    </Text>
+    <Text
+      style={[
+        styles.detailMetricLabel,
+        inverse && styles.detailMetricLabelInverse,
+      ]}
+    >
+      {label}
+    </Text>
+  </View>
+);
+
 const VehicleDetailScreen = ({ navigation, route }) => {
   const { vehicleId } = route.params;
   const {
@@ -71,21 +111,7 @@ const VehicleDetailScreen = ({ navigation, route }) => {
   const [nextServiceDate, setNextServiceDate] = useState("");
   const [cost, setCost] = useState("");
 
-  useEffect(() => {
-    loadVehicleData();
-  }, [vehicleId, vehicles]);
-
-  // Recargar datos cuando la pantalla obtiene el foco (al volver de agregar mantenimiento)
-  useEffect(() => {
-    const unsubscribe = navigation.addListener("focus", () => {
-      loadVehicles();
-      loadVehicleData();
-    });
-
-    return unsubscribe;
-  }, [navigation, vehicleId]);
-
-  const loadVehicleData = () => {
+  const loadVehicleData = useCallback(() => {
     const foundVehicle = vehicles.find((v) => v.id === vehicleId);
     setVehicle(foundVehicle);
 
@@ -101,24 +127,33 @@ const VehicleDetailScreen = ({ navigation, route }) => {
       setUpcomingMaintenances(upcoming);
       setStats(statistics);
     }
-  };
+  }, [
+    vehicles,
+    vehicleId,
+    getRecentMaintenances,
+    getUpcomingMaintenances,
+    getMaintenanceStats,
+  ]);
+
+  useEffect(() => {
+    loadVehicleData();
+  }, [loadVehicleData]);
+
+  // Recargar datos cuando la pantalla obtiene el foco (al volver de agregar mantenimiento)
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      loadVehicles();
+      loadVehicleData();
+    });
+
+    return unsubscribe;
+  }, [navigation, loadVehicleData, loadVehicles]);
 
   const onRefresh = async () => {
     setRefreshing(true);
     await loadVehicles();
     loadVehicleData();
     setRefreshing(false);
-  };
-
-  const handleCompleteMaintenance = (maintenance) => {
-    setSelectedMaintenance(maintenance);
-    // Sugerir próximo servicio basado en el actual
-    if (maintenance.nextServiceKm && vehicle.currentKm) {
-      const interval =
-        maintenance.nextServiceKm - (maintenance.km || vehicle.currentKm);
-      setNextServiceKm(String((vehicle.currentKm || 0) + interval));
-    }
-    setCompleteModalVisible(true);
   };
 
   const confirmCompleteMaintenance = async () => {
@@ -150,7 +185,7 @@ const VehicleDetailScreen = ({ navigation, route }) => {
         message: `Mantenimiento de ${selectedMaintenance.type} registrado correctamente.`,
         type: "success",
       });
-    } catch (error) {
+    } catch (_error) {
       showDialog({
         title: "Error",
         message: "No se pudo completar el mantenimiento",
@@ -299,102 +334,150 @@ const VehicleDetailScreen = ({ navigation, route }) => {
     );
   }
 
+  const totalServices = stats?.totalServices || 0;
+  const totalInvestment = stats?.totalCost || 0;
+  const plateLabel = vehicle.plate || "Sin placa";
+  const vehicleMeta = [
+    vehicle.brand,
+    vehicle.model,
+    vehicle.year && `${vehicle.year}`,
+  ]
+    .filter(Boolean)
+    .join(" • ");
+
   return (
     <DialogComponent>
       <ScrollView
         style={[styles.container, { backgroundColor: colors.background }]}
+        contentContainerStyle={styles.scrollContent}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        {/* Header con imagen del vehículo */}
-        <View
-          style={[
-            styles.header,
-            {
-              backgroundColor: colors.cardBackground,
-              borderBottomColor: colors.border,
-            },
-          ]}
+        <LinearGradient
+          colors={[COLORS.primary, "#0F5FD2", "#0A3F8F"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.heroGradient}
         >
-          {vehicle.photo ? (
-            <Image
-              source={{ uri: vehicle.photo }}
-              style={[
-                styles.vehicleImage,
-                { width: vehicleImageSize, height: vehicleImageSize },
-              ]}
-            />
-          ) : (
-            <View
-              style={[
-                styles.imagePlaceholder,
-                { backgroundColor: colors.inputBackground },
-                { width: vehicleImageSize, height: vehicleImageSize },
-              ]}
+          <View style={styles.heroTopRow}>
+            <View style={styles.heroMediaRow}>
+              {vehicle.photo ? (
+                <Image
+                  source={{ uri: vehicle.photo }}
+                  style={[
+                    styles.vehicleImage,
+                    { width: vehicleImageSize, height: vehicleImageSize },
+                  ]}
+                />
+              ) : (
+                <View
+                  style={[
+                    styles.imagePlaceholder,
+                    styles.heroImagePlaceholder,
+                    { width: vehicleImageSize, height: vehicleImageSize },
+                  ]}
+                >
+                  <Ionicons
+                    name="car-sport-outline"
+                    size={vehiclePlaceholderIconSize}
+                    color="#D6E7FF"
+                  />
+                </View>
+              )}
+
+              <View style={styles.headerInfo}>
+                <Text style={styles.heroEyebrow}>Ficha técnica</Text>
+                <Text style={styles.vehicleName}>{vehicle.name}</Text>
+                {!!vehicleMeta && (
+                  <Text style={styles.vehicleDetails}>{vehicleMeta}</Text>
+                )}
+
+                <View style={styles.heroMetaRow}>
+                  <View style={styles.heroMetaPill}>
+                    <Text style={styles.heroMetaText}>{plateLabel}</Text>
+                  </View>
+                  <View style={styles.heroMetaPill}>
+                    <Ionicons
+                      name="speedometer-outline"
+                      size={iconSize.xs}
+                      color="#D6E7FF"
+                    />
+                    <Text style={styles.heroMetaText}>
+                      {formatKm(vehicle.currentKm)}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={styles.helpButtonHero}
+              onPress={() =>
+                showDialog({
+                  title: "Detalle del Vehículo",
+                  message:
+                    "Aquí puedes ver toda la información de tu vehículo, próximos mantenimientos más urgentes, opciones para registrar nuevos mantenimientos o ver el historial. Mantén actualizado el kilometraje para alertas precisas.",
+                  type: "info",
+                })
+              }
             >
               <Ionicons
-                name="car"
-                size={vehiclePlaceholderIconSize}
-                color={colors.textSecondary}
+                name="information-circle-outline"
+                size={iconSize.lg}
+                color="#fff"
               />
-            </View>
-          )}
-          <View style={styles.headerInfo}>
-            <View style={styles.titleContainer}>
-              <Text style={[styles.vehicleName, { color: colors.text }]}>
-                {vehicle.name}
-              </Text>
-              <TouchableOpacity
-                style={styles.helpButton}
-                onPress={() =>
-                  showDialog({
-                    title: "Detalle del Vehículo",
-                    message:
-                      "Aquí puedes ver toda la información de tu vehículo, próximos mantenimientos más urgentes, opciones para registrar nuevos mantenimientos o ver el historial. Mantén actualizado el kilometraje para alertas precisas.",
-                    type: "info",
-                  })
-                }
-              >
-                <Ionicons
-                  name="information-circle-outline"
-                  size={iconSize.md}
-                  color={colors.primary}
-                />
-              </TouchableOpacity>
-            </View>
-            <Text
-              style={[styles.vehicleDetails, { color: colors.textSecondary }]}
-            >
-              {vehicle.brand} {vehicle.model}{" "}
-              {vehicle.year ? `(${vehicle.year})` : ""}
-            </Text>
-            {vehicle.plate && (
-              <Text
-                style={[styles.vehiclePlate, { color: colors.textSecondary }]}
-              >
-                Placa: {vehicle.plate}
-              </Text>
-            )}
+            </TouchableOpacity>
           </View>
-        </View>
 
-        {/* Kilometraje actual */}
+          <View style={styles.heroStatsGrid}>
+            <DetailMetricCard
+              icon="time-outline"
+              label="Pendientes"
+              value={upcomingMaintenances.length}
+              accent={COLORS.warning}
+              inverse
+            />
+            <DetailMetricCard
+              icon="build-outline"
+              label="Servicios"
+              value={totalServices}
+              accent="#8ED1FF"
+              inverse
+            />
+            <DetailMetricCard
+              icon="wallet-outline"
+              label="Inversión"
+              value={formatCurrency(totalInvestment, currencySymbol)}
+              accent="#B8F1C6"
+              inverse
+            />
+          </View>
+        </LinearGradient>
+
         <View
           style={[
             styles.kmSection,
             {
               backgroundColor: colors.cardBackground,
+              borderColor: colors.border,
               shadowColor: colors.shadow,
             },
           ]}
         >
           <View style={styles.kmInfo}>
-            <Ionicons
-              name="speedometer"
-              size={iconSize.lg}
-              color={colors.primary}
-            />
+            <View
+              style={[
+                styles.kmIconWrap,
+                { backgroundColor: colors.inputBackground },
+              ]}
+            >
+              <Ionicons
+                name="speedometer-outline"
+                size={iconSize.md}
+                color={colors.primary}
+              />
+            </View>
             <View style={styles.kmTextContainer}>
               <Text style={[styles.kmLabel, { color: colors.textSecondary }]}>
                 Kilometraje actual
@@ -405,12 +488,15 @@ const VehicleDetailScreen = ({ navigation, route }) => {
             </View>
           </View>
           <TouchableOpacity
-            style={styles.editKmButton}
+            style={[
+              styles.editKmButton,
+              { backgroundColor: colors.inputBackground },
+            ]}
             onPress={() => navigation.navigate("UpdateKm", { vehicle })}
           >
             <Ionicons
               name="create-outline"
-              size={iconSize.md}
+              size={iconSize.sm}
               color={colors.primary}
             />
           </TouchableOpacity>
@@ -422,12 +508,16 @@ const VehicleDetailScreen = ({ navigation, route }) => {
             styles.quickActionsSection,
             {
               backgroundColor: colors.cardBackground,
+              borderColor: colors.border,
               shadowColor: colors.shadow,
             },
           ]}
         >
+          <Text style={[styles.sectionEyebrow, { color: colors.primary }]}>
+            MRO
+          </Text>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>
-            Acciones Rápidas
+            Acciones rápidas
           </Text>
           <ScrollView
             horizontal
@@ -482,13 +572,30 @@ const VehicleDetailScreen = ({ navigation, route }) => {
               styles.section,
               {
                 backgroundColor: colors.cardBackground,
+                borderColor: colors.border,
                 shadowColor: colors.shadow,
               },
             ]}
           >
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>
-              Próximos Mantenimientos
+            <Text style={[styles.sectionEyebrow, { color: colors.primary }]}>
+              Agenda
             </Text>
+            <View style={styles.sectionHeaderCompact}>
+              <Text
+                style={[
+                  styles.sectionTitle,
+                  styles.sectionTitleNoMargin,
+                  { color: colors.text },
+                ]}
+              >
+                Próximos mantenimientos
+              </Text>
+              <Text
+                style={[styles.sectionMeta, { color: colors.textSecondary }]}
+              >
+                {upcomingMaintenances.length} activos
+              </Text>
+            </View>
             {upcomingMaintenances.slice(0, 3).map(renderMaintenanceItem)}
           </View>
         )}
@@ -500,14 +607,28 @@ const VehicleDetailScreen = ({ navigation, route }) => {
               styles.section,
               {
                 backgroundColor: colors.cardBackground,
+                borderColor: colors.border,
                 shadowColor: colors.shadow,
               },
             ]}
           >
             <View style={styles.sectionHeader}>
-              <Text style={[styles.sectionTitle, { color: colors.text }]}>
-                Historial Reciente
-              </Text>
+              <View>
+                <Text
+                  style={[styles.sectionEyebrow, { color: colors.primary }]}
+                >
+                  Bitácora
+                </Text>
+                <Text
+                  style={[
+                    styles.sectionTitle,
+                    styles.sectionTitleNoMargin,
+                    { color: colors.text },
+                  ]}
+                >
+                  Historial reciente
+                </Text>
+              </View>
             </View>
 
             {recentMaintenances.length === 0 ? (
@@ -700,22 +821,34 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  scrollContent: {
+    paddingBottom: spacing.xxl,
+  },
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
-  header: {
-    padding: spacing.lg,
+  heroGradient: {
+    paddingHorizontal: hs(20),
+    paddingTop: vs(26),
+    paddingBottom: vs(28),
+  },
+  heroTopRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+  },
+  heroMediaRow: {
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    borderBottomWidth: 1,
   },
   vehicleImage: {
     width: s(100),
     height: s(100),
     borderRadius: borderRadius.md,
-    marginRight: hs(16),
+    marginRight: hs(14),
   },
   imagePlaceholder: {
     width: s(100),
@@ -723,46 +856,131 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.md,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: hs(16),
+    marginRight: hs(14),
+  },
+  heroImagePlaceholder: {
+    backgroundColor: "rgba(255,255,255,0.12)",
   },
   headerInfo: {
     flex: 1,
   },
-  titleContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+  heroEyebrow: {
+    fontSize: rf(12),
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.7,
+    color: "rgba(255,255,255,0.72)",
     marginBottom: vs(4),
   },
   vehicleName: {
-    fontSize: rf(22),
-    fontWeight: "bold",
+    fontSize: rf(24),
+    fontWeight: "800",
+    color: "#fff",
   },
   vehicleDetails: {
-    fontSize: rf(16),
-    marginBottom: vs(4),
-  },
-  vehiclePlate: {
     fontSize: rf(14),
+    color: "rgba(255,255,255,0.84)",
+    marginTop: vs(4),
+    marginBottom: vs(10),
   },
-  helpButton: {
-    padding: spacing.sm,
+  heroMetaRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: hs(8),
+  },
+  heroMetaPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: hs(6),
+    paddingHorizontal: hs(10),
+    paddingVertical: vs(6),
+    borderRadius: s(999),
+    backgroundColor: "rgba(255,255,255,0.14)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.1)",
+  },
+  heroMetaText: {
+    fontSize: rf(12),
+    fontWeight: "700",
+    color: "#fff",
+  },
+  helpButtonHero: {
+    width: s(44),
+    height: s(44),
+    borderRadius: s(22),
+    backgroundColor: "rgba(255,255,255,0.12)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginLeft: hs(12),
+  },
+  heroStatsGrid: {
+    flexDirection: "row",
+    gap: hs(8),
+    marginTop: vs(18),
+  },
+  detailMetricCard: {
+    flex: 1,
+    minHeight: vs(92),
+    borderRadius: borderRadius.md,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm,
+    borderWidth: 1,
+  },
+  detailMetricCardInverse: {
+    backgroundColor: "rgba(255,255,255,0.12)",
+    borderColor: "rgba(255,255,255,0.14)",
+  },
+  detailMetricIconWrap: {
+    width: s(32),
+    height: s(32),
+    borderRadius: s(16),
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: vs(10),
+  },
+  detailMetricValue: {
+    fontSize: rf(15),
+    fontWeight: "800",
+    color: COLORS.primary,
+    marginBottom: vs(3),
+  },
+  detailMetricValueInverse: {
+    color: "#fff",
+  },
+  detailMetricLabel: {
+    fontSize: rf(11),
+    fontWeight: "600",
+    color: COLORS.gray,
+  },
+  detailMetricLabelInverse: {
+    color: "rgba(255,255,255,0.74)",
   },
   kmSection: {
-    margin: spacing.lg,
-    padding: spacing.lg,
-    borderRadius: borderRadius.md,
+    marginHorizontal: hs(16),
+    marginTop: vs(-12),
+    marginBottom: vs(16),
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    elevation: s(2),
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: s(4),
+    elevation: s(3),
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: s(10),
   },
   kmInfo: {
     flexDirection: "row",
     alignItems: "center",
+  },
+  kmIconWrap: {
+    width: s(42),
+    height: s(42),
+    borderRadius: s(21),
+    alignItems: "center",
+    justifyContent: "center",
   },
   kmTextContainer: {
     marginLeft: hs(12),
@@ -771,24 +989,30 @@ const styles = StyleSheet.create({
     fontSize: rf(14),
   },
   kmValue: {
-    fontSize: rf(24),
-    fontWeight: "bold",
+    fontSize: rf(22),
+    fontWeight: "800",
   },
   editKmButton: {
-    padding: spacing.sm,
+    width: s(36),
+    height: s(36),
+    borderRadius: s(18),
+    alignItems: "center",
+    justifyContent: "center",
   },
   quickActionsSection: {
     marginHorizontal: hs(16),
     marginBottom: vs(16),
     padding: spacing.lg,
-    borderRadius: borderRadius.md,
-    elevation: s(2),
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: s(4),
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    elevation: s(3),
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: s(10),
   },
   quickActionsScroll: {
-    paddingVertical: vs(8),
+    paddingTop: vs(6),
+    paddingBottom: vs(2),
   },
   statsSection: {
     marginHorizontal: hs(16),
@@ -822,22 +1046,43 @@ const styles = StyleSheet.create({
     marginHorizontal: hs(16),
     marginBottom: vs(16),
     padding: spacing.lg,
-    borderRadius: borderRadius.md,
-    elevation: s(2),
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: s(4),
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    elevation: s(3),
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: s(10),
   },
   sectionHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: vs(10),
+  },
+  sectionHeaderCompact: {
+    flexDirection: "row",
     alignItems: "center",
-    marginBottom: vs(12),
+    justifyContent: "space-between",
+    marginBottom: vs(10),
+  },
+  sectionEyebrow: {
+    fontSize: rf(12),
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.7,
+    marginBottom: vs(4),
   },
   sectionTitle: {
     fontSize: rf(18),
-    fontWeight: "bold",
+    fontWeight: "800",
     marginBottom: vs(12),
+  },
+  sectionTitleNoMargin: {
+    marginBottom: 0,
+  },
+  sectionMeta: {
+    fontSize: rf(12),
+    fontWeight: "700",
   },
   viewAllText: {
     color: COLORS.primary,
@@ -912,7 +1157,8 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   actions: {
-    padding: ms(16),
+    paddingHorizontal: hs(16),
+    paddingTop: ms(4),
     paddingBottom: ms(32),
   },
   actionButton: {
