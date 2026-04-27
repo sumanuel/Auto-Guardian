@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
+import { LinearGradient } from "expo-linear-gradient";
 import { useCallback, useState } from "react";
 import {
   FlatList,
@@ -66,6 +67,15 @@ const VehicleDocumentsScreen = ({ navigation, route }) => {
   const { colors } = useTheme();
   const { DialogComponent, showDialog } = useDialog();
   const [documents, setDocuments] = useState([]);
+
+  const expiringCount = documents.filter((document) => {
+    if (!document.expiry_date) {
+      return false;
+    }
+
+    const meta = getExpiryMeta(document.expiry_date);
+    return meta.label !== "Sin vencimiento" && meta.label !== "Vence hoy";
+  }).length;
 
   const loadDocuments = useCallback(() => {
     const docs = getVehicleDocuments(vehicleId);
@@ -136,26 +146,12 @@ const VehicleDocumentsScreen = ({ navigation, route }) => {
               />
             </View>
             <View style={styles.documentDetails}>
-              <View style={styles.documentTitleRow}>
-                <Text style={[styles.documentType, { color: colors.text }]}>
-                  {item.type_document}
-                </Text>
-                <View
-                  style={[
-                    styles.expiryPill,
-                    { backgroundColor: expiryMeta.tone },
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.expiryPillText,
-                      { color: expiryMeta.color || colors.textSecondary },
-                    ]}
-                  >
-                    {expiryMeta.label}
-                  </Text>
-                </View>
-              </View>
+              <Text
+                style={[styles.documentType, { color: colors.text }]}
+                numberOfLines={2}
+              >
+                {item.type_document}
+              </Text>
 
               <View style={styles.documentMetaWrap}>
                 <View
@@ -194,6 +190,23 @@ const VehicleDocumentsScreen = ({ navigation, route }) => {
                       ]}
                     >
                       {formatDateLabel(item.expiry_date)}
+                    </Text>
+                  </View>
+                )}
+                {item.expiry_date && (
+                  <View
+                    style={[
+                      styles.expiryPill,
+                      { backgroundColor: expiryMeta.tone },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.expiryPillText,
+                        { color: expiryMeta.color || colors.textSecondary },
+                      ]}
+                    >
+                      {expiryMeta.label}
                     </Text>
                   </View>
                 )}
@@ -243,20 +256,47 @@ const VehicleDocumentsScreen = ({ navigation, route }) => {
     <DialogComponent>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.vehicleHeader}>
-          <Text style={[styles.vehicleEyebrow, { color: colors.primary }]}>
-            Expediente
-          </Text>
-          <Text style={[styles.vehicleName, { color: colors.text }]}>
-            {vehicle?.name || "Vehículo"}
-          </Text>
-          <Text
-            style={[styles.vehicleSubtext, { color: colors.textSecondary }]}
+          <LinearGradient
+            colors={["#6CB6FF", "#1B63E2"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.heroCard}
           >
-            {documents.length}{" "}
-            {documents.length === 1
-              ? "documento cargado"
-              : "documentos cargados"}
-          </Text>
+            <Text style={styles.heroEyebrow}>Expediente</Text>
+            <Text style={styles.heroTitle}>{vehicle?.name || "Vehículo"}</Text>
+            <Text style={styles.heroSubtitle}>
+              {documents.length}{" "}
+              {documents.length === 1
+                ? "documento cargado"
+                : "documentos cargados"}
+            </Text>
+
+            <View style={styles.heroMetaRow}>
+              <View style={styles.heroMetaPill}>
+                <Ionicons
+                  name="document-text-outline"
+                  size={iconSize.xs}
+                  color="#fff"
+                />
+                <Text style={styles.heroMetaText}>
+                  {documents.length}{" "}
+                  {documents.length === 1 ? "archivo" : "archivos"}
+                </Text>
+              </View>
+              {expiringCount > 0 && (
+                <View style={styles.heroMetaPillAlert}>
+                  <Ionicons
+                    name="alert-circle-outline"
+                    size={iconSize.xs}
+                    color="#fff"
+                  />
+                  <Text style={styles.heroMetaText}>
+                    {expiringCount} por revisar
+                  </Text>
+                </View>
+              )}
+            </View>
+          </LinearGradient>
         </View>
 
         <FlatList
@@ -308,20 +348,56 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     paddingBottom: spacing.sm,
   },
-  vehicleEyebrow: {
+  heroCard: {
+    borderRadius: borderRadius.xl,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.lg,
+  },
+  heroEyebrow: {
     fontSize: rf(12),
     fontWeight: "700",
     textTransform: "uppercase",
     letterSpacing: 0.7,
     marginBottom: vs(4),
+    color: "rgba(255,255,255,0.74)",
   },
-  vehicleName: {
+  heroTitle: {
     fontSize: rf(26),
     fontWeight: "800",
+    color: "#fff",
   },
-  vehicleSubtext: {
+  heroSubtitle: {
     fontSize: rf(14),
     marginTop: vs(6),
+    color: "rgba(255,255,255,0.84)",
+  },
+  heroMetaRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: hs(8),
+    marginTop: vs(14),
+  },
+  heroMetaPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: hs(12),
+    paddingVertical: vs(8),
+    borderRadius: s(999),
+    backgroundColor: "rgba(255,255,255,0.16)",
+  },
+  heroMetaPillAlert: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: hs(12),
+    paddingVertical: vs(8),
+    borderRadius: s(999),
+    backgroundColor: "rgba(255,255,255,0.24)",
+  },
+  heroMetaText: {
+    fontSize: rf(12),
+    fontWeight: "700",
+    color: "#fff",
+    marginLeft: hs(6),
   },
   listContainer: {
     padding: spacing.lg,
@@ -348,6 +424,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-start",
     flex: 1,
+    minWidth: 0,
   },
   documentIconWrap: {
     width: s(44),
@@ -359,20 +436,17 @@ const styles = StyleSheet.create({
   documentDetails: {
     flex: 1,
     marginLeft: spacing.sm,
-  },
-  documentTitleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: hs(8),
-    marginBottom: spacing.sm,
+    minWidth: 0,
   },
   documentType: {
     fontSize: rf(16),
     fontWeight: "700",
-    flex: 1,
+    lineHeight: rf(22),
+    marginBottom: spacing.sm,
   },
   expiryPill: {
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: hs(10),
     paddingVertical: vs(6),
     borderRadius: s(999),

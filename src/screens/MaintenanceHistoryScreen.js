@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { LinearGradient } from "expo-linear-gradient";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   FlatList,
@@ -440,25 +441,6 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
                 <Text style={[styles.maintenanceType, { color: colors.text }]}>
                   {item.type}
                 </Text>
-                <View
-                  style={[
-                    styles.statusPill,
-                    {
-                      backgroundColor: completed
-                        ? "rgba(76, 175, 80, 0.14)"
-                        : `${scheduleColor}16`,
-                    },
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.statusPillText,
-                      { color: completed ? COLORS.success : scheduleColor },
-                    ]}
-                  >
-                    {completed ? "Realizado" : "En curso"}
-                  </Text>
-                </View>
               </View>
               {!vehicleId && item.vehicleName && (
                 <Text
@@ -704,67 +686,41 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
           style={[
             styles.header,
             {
-              backgroundColor: colors.cardBackground,
-              borderBottomColor: colors.border,
+              backgroundColor: colors.background,
             },
           ]}
         >
-          <View style={styles.headerTopRow}>
-            <View style={styles.headerTitleWrap}>
-              <Text style={[styles.headerEyebrow, { color: colors.primary }]}>
-                Bitácora técnica
-              </Text>
-              <Text style={[styles.headerTitle, { color: colors.text }]}>
-                {vehicle?.name || "Todos los vehículos"}
-              </Text>
-              <Text
-                style={[styles.headerSubtitle, { color: colors.textSecondary }]}
-              >
-                {maintenances.length}{" "}
-                {maintenances.length === 1 ? "registro" : "registros"} trazados
-                en el historial
-              </Text>
+          <LinearGradient
+            colors={["#6CB6FF", "#1B63E2"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.heroCard}
+          >
+            <View style={styles.headerTopRow}>
+              <View style={styles.headerTitleWrap}>
+                <Text style={styles.headerEyebrow}>Bitácora técnica</Text>
+                <Text style={styles.headerTitle}>
+                  {vehicle?.name || "Todos los vehículos"}
+                </Text>
+                <Text style={styles.headerSubtitle}>
+                  {maintenances.length}{" "}
+                  {maintenances.length === 1 ? "registro" : "registros"}{" "}
+                  trazados en el historial
+                </Text>
+              </View>
             </View>
-          </View>
 
-          <View style={styles.summaryRow}>
-            <View
-              style={[
-                styles.summaryCard,
-                {
-                  backgroundColor: colors.inputBackground,
-                  borderColor: colors.border,
-                },
-              ]}
-            >
-              <Text style={[styles.summaryValue, { color: colors.text }]}>
-                {inProgressCount}
-              </Text>
-              <Text
-                style={[styles.summaryLabel, { color: colors.textSecondary }]}
-              >
-                En curso
-              </Text>
+            <View style={styles.summaryRow}>
+              <View style={styles.summaryCard}>
+                <Text style={styles.summaryValue}>{inProgressCount}</Text>
+                <Text style={styles.summaryLabel}>En curso</Text>
+              </View>
+              <View style={styles.summaryCard}>
+                <Text style={styles.summaryValue}>{completedCount}</Text>
+                <Text style={styles.summaryLabel}>Realizados</Text>
+              </View>
             </View>
-            <View
-              style={[
-                styles.summaryCard,
-                {
-                  backgroundColor: colors.inputBackground,
-                  borderColor: colors.border,
-                },
-              ]}
-            >
-              <Text style={[styles.summaryValue, { color: colors.text }]}>
-                {completedCount}
-              </Text>
-              <Text
-                style={[styles.summaryLabel, { color: colors.textSecondary }]}
-              >
-                Realizados
-              </Text>
-            </View>
-          </View>
+          </LinearGradient>
         </View>
 
         {/* Tabs para filtrar */}
@@ -1268,7 +1224,10 @@ const styles = StyleSheet.create({
   header: {
     padding: spacing.lg,
     paddingBottom: spacing.md,
-    borderBottomWidth: 1,
+  },
+  heroCard: {
+    borderRadius: borderRadius.xl,
+    padding: spacing.lg,
   },
   headerTopRow: {
     flexDirection: "row",
@@ -1284,15 +1243,18 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     letterSpacing: 0.7,
     marginBottom: vs(4),
+    color: "rgba(255,255,255,0.74)",
   },
   headerTitle: {
     fontSize: rf(24),
     fontWeight: "800",
+    color: "#fff",
   },
   headerSubtitle: {
     fontSize: rf(14),
     marginTop: vs(4),
     lineHeight: rf(20),
+    color: "rgba(255,255,255,0.84)",
   },
   summaryRow: {
     flexDirection: "row",
@@ -1301,19 +1263,21 @@ const styles = StyleSheet.create({
   },
   summaryCard: {
     flex: 1,
-    borderWidth: 1,
     borderRadius: borderRadius.md,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
+    backgroundColor: "rgba(255,255,255,0.14)",
   },
   summaryValue: {
     fontSize: rf(20),
     fontWeight: "800",
     marginBottom: vs(2),
+    color: "#fff",
   },
   summaryLabel: {
     fontSize: rf(12),
     fontWeight: "600",
+    color: "rgba(255,255,255,0.76)",
   },
   listContent: {
     padding: spacing.lg,
@@ -1380,25 +1344,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   cardTitleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: hs(8),
+    minHeight: s(24),
   },
   maintenanceType: {
     fontSize: rf(16),
     fontWeight: "800",
     flex: 1,
-  },
-  statusPill: {
-    paddingHorizontal: hs(10),
-    paddingVertical: vs(6),
-    borderRadius: s(999),
-  },
-  statusPillText: {
-    fontSize: rf(10),
-    fontWeight: "800",
-    textTransform: "uppercase",
   },
   vehicleName: {
     fontSize: rf(12),
