@@ -142,16 +142,18 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const renderVehicleCard = ({ item }) => (
-    <VehicleCard
-      vehicle={item}
-      onPress={() =>
-        navigation.navigate("VehicleDetail", { vehicleId: item.id })
-      }
-      onEdit={(vehicle) => navigation.navigate("AddVehicle", { vehicle })}
-      onDelete={handleDeleteVehicle}
-      showUpcoming
-      showDialog={showDialog}
-    />
+    <View style={styles.listItemWrap}>
+      <VehicleCard
+        vehicle={item}
+        onPress={() =>
+          navigation.navigate("VehicleDetail", { vehicleId: item.id })
+        }
+        onEdit={(vehicle) => navigation.navigate("AddVehicle", { vehicle })}
+        onDelete={handleDeleteVehicle}
+        showUpcoming
+        showDialog={showDialog}
+      />
+    </View>
   );
 
   const handleDeleteVehicle = async (vehicleId) => {
@@ -641,6 +643,9 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingBottom: spacing.xxl,
+  },
+  listItemWrap: {
+    paddingHorizontal: hs(16),
   },
   scrollContent: {
     flexGrow: 1,

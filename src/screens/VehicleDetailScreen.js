@@ -237,7 +237,13 @@ const VehicleDetailScreen = ({ navigation, route }) => {
     return (
       <TouchableOpacity
         key={item.id}
-        style={[styles.maintenanceItem, { borderBottomColor: colors.border }]}
+        style={[
+          styles.maintenanceItem,
+          {
+            backgroundColor: colors.inputBackground,
+            borderColor: colors.border,
+          },
+        ]}
         onPress={() => {
           navigation.navigate("MaintenanceHistory", {
             vehicleId,
@@ -252,27 +258,40 @@ const VehicleDetailScreen = ({ navigation, route }) => {
           <Text style={[styles.maintenanceType, { color: colors.text }]}>
             {item.type}
           </Text>
-          <Text
-            style={[styles.maintenanceDate, { color: colors.textSecondary }]}
-          >
-            {formatRelativeDate(item.date)}
-          </Text>
-          {item.km && (
+          <View style={styles.maintenanceMetaRow}>
             <Text
-              style={[styles.maintenanceKm, { color: colors.textSecondary }]}
+              style={[styles.maintenanceDate, { color: colors.textSecondary }]}
             >
-              a los {formatKm(item.km)}
+              {formatRelativeDate(item.date)}
             </Text>
-          )}
+            {item.km && (
+              <View style={styles.maintenanceMetaDot}>
+                <Text
+                  style={[
+                    styles.maintenanceKm,
+                    { color: colors.textSecondary },
+                  ]}
+                >
+                  {formatKm(item.km)}
+                </Text>
+              </View>
+            )}
+          </View>
 
           {/* Información de próximo servicio */}
           {nextServiceInfo.length > 0 && (
             <View style={styles.nextServiceContainer}>
               {nextServiceInfo.map((info, index) => (
-                <View key={index} style={styles.nextServiceItem}>
+                <View
+                  key={index}
+                  style={[
+                    styles.nextServiceItem,
+                    { backgroundColor: colors.cardBackground },
+                  ]}
+                >
                   <Ionicons
                     name={info.icon}
-                    size={iconSize.sm}
+                    size={iconSize.xs}
                     color={info.color}
                   />
                   <Text
@@ -289,9 +308,16 @@ const VehicleDetailScreen = ({ navigation, route }) => {
           )}
         </View>
         {item.cost && (
-          <Text style={styles.maintenanceCost}>
-            {formatCurrency(item.cost, currencySymbol)}
-          </Text>
+          <View
+            style={[
+              styles.costPill,
+              { backgroundColor: colors.cardBackground },
+            ]}
+          >
+            <Text style={styles.maintenanceCost}>
+              {formatCurrency(item.cost, currencySymbol)}
+            </Text>
+          </View>
         )}
       </TouchableOpacity>
     );
@@ -349,10 +375,11 @@ const VehicleDetailScreen = ({ navigation, route }) => {
     <DialogComponent>
       <ScrollView
         style={[styles.container, { backgroundColor: colors.background }]}
-        contentContainerStyle={styles.scrollContent}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
       >
         <LinearGradient
           colors={[COLORS.primary, "#0F5FD2", "#0A3F8F"]}
