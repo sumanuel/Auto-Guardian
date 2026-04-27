@@ -201,7 +201,7 @@ const HomeScreen = ({ navigation }) => {
             <Ionicons
               name="information-circle-outline"
               size={iconSize.lg}
-                color="#fff"
+              color="#fff"
             />
           </TouchableOpacity>
         </View>
