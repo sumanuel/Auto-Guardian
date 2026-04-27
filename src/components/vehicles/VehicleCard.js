@@ -240,6 +240,25 @@ const VehicleCard = ({
                 </View>
               )}
             </View>
+
+            <View style={styles.hintRow}>
+              <Text
+                style={[
+                  styles.hintText,
+                  {
+                    color: colors.textSecondary,
+                    fontSize: compact ? rf(10) : rf(11),
+                  },
+                ]}
+              >
+                Presione para ver detalle
+              </Text>
+              <Ionicons
+                name="chevron-forward"
+                size={compact ? ms(12) : ms(13)}
+                color={colors.textSecondary}
+              />
+            </View>
           </View>
 
           <View style={styles.actions}>
@@ -377,6 +396,15 @@ const styles = StyleSheet.create({
   badgeText: {
     color: COLORS.warning,
     marginLeft: hs(4),
+    fontWeight: "600",
+  },
+  hintRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: vs(8),
+    gap: hs(4),
+  },
+  hintText: {
     fontWeight: "600",
   },
   actions: {

@@ -93,16 +93,29 @@ const QuickActionCard = ({ icon, label, color, onPress, colors }) => (
     onPress={onPress}
     activeOpacity={0.85}
   >
-    <View
-      style={[styles.quickActionIconWrap, { backgroundColor: `${color}20` }]}
-    >
-      <Ionicons name={icon} size={iconSize.sm} color={color} />
+    <View style={styles.quickActionTopRow}>
+      <View
+        style={[styles.quickActionIconWrap, { backgroundColor: `${color}20` }]}
+      >
+        <Ionicons name={icon} size={iconSize.sm} color={color} />
+      </View>
+      <Ionicons
+        name="chevron-forward"
+        size={iconSize.xs}
+        color={colors.textSecondary}
+      />
     </View>
-    <Text style={[styles.quickActionLabel, { color: colors.text }]}>
+    <Text
+      style={[styles.quickActionLabel, { color: colors.text }]}
+      numberOfLines={2}
+    >
       {label}
     </Text>
-    <Text style={[styles.quickActionCaption, { color: colors.textSecondary }]}>
-      Registrar
+    <Text
+      style={[styles.quickActionCaption, { color: colors.textSecondary }]}
+      numberOfLines={1}
+    >
+      Registrar servicio
     </Text>
   </TouchableOpacity>
 );
@@ -279,10 +292,40 @@ const VehicleDetailScreen = ({ navigation, route }) => {
         <View
           style={[styles.urgencyIndicator, { backgroundColor: urgencyColor }]}
         />
+        <View
+          style={[
+            styles.maintenanceIconWrap,
+            { backgroundColor: `${urgencyColor}18` },
+          ]}
+        >
+          <Ionicons
+            name="build-outline"
+            size={iconSize.sm}
+            color={urgencyColor}
+          />
+        </View>
         <View style={styles.maintenanceContent}>
-          <Text style={[styles.maintenanceType, { color: colors.text }]}>
-            {item.type}
-          </Text>
+          <View style={styles.maintenanceHeaderRow}>
+            <Text style={[styles.maintenanceType, { color: colors.text }]}>
+              {item.type}
+            </Text>
+            <View
+              style={[
+                styles.maintenanceStatusPill,
+                { backgroundColor: `${urgencyColor}16` },
+              ]}
+            >
+              <Text
+                style={[styles.maintenanceStatusText, { color: urgencyColor }]}
+              >
+                {urgency === "overdue"
+                  ? "Vencido"
+                  : urgency === "urgent"
+                    ? "Urgente"
+                    : "Programado"}
+              </Text>
+            </View>
+          </View>
           <View style={styles.maintenanceMetaRow}>
             <Text
               style={[styles.maintenanceDate, { color: colors.textSecondary }]}
@@ -644,7 +687,11 @@ const VehicleDetailScreen = ({ navigation, route }) => {
           >
             Registra tareas frecuentes sin salir de la ficha técnica.
           </Text>
-          <View style={styles.quickActionsGrid}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.quickActionsTrack}
+          >
             {quickMaintenanceTypes.map((type) => (
               <QuickActionCard
                 key={type.id}
@@ -655,7 +702,7 @@ const VehicleDetailScreen = ({ navigation, route }) => {
                 onPress={() => handleQuickMaintenance(type)}
               />
             ))}
-          </View>
+          </ScrollView>
         </View>
 
         {/* Estadísticas */}
@@ -714,6 +761,15 @@ const VehicleDetailScreen = ({ navigation, route }) => {
                   ]}
                 >
                   Próximos mantenimientos
+                </Text>
+                <Text
+                  style={[
+                    styles.sectionDescriptionCompact,
+                    { color: colors.textSecondary },
+                  ]}
+                >
+                  Prioriza los próximos servicios y entra a la bitácora para
+                  completar o revisar cada uno.
                 </Text>
               </View>
               <View
@@ -1221,19 +1277,31 @@ const styles = StyleSheet.create({
     marginTop: vs(6),
     marginBottom: vs(14),
   },
-  quickActionsGrid: {
+  sectionDescriptionCompact: {
+    fontSize: rf(12),
+    lineHeight: rf(18),
+    marginTop: vs(6),
+    maxWidth: "92%",
+  },
+  quickActionsTrack: {
     flexDirection: "row",
-    flexWrap: "wrap",
+    paddingTop: vs(2),
+    paddingRight: hs(10),
+  },
+  quickActionTopRow: {
+    flexDirection: "row",
+    alignItems: "center",
     justifyContent: "space-between",
-    rowGap: vs(12),
+    marginBottom: vs(14),
   },
   quickActionCard: {
-    width: "48%",
+    width: ms(148),
     borderWidth: 1,
     borderRadius: borderRadius.md,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.md,
-    minHeight: vs(118),
+    minHeight: vs(124),
+    marginRight: hs(12),
   },
   quickActionIconWrap: {
     width: s(44),
@@ -1241,12 +1309,12 @@ const styles = StyleSheet.create({
     borderRadius: s(22),
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: vs(14),
   },
   quickActionLabel: {
     fontSize: rf(15),
     fontWeight: "700",
     marginBottom: vs(4),
+    lineHeight: rf(20),
   },
   quickActionCaption: {
     fontSize: rf(12),
@@ -1339,7 +1407,7 @@ const styles = StyleSheet.create({
   },
   maintenanceItem: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     paddingVertical: vs(12),
     paddingHorizontal: hs(12),
     borderWidth: 1,
@@ -1352,14 +1420,39 @@ const styles = StyleSheet.create({
     marginRight: hs(12),
     borderRadius: s(2),
   },
+  maintenanceIconWrap: {
+    width: s(38),
+    height: s(38),
+    borderRadius: s(19),
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: hs(12),
+  },
   maintenanceContent: {
     flex: 1,
     marginRight: hs(8),
   },
+  maintenanceHeaderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: hs(8),
+    marginBottom: vs(4),
+  },
   maintenanceType: {
     fontSize: rf(16),
-    fontWeight: "600",
-    marginBottom: vs(4),
+    fontWeight: "700",
+    flex: 1,
+  },
+  maintenanceStatusPill: {
+    paddingHorizontal: hs(8),
+    paddingVertical: vs(5),
+    borderRadius: s(999),
+  },
+  maintenanceStatusText: {
+    fontSize: rf(10),
+    fontWeight: "800",
+    textTransform: "uppercase",
   },
   maintenanceMetaRow: {
     flexDirection: "row",
@@ -1405,6 +1498,7 @@ const styles = StyleSheet.create({
     paddingVertical: vs(6),
     borderRadius: s(999),
     marginLeft: hs(10),
+    alignSelf: "center",
   },
   maintenanceCost: {
     fontSize: rf(12),
