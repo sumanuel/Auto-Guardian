@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Image,
   Modal,
@@ -30,6 +30,7 @@ import {
   getMaintenanceUrgency,
   getUrgencyColor,
 } from "../utils/formatUtils";
+import { getMaintenanceIcon } from "../utils/maintenanceIcons";
 import {
   borderRadius,
   hs,
@@ -120,6 +121,14 @@ const QuickActionCard = ({ icon, label, color, onPress, colors }) => (
   </TouchableOpacity>
 );
 
+const QUICK_ACTION_COLORS = [
+  "#FF9800",
+  "#4CAF50",
+  "#F44336",
+  "#9C27B0",
+  "#2196F3",
+];
+
 const VehicleDetailScreen = ({ navigation, route }) => {
   const { vehicleId } = route.params;
   const {
@@ -148,6 +157,16 @@ const VehicleDetailScreen = ({ navigation, route }) => {
   const [nextServiceKm, setNextServiceKm] = useState("");
   const [nextServiceDate, setNextServiceDate] = useState("");
   const [cost, setCost] = useState("");
+
+  const maintenanceTypeColorMap = useMemo(() => {
+    const allTypes = getMaintenanceTypes();
+
+    return allTypes.reduce((accumulator, type, index) => {
+      accumulator[type.name] =
+        QUICK_ACTION_COLORS[index % QUICK_ACTION_COLORS.length];
+      return accumulator;
+    }, {});
+  }, []);
 
   const loadVehicleData = useCallback(() => {
     const foundVehicle = vehicles.find((v) => v.id === vehicleId);
@@ -239,6 +258,9 @@ const VehicleDetailScreen = ({ navigation, route }) => {
       item.nextServiceDate,
     );
     const urgencyColor = getUrgencyColor(urgency);
+    const maintenanceIcon = getMaintenanceIcon(item.type);
+    const maintenanceColor =
+      maintenanceTypeColorMap[item.type] || colors.primary;
 
     // Calcular información de próximo servicio
     const nextServiceInfo = [];
@@ -295,13 +317,13 @@ const VehicleDetailScreen = ({ navigation, route }) => {
         <View
           style={[
             styles.maintenanceIconWrap,
-            { backgroundColor: `${urgencyColor}18` },
+            { backgroundColor: `${maintenanceColor}20` },
           ]}
         >
           <Ionicons
-            name="build-outline"
+            name={maintenanceIcon}
             size={iconSize.sm}
-            color={urgencyColor}
+            color={maintenanceColor}
           />
         </View>
         <View style={styles.maintenanceContent}>
@@ -392,14 +414,6 @@ const VehicleDetailScreen = ({ navigation, route }) => {
   };
 
   // Colores para los botones de acciones rápidas
-  const quickActionColors = [
-    "#FF9800", // Naranja
-    "#4CAF50", // Verde
-    "#F44336", // Rojo
-    "#9C27B0", // Morado
-    "#2196F3", // Azul
-  ];
-
   // Obtener los primeros 5 tipos de mantenimiento ordenados por el usuario
   const getQuickMaintenanceTypes = () => {
     const allTypes = getMaintenanceTypes();
@@ -407,7 +421,7 @@ const VehicleDetailScreen = ({ navigation, route }) => {
       id: type.id,
       icon: type.icon || "build-outline",
       label: type.name,
-      color: quickActionColors[index % quickActionColors.length],
+      color: QUICK_ACTION_COLORS[index % QUICK_ACTION_COLORS.length],
     }));
   };
 
@@ -747,7 +761,7 @@ const VehicleDetailScreen = ({ navigation, route }) => {
             ]}
           >
             <View style={styles.sectionHeaderCompact}>
-              <View>
+              <View style={styles.sectionHeaderCompactBody}>
                 <Text
                   style={[styles.sectionEyebrow, { color: colors.primary }]}
                 >
@@ -783,6 +797,7 @@ const VehicleDetailScreen = ({ navigation, route }) => {
                     styles.panelMetaText,
                     { color: colors.textSecondary },
                   ]}
+                  numberOfLines={1}
                 >
                   {upcomingMaintenances.length} activos
                 </Text>
@@ -1266,6 +1281,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: hs(10),
     paddingVertical: vs(6),
     borderRadius: s(999),
+    alignSelf: "flex-start",
+    maxWidth: "34%",
   },
   panelMetaText: {
     fontSize: rf(12),
@@ -1367,9 +1384,14 @@ const styles = StyleSheet.create({
   },
   sectionHeaderCompact: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     justifyContent: "space-between",
     marginBottom: vs(10),
+    gap: hs(10),
+  },
+  sectionHeaderCompactBody: {
+    flex: 1,
+    paddingRight: hs(4),
   },
   sectionEyebrow: {
     fontSize: rf(12),
