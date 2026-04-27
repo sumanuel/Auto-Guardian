@@ -13,7 +13,6 @@ import {
 } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import Button from "../components/common/Button";
-import QuickMaintenanceButton from "../components/maintenance/QuickMaintenanceButton";
 import { useApp } from "../context/AppContext";
 import { useAppSettings } from "../context/AppSettingsContext";
 import { useTheme } from "../context/ThemeContext";
@@ -80,6 +79,32 @@ const DetailMetricCard = ({ icon, label, value, accent, inverse = false }) => (
       {label}
     </Text>
   </View>
+);
+
+const QuickActionCard = ({ icon, label, color, onPress, colors }) => (
+  <TouchableOpacity
+    style={[
+      styles.quickActionCard,
+      {
+        backgroundColor: colors.inputBackground,
+        borderColor: colors.border,
+      },
+    ]}
+    onPress={onPress}
+    activeOpacity={0.85}
+  >
+    <View
+      style={[styles.quickActionIconWrap, { backgroundColor: `${color}20` }]}
+    >
+      <Ionicons name={icon} size={iconSize.sm} color={color} />
+    </View>
+    <Text style={[styles.quickActionLabel, { color: colors.text }]}>
+      {label}
+    </Text>
+    <Text style={[styles.quickActionCaption, { color: colors.textSecondary }]}>
+      Registrar
+    </Text>
+  </TouchableOpacity>
 );
 
 const VehicleDetailScreen = ({ navigation, route }) => {
@@ -350,6 +375,57 @@ const VehicleDetailScreen = ({ navigation, route }) => {
     });
   };
 
+  const renderRecentItem = (item) => (
+    <TouchableOpacity
+      key={item.id}
+      style={[
+        styles.recentItem,
+        {
+          backgroundColor: colors.inputBackground,
+          borderColor: colors.border,
+        },
+      ]}
+      onPress={() => {
+        navigation.navigate("MaintenanceHistory", {
+          vehicleId,
+        });
+      }}
+      activeOpacity={0.85}
+    >
+      <View
+        style={[
+          styles.recentItemIcon,
+          { backgroundColor: `${colors.primary}18` },
+        ]}
+      >
+        <Ionicons
+          name="build-outline"
+          size={iconSize.sm}
+          color={colors.primary}
+        />
+      </View>
+      <View style={styles.recentItemBody}>
+        <Text style={[styles.recentItemTitle, { color: colors.text }]}>
+          {item.type}
+        </Text>
+        <Text style={[styles.recentItemMeta, { color: colors.textSecondary }]}>
+          {formatRelativeDate(item.date)}
+          {item.km ? ` • ${formatKm(item.km)}` : ""}
+        </Text>
+      </View>
+      <View style={styles.recentItemAside}>
+        <Text style={[styles.recentItemCost, { color: colors.text }]}>
+          {item.cost ? formatCurrency(item.cost, currencySymbol) : "Sin costo"}
+        </Text>
+        <Ionicons
+          name="chevron-forward"
+          size={iconSize.sm}
+          color={colors.textSecondary}
+        />
+      </View>
+    </TouchableOpacity>
+  );
+
   if (!vehicle) {
     return (
       <DialogComponent>
@@ -363,6 +439,7 @@ const VehicleDetailScreen = ({ navigation, route }) => {
   const totalServices = stats?.totalServices || 0;
   const totalInvestment = stats?.totalCost || 0;
   const plateLabel = vehicle.plate || "Sin placa";
+  const quickMaintenanceTypes = getQuickMaintenanceTypes();
   const vehicleMeta = [
     vehicle.brand,
     vehicle.model,
@@ -540,27 +617,45 @@ const VehicleDetailScreen = ({ navigation, route }) => {
             },
           ]}
         >
-          <Text style={[styles.sectionEyebrow, { color: colors.primary }]}>
-            MRO
-          </Text>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>
-            Acciones rápidas
-          </Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.quickActionsScroll}
+          <View style={styles.panelHeader}>
+            <View>
+              <Text style={[styles.sectionEyebrow, { color: colors.primary }]}>
+                MRO
+              </Text>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                Acciones rápidas
+              </Text>
+            </View>
+            <View
+              style={[
+                styles.panelMetaPill,
+                { backgroundColor: colors.inputBackground },
+              ]}
+            >
+              <Text
+                style={[styles.panelMetaText, { color: colors.textSecondary }]}
+              >
+                6 accesos
+              </Text>
+            </View>
+          </View>
+          <Text
+            style={[styles.sectionDescription, { color: colors.textSecondary }]}
           >
-            {getQuickMaintenanceTypes().map((type) => (
-              <QuickMaintenanceButton
+            Registra tareas frecuentes sin salir de la ficha técnica.
+          </Text>
+          <View style={styles.quickActionsGrid}>
+            {quickMaintenanceTypes.map((type) => (
+              <QuickActionCard
                 key={type.id}
                 icon={type.icon}
                 label={type.label}
                 color={type.color}
+                colors={colors}
                 onPress={() => handleQuickMaintenance(type)}
               />
             ))}
-          </ScrollView>
+          </View>
         </View>
 
         {/* Estadísticas */}
@@ -604,24 +699,38 @@ const VehicleDetailScreen = ({ navigation, route }) => {
               },
             ]}
           >
-            <Text style={[styles.sectionEyebrow, { color: colors.primary }]}>
-              Agenda
-            </Text>
             <View style={styles.sectionHeaderCompact}>
-              <Text
+              <View>
+                <Text
+                  style={[styles.sectionEyebrow, { color: colors.primary }]}
+                >
+                  Agenda
+                </Text>
+                <Text
+                  style={[
+                    styles.sectionTitle,
+                    styles.sectionTitleNoMargin,
+                    { color: colors.text },
+                  ]}
+                >
+                  Próximos mantenimientos
+                </Text>
+              </View>
+              <View
                 style={[
-                  styles.sectionTitle,
-                  styles.sectionTitleNoMargin,
-                  { color: colors.text },
+                  styles.panelMetaPill,
+                  { backgroundColor: colors.inputBackground },
                 ]}
               >
-                Próximos mantenimientos
-              </Text>
-              <Text
-                style={[styles.sectionMeta, { color: colors.textSecondary }]}
-              >
-                {upcomingMaintenances.length} activos
-              </Text>
+                <Text
+                  style={[
+                    styles.panelMetaText,
+                    { color: colors.textSecondary },
+                  ]}
+                >
+                  {upcomingMaintenances.length} activos
+                </Text>
+              </View>
             </View>
             {upcomingMaintenances.slice(0, 3).map(renderMaintenanceItem)}
           </View>
@@ -656,22 +765,60 @@ const VehicleDetailScreen = ({ navigation, route }) => {
                   Historial reciente
                 </Text>
               </View>
+              <TouchableOpacity
+                style={styles.inlineChevronAction}
+                onPress={() => {
+                  navigation.navigate("MaintenanceHistory", {
+                    vehicleId,
+                  });
+                }}
+              >
+                <Text
+                  style={[styles.inlineChevronText, { color: colors.primary }]}
+                >
+                  Ver todo
+                </Text>
+                <Ionicons
+                  name="chevron-forward"
+                  size={iconSize.xs}
+                  color={colors.primary}
+                />
+              </TouchableOpacity>
             </View>
 
             {recentMaintenances.length === 0 ? (
-              <View style={styles.emptyState}>
-                <Ionicons
-                  name="clipboard-outline"
-                  size={iconSize.lg}
-                  color={colors.textSecondary}
-                />
+              <View
+                style={[
+                  styles.emptyState,
+                  {
+                    backgroundColor: colors.inputBackground,
+                    borderColor: colors.border,
+                  },
+                ]}
+              >
+                <View
+                  style={[
+                    styles.emptyStateBadge,
+                    { backgroundColor: `${colors.primary}14` },
+                  ]}
+                >
+                  <Ionicons
+                    name="clipboard-outline"
+                    size={iconSize.lg}
+                    color={colors.primary}
+                  />
+                </View>
+                <Text style={[styles.emptyTitle, { color: colors.text }]}>
+                  Sin registros todavía
+                </Text>
                 <Text
                   style={[styles.emptyText, { color: colors.textSecondary }]}
                 >
-                  No hay mantenimientos registrados
+                  Cuando cargues tu primer servicio, aquí verás la bitácora
+                  reciente de esta unidad.
                 </Text>
                 <Button
-                  title="Agregar Primer Mantenimiento"
+                  title="Registrar primer mantenimiento"
                   onPress={() =>
                     navigation.navigate("AddMaintenance", { vehicleId })
                   }
@@ -679,33 +826,49 @@ const VehicleDetailScreen = ({ navigation, route }) => {
                 />
               </View>
             ) : (
-              <View style={styles.historyButtonContainer}>
+              <View>
                 <Text
                   style={[styles.historyCount, { color: colors.textSecondary }]}
                 >
                   {recentMaintenances.length}{" "}
-                  {recentMaintenances.length === 1 ? "registro" : "registros"}
+                  {recentMaintenances.length === 1
+                    ? "movimiento reciente"
+                    : "movimientos recientes"}
                 </Text>
-                <Button
-                  title="Ver Historial Completo"
-                  onPress={() => {
-                    navigation.navigate("MaintenanceHistory", {
-                      vehicleId,
-                    });
-                  }}
-                  variant="outline"
-                />
+                <View style={styles.recentList}>
+                  {recentMaintenances.slice(0, 3).map(renderRecentItem)}
+                </View>
               </View>
             )}
           </View>
         )}
 
         {/* Botón de acción principal */}
-        <View style={styles.actions}>
+        <View
+          style={[
+            styles.actionDock,
+            {
+              backgroundColor: colors.cardBackground,
+              borderColor: colors.border,
+              shadowColor: colors.shadow,
+            },
+          ]}
+        >
+          <View style={styles.actionDockContent}>
+            <Text style={[styles.actionDockTitle, { color: colors.text }]}>
+              Registrar mantenimiento
+            </Text>
+            <Text
+              style={[styles.actionDockText, { color: colors.textSecondary }]}
+            >
+              Carga un nuevo servicio, costo o ajuste y mantén la bitácora al
+              día.
+            </Text>
+          </View>
           <Button
-            title="Agregar Mantenimiento"
+            title="Agregar"
             onPress={() => navigation.navigate("AddMaintenance", { vehicleId })}
-            style={styles.actionButton}
+            style={styles.actionDockButton}
           />
         </View>
 
@@ -1037,9 +1200,57 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: s(10),
   },
-  quickActionsScroll: {
-    paddingTop: vs(6),
-    paddingBottom: vs(2),
+  panelHeader: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: hs(12),
+  },
+  panelMetaPill: {
+    paddingHorizontal: hs(10),
+    paddingVertical: vs(6),
+    borderRadius: s(999),
+  },
+  panelMetaText: {
+    fontSize: rf(12),
+    fontWeight: "700",
+  },
+  sectionDescription: {
+    fontSize: rf(13),
+    lineHeight: rf(19),
+    marginTop: vs(6),
+    marginBottom: vs(14),
+  },
+  quickActionsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    rowGap: vs(12),
+  },
+  quickActionCard: {
+    width: "48%",
+    borderWidth: 1,
+    borderRadius: borderRadius.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+    minHeight: vs(118),
+  },
+  quickActionIconWrap: {
+    width: s(44),
+    height: s(44),
+    borderRadius: s(22),
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: vs(14),
+  },
+  quickActionLabel: {
+    fontSize: rf(15),
+    fontWeight: "700",
+    marginBottom: vs(4),
+  },
+  quickActionCaption: {
+    fontSize: rf(12),
+    fontWeight: "600",
   },
   statsSection: {
     marginHorizontal: hs(16),
@@ -1111,6 +1322,16 @@ const styles = StyleSheet.create({
     fontSize: rf(12),
     fontWeight: "700",
   },
+  inlineChevronAction: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: hs(4),
+    marginTop: vs(2),
+  },
+  inlineChevronText: {
+    fontSize: rf(13),
+    fontWeight: "700",
+  },
   viewAllText: {
     color: COLORS.primary,
     fontSize: rf(14),
@@ -1120,11 +1341,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: vs(12),
-    borderBottomWidth: 1,
+    paddingHorizontal: hs(12),
+    borderWidth: 1,
+    borderRadius: borderRadius.md,
+    marginTop: vs(10),
   },
   urgencyIndicator: {
     width: s(4),
-    height: "100%",
+    alignSelf: "stretch",
     marginRight: hs(12),
     borderRadius: s(2),
   },
@@ -1137,23 +1361,38 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     marginBottom: vs(4),
   },
+  maintenanceMetaRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    flexWrap: "wrap",
+  },
   maintenanceDate: {
-    fontSize: rf(14),
+    fontSize: rf(13),
+  },
+  maintenanceMetaDot: {
+    marginLeft: hs(8),
+    paddingLeft: hs(8),
+    borderLeftWidth: 1,
+    borderLeftColor: "rgba(128,128,128,0.24)",
   },
   maintenanceKm: {
     fontSize: rf(12),
   },
   nextServiceContainer: {
     marginTop: ms(6),
-    gap: ms(4),
+    gap: ms(6),
   },
   nextServiceItem: {
     flexDirection: "row",
     alignItems: "center",
     gap: ms(6),
+    alignSelf: "flex-start",
+    paddingHorizontal: hs(8),
+    paddingVertical: vs(5),
+    borderRadius: s(999),
   },
   nextServiceText: {
-    fontSize: rf(12),
+    fontSize: rf(11),
     color: COLORS.primary,
     fontWeight: "500",
   },
@@ -1161,35 +1400,112 @@ const styles = StyleSheet.create({
     color: COLORS.danger,
     fontWeight: "600",
   },
+  costPill: {
+    paddingHorizontal: hs(10),
+    paddingVertical: vs(6),
+    borderRadius: s(999),
+    marginLeft: hs(10),
+  },
   maintenanceCost: {
-    fontSize: rf(14),
+    fontSize: rf(12),
     fontWeight: "600",
     color: COLORS.primary,
   },
   emptyState: {
     alignItems: "center",
-    paddingVertical: ms(32),
+    paddingVertical: ms(28),
+    paddingHorizontal: hs(20),
+    borderWidth: 1,
+    borderRadius: borderRadius.md,
+  },
+  emptyStateBadge: {
+    width: s(56),
+    height: s(56),
+    borderRadius: s(28),
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: vs(14),
+  },
+  emptyTitle: {
+    fontSize: rf(18),
+    fontWeight: "800",
+    marginBottom: vs(8),
   },
   emptyText: {
     fontSize: rf(14),
-    marginTop: ms(8),
+    textAlign: "center",
+    lineHeight: rf(20),
   },
-  historyButtonContainer: {
+  recentList: {
+    gap: vs(10),
+    marginTop: vs(12),
+  },
+  recentItem: {
+    flexDirection: "row",
     alignItems: "center",
-    paddingVertical: ms(16),
+    borderWidth: 1,
+    borderRadius: borderRadius.md,
+    paddingHorizontal: hs(12),
+    paddingVertical: vs(12),
+  },
+  recentItemIcon: {
+    width: s(42),
+    height: s(42),
+    borderRadius: s(21),
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: hs(12),
+  },
+  recentItemBody: {
+    flex: 1,
+  },
+  recentItemTitle: {
+    fontSize: rf(15),
+    fontWeight: "700",
+    marginBottom: vs(4),
+  },
+  recentItemMeta: {
+    fontSize: rf(12),
+  },
+  recentItemAside: {
+    alignItems: "flex-end",
+    marginLeft: hs(10),
+  },
+  recentItemCost: {
+    fontSize: rf(12),
+    fontWeight: "700",
+    marginBottom: vs(4),
   },
   historyCount: {
     fontSize: rf(14),
-    marginBottom: ms(12),
     fontWeight: "500",
   },
-  actions: {
-    paddingHorizontal: hs(16),
-    paddingTop: ms(4),
-    paddingBottom: ms(32),
+  actionDock: {
+    marginHorizontal: hs(16),
+    marginTop: vs(4),
+    marginBottom: ms(32),
+    padding: spacing.lg,
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    elevation: s(3),
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: s(10),
   },
-  actionButton: {
-    marginBottom: ms(12),
+  actionDockContent: {
+    marginBottom: vs(14),
+  },
+  actionDockTitle: {
+    fontSize: rf(18),
+    fontWeight: "800",
+    marginBottom: vs(6),
+  },
+  actionDockText: {
+    fontSize: rf(13),
+    lineHeight: rf(19),
+  },
+  actionDockButton: {
+    marginBottom: 0,
   },
   modalOverlay: {
     flex: 1,
