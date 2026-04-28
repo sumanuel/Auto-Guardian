@@ -424,7 +424,10 @@ const AddDocumentScreen = ({ navigation, route }) => {
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.saveButton, { backgroundColor: colors.primary }]}
+              style={[
+                styles.saveButton,
+                { backgroundColor: colors.primaryDark },
+              ]}
               onPress={handleSave}
               disabled={loading}
             >

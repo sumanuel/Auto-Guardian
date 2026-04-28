@@ -44,7 +44,7 @@ const HomeStack = () => {
     <Stack.Navigator
       screenOptions={{
         headerStyle: {
-          backgroundColor: colors.primary,
+          backgroundColor: colors.primaryDark,
         },
         headerTintColor: "#fff",
         headerTitleStyle: {
@@ -101,7 +101,7 @@ const HistoryStack = () => {
     <Stack.Navigator
       screenOptions={{
         headerStyle: {
-          backgroundColor: colors.primary,
+          backgroundColor: colors.primaryDark,
         },
         headerTintColor: "#fff",
         headerTitleStyle: {
@@ -126,7 +126,7 @@ const StatsStack = () => {
     <Stack.Navigator
       screenOptions={{
         headerStyle: {
-          backgroundColor: colors.primary,
+          backgroundColor: colors.primaryDark,
         },
         headerTintColor: "#fff",
         headerTitleStyle: {
@@ -171,7 +171,7 @@ const DocumentsStack = () => {
     <Stack.Navigator
       screenOptions={{
         headerStyle: {
-          backgroundColor: colors.primary,
+          backgroundColor: colors.primaryDark,
         },
         headerTintColor: "#fff",
         headerTitleStyle: {
@@ -206,7 +206,7 @@ const MoreStack = () => {
     <Stack.Navigator
       screenOptions={{
         headerStyle: {
-          backgroundColor: colors.primary,
+          backgroundColor: colors.primaryDark,
         },
         headerTintColor: "#fff",
         headerTitleStyle: {
@@ -324,7 +324,7 @@ const AppNavigator = () => {
               />
             );
           },
-          tabBarActiveTintColor: colors.primary,
+          tabBarActiveTintColor: colors.primaryDark,
           tabBarInactiveTintColor: colors.tabBarInactive,
           tabBarStyle: {
             backgroundColor: colors.tabBarBackground,

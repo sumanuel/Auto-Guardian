@@ -284,7 +284,7 @@ const DocumentTypesScreen = ({ navigation }) => {
         <TouchableOpacity
           style={[
             styles.floatingAddButton,
-            { backgroundColor: colors.primary },
+            { backgroundColor: colors.primaryDark },
           ]}
           onPress={() => {
             setAddError("");
@@ -378,7 +378,10 @@ const DocumentTypesScreen = ({ navigation }) => {
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    style={[styles.button, { backgroundColor: colors.primary }]}
+                    style={[
+                      styles.button,
+                      { backgroundColor: colors.primaryDark },
+                    ]}
                     onPress={handleSaveType}
                   >
                     <Text style={{ color: "white", fontSize: rf(16) }}>
@@ -481,7 +484,10 @@ const DocumentTypesScreen = ({ navigation }) => {
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    style={[styles.button, { backgroundColor: colors.primary }]}
+                    style={[
+                      styles.button,
+                      { backgroundColor: colors.primaryDark },
+                    ]}
                     onPress={handleAddType}
                   >
                     <Text style={{ color: "white", fontSize: rf(16) }}>

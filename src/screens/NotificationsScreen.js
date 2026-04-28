@@ -244,7 +244,7 @@ const NotificationsScreen = () => {
               styles.alertToggle,
               {
                 backgroundColor: alertNotificationsEnabled
-                  ? colors.primary
+                  ? colors.primaryDark
                   : colors.inputBackground,
                 borderColor: colors.border,
               },
@@ -383,7 +383,7 @@ const NotificationsScreen = () => {
                     styles.dayButton,
                     {
                       backgroundColor: selectedDays.includes(day.key)
-                        ? colors.primary
+                        ? colors.primaryDark
                         : colors.cardBackground,
                       borderColor: colors.textTertiary,
                     },
@@ -410,7 +410,7 @@ const NotificationsScreen = () => {
                 <Text style={{ color: colors.textSecondary }}>Cancelar</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.button, { backgroundColor: colors.primary }]}
+                style={[styles.button, { backgroundColor: colors.primaryDark }]}
                 onPress={handleAddNotification}
               >
                 <Text style={{ color: "white" }}>Agregar</Text>

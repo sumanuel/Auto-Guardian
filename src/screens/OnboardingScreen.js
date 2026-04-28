@@ -88,7 +88,7 @@ export const OnboardingScreen = ({ onComplete }) => {
 
   return (
     <SafeAreaView
-      style={[styles.container, { backgroundColor: colors.primary }]}
+      style={[styles.container, { backgroundColor: colors.primaryDark }]}
     >
       <View style={styles.skipContainer}>
         <TouchableOpacity onPress={handleSkip} style={styles.skipButton}>
@@ -141,7 +141,7 @@ export const OnboardingScreen = ({ onComplete }) => {
           onPress={handleNext}
           activeOpacity={0.8}
         >
-          <Text style={[styles.nextButtonText, { color: colors.primary }]}>
+          <Text style={[styles.nextButtonText, { color: colors.primaryDark }]}>
             {currentSlide === slides.length - 1 ? "Comenzar" : "Siguiente"}
           </Text>
         </TouchableOpacity>

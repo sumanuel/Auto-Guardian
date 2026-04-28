@@ -1,5 +1,5 @@
-import React, { createContext, useState, useEffect, useContext } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { createContext, useContext, useEffect, useState } from "react";
 
 const ThemeContext = createContext();
 
@@ -28,7 +28,7 @@ export const ThemeProvider = ({ children }) => {
       setIsDarkMode(newTheme);
       await AsyncStorage.setItem(
         "@theme_preference",
-        newTheme ? "dark" : "light"
+        newTheme ? "dark" : "light",
       );
     } catch (error) {
       console.error("Error saving theme preference:", error);
@@ -67,14 +67,14 @@ const lightColors = {
   textTertiary: "#999",
 
   // Primary colors
-  primary: "#2196F3",
-  primaryDark: "#1976D2",
+  primary: "#1976D2",
+  primaryDark: "#0F5FD2",
 
   // Status colors
   success: "#4CAF50",
   warning: "#FF9800",
   danger: "#f44336",
-  info: "#2196F3",
+  info: "#1976D2",
 
   // Borders
   border: "#e0e0e0",
@@ -107,8 +107,8 @@ const darkColors = {
   textTertiary: "#808080",
 
   // Primary colors
-  primary: "#64B5F6",
-  primaryDark: "#42A5F5",
+  primary: "#42A5F5",
+  primaryDark: "#1E88E5",
 
   // Status colors
   success: "#66BB6A",

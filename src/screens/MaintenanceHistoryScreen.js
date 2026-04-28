@@ -46,7 +46,7 @@ const QUICK_ACTION_COLORS = [
   "#4CAF50",
   "#F44336",
   "#9C27B0",
-  "#2196F3",
+  "#1976D2",
 ];
 
 const MaintenanceHistoryScreen = ({ route, navigation }) => {
@@ -1528,7 +1528,7 @@ const styles = StyleSheet.create({
     marginRight: hs(12),
   },
   checkboxChecked: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.primaryDark,
   },
   checkboxText: {
     fontSize: rf(16),
@@ -1675,7 +1675,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: hs(24),
     borderRadius: borderRadius.sm,
     alignItems: "center",
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.primaryDark,
   },
   editModalSaveText: {
     fontSize: rf(16),

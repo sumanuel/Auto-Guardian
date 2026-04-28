@@ -490,7 +490,7 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
                       borderColor: colors.border,
                     },
                     formData.type === type.name && {
-                      backgroundColor: colors.primary,
+                      backgroundColor: colors.primaryDark,
                     },
                     maintenanceData?.id && { opacity: 0.5 },
                   ]}
@@ -1142,7 +1142,7 @@ const styles = StyleSheet.create({
     borderWidth: s(1),
   },
   typeChipActive: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.primaryDark,
   },
   typeChipText: {
     fontSize: rf(14),
@@ -1382,7 +1382,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: ms(24),
     borderRadius: ms(8),
     alignItems: "center",
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.primaryDark,
   },
   editModalSaveText: {
     fontSize: rf(16),

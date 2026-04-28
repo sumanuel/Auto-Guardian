@@ -487,7 +487,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                       style={[
                         styles.progressBar,
                         {
-                          backgroundColor: colors.primary,
+                          backgroundColor: colors.primaryDark,
                           width: `${(category.total / totalCost) * 100}%`,
                         },
                       ]}

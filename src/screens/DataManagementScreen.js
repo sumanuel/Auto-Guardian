@@ -183,7 +183,7 @@ const DataManagementScreen = ({ navigation }) => {
             <TouchableOpacity
               style={[
                 styles.actionButton,
-                { backgroundColor: colors.primary },
+                { backgroundColor: colors.primaryDark },
                 backupBusy && styles.buttonDisabled,
               ]}
               onPress={handleExportData}
@@ -206,23 +206,26 @@ const DataManagementScreen = ({ navigation }) => {
             <TouchableOpacity
               style={[
                 styles.actionButton,
-                { borderColor: colors.primary, borderWidth: ms(1) },
+                { borderColor: colors.primaryDark, borderWidth: ms(1) },
                 backupBusy && styles.buttonDisabled,
               ]}
               onPress={handleImportData}
               disabled={backupBusy}
             >
               {backupBusy ? (
-                <ActivityIndicator color={colors.primary} />
+                <ActivityIndicator color={colors.primaryDark} />
               ) : (
                 <>
                   <Ionicons
                     name="cloud-upload-outline"
                     size={iconSize.sm}
-                    color={colors.primary}
+                    color={colors.primaryDark}
                   />
                   <Text
-                    style={[styles.actionButtonText, { color: colors.primary }]}
+                    style={[
+                      styles.actionButtonText,
+                      { color: colors.primaryDark },
+                    ]}
                   >
                     Importar Datos
                   </Text>

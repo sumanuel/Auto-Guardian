@@ -21,7 +21,7 @@ const TipsScreen = ({ navigation }) => {
         showsVerticalScrollIndicator={false}
       >
         <LinearGradient
-          colors={[colors.primary, "#2D7EEA", "#0F5FD2"]}
+          colors={[colors.primary, "#1673E6", "#0F5FD2"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.heroCard}
@@ -46,7 +46,7 @@ const TipsScreen = ({ navigation }) => {
           </View>
         </LinearGradient>
 
-        <Text style={[styles.sectionTitle, { color: colors.primary }]}>
+        <Text style={[styles.sectionTitle, { color: colors.primaryDark }]}>
           Recomendaciones rápidas
         </Text>
 
@@ -58,7 +58,7 @@ const TipsScreen = ({ navigation }) => {
             <Ionicons
               name="bulb"
               size={iconSize.sm}
-              color={colors.primary}
+              color={colors.primaryDark}
               style={styles.icon}
             />
             <Text style={[styles.tipContent, { color: colors.text }]}>

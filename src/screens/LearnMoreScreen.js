@@ -68,7 +68,7 @@ const LearnMoreScreen = () => {
         showsVerticalScrollIndicator={false}
       >
         <LinearGradient
-          colors={[colors.primary, "#2D7EEA", "#0F5FD2"]}
+          colors={[colors.primary, "#1673E6", "#0F5FD2"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.heroCard}
@@ -109,7 +109,7 @@ const LearnMoreScreen = () => {
                 <Ionicons
                   name={option.icon}
                   size={iconSize.md}
-                  color={colors.primary}
+                  color={colors.primaryDark}
                   style={styles.menuItemIcon}
                 />
                 <View style={styles.textContainer}>

@@ -294,11 +294,17 @@ const AddContactScreen = ({ navigation, route }) => {
           </LinearGradient>
 
           <TouchableOpacity
-            style={[styles.importButton, { borderColor: colors.primary }]}
+            style={[styles.importButton, { borderColor: colors.primaryDark }]}
             onPress={importContacts}
           >
-            <Ionicons name="person-add" size={ms(20)} color={colors.primary} />
-            <Text style={[styles.importButtonText, { color: colors.primary }]}>
+            <Ionicons
+              name="person-add"
+              size={ms(20)}
+              color={colors.primaryDark}
+            />
+            <Text
+              style={[styles.importButtonText, { color: colors.primaryDark }]}
+            >
               Importar desde Contactos
             </Text>
           </TouchableOpacity>
@@ -422,7 +428,10 @@ const AddContactScreen = ({ navigation, route }) => {
             </View>
 
             <TouchableOpacity
-              style={[styles.saveButton, { backgroundColor: colors.primary }]}
+              style={[
+                styles.saveButton,
+                { backgroundColor: colors.primaryDark },
+              ]}
               onPress={handleSave}
               disabled={loading}
             >
@@ -470,7 +479,7 @@ const AddContactScreen = ({ navigation, route }) => {
                       style={[
                         styles.countryItem,
                         selectedCountry?.code === item.code && {
-                          backgroundColor: colors.primary + "20",
+                          backgroundColor: `${colors.primaryDark}20`,
                         },
                       ]}
                       onPress={() => handleCountrySelect(item)}

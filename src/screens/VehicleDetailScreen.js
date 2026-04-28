@@ -126,7 +126,7 @@ const QUICK_ACTION_COLORS = [
   "#4CAF50",
   "#F44336",
   "#9C27B0",
-  "#2196F3",
+  "#1976D2",
 ];
 
 const VehicleDetailScreen = ({ navigation, route }) => {

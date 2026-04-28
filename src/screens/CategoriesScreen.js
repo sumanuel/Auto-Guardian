@@ -634,7 +634,7 @@ const CategoriesScreen = ({ navigation }) => {
                           style={[
                             styles.unitButton,
                             editTimeUnit === "days" && {
-                              backgroundColor: colors.primary,
+                              backgroundColor: colors.primaryDark,
                             },
                             { borderColor: colors.border },
                           ]}
@@ -658,7 +658,7 @@ const CategoriesScreen = ({ navigation }) => {
                           style={[
                             styles.unitButton,
                             editTimeUnit === "months" && {
-                              backgroundColor: colors.primary,
+                              backgroundColor: colors.primaryDark,
                             },
                             { borderColor: colors.border },
                           ]}
@@ -728,7 +728,7 @@ const CategoriesScreen = ({ navigation }) => {
                     <TouchableOpacity
                       style={[
                         styles.saveButton,
-                        { backgroundColor: colors.primary },
+                        { backgroundColor: colors.primaryDark },
                       ]}
                       onPress={handleSaveType}
                     >
@@ -890,7 +890,7 @@ const CategoriesScreen = ({ navigation }) => {
                         style={[
                           styles.unitButton,
                           newTypeTimeUnit === "days" && {
-                            backgroundColor: colors.primary,
+                            backgroundColor: colors.primaryDark,
                           },
                           { borderColor: colors.border },
                         ]}
@@ -914,7 +914,7 @@ const CategoriesScreen = ({ navigation }) => {
                         style={[
                           styles.unitButton,
                           newTypeTimeUnit === "months" && {
-                            backgroundColor: colors.primary,
+                            backgroundColor: colors.primaryDark,
                           },
                           { borderColor: colors.border },
                         ]}
@@ -983,7 +983,7 @@ const CategoriesScreen = ({ navigation }) => {
                   <TouchableOpacity
                     style={[
                       styles.saveButton,
-                      { backgroundColor: colors.primary },
+                      { backgroundColor: colors.primaryDark },
                     ]}
                     onPress={handleSaveNewType}
                   >

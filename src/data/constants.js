@@ -39,7 +39,7 @@ export const VEHICLE_BRANDS = [
 ];
 
 export const COLORS = {
-  primary: "#2196F3",
+  primary: "#1976D2",
   secondary: "#FF9800",
   success: "#4CAF50",
   danger: "#F44336",

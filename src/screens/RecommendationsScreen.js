@@ -61,7 +61,7 @@ const RecommendationsScreen = ({ navigation }) => {
         showsVerticalScrollIndicator={false}
       >
         <LinearGradient
-          colors={[colors.primary, "#2D7EEA", "#0F5FD2"]}
+          colors={[colors.primary, "#1673E6", "#0F5FD2"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.heroCard}
@@ -82,7 +82,7 @@ const RecommendationsScreen = ({ navigation }) => {
           </View>
         </LinearGradient>
 
-        <Text style={[styles.sectionTitle, { color: colors.primary }]}>
+        <Text style={[styles.sectionTitle, { color: colors.primaryDark }]}>
           Recomendaciones por tipo de mantenimiento
         </Text>
 
@@ -91,7 +91,7 @@ const RecommendationsScreen = ({ navigation }) => {
             key={index}
             style={[styles.recCard, { backgroundColor: colors.cardBackground }]}
           >
-            <Text style={[styles.recTitle, { color: colors.primary }]}>
+            <Text style={[styles.recTitle, { color: colors.primaryDark }]}>
               {tip.title}
             </Text>
             <Text style={[styles.recContent, { color: colors.text }]}>
@@ -103,7 +103,7 @@ const RecommendationsScreen = ({ navigation }) => {
         <Text
           style={[
             styles.sectionTitle,
-            { color: colors.primary, marginTop: ms(30) },
+            { color: colors.primaryDark, marginTop: ms(30) },
           ]}
         >
           Recomendaciones por Estación del Año / Clima
@@ -114,7 +114,7 @@ const RecommendationsScreen = ({ navigation }) => {
             key={index}
             style={[styles.recCard, { backgroundColor: colors.cardBackground }]}
           >
-            <Text style={[styles.recTitle, { color: colors.primary }]}>
+            <Text style={[styles.recTitle, { color: colors.primaryDark }]}>
               {rec.title}
             </Text>
             <Text style={[styles.recContent, { color: colors.text }]}>
