@@ -51,12 +51,13 @@ const AboutScreen = () => {
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
         >
+          <Text style={styles.heroEyebrow}>Información de producto</Text>
           <View style={styles.iconContainer}>
             <Ionicons name="car-sport" size={iconSize.xxl} color="#fff" />
           </View>
           <Text style={styles.title}>Auto-Guardian</Text>
           <Text style={styles.subtitle}>
-            Tu compañero inteligente para el cuidado del auto
+            Bitácora clara para mantenimiento, documentos y costos del vehículo.
           </Text>
         </LinearGradient>
 
@@ -153,8 +154,8 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   header: {
-    paddingTop: vs(40),
-    paddingBottom: vs(40),
+    paddingTop: vs(28),
+    paddingBottom: vs(28),
     paddingHorizontal: hs(24),
     alignItems: "center",
     borderBottomLeftRadius: s(30),
@@ -166,9 +167,9 @@ const styles = StyleSheet.create({
     elevation: s(8),
   },
   iconContainer: {
-    width: s(100),
-    height: s(100),
-    borderRadius: s(50),
+    width: s(84),
+    height: s(84),
+    borderRadius: s(42),
     backgroundColor: "rgba(255, 255, 255, 0.2)",
     alignItems: "center",
     justifyContent: "center",
@@ -176,19 +177,28 @@ const styles = StyleSheet.create({
     borderWidth: s(3),
     borderColor: "rgba(255, 255, 255, 0.3)",
   },
+  heroEyebrow: {
+    fontSize: rf(12),
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.7,
+    color: "rgba(255,255,255,0.78)",
+    marginBottom: spacing.sm,
+  },
   title: {
-    fontSize: rf(32),
-    fontWeight: "bold",
+    fontSize: rf(28),
+    fontWeight: "800",
     color: "#fff",
     marginBottom: spacing.xs,
     textAlign: "center",
   },
   subtitle: {
-    fontSize: rf(16),
+    fontSize: rf(14),
     color: "#fff",
     textAlign: "center",
     opacity: 0.95,
     fontWeight: "500",
+    lineHeight: rf(20),
   },
   content: {
     padding: spacing.lg,

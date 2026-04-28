@@ -197,7 +197,7 @@ const DocumentTypesScreen = ({ navigation }) => {
                   message: "Tipo de documento eliminado correctamente",
                   type: "success",
                 });
-              } catch (error) {
+              } catch (_error) {
                 showDialog({
                   title: "Error",
                   message: "No se pudo eliminar el tipo de documento",

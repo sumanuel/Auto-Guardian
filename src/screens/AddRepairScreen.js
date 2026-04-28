@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRef, useState } from "react";
@@ -9,6 +10,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from "react-native";
 import Button from "../components/common/Button";
@@ -70,7 +72,7 @@ const AddRepairScreen = ({ route, navigation }) => {
       return;
     }
 
-    const result = await ImagePicker.launchImagePickerAsync({
+    const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 0.8,
@@ -195,7 +197,7 @@ const AddRepairScreen = ({ route, navigation }) => {
       }
 
       navigation.goBack();
-    } catch (error) {
+    } catch (_error) {
       showDialog({
         title: "Error",
         message: "No se pudo guardar la reparación",
@@ -452,9 +454,10 @@ const styles = StyleSheet.create({
   },
   heroGradient: {
     marginHorizontal: -spacing.lg,
+    marginTop: -spacing.lg,
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.xl,
-    paddingBottom: spacing.lg,
+    paddingTop: vs(18),
+    paddingBottom: vs(18),
     borderBottomLeftRadius: borderRadius.xl,
     borderBottomRightRadius: borderRadius.xl,
   },
@@ -476,25 +479,26 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.16)",
   },
   heroImagePlaceholder: {
-    width: s(76),
-    height: s(76),
-    borderRadius: borderRadius.lg,
+    width: s(78),
+    height: s(78),
+    borderRadius: borderRadius.md,
   },
   vehicleImage: {
-    width: s(76),
-    height: s(76),
-    borderRadius: borderRadius.lg,
+    width: s(78),
+    height: s(78),
+    borderRadius: borderRadius.md,
   },
   headerInfo: {
     flex: 1,
-    gap: spacing.xxs,
+    paddingRight: spacing.md,
   },
   headerEyebrow: {
     fontSize: rf(12),
     fontWeight: "700",
-    letterSpacing: 1,
+    letterSpacing: 0.7,
     textTransform: "uppercase",
-    color: "#D6E7FF",
+    marginBottom: vs(4),
+    color: "rgba(255,255,255,0.74)",
   },
   headerTitle: {
     fontSize: rf(22),
@@ -503,16 +507,16 @@ const styles = StyleSheet.create({
   },
   headerSubtitle: {
     fontSize: rf(13),
-    lineHeight: rf(18),
-    color: "#D6E7FF",
+    marginTop: vs(4),
+    color: "rgba(255,255,255,0.84)",
   },
   infoButton: {
-    width: s(42),
-    height: s(42),
-    borderRadius: borderRadius.full,
+    width: s(44),
+    height: s(44),
+    borderRadius: s(22),
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(255,255,255,0.14)",
+    backgroundColor: "rgba(255,255,255,0.12)",
   },
   inputGroup: {
     marginBottom: spacing.lg,

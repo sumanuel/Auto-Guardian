@@ -306,7 +306,7 @@ const CategoriesScreen = ({ navigation }) => {
               try {
                 await deleteMaintenanceType(type.id);
                 loadCategories();
-              } catch (error) {
+              } catch (_error) {
                 showDialog({
                   title: "Error",
                   message: "No se pudo eliminar el tipo de mantenimiento",
