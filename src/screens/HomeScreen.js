@@ -423,6 +423,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: hs(20),
     paddingTop: vs(42),
     paddingBottom: vs(24),
+    borderBottomLeftRadius: borderRadius.xl,
+    borderBottomRightRadius: borderRadius.xl,
   },
   headerTopRow: {
     flexDirection: "row",
