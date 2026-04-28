@@ -119,7 +119,9 @@ const UpdateKmScreen = ({ navigation, route }) => {
                   )}
 
                   <View style={styles.headerInfo}>
-                    <Text style={styles.headerEyebrow}>Lectura de kilometraje</Text>
+                    <Text style={styles.headerEyebrow}>
+                      Lectura de kilometraje
+                    </Text>
                     <Text style={styles.headerTitle}>{vehicle.name}</Text>
                     {!!vehicleMeta && (
                       <Text style={styles.headerSubtitle}>{vehicleMeta}</Text>

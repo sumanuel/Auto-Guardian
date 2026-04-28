@@ -81,8 +81,8 @@ const SettingsScreen = ({ navigation }) => {
               <Text style={styles.eyebrow}>Centro de ajustes</Text>
               <Text style={styles.title}>Configuración</Text>
               <Text style={styles.subtitle}>
-                Personaliza alertas, catálogos, moneda y respaldo desde un
-                panel central.
+                Personaliza alertas, catálogos, moneda y respaldo desde un panel
+                central.
               </Text>
             </View>
           </View>

@@ -40,11 +40,11 @@ const AddExpenseScreen = ({ route, navigation }) => {
 
   const [description, setDescription] = useState(expense?.description || "");
   const [date, setDate] = useState(
-    expense?.date ? new Date(expense.date) : new Date()
+    expense?.date ? new Date(expense.date) : new Date(),
   );
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [cost, setCost] = useState(
-    expense?.cost ? expense.cost.toString() : ""
+    expense?.cost ? expense.cost.toString() : "",
   );
   const [notes, setNotes] = useState(expense?.notes || "");
   const [loading, setLoading] = useState(false);
@@ -162,7 +162,7 @@ const AddExpenseScreen = ({ route, navigation }) => {
                 onPress={() =>
                   Alert.alert(
                     isEditing ? "Actualizar gasto" : "Registrar gasto",
-                    "Documenta gastos operativos como combustible, peajes, lavado u otros costos asociados al vehículo para mantener el control financiero al día."
+                    "Documenta gastos operativos como combustible, peajes, lavado u otros costos asociados al vehículo para mantener el control financiero al día.",
                   )
                 }
               >

@@ -75,12 +75,12 @@ const NotificationsScreen = () => {
           await scheduleAllNotifications(getAllNotifications);
           Alert.alert(
             "Éxito",
-            "Notificaciones de alertas activadas. Recibirás recordatorios los lunes y miércoles a las 9:00 AM cuando tengas alertas pendientes."
+            "Notificaciones de alertas activadas. Recibirás recordatorios los lunes y miércoles a las 9:00 AM cuando tengas alertas pendientes.",
           );
         } else {
           Alert.alert(
             "Información",
-            "Notificaciones de alertas activadas, pero actualmente no tienes alertas pendientes."
+            "Notificaciones de alertas activadas, pero actualmente no tienes alertas pendientes.",
           );
         }
       } else {
@@ -94,7 +94,7 @@ const NotificationsScreen = () => {
       console.error("Error cambiando configuración de alertas:", error);
       Alert.alert(
         "Error",
-        "No se pudo cambiar la configuración de notificaciones."
+        "No se pudo cambiar la configuración de notificaciones.",
       );
     }
   };
@@ -147,7 +147,7 @@ const NotificationsScreen = () => {
 
   const toggleDay = (day) => {
     setSelectedDays((prev) =>
-      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day],
     );
   };
 
@@ -211,11 +211,13 @@ const NotificationsScreen = () => {
       </LinearGradient>
 
       <View style={styles.screenContent}>
-
         <View
           style={[
             styles.alertSection,
-            { backgroundColor: colors.cardBackground, borderColor: colors.border },
+            {
+              backgroundColor: colors.cardBackground,
+              borderColor: colors.border,
+            },
           ]}
         >
           <View style={styles.alertSectionHeader}>

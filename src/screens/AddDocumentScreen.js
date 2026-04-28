@@ -74,7 +74,7 @@ const AddDocumentScreen = ({ navigation, route }) => {
       const localToday = new Date(
         today.getFullYear(),
         today.getMonth(),
-        today.getDate()
+        today.getDate(),
       );
       setIssueDate(localToday);
       setIssueDateSelected(true); // La fecha de expedición por defecto ya está "seleccionada"
@@ -106,12 +106,12 @@ const AddDocumentScreen = ({ navigation, route }) => {
     const localToday = new Date(
       today.getFullYear(),
       today.getMonth(),
-      today.getDate()
+      today.getDate(),
     );
     const compareDate = new Date(
       date.getFullYear(),
       date.getMonth(),
-      date.getDate()
+      date.getDate(),
     );
     return localToday.getTime() === compareDate.getTime();
   };
@@ -131,7 +131,7 @@ const AddDocumentScreen = ({ navigation, route }) => {
     const duplicateDocument = existingDocuments.find(
       (doc) =>
         doc.document_type_id === selectedDocumentType.id &&
-        (!isEditing || doc.id !== document.id)
+        (!isEditing || doc.id !== document.id),
     );
 
     if (duplicateDocument) {
@@ -166,12 +166,12 @@ const AddDocumentScreen = ({ navigation, route }) => {
     const issueDateOnly = new Date(
       issueDate.getFullYear(),
       issueDate.getMonth(),
-      issueDate.getDate()
+      issueDate.getDate(),
     );
     const expiryDateOnly = new Date(
       expiryDate.getFullYear(),
       expiryDate.getMonth(),
-      expiryDate.getDate()
+      expiryDate.getDate(),
     );
 
     if (expiryDateOnly <= issueDateOnly) {
@@ -204,14 +204,14 @@ const AddDocumentScreen = ({ navigation, route }) => {
           document.id,
           selectedDocumentType.id,
           issueDateString,
-          expiryDateString
+          expiryDateString,
         );
       } else {
         success = addVehicleDocument(
           vehicleId,
           selectedDocumentType.id,
           issueDateString,
-          expiryDateString
+          expiryDateString,
         );
       }
 
@@ -324,7 +324,9 @@ const AddDocumentScreen = ({ navigation, route }) => {
                   )}
 
                   <View style={styles.headerInfo}>
-                    <Text style={styles.headerEyebrow}>Registro documental</Text>
+                    <Text style={styles.headerEyebrow}>
+                      Registro documental
+                    </Text>
                     <Text style={styles.headerTitle}>
                       {vehicle?.name || "Vehículo"}
                     </Text>
@@ -430,8 +432,8 @@ const AddDocumentScreen = ({ navigation, route }) => {
                 {loading
                   ? "Guardando..."
                   : isEditing
-                  ? "Actualizar"
-                  : "Agregar"}
+                    ? "Actualizar"
+                    : "Agregar"}
               </Text>
             </TouchableOpacity>
           </View>

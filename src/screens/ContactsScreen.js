@@ -44,7 +44,7 @@ const ContactsScreen = ({ navigation }) => {
       console.error("Error al intentar llamar:", error);
       Alert.alert(
         "Error",
-        `No se pudo iniciar la llamada.\n\nNúmero: ${phoneNumber}\n\nVerifica los permisos de la aplicación.`
+        `No se pudo iniciar la llamada.\n\nNúmero: ${phoneNumber}\n\nVerifica los permisos de la aplicación.`,
       );
     }
   };
@@ -65,7 +65,7 @@ const ContactsScreen = ({ navigation }) => {
       console.error("Error al intentar enviar SMS:", error);
       Alert.alert(
         "Error",
-        `No se pudo abrir la aplicación de SMS.\n\nNúmero: ${phoneNumber}\n\nVerifica los permisos de la aplicación.`
+        `No se pudo abrir la aplicación de SMS.\n\nNúmero: ${phoneNumber}\n\nVerifica los permisos de la aplicación.`,
       );
     }
   };
@@ -84,14 +84,14 @@ const ContactsScreen = ({ navigation }) => {
       } else {
         Alert.alert(
           "Función no disponible",
-          "Este dispositivo no soporta envío de emails. El email es: " + email
+          "Este dispositivo no soporta envío de emails. El email es: " + email,
         );
       }
     } catch (error) {
       console.error("Error al intentar enviar email:", error);
       Alert.alert(
         "Error",
-        "No se pudo enviar el email. Verifica que la dirección sea correcta."
+        "No se pudo enviar el email. Verifica que la dirección sea correcta.",
       );
     }
   };
@@ -126,7 +126,7 @@ const ContactsScreen = ({ navigation }) => {
       console.error("Error al intentar abrir WhatsApp:", error);
       Alert.alert(
         "WhatsApp no disponible",
-        "No se pudo abrir WhatsApp. Asegúrate de tener WhatsApp instalado."
+        "No se pudo abrir WhatsApp. Asegúrate de tener WhatsApp instalado.",
       );
     }
   };
@@ -274,11 +274,7 @@ const ContactsScreen = ({ navigation }) => {
           <View style={styles.heroHeaderRow}>
             <View style={styles.heroMediaRow}>
               <View style={[styles.iconBadge, styles.heroIconBadge]}>
-                <Ionicons
-                  name="people-outline"
-                  size={ms(34)}
-                  color="#D6E7FF"
-                />
+                <Ionicons name="people-outline" size={ms(34)} color="#D6E7FF" />
               </View>
 
               <View style={styles.heroInfo}>

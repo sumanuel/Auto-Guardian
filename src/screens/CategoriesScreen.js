@@ -219,7 +219,8 @@ const CategoriesScreen = ({ navigation }) => {
     setEditCategory(type.category || "");
     setEditKm(type.defaultIntervalKm?.toString() || "");
     setEditTime(
-      (type.defaultIntervalTime || type.defaultIntervalMonths)?.toString() || ""
+      (type.defaultIntervalTime || type.defaultIntervalMonths)?.toString() ||
+        "",
     );
     setEditTimeUnit(type.defaultIntervalUnit || "months");
     setEditIcon(type.icon || "build-outline");
@@ -1038,16 +1039,16 @@ const CategoriesScreen = ({ navigation }) => {
                           (editingIconFor === "edit"
                             ? editIcon
                             : editingIconFor === "add"
-                            ? newTypeIcon
-                            : "") === item.name
+                              ? newTypeIcon
+                              : "") === item.name
                             ? colors.primary
                             : colors.border,
                         borderWidth:
                           (editingIconFor === "edit"
                             ? editIcon
                             : editingIconFor === "add"
-                            ? newTypeIcon
-                            : "") === item.name
+                              ? newTypeIcon
+                              : "") === item.name
                             ? ms(2)
                             : ms(1),
                       },
@@ -1061,8 +1062,8 @@ const CategoriesScreen = ({ navigation }) => {
                         (editingIconFor === "edit"
                           ? editIcon
                           : editingIconFor === "add"
-                          ? newTypeIcon
-                          : "") === item.name
+                            ? newTypeIcon
+                            : "") === item.name
                           ? colors.primary
                           : colors.text
                       }
@@ -1075,8 +1076,8 @@ const CategoriesScreen = ({ navigation }) => {
                             (editingIconFor === "edit"
                               ? editIcon
                               : editingIconFor === "add"
-                              ? newTypeIcon
-                              : "") === item.name
+                                ? newTypeIcon
+                                : "") === item.name
                               ? colors.primary
                               : colors.textSecondary,
                         },

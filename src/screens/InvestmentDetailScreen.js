@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
 import { useFocusEffect } from "@react-navigation/native";
+import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useState } from "react";
 import {
   Image,
@@ -313,8 +313,10 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                     </View>
                   )}
 
-                  <View style={styles.headerInfo}> 
-                    <Text style={styles.headerEyebrow}>Bitácora financiera</Text>
+                  <View style={styles.headerInfo}>
+                    <Text style={styles.headerEyebrow}>
+                      Bitácora financiera
+                    </Text>
                     <Text style={styles.headerTitle}>{vehicle.name}</Text>
                     {!!vehicleMeta && (
                       <Text style={styles.headerSubtitle}>{vehicleMeta}</Text>
@@ -352,23 +354,29 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
               },
             ]}
           >
-            <TouchableOpacity style={styles.filterAction} onPress={openDateFilter}>
+            <TouchableOpacity
+              style={styles.filterAction}
+              onPress={openDateFilter}
+            >
               <Ionicons
                 name="calendar-outline"
                 size={iconSize.md}
                 color={isFiltered ? COLORS.success : colors.primary}
               />
-              <Text style={[styles.filterActionText, { color: colors.text }]}> 
+              <Text style={[styles.filterActionText, { color: colors.text }]}>
                 Filtrar fechas
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.filterAction} onPress={clearDateFilter}>
+            <TouchableOpacity
+              style={styles.filterAction}
+              onPress={clearDateFilter}
+            >
               <Ionicons
                 name="refresh-outline"
                 size={iconSize.md}
                 color={colors.primary}
               />
-              <Text style={[styles.filterActionText, { color: colors.text }]}> 
+              <Text style={[styles.filterActionText, { color: colors.text }]}>
                 Limpiar filtro
               </Text>
             </TouchableOpacity>

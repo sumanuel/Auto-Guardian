@@ -248,7 +248,9 @@ const AddRepairScreen = ({ route, navigation }) => {
                   )}
 
                   <View style={styles.headerInfo}>
-                    <Text style={styles.headerEyebrow}>Registro de reparación</Text>
+                    <Text style={styles.headerEyebrow}>
+                      Registro de reparación
+                    </Text>
                     <Text style={styles.headerTitle}>
                       {vehicle?.name || "Vehículo"}
                     </Text>
