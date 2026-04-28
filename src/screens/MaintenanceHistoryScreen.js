@@ -51,12 +51,14 @@ const QUICK_ACTION_COLORS = [
 
 const HeroMetricCard = ({ icon, label, value, accent }) => (
   <View style={[styles.heroMetricCard, { borderColor: accent }]}>
-    <View
-      style={[styles.heroMetricIconWrap, { backgroundColor: `${accent}22` }]}
-    >
-      <Ionicons name={icon} size={iconSize.sm} color="#fff" />
+    <View style={styles.heroMetricTopRow}>
+      <View
+        style={[styles.heroMetricIconWrap, { backgroundColor: `${accent}22` }]}
+      >
+        <Ionicons name={icon} size={iconSize.xs} color="#fff" />
+      </View>
+      <Text style={styles.heroMetricValue}>{value}</Text>
     </View>
-    <Text style={styles.heroMetricValue}>{value}</Text>
     <Text style={styles.heroMetricLabel}>{label}</Text>
   </View>
 );
@@ -1291,21 +1293,24 @@ const styles = StyleSheet.create({
   },
   vehicleImage: {
     width: s(78),
-    height: s(78),
+    minHeight: vs(58),
     borderRadius: borderRadius.md,
+    heroMetricTopRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginBottom: vs(6),
+    },
     marginRight: hs(12),
   },
   imagePlaceholder: {
     width: s(78),
     height: s(78),
     borderRadius: borderRadius.md,
-    justifyContent: "center",
+    marginRight: hs(8),
     alignItems: "center",
     marginRight: hs(12),
   },
-  heroImagePlaceholder: {
-    backgroundColor: "rgba(255,255,255,0.12)",
-  },
+  heroImagePlaceholder: {},
   headerInfo: {
     flex: 1,
   },

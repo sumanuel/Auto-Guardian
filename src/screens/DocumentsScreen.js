@@ -28,12 +28,14 @@ import {
 
 const HeroMetricCard = ({ icon, label, value, accent }) => (
   <View style={[styles.heroMetricCard, { borderColor: accent }]}>
-    <View
-      style={[styles.heroMetricIconWrap, { backgroundColor: `${accent}22` }]}
-    >
-      <Ionicons name={icon} size={iconSize.sm} color="#fff" />
+    <View style={styles.heroMetricTopRow}>
+      <View
+        style={[styles.heroMetricIconWrap, { backgroundColor: `${accent}22` }]}
+      >
+        <Ionicons name={icon} size={iconSize.xs} color="#fff" />
+      </View>
+      <Text style={styles.heroMetricValue}>{value}</Text>
     </View>
-    <Text style={styles.heroMetricValue}>{value}</Text>
     <Text style={styles.heroMetricLabel}>{label}</Text>
   </View>
 );
@@ -441,8 +443,13 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.md,
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
-    minHeight: vs(76),
+    minHeight: vs(58),
     backgroundColor: "rgba(255,255,255,0.12)",
+  },
+  heroMetricTopRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: vs(6),
   },
   heroMetricIconWrap: {
     width: s(28),
@@ -450,12 +457,11 @@ const styles = StyleSheet.create({
     borderRadius: s(14),
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: vs(8),
+    marginRight: hs(8),
   },
   heroMetricValue: {
     fontSize: rf(18),
     fontWeight: "800",
-    marginBottom: vs(2),
     color: "#fff",
   },
   heroMetricLabel: {

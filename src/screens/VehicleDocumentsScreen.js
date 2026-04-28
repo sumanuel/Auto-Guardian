@@ -66,12 +66,14 @@ const getExpiryMeta = (expiryDate) => {
 
 const HeroMetricCard = ({ icon, label, value, accent }) => (
   <View style={[styles.heroMetricCard, { borderColor: accent }]}>
-    <View
-      style={[styles.heroMetricIconWrap, { backgroundColor: `${accent}22` }]}
-    >
-      <Ionicons name={icon} size={iconSize.sm} color="#fff" />
+    <View style={styles.heroMetricTopRow}>
+      <View
+        style={[styles.heroMetricIconWrap, { backgroundColor: `${accent}22` }]}
+      >
+        <Ionicons name={icon} size={iconSize.xs} color="#fff" />
+      </View>
+      <Text style={styles.heroMetricValue}>{value}</Text>
     </View>
-    <Text style={styles.heroMetricValue}>{value}</Text>
     <Text style={styles.heroMetricLabel}>{label}</Text>
   </View>
 );
@@ -97,7 +99,7 @@ const VehicleDocumentsScreen = ({ navigation, route }) => {
           (expiry - today) / (1000 * 60 * 60 * 24),
         );
 
-        if (daysRemaining <= 30) {
+        if (daysRemaining <= 15) {
           accumulator.review += 1;
         } else {
           accumulator.valid += 1;
@@ -110,6 +112,7 @@ const VehicleDocumentsScreen = ({ navigation, route }) => {
 
     return totals;
   }, [documents]);
+
   const vehicleMeta = [
     vehicle?.brand,
     vehicle?.model,
@@ -130,13 +133,13 @@ const VehicleDocumentsScreen = ({ navigation, route }) => {
   );
 
   const handleDeleteDocument = async (document) => {
-    const confirmed = await showDialog({
-      title: "Eliminar Documento",
-      message: `¿Estás seguro de que quieres eliminar "${document.type_document}"?`,
+    const result = await showDialog({
+      title: "Eliminar documento",
+      message: `¿Deseas eliminar \"${document.type_document}\"?`,
       type: "confirm",
     });
 
-    if (!confirmed) {
+    if (!result) {
       return; // Usuario canceló
     }
 
@@ -488,26 +491,30 @@ const styles = StyleSheet.create({
   },
   heroMetricCard: {
     flex: 1,
-    minHeight: vs(92),
     borderRadius: borderRadius.md,
     paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.sm,
+    paddingVertical: spacing.xs,
     borderWidth: 1,
     backgroundColor: "rgba(255,255,255,0.12)",
+    minHeight: vs(58),
+  },
+  heroMetricTopRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: vs(6),
   },
   heroMetricIconWrap: {
-    width: s(32),
-    height: s(32),
-    borderRadius: s(16),
+    width: s(28),
+    height: s(28),
+    borderRadius: s(14),
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: vs(10),
+    marginRight: hs(8),
   },
   heroMetricValue: {
-    fontSize: rf(16),
+    fontSize: rf(18),
     fontWeight: "800",
     color: "#fff",
-    marginBottom: vs(3),
   },
   heroMetricLabel: {
     fontSize: rf(11),
@@ -518,32 +525,33 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     paddingTop: 0,
     marginTop: vs(14),
+    paddingBottom: vs(100),
   },
   documentCard: {
     borderRadius: borderRadius.lg,
     borderWidth: 1,
     padding: spacing.md,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    minHeight: vs(76),
+    marginBottom: spacing.sm,
+    elevation: s(3),
+    shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.08,
     shadowRadius: s(10),
   },
-  width: s(28),
-  height: s(28),
-  borderRadius: s(14),
-  justifyContent: "space-between",
-  gap: hs(10),
-  marginBottom: vs(8),
+  documentTopRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: hs(10),
+  },
   documentInfo: {
     flexDirection: "row",
-    fontSize: rf(18),
+    alignItems: "flex-start",
     flex: 1,
     minWidth: 0,
   },
   documentIconWrap: {
     width: s(44),
-    fontSize: rf(10),
+    height: s(44),
     borderRadius: s(22),
     alignItems: "center",
     justifyContent: "center",
