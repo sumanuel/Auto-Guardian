@@ -56,124 +56,127 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
     .filter(Boolean)
     .join(" • ");
 
+  const loadData = React.useCallback(
+    (filterFrom = null, filterTo = null) => {
+      const vehicleData = vehicles.find((v) => v.id === vehicleId);
+      setVehicle(vehicleData);
+
+      const allMaintenances = getAllMaintenances();
+      let vehicleMaintenances = allMaintenances
+        .filter((m) => m.vehicleId === vehicleId)
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      // Obtener movimientos particulares
+      let vehicleExpenses = getExpensesByVehicle(vehicleId);
+
+      // Obtener reparaciones
+      let vehicleRepairs = getRepairsByVehicle(vehicleId);
+
+      // Aplicar filtro de fechas si existe
+      if (filterFrom && filterTo) {
+        // Función helper para comparar solo fechas (sin hora ni zona horaria)
+        const isDateInRange = (dateStr) => {
+          // Extraer la fecha como string YYYY-MM-DD
+          let itemDateStr;
+          if (dateStr.includes("T")) {
+            itemDateStr = dateStr.split("T")[0];
+          } else {
+            itemDateStr = dateStr;
+          }
+
+          // Extraer las fechas del filtro como strings YYYY-MM-DD
+          const fromDateStr = filterFrom.toISOString().split("T")[0];
+          const toDateStr = filterTo.toISOString().split("T")[0];
+
+          // Comparar las strings de fecha
+          return itemDateStr >= fromDateStr && itemDateStr <= toDateStr;
+        };
+
+        vehicleMaintenances = vehicleMaintenances.filter((m) =>
+          isDateInRange(m.date),
+        );
+        vehicleExpenses = vehicleExpenses.filter((e) => isDateInRange(e.date));
+        vehicleRepairs = vehicleRepairs.filter((r) => isDateInRange(r.date));
+      }
+
+      setMaintenances(vehicleMaintenances);
+      setExpenses(vehicleExpenses);
+      setRepairs(vehicleRepairs);
+
+      // Calcular total (mantenimientos + movimientos + reparaciones)
+      const maintenanceTotal = vehicleMaintenances.reduce(
+        (sum, m) => sum + (m.cost || 0),
+        0,
+      );
+      const expenseTotal = vehicleExpenses.reduce(
+        (sum, e) => sum + (e.cost || 0),
+        0,
+      );
+      const repairTotal = vehicleRepairs.reduce(
+        (sum, r) => sum + (r.cost || 0),
+        0,
+      );
+      setTotalCost(maintenanceTotal + expenseTotal + repairTotal);
+
+      // Calcular estadísticas de servicios, reparaciones y otros
+      const stats = [];
+
+      // Mantenimientos (mantenimientos con costo)
+      const servicesWithCost = vehicleMaintenances.filter(
+        (m) => m.cost && m.cost > 0,
+      );
+      const servicesTotal = servicesWithCost.reduce(
+        (sum, m) => sum + (m.cost || 0),
+        0,
+      );
+      if (servicesWithCost.length > 0) {
+        stats.push({
+          name: "Mantenimientos",
+          total: servicesTotal,
+          count: servicesWithCost.length,
+        });
+      }
+
+      // Reparaciones
+      const repairsTotal = vehicleRepairs.reduce(
+        (sum, r) => sum + (r.cost || 0),
+        0,
+      );
+      if (vehicleRepairs.length > 0) {
+        stats.push({
+          name: "Reparaciones",
+          total: repairsTotal,
+          count: vehicleRepairs.length,
+        });
+      }
+
+      // Otros (gastos)
+      const expensesTotal = vehicleExpenses.reduce(
+        (sum, e) => sum + (e.cost || 0),
+        0,
+      );
+      if (vehicleExpenses.length > 0) {
+        stats.push({
+          name: "Otros",
+          total: expensesTotal,
+          count: vehicleExpenses.length,
+        });
+      }
+
+      setCategoryStats(stats);
+    },
+    [getAllMaintenances, vehicleId, vehicles],
+  );
+
   useFocusEffect(
     React.useCallback(() => {
       loadData();
-    }, [vehicleId, vehicles]),
+    }, [loadData]),
   );
 
   useEffect(() => {
     loadData();
-  }, [vehicleId, vehicles]);
-
-  const loadData = (filterFrom = null, filterTo = null) => {
-    const vehicleData = vehicles.find((v) => v.id === vehicleId);
-    setVehicle(vehicleData);
-
-    const allMaintenances = getAllMaintenances();
-    let vehicleMaintenances = allMaintenances
-      .filter((m) => m.vehicleId === vehicleId)
-      .sort((a, b) => new Date(b.date) - new Date(a.date));
-
-    // Obtener movimientos particulares
-    let vehicleExpenses = getExpensesByVehicle(vehicleId);
-
-    // Obtener reparaciones
-    let vehicleRepairs = getRepairsByVehicle(vehicleId);
-
-    // Aplicar filtro de fechas si existe
-    if (filterFrom && filterTo) {
-      // Función helper para comparar solo fechas (sin hora ni zona horaria)
-      const isDateInRange = (dateStr) => {
-        // Extraer la fecha como string YYYY-MM-DD
-        let itemDateStr;
-        if (dateStr.includes("T")) {
-          itemDateStr = dateStr.split("T")[0];
-        } else {
-          itemDateStr = dateStr;
-        }
-
-        // Extraer las fechas del filtro como strings YYYY-MM-DD
-        const fromDateStr = filterFrom.toISOString().split("T")[0];
-        const toDateStr = filterTo.toISOString().split("T")[0];
-
-        // Comparar las strings de fecha
-        return itemDateStr >= fromDateStr && itemDateStr <= toDateStr;
-      };
-
-      vehicleMaintenances = vehicleMaintenances.filter((m) =>
-        isDateInRange(m.date),
-      );
-      vehicleExpenses = vehicleExpenses.filter((e) => isDateInRange(e.date));
-      vehicleRepairs = vehicleRepairs.filter((r) => isDateInRange(r.date));
-    }
-
-    setMaintenances(vehicleMaintenances);
-    setExpenses(vehicleExpenses);
-    setRepairs(vehicleRepairs);
-
-    // Calcular total (mantenimientos + movimientos + reparaciones)
-    const maintenanceTotal = vehicleMaintenances.reduce(
-      (sum, m) => sum + (m.cost || 0),
-      0,
-    );
-    const expenseTotal = vehicleExpenses.reduce(
-      (sum, e) => sum + (e.cost || 0),
-      0,
-    );
-    const repairTotal = vehicleRepairs.reduce(
-      (sum, r) => sum + (r.cost || 0),
-      0,
-    );
-    setTotalCost(maintenanceTotal + expenseTotal + repairTotal);
-
-    // Calcular estadísticas de servicios, reparaciones y otros
-    const stats = [];
-
-    // Mantenimientos (mantenimientos con costo)
-    const servicesWithCost = vehicleMaintenances.filter(
-      (m) => m.cost && m.cost > 0,
-    );
-    const servicesTotal = servicesWithCost.reduce(
-      (sum, m) => sum + (m.cost || 0),
-      0,
-    );
-    if (servicesWithCost.length > 0) {
-      stats.push({
-        name: "Mantenimientos",
-        total: servicesTotal,
-        count: servicesWithCost.length,
-      });
-    }
-
-    // Reparaciones
-    const repairsTotal = vehicleRepairs.reduce(
-      (sum, r) => sum + (r.cost || 0),
-      0,
-    );
-    if (vehicleRepairs.length > 0) {
-      stats.push({
-        name: "Reparaciones",
-        total: repairsTotal,
-        count: vehicleRepairs.length,
-      });
-    }
-
-    // Otros (gastos)
-    const expensesTotal = vehicleExpenses.reduce(
-      (sum, e) => sum + (e.cost || 0),
-      0,
-    );
-    if (vehicleExpenses.length > 0) {
-      stats.push({
-        name: "Otros",
-        total: expensesTotal,
-        count: vehicleExpenses.length,
-      });
-    }
-
-    setCategoryStats(stats);
-  };
+  }, [loadData]);
 
   const openDateFilter = () => {
     setDateFilterModal(true);
@@ -220,7 +223,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                 message: "El movimiento fue eliminado correctamente.",
                 type: "success",
               });
-            } catch (error) {
+            } catch (_error) {
               showDialog({
                 title: "Error",
                 message: "No se pudo eliminar el movimiento",
@@ -252,7 +255,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                 message: "La reparación fue eliminada correctamente.",
                 type: "success",
               });
-            } catch (error) {
+            } catch (_error) {
               showDialog({
                 title: "Error",
                 message: "No se pudo eliminar la reparación",
@@ -383,8 +386,15 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
           </View>
 
           {/* Tarjeta de total */}
-          <View style={[styles.totalCard, { backgroundColor: colors.primary }]}>
-            <Ionicons name="cash-outline" size={iconSize.xl} color="#fff" />
+          <LinearGradient
+            colors={[colors.primary, "#0F5FD2", "#1673E6"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.totalCard}
+          >
+            <View style={styles.totalIconBadge}>
+              <Ionicons name="cash-outline" size={iconSize.xl} color="#fff" />
+            </View>
             <Text style={styles.totalLabel}>Total Invertido</Text>
             {isFiltered && (
               <Text
@@ -396,14 +406,28 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
             <Text style={styles.totalAmount}>
               {formatCurrency(totalCost, currencySymbol)}
             </Text>
-            <Text style={styles.totalSubtitle}>
-              {maintenances.length}{" "}
-              {maintenances.length === 1 ? "mantenimiento" : "mantenimientos"} •{" "}
-              {repairs.length}{" "}
-              {repairs.length === 1 ? "reparación" : "reparaciones"} •{" "}
-              {expenses.length} {expenses.length === 1 ? "otro" : "otros"}
-            </Text>
-          </View>
+            <View style={styles.totalBreakdownRow}>
+              <View style={styles.totalBreakdownPill}>
+                <Text style={styles.totalBreakdownText}>
+                  {maintenances.length}{" "}
+                  {maintenances.length === 1
+                    ? "mantenimiento"
+                    : "mantenimientos"}
+                </Text>
+              </View>
+              <View style={styles.totalBreakdownPill}>
+                <Text style={styles.totalBreakdownText}>
+                  {repairs.length}{" "}
+                  {repairs.length === 1 ? "reparación" : "reparaciones"}
+                </Text>
+              </View>
+              <View style={styles.totalBreakdownPill}>
+                <Text style={styles.totalBreakdownText}>
+                  {expenses.length} {expenses.length === 1 ? "otro" : "otros"}
+                </Text>
+              </View>
+            </View>
+          </LinearGradient>
 
           {/* Movimientos por categoría */}
           {categoryStats.length > 0 && (
@@ -494,6 +518,19 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                 size={iconSize.md}
                 color={activeTab === "mantenimientos" ? "#fff" : colors.text}
               />
+              <Text
+                style={[
+                  styles.tabText,
+                  {
+                    color:
+                      activeTab === "mantenimientos"
+                        ? "#fff"
+                        : colors.textSecondary,
+                  },
+                ]}
+              >
+                Mantenimientos
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[
@@ -513,6 +550,19 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                 size={iconSize.md}
                 color={activeTab === "reparaciones" ? "#fff" : colors.text}
               />
+              <Text
+                style={[
+                  styles.tabText,
+                  {
+                    color:
+                      activeTab === "reparaciones"
+                        ? "#fff"
+                        : colors.textSecondary,
+                  },
+                ]}
+              >
+                Reparaciones
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[
@@ -532,6 +582,17 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                 size={iconSize.md}
                 color={activeTab === "otros" ? "#fff" : colors.text}
               />
+              <Text
+                style={[
+                  styles.tabText,
+                  {
+                    color:
+                      activeTab === "otros" ? "#fff" : colors.textSecondary,
+                  },
+                ]}
+              >
+                Otros
+              </Text>
             </TouchableOpacity>
           </View>
 
@@ -846,7 +907,10 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
         {/* Botón flotante para agregar gasto o reparación */}
         {(activeTab === "otros" || activeTab === "reparaciones") && (
           <TouchableOpacity
-            style={styles.fab}
+            style={[
+              styles.fab,
+              { backgroundColor: colors.primary, shadowColor: colors.shadow },
+            ]}
             onPress={() =>
               activeTab === "otros"
                 ? navigation.navigate("AddExpense", { vehicleId })
@@ -1058,29 +1122,54 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.lg,
     padding: spacing.xl,
     alignItems: "center",
-    marginBottom: vs(32),
+    marginBottom: vs(24),
+    marginHorizontal: spacing.lg,
     elevation: s(4),
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: s(8),
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.18,
+    shadowRadius: s(14),
+    overflow: "hidden",
+  },
+  totalIconBadge: {
+    width: s(64),
+    height: s(64),
+    borderRadius: s(32),
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.14)",
   },
   totalLabel: {
     color: "#fff",
     fontSize: rf(14),
     marginTop: spacing.sm,
-    opacity: 0.9,
+    opacity: 0.88,
+    textTransform: "uppercase",
+    letterSpacing: 0.6,
+    fontWeight: "700",
   },
   totalAmount: {
     color: "#fff",
     fontSize: rf(36),
-    fontWeight: "bold",
+    fontWeight: "800",
     marginTop: spacing.xs,
   },
-  totalSubtitle: {
+  totalBreakdownRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: spacing.xs,
+    marginTop: spacing.md,
+  },
+  totalBreakdownPill: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: s(999),
+    backgroundColor: "rgba(255,255,255,0.14)",
+  },
+  totalBreakdownText: {
     color: "#fff",
     fontSize: rf(12),
-    marginTop: spacing.xxs,
-    opacity: 0.8,
+    fontWeight: "600",
   },
   sectionTitle: {
     fontSize: rf(20),
@@ -1139,11 +1228,12 @@ const styles = StyleSheet.create({
   },
   tab: {
     flex: 1,
-    paddingVertical: vs(10),
-    paddingHorizontal: spacing.xs,
-    borderRadius: borderRadius.sm,
+    paddingVertical: vs(12),
+    paddingHorizontal: spacing.sm,
+    borderRadius: borderRadius.md,
     alignItems: "center",
     gap: spacing.xxs,
+    borderWidth: s(1),
   },
   tabActive: {
     elevation: s(2),
@@ -1154,6 +1244,7 @@ const styles = StyleSheet.create({
   tabText: {
     fontSize: rf(12),
     fontWeight: "600",
+    textAlign: "center",
   },
   viewAllText: {
     fontSize: rf(14),
@@ -1222,7 +1313,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: spacing.lg,
     bottom: spacing.lg,
-    backgroundColor: COLORS.primary,
     width: s(60),
     height: s(60),
     borderRadius: s(30),

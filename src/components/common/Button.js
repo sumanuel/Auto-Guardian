@@ -1,7 +1,7 @@
-﻿import { Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { StyleSheet, Text } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import { COLORS } from "../../data/constants";
+import { useTheme } from "../../context/ThemeContext";
 import { ms, rf } from "../../utils/responsive";
 
 const Button = ({
@@ -13,23 +13,49 @@ const Button = ({
   disabled,
   style,
 }) => {
+  const { colors } = useTheme();
+
   const getButtonStyle = () => {
     switch (variant) {
       case "outline":
-        return [styles.button, styles.buttonOutline, style];
+        return [
+          styles.button,
+          styles.buttonOutline,
+          { borderColor: colors.primary },
+          style,
+        ];
       case "danger":
-        return [styles.button, styles.buttonDanger, style];
+        return [
+          styles.button,
+          styles.buttonDanger,
+          { backgroundColor: colors.danger },
+          style,
+        ];
       case "secondary":
-        return [styles.button, styles.buttonSecondary, style];
+        return [
+          styles.button,
+          styles.buttonSecondary,
+          { backgroundColor: colors.primaryDark },
+          style,
+        ];
       default:
-        return [styles.button, styles.buttonPrimary, style];
+        return [
+          styles.button,
+          styles.buttonPrimary,
+          { backgroundColor: colors.primary },
+          style,
+        ];
     }
   };
 
   const getTextStyle = () => {
     switch (variant) {
       case "outline":
-        return [styles.buttonText, styles.textOutline];
+        return [
+          styles.buttonText,
+          styles.textOutline,
+          { color: colors.primary },
+        ];
       case "danger":
         return [styles.buttonText, styles.textDanger];
       default:
@@ -39,7 +65,7 @@ const Button = ({
 
   return (
     <TouchableOpacity
-      style={getButtonStyle()}
+      style={[getButtonStyle(), disabled && styles.buttonDisabled]}
       onPress={onPress}
       disabled={disabled || loading}
       activeOpacity={0.7}
@@ -52,7 +78,7 @@ const Button = ({
             <Ionicons
               name={icon}
               size={ms(20)}
-              color={variant === "outline" ? COLORS.primary : "#fff"}
+              color={variant === "outline" ? colors.primary : "#fff"}
               style={styles.icon}
             />
           )}
@@ -73,33 +99,27 @@ const styles = StyleSheet.create({
     borderRadius: ms(8),
     minHeight: ms(50),
   },
-  buttonPrimary: {
-    backgroundColor: COLORS.primary,
-  },
-  buttonSecondary: {
-    backgroundColor: COLORS.secondary,
-  },
+  buttonPrimary: {},
+  buttonSecondary: {},
   buttonOutline: {
     backgroundColor: "transparent",
     borderWidth: ms(2),
-    borderColor: COLORS.primary,
   },
-  buttonDanger: {
-    backgroundColor: COLORS.danger,
-  },
+  buttonDanger: {},
   buttonText: {
     fontSize: rf(16),
     fontWeight: "600",
     color: "#fff",
   },
-  textOutline: {
-    color: COLORS.primary,
-  },
+  textOutline: {},
   textDanger: {
     color: "#fff",
   },
   icon: {
     marginRight: ms(8),
+  },
+  buttonDisabled: {
+    opacity: 0.65,
   },
 });
 

@@ -120,23 +120,6 @@ const DataManagementScreen = ({ navigation }) => {
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.background }]}
     >
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Ionicons name="arrow-back" size={iconSize.md} color={colors.text} />
-        </TouchableOpacity>
-        <View style={styles.headerSpacer} />
-        <TouchableOpacity style={styles.infoButton} onPress={showBackupInfo}>
-          <Ionicons
-            name="information-circle-outline"
-            size={iconSize.md}
-            color={colors.primary}
-          />
-        </TouchableOpacity>
-      </View>
-
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <LinearGradient
           colors={[colors.primary, "#0F5FD2", "#0A3F8F"]}
@@ -144,23 +127,36 @@ const DataManagementScreen = ({ navigation }) => {
           end={{ x: 1, y: 1 }}
           style={styles.heroGradient}
         >
-          <View style={styles.heroMediaRow}>
-            <View style={[styles.iconBadge, styles.heroIconBadge]}>
-              <Ionicons
-                name="server-outline"
-                size={iconSize.lg}
-                color="#D6E7FF"
-              />
+          <View style={styles.heroHeaderRow}>
+            <View style={styles.heroMediaRow}>
+              <View style={[styles.iconBadge, styles.heroIconBadge]}>
+                <Ionicons
+                  name="server-outline"
+                  size={iconSize.lg}
+                  color="#D6E7FF"
+                />
+              </View>
+
+              <View style={styles.heroInfo}>
+                <Text style={styles.heroEyebrow}>Control de respaldo</Text>
+                <Text style={styles.title}>Gestión de datos</Text>
+                <Text style={styles.heroSubtitle}>
+                  Exporta, importa y protege la información operativa de la app
+                  con trazabilidad clara.
+                </Text>
+              </View>
             </View>
 
-            <View style={styles.heroInfo}>
-              <Text style={styles.heroEyebrow}>Control de respaldo</Text>
-              <Text style={styles.title}>Gestión de datos</Text>
-              <Text style={styles.heroSubtitle}>
-                Exporta, importa y protege la información operativa de la app
-                con trazabilidad clara.
-              </Text>
-            </View>
+            <TouchableOpacity
+              style={styles.helpButtonHero}
+              onPress={showBackupInfo}
+            >
+              <Ionicons
+                name="information-circle-outline"
+                size={iconSize.lg}
+                color="#fff"
+              />
+            </TouchableOpacity>
           </View>
         </LinearGradient>
 
@@ -330,21 +326,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    borderBottomWidth: s(1),
-    borderBottomColor: "#f0f0f0",
-  },
-  backButton: {
-    padding: spacing.xs,
-  },
-  headerSpacer: {
-    flex: 1,
-  },
   heroGradient: {
     marginBottom: spacing.lg,
     paddingHorizontal: spacing.lg,
@@ -352,7 +333,14 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.lg,
     borderRadius: borderRadius.xl,
   },
+  heroHeaderRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: spacing.md,
+  },
   heroMediaRow: {
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.md,
@@ -388,8 +376,13 @@ const styles = StyleSheet.create({
     lineHeight: rf(18),
     color: "#D6E7FF",
   },
-  infoButton: {
-    padding: spacing.xs,
+  helpButtonHero: {
+    width: s(44),
+    height: s(44),
+    borderRadius: s(22),
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.12)",
   },
   content: {
     flex: 1,
