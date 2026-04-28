@@ -49,20 +49,6 @@ const QUICK_ACTION_COLORS = [
   "#2196F3",
 ];
 
-const HeroMetricCard = ({ icon, label, value, accent }) => (
-  <View style={[styles.heroMetricCard, { borderColor: accent }]}>
-    <View style={styles.heroMetricTopRow}>
-      <View
-        style={[styles.heroMetricIconWrap, { backgroundColor: `${accent}22` }]}
-      >
-        <Ionicons name={icon} size={iconSize.xs} color="#fff" />
-      </View>
-      <Text style={styles.heroMetricValue}>{value}</Text>
-    </View>
-    <Text style={styles.heroMetricLabel}>{label}</Text>
-  </View>
-);
-
 const MaintenanceHistoryScreen = ({ route, navigation }) => {
   const { vehicleId = null, sortByUrgency = false } = route.params || {};
   const {
@@ -219,10 +205,6 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
   // Saber si el item está realizado
   const isCompleted = (item) => !item.nextServiceKm && !item.nextServiceDate;
 
-  const inProgressCount = maintenances.filter(
-    (item) => item.nextServiceKm || item.nextServiceDate,
-  ).length;
-  const completedCount = maintenances.length - inProgressCount;
   const vehicleMeta = vehicle
     ? [vehicle.brand, vehicle.model, vehicle.year && `${vehicle.year}`]
         .filter(Boolean)
@@ -755,27 +737,6 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
               />
             </TouchableOpacity>
           </View>
-
-          <View style={styles.summaryRow}>
-            <HeroMetricCard
-              icon="clipboard-outline"
-              label="Registros"
-              value={maintenances.length}
-              accent={COLORS.warning}
-            />
-            <HeroMetricCard
-              icon="time-outline"
-              label="En curso"
-              value={inProgressCount}
-              accent="#8ED1FF"
-            />
-            <HeroMetricCard
-              icon="checkmark-done-outline"
-              label="Realizados"
-              value={completedCount}
-              accent="#B8F1C6"
-            />
-          </View>
         </LinearGradient>
 
         {/* Tabs para filtrar */}
@@ -1293,20 +1254,15 @@ const styles = StyleSheet.create({
   },
   vehicleImage: {
     width: s(78),
-    minHeight: vs(58),
+    height: s(78),
     borderRadius: borderRadius.md,
-    heroMetricTopRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      marginBottom: vs(6),
-    },
     marginRight: hs(12),
   },
   imagePlaceholder: {
     width: s(78),
     height: s(78),
     borderRadius: borderRadius.md,
-    marginRight: hs(8),
+    justifyContent: "center",
     alignItems: "center",
     marginRight: hs(12),
   },
@@ -1341,39 +1297,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginLeft: hs(12),
-  },
-  summaryRow: {
-    flexDirection: "row",
-    gap: hs(10),
-    marginTop: vs(18),
-  },
-  heroMetricCard: {
-    flex: 1,
-    minHeight: vs(92),
-    borderRadius: borderRadius.md,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderWidth: 1,
-    backgroundColor: "rgba(255,255,255,0.12)",
-  },
-  heroMetricIconWrap: {
-    width: s(32),
-    height: s(32),
-    borderRadius: s(16),
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: vs(10),
-  },
-  heroMetricValue: {
-    fontSize: rf(20),
-    fontWeight: "800",
-    marginBottom: vs(2),
-    color: "#fff",
-  },
-  heroMetricLabel: {
-    fontSize: rf(11),
-    fontWeight: "600",
-    color: "rgba(255,255,255,0.76)",
   },
   listContent: {
     padding: spacing.lg,

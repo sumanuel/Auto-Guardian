@@ -27,6 +27,7 @@ import {
 } from "../utils/responsive";
 import {
   deleteVehiclePhotoIfOwnedAsync,
+  ensurePersistentVehiclePhotoAsync,
   persistVehiclePhotoAsync,
 } from "../utils/vehiclePhotoStorage";
 
@@ -173,19 +174,18 @@ const AddVehicleScreen = ({ navigation, route }) => {
         ...formData,
         year: formData.year ? parseInt(formData.year) : null,
         currentKm: parseInt(formData.currentKm) || 0,
+        photo: await ensurePersistentVehiclePhotoAsync(formData.photo),
       };
 
-      // Si estamos editando y se cambió la foto, eliminar la anterior si era un archivo interno de la app
-      if (isEditing) {
-        const oldPhoto = vehicleToEdit?.photo || null;
-        const newPhoto = vehicleData.photo || null;
-        if (oldPhoto && oldPhoto !== newPhoto) {
-          await deleteVehiclePhotoIfOwnedAsync(oldPhoto);
-        }
-      }
+      const oldPhoto = vehicleToEdit?.photo || null;
 
       if (isEditing) {
         await updateVehicle(vehicleToEdit.id, vehicleData);
+
+        if (oldPhoto && oldPhoto !== vehicleData.photo) {
+          await deleteVehiclePhotoIfOwnedAsync(oldPhoto);
+        }
+
         showDialog({
           title: "Éxito",
           message: "Vehículo actualizado correctamente",

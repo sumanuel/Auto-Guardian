@@ -15,30 +15,7 @@ import { COLORS } from "../data/constants";
 import { useDialog } from "../hooks/useDialog";
 import { getVehicleDocuments } from "../services/vehicleDocumentService";
 import { getDocumentExpiryColor } from "../utils/formatUtils";
-import {
-  borderRadius,
-  hs,
-  iconSize,
-  ms,
-  rf,
-  s,
-  spacing,
-  vs,
-} from "../utils/responsive";
-
-const HeroMetricCard = ({ icon, label, value, accent }) => (
-  <View style={[styles.heroMetricCard, { borderColor: accent }]}>
-    <View style={styles.heroMetricTopRow}>
-      <View
-        style={[styles.heroMetricIconWrap, { backgroundColor: `${accent}22` }]}
-      >
-        <Ionicons name={icon} size={iconSize.xs} color="#fff" />
-      </View>
-      <Text style={styles.heroMetricValue}>{value}</Text>
-    </View>
-    <Text style={styles.heroMetricLabel}>{label}</Text>
-  </View>
-);
+import { borderRadius, hs, iconSize, ms, rf, s, vs } from "../utils/responsive";
 
 const getDocumentHealth = (documents) => {
   if (!documents.length) {
@@ -269,15 +246,6 @@ const DocumentsScreen = ({ navigation }) => {
     </TouchableOpacity>
   );
 
-  const totalDocuments = displayVehicles.reduce(
-    (sum, vehicle) => sum + vehicle.documentCount,
-    0,
-  );
-  const totalReview = displayVehicles.reduce(
-    (sum, vehicle) => sum + getDocumentHealth(vehicle.documents).urgentCount,
-    0,
-  );
-
   return (
     <DialogComponent>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -326,27 +294,6 @@ const DocumentsScreen = ({ navigation }) => {
                 color="#fff"
               />
             </TouchableOpacity>
-          </View>
-
-          <View style={styles.summaryRow}>
-            <HeroMetricCard
-              icon="car-sport-outline"
-              label="Vehículos"
-              value={displayVehicles.length}
-              accent={COLORS.warning}
-            />
-            <HeroMetricCard
-              icon="document-text-outline"
-              label="Documentos"
-              value={totalDocuments}
-              accent="#8ED1FF"
-            />
-            <HeroMetricCard
-              icon="alert-circle-outline"
-              label="Por revisar"
-              value={totalReview}
-              accent="#B8F1C6"
-            />
           </View>
         </LinearGradient>
 
@@ -431,43 +378,6 @@ const styles = StyleSheet.create({
     marginTop: vs(4),
     marginBottom: vs(4),
     color: "rgba(255,255,255,0.84)",
-  },
-  summaryRow: {
-    flexDirection: "row",
-    gap: ms(12),
-    marginTop: vs(14),
-  },
-  heroMetricCard: {
-    flex: 1,
-    borderWidth: 1,
-    borderRadius: borderRadius.md,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    minHeight: vs(58),
-    backgroundColor: "rgba(255,255,255,0.12)",
-  },
-  heroMetricTopRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: vs(6),
-  },
-  heroMetricIconWrap: {
-    width: s(28),
-    height: s(28),
-    borderRadius: s(14),
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: hs(8),
-  },
-  heroMetricValue: {
-    fontSize: rf(18),
-    fontWeight: "800",
-    color: "#fff",
-  },
-  heroMetricLabel: {
-    fontSize: rf(10),
-    fontWeight: "600",
-    color: "rgba(255,255,255,0.76)",
   },
   listContainer: {
     padding: ms(20),

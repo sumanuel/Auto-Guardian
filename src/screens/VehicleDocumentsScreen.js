@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import {
   FlatList,
   Image,
@@ -64,54 +64,11 @@ const getExpiryMeta = (expiryDate) => {
   };
 };
 
-const HeroMetricCard = ({ icon, label, value, accent }) => (
-  <View style={[styles.heroMetricCard, { borderColor: accent }]}>
-    <View style={styles.heroMetricTopRow}>
-      <View
-        style={[styles.heroMetricIconWrap, { backgroundColor: `${accent}22` }]}
-      >
-        <Ionicons name={icon} size={iconSize.xs} color="#fff" />
-      </View>
-      <Text style={styles.heroMetricValue}>{value}</Text>
-    </View>
-    <Text style={styles.heroMetricLabel}>{label}</Text>
-  </View>
-);
-
 const VehicleDocumentsScreen = ({ navigation, route }) => {
   const { vehicleId, vehicle } = route.params;
   const { colors } = useTheme();
   const { DialogComponent, showDialog } = useDialog();
   const [documents, setDocuments] = useState([]);
-
-  const documentStats = useMemo(() => {
-    const totals = documents.reduce(
-      (accumulator, document) => {
-        if (!document.expiry_date) {
-          accumulator.valid += 1;
-          return accumulator;
-        }
-
-        const expiry = new Date(document.expiry_date + "T00:00:00");
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const daysRemaining = Math.floor(
-          (expiry - today) / (1000 * 60 * 60 * 24),
-        );
-
-        if (daysRemaining <= 15) {
-          accumulator.review += 1;
-        } else {
-          accumulator.valid += 1;
-        }
-
-        return accumulator;
-      },
-      { total: documents.length, valid: 0, review: 0 },
-    );
-
-    return totals;
-  }, [documents]);
 
   const vehicleMeta = [
     vehicle?.brand,
@@ -353,27 +310,6 @@ const VehicleDocumentsScreen = ({ navigation, route }) => {
               />
             </TouchableOpacity>
           </View>
-
-          <View style={styles.heroStatsGrid}>
-            <HeroMetricCard
-              icon="document-text-outline"
-              label="Documentos"
-              value={documentStats.total}
-              accent={COLORS.warning}
-            />
-            <HeroMetricCard
-              icon="checkmark-done-outline"
-              label="Al día"
-              value={documentStats.valid}
-              accent="#8ED1FF"
-            />
-            <HeroMetricCard
-              icon="alert-circle-outline"
-              label="Por revisar"
-              value={documentStats.review}
-              accent="#B8F1C6"
-            />
-          </View>
         </LinearGradient>
 
         <FlatList
@@ -483,43 +419,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginLeft: hs(12),
-  },
-  heroStatsGrid: {
-    flexDirection: "row",
-    gap: hs(8),
-    marginTop: vs(18),
-  },
-  heroMetricCard: {
-    flex: 1,
-    borderRadius: borderRadius.md,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderWidth: 1,
-    backgroundColor: "rgba(255,255,255,0.12)",
-    minHeight: vs(58),
-  },
-  heroMetricTopRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: vs(6),
-  },
-  heroMetricIconWrap: {
-    width: s(28),
-    height: s(28),
-    borderRadius: s(14),
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: hs(8),
-  },
-  heroMetricValue: {
-    fontSize: rf(18),
-    fontWeight: "800",
-    color: "#fff",
-  },
-  heroMetricLabel: {
-    fontSize: rf(11),
-    fontWeight: "600",
-    color: "rgba(255,255,255,0.74)",
   },
   listContainer: {
     padding: spacing.lg,

@@ -21,7 +21,12 @@
       "predictiveBackGestureEnabled": false,
       "package": "com.trenkit.autoguardian",
       "queries": {
-        "schemes": ["tel", "sms", "mailto", "whatsapp"],
+        "schemes": [
+          "tel",
+          "sms",
+          "mailto",
+          "whatsapp"
+        ],
         "intents": [
           {
             "action": "android.intent.action.VIEW",
@@ -53,7 +58,8 @@
       ],
       "expo-web-browser",
       "expo-localization",
-      "expo-notifications"
+      "expo-notifications",
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true,
