@@ -420,7 +420,9 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
                   )}
 
                   <View style={styles.headerTitleWrap}>
-                    <Text style={styles.headerEyebrow}>Bitácora técnica</Text>
+                    <Text style={styles.headerEyebrow}>
+                      Programación de servicio
+                    </Text>
                     <Text style={styles.headerTitle}>
                       {vehicle?.name || "Vehículo"}
                     </Text>
@@ -1174,7 +1176,7 @@ const styles = StyleSheet.create({
   radioOption: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "flex-start",
     borderWidth: 1,
     borderRadius: borderRadius.md,
     paddingHorizontal: hs(14),
