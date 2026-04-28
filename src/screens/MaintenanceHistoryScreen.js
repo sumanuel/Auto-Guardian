@@ -221,6 +221,12 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
     (item) => item.nextServiceKm || item.nextServiceDate,
   ).length;
   const completedCount = maintenances.length - inProgressCount;
+  const plateLabel = vehicle?.plate || (vehicle ? "Sin placa" : "Vista global");
+  const vehicleMeta = vehicle
+    ? [vehicle.brand, vehicle.model, vehicle.year && `${vehicle.year}`]
+        .filter(Boolean)
+        .join(" • ")
+    : `${vehicles.length} unidad${vehicles.length === 1 ? "" : "es"}`;
 
   const handleDelete = (id, type) => {
     showDialog({
@@ -694,56 +700,100 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
   return (
     <DialogComponent>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <View
-          style={[
-            styles.header,
-            {
-              backgroundColor: colors.background,
-            },
-          ]}
+        <LinearGradient
+          colors={[COLORS.primary, "#0F5FD2", "#0A3F8F"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.heroGradient}
         >
-          <LinearGradient
-            colors={["#6CB6FF", "#1B63E2"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.heroCard}
-          >
-            <View style={styles.headerTopRow}>
-              <View style={styles.headerTitleWrap}>
+          <View style={styles.headerTopRow}>
+            <View style={styles.heroMediaRow}>
+              {vehicle?.photo ? (
+                <Image
+                  source={{ uri: vehicle.photo }}
+                  style={styles.vehicleImage}
+                />
+              ) : (
+                <View
+                  style={[styles.imagePlaceholder, styles.heroImagePlaceholder]}
+                >
+                  <Ionicons
+                    name="car-sport-outline"
+                    size={ms(60)}
+                    color="#D6E7FF"
+                  />
+                </View>
+              )}
+
+              <View style={styles.headerInfo}>
                 <Text style={styles.headerEyebrow}>Bitácora técnica</Text>
                 <Text style={styles.headerTitle}>
                   {vehicle?.name || "Todos los vehículos"}
                 </Text>
-                <Text style={styles.headerSubtitle}>
-                  {maintenances.length}{" "}
-                  {maintenances.length === 1 ? "registro" : "registros"}{" "}
-                  trazados en el historial
-                </Text>
+                {!!vehicleMeta && (
+                  <Text style={styles.headerSubtitle}>{vehicleMeta}</Text>
+                )}
+
+                <View style={styles.heroMetaRow}>
+                  <View style={styles.heroMetaPill}>
+                    <Text style={styles.heroMetaText}>{plateLabel}</Text>
+                  </View>
+                  <View style={styles.heroMetaPill}>
+                    <Ionicons
+                      name="speedometer-outline"
+                      size={iconSize.xs}
+                      color="#D6E7FF"
+                    />
+                    <Text style={styles.heroMetaText}>
+                      {vehicle
+                        ? formatKm(vehicle.currentKm)
+                        : `${maintenances.length} registros`}
+                    </Text>
+                  </View>
+                </View>
               </View>
             </View>
 
-            <View style={styles.summaryRow}>
-              <HeroMetricCard
-                icon="clipboard-outline"
-                label="Registros"
-                value={maintenances.length}
-                accent="#F2D06B"
+            <TouchableOpacity
+              style={styles.helpButtonHero}
+              onPress={() =>
+                showDialog({
+                  title: "Bitácora técnica",
+                  message:
+                    "Aquí puedes revisar los servicios trazados, editar registros y mantener el historial del vehículo siempre actualizado.",
+                  type: "info",
+                })
+              }
+            >
+              <Ionicons
+                name="information-circle-outline"
+                size={iconSize.lg}
+                color="#fff"
               />
-              <HeroMetricCard
-                icon="time-outline"
-                label="En curso"
-                value={inProgressCount}
-                accent="#FFB26B"
-              />
-              <HeroMetricCard
-                icon="checkmark-done-outline"
-                label="Realizados"
-                value={completedCount}
-                accent="#A7E08A"
-              />
-            </View>
-          </LinearGradient>
-        </View>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.summaryRow}>
+            <HeroMetricCard
+              icon="clipboard-outline"
+              label="Registros"
+              value={maintenances.length}
+              accent={COLORS.warning}
+            />
+            <HeroMetricCard
+              icon="time-outline"
+              label="En curso"
+              value={inProgressCount}
+              accent="#8ED1FF"
+            />
+            <HeroMetricCard
+              icon="checkmark-done-outline"
+              label="Realizados"
+              value={completedCount}
+              accent="#B8F1C6"
+            />
+          </View>
+        </LinearGradient>
 
         {/* Tabs para filtrar */}
         <View
@@ -1243,20 +1293,39 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
-    padding: spacing.lg,
-    paddingBottom: spacing.md,
-  },
-  heroCard: {
-    borderRadius: borderRadius.xl,
-    padding: spacing.lg,
+  heroGradient: {
+    paddingHorizontal: hs(20),
+    paddingTop: vs(26),
+    paddingBottom: vs(28),
   },
   headerTopRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
   },
-  headerTitleWrap: {
+  heroMediaRow: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  vehicleImage: {
+    width: s(100),
+    height: s(100),
+    borderRadius: borderRadius.md,
+    marginRight: hs(14),
+  },
+  imagePlaceholder: {
+    width: s(100),
+    height: s(100),
+    borderRadius: borderRadius.md,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: hs(14),
+  },
+  heroImagePlaceholder: {
+    backgroundColor: "rgba(255,255,255,0.12)",
+  },
+  headerInfo: {
     flex: 1,
   },
   headerEyebrow: {
@@ -1275,13 +1344,43 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     fontSize: rf(14),
     marginTop: vs(4),
-    lineHeight: rf(20),
     color: "rgba(255,255,255,0.84)",
+    marginBottom: vs(10),
+  },
+  heroMetaRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: hs(8),
+  },
+  heroMetaPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: hs(6),
+    paddingHorizontal: hs(10),
+    paddingVertical: vs(6),
+    borderRadius: s(999),
+    backgroundColor: "rgba(255,255,255,0.14)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.1)",
+  },
+  heroMetaText: {
+    fontSize: rf(12),
+    fontWeight: "700",
+    color: "#fff",
+  },
+  helpButtonHero: {
+    width: s(44),
+    height: s(44),
+    borderRadius: s(22),
+    backgroundColor: "rgba(255,255,255,0.12)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginLeft: hs(12),
   },
   summaryRow: {
     flexDirection: "row",
     gap: hs(10),
-    marginTop: vs(16),
+    marginTop: vs(18),
   },
   heroMetricCard: {
     flex: 1,
@@ -1290,7 +1389,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderWidth: 1,
-    backgroundColor: "rgba(255,255,255,0.14)",
+    backgroundColor: "rgba(255,255,255,0.12)",
   },
   heroMetricIconWrap: {
     width: s(32),

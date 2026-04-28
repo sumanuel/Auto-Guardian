@@ -4,18 +4,20 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useCallback, useMemo, useState } from "react";
 import {
   FlatList,
+  Image,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import { useTheme } from "../context/ThemeContext";
+import { COLORS } from "../data/constants";
 import { useDialog } from "../hooks/useDialog";
 import {
   deleteVehicleDocument,
   getVehicleDocuments,
 } from "../services/vehicleDocumentService";
-import { getDocumentExpiryColor } from "../utils/formatUtils";
+import { formatKm, getDocumentExpiryColor } from "../utils/formatUtils";
 import {
   borderRadius,
   hs,
@@ -108,6 +110,14 @@ const VehicleDocumentsScreen = ({ navigation, route }) => {
 
     return totals;
   }, [documents]);
+  const plateLabel = vehicle?.plate || "Sin placa";
+  const vehicleMeta = [
+    vehicle?.brand,
+    vehicle?.model,
+    vehicle?.year && `${vehicle.year}`,
+  ]
+    .filter(Boolean)
+    .join(" • ");
 
   const loadDocuments = useCallback(() => {
     const docs = getVehicleDocuments(vehicleId);
@@ -287,44 +297,98 @@ const VehicleDocumentsScreen = ({ navigation, route }) => {
   return (
     <DialogComponent>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={styles.vehicleHeader}>
-          <LinearGradient
-            colors={["#6CB6FF", "#1B63E2"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.heroCard}
-          >
-            <Text style={styles.heroEyebrow}>Expediente</Text>
-            <Text style={styles.heroTitle}>{vehicle?.name || "Vehículo"}</Text>
-            <Text style={styles.heroSubtitle}>
-              {documents.length}{" "}
-              {documents.length === 1
-                ? "documento cargado"
-                : "documentos cargados"}
-            </Text>
+        <LinearGradient
+          colors={[COLORS.primary, "#0F5FD2", "#0A3F8F"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.heroGradient}
+        >
+          <View style={styles.heroTopRow}>
+            <View style={styles.heroMediaRow}>
+              {vehicle?.photo ? (
+                <Image
+                  source={{ uri: vehicle.photo }}
+                  style={styles.vehicleImage}
+                />
+              ) : (
+                <View
+                  style={[styles.imagePlaceholder, styles.heroImagePlaceholder]}
+                >
+                  <Ionicons
+                    name="car-sport-outline"
+                    size={s(60)}
+                    color="#D6E7FF"
+                  />
+                </View>
+              )}
 
-            <View style={styles.heroStatsGrid}>
-              <HeroMetricCard
-                icon="document-text-outline"
-                label="Documentos"
-                value={documentStats.total}
-                accent="#F2D06B"
-              />
-              <HeroMetricCard
-                icon="checkmark-done-outline"
-                label="Al día"
-                value={documentStats.valid}
-                accent="#A7E08A"
-              />
-              <HeroMetricCard
-                icon="alert-circle-outline"
-                label="Por revisar"
-                value={documentStats.review}
-                accent="#FFB26B"
-              />
+              <View style={styles.headerInfo}>
+                <Text style={styles.heroEyebrow}>Expediente</Text>
+                <Text style={styles.heroTitle}>
+                  {vehicle?.name || "Vehículo"}
+                </Text>
+                {!!vehicleMeta && (
+                  <Text style={styles.heroSubtitle}>{vehicleMeta}</Text>
+                )}
+
+                <View style={styles.heroMetaRow}>
+                  <View style={styles.heroMetaPill}>
+                    <Text style={styles.heroMetaText}>{plateLabel}</Text>
+                  </View>
+                  <View style={styles.heroMetaPill}>
+                    <Ionicons
+                      name="speedometer-outline"
+                      size={iconSize.xs}
+                      color="#D6E7FF"
+                    />
+                    <Text style={styles.heroMetaText}>
+                      {formatKm(vehicle?.currentKm)}
+                    </Text>
+                  </View>
+                </View>
+              </View>
             </View>
-          </LinearGradient>
-        </View>
+
+            <TouchableOpacity
+              style={styles.helpButtonHero}
+              onPress={() =>
+                showDialog({
+                  title: "Expediente del vehículo",
+                  message:
+                    "Aquí puedes revisar los documentos cargados, controlar vencimientos y editar cada archivo del vehículo desde un solo lugar.",
+                  type: "info",
+                })
+              }
+            >
+              <Ionicons
+                name="information-circle-outline"
+                size={iconSize.lg}
+                color="#fff"
+              />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.heroStatsGrid}>
+            <HeroMetricCard
+              icon="document-text-outline"
+              label="Documentos"
+              value={documentStats.total}
+              accent={COLORS.warning}
+            />
+            <HeroMetricCard
+              icon="checkmark-done-outline"
+              label="Al día"
+              value={documentStats.valid}
+              accent="#8ED1FF"
+            />
+            <HeroMetricCard
+              icon="alert-circle-outline"
+              label="Por revisar"
+              value={documentStats.review}
+              accent="#B8F1C6"
+            />
+          </View>
+        </LinearGradient>
 
         <FlatList
           data={documents}
@@ -371,14 +435,40 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  vehicleHeader: {
-    padding: spacing.lg,
-    paddingBottom: spacing.sm,
+  heroGradient: {
+    paddingHorizontal: hs(20),
+    paddingTop: vs(26),
+    paddingBottom: vs(28),
   },
-  heroCard: {
-    borderRadius: borderRadius.xl,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.lg,
+  heroTopRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+  },
+  heroMediaRow: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  vehicleImage: {
+    width: s(100),
+    height: s(100),
+    borderRadius: borderRadius.md,
+    marginRight: hs(14),
+  },
+  imagePlaceholder: {
+    width: s(100),
+    height: s(100),
+    borderRadius: borderRadius.md,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: hs(14),
+  },
+  heroImagePlaceholder: {
+    backgroundColor: "rgba(255,255,255,0.12)",
+  },
+  headerInfo: {
+    flex: 1,
   },
   heroEyebrow: {
     fontSize: rf(12),
@@ -395,8 +485,39 @@ const styles = StyleSheet.create({
   },
   heroSubtitle: {
     fontSize: rf(14),
-    marginTop: vs(6),
     color: "rgba(255,255,255,0.84)",
+    marginTop: vs(4),
+    marginBottom: vs(10),
+  },
+  heroMetaRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: hs(8),
+  },
+  heroMetaPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: hs(6),
+    paddingHorizontal: hs(10),
+    paddingVertical: vs(6),
+    borderRadius: s(999),
+    backgroundColor: "rgba(255,255,255,0.14)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.1)",
+  },
+  heroMetaText: {
+    fontSize: rf(12),
+    fontWeight: "700",
+    color: "#fff",
+  },
+  helpButtonHero: {
+    width: s(44),
+    height: s(44),
+    borderRadius: s(22),
+    backgroundColor: "rgba(255,255,255,0.12)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginLeft: hs(12),
   },
   heroStatsGrid: {
     flexDirection: "row",
