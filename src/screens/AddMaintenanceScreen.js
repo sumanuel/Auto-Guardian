@@ -391,7 +391,7 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
                 <Text style={[styles.headerTitle, { color: colors.text }]}>
                   {maintenanceData?.id
                     ? "Editar mantenimiento"
-                    : "Nuevo mantenimiento"}
+                    : "Agregar mantenimiento"}
                 </Text>
                 <Text
                   style={[
@@ -454,6 +454,15 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
           >
             <Text style={[styles.sectionTitle, { color: colors.text }]}>
               Tipo de mantenimiento
+            </Text>
+            <Text
+              style={[
+                styles.sectionDescription,
+                { color: colors.textSecondary },
+              ]}
+            >
+              Elige una categoría sugerida o escribe un servicio puntual para
+              mantener la bitácora consistente.
             </Text>
             <ScrollView
               horizontal
@@ -522,6 +531,15 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
             <View style={styles.inputGroup}>
               <Text style={[styles.label, { color: colors.text }]}>
                 ¿Cómo deseas programar el mantenimiento?
+              </Text>
+              <Text
+                style={[
+                  styles.sectionDescriptionCompact,
+                  { color: colors.textSecondary },
+                ]}
+              >
+                Define si el siguiente control se activará por calendario o por
+                kilometraje.
               </Text>
               <View style={styles.radioGroup}>
                 <TouchableOpacity
@@ -1057,6 +1075,7 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: hs(20),
     paddingVertical: vs(20),
+    paddingBottom: vs(36),
   },
   headerBlock: {
     marginBottom: spacing.lg,
@@ -1082,7 +1101,17 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: rf(18),
     fontWeight: "800",
-    marginBottom: vs(12),
+    marginBottom: vs(8),
+  },
+  sectionDescription: {
+    fontSize: rf(13),
+    lineHeight: rf(19),
+    marginBottom: spacing.md,
+  },
+  sectionDescriptionCompact: {
+    fontSize: rf(12),
+    lineHeight: rf(18),
+    marginBottom: spacing.sm,
   },
   typesScroll: {
     marginBottom: vs(12),
@@ -1123,21 +1152,24 @@ const styles = StyleSheet.create({
   },
   radioGroup: {
     flexDirection: "row",
-    gap: hs(16),
+    gap: hs(12),
     marginVertical: vs(8),
   },
   radioOption: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
     borderWidth: 1,
     borderRadius: borderRadius.md,
-    paddingHorizontal: hs(12),
-    paddingVertical: vs(10),
+    paddingHorizontal: hs(14),
+    paddingVertical: vs(14),
+    flex: 1,
+    minHeight: vs(56),
   },
   radioLabel: {
-    marginLeft: hs(6),
+    marginLeft: hs(8),
     fontSize: rf(16),
-    fontWeight: "500",
+    fontWeight: "700",
   },
   photoContainer: {
     gap: vs(12),

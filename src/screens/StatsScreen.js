@@ -26,18 +26,6 @@ import {
   vs,
 } from "../utils/responsive";
 
-const HeroMetricCard = ({ icon, label, value, accent }) => (
-  <View style={[styles.heroMetricCard, { borderColor: accent }]}>
-    <View
-      style={[styles.heroMetricIconWrap, { backgroundColor: `${accent}22` }]}
-    >
-      <Ionicons name={icon} size={iconSize.sm} color="#fff" />
-    </View>
-    <Text style={styles.heroMetricValue}>{value}</Text>
-    <Text style={styles.heroMetricLabel}>{label}</Text>
-  </View>
-);
-
 const StatsScreen = ({ navigation }) => {
   const { colors } = useTheme();
   const { DialogComponent, showDialog } = useDialog();
@@ -198,41 +186,45 @@ const StatsScreen = ({ navigation }) => {
                 />
               </TouchableOpacity>
             </View>
-
-            <View style={styles.summaryGrid}>
-              <HeroMetricCard
-                icon="car-sport-outline"
-                label="Vehículos"
-                value={vehicles.length}
-                accent={COLORS.warning}
-              />
-              <HeroMetricCard
-                icon="construct-outline"
-                label="Servicios"
-                value={totalMaintenances}
-                accent="#8ED1FF"
-              />
-              <HeroMetricCard
-                icon="build-outline"
-                label="Reparaciones"
-                value={totalRepairs}
-                accent="#B8F1C6"
-              />
-            </View>
           </LinearGradient>
 
           {/* Card de inversión total */}
-          <View style={[styles.totalCard, { backgroundColor: colors.primary }]}>
-            <Ionicons name="cash-outline" size={iconSize.xl} color="#fff" />
-            <Text style={styles.totalLabel}>Total Invertido</Text>
+          <LinearGradient
+            colors={[COLORS.primary, "#0F5FD2", "#1673E6"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.totalCard}
+          >
+            <View style={styles.totalIconBadge}>
+              <Ionicons name="cash-outline" size={iconSize.xl} color="#fff" />
+            </View>
+            <Text style={styles.totalLabel}>Total invertido</Text>
             <Text style={styles.totalAmount}>
               {formatCurrency(totalInvestment, currencySymbol)}
             </Text>
-            <Text style={styles.totalSubtitle}>
-              En {totalMaintenances} mantenimientos • {totalRepairs}{" "}
-              reparaciones • {totalExtras} otros
-            </Text>
-          </View>
+            <View style={styles.totalBreakdownRow}>
+              <View style={styles.totalBreakdownPill}>
+                <Text style={styles.totalBreakdownText}>
+                  {vehicles.length} vehículos
+                </Text>
+              </View>
+              <View style={styles.totalBreakdownPill}>
+                <Text style={styles.totalBreakdownText}>
+                  {totalMaintenances} servicios
+                </Text>
+              </View>
+              <View style={styles.totalBreakdownPill}>
+                <Text style={styles.totalBreakdownText}>
+                  {totalRepairs} reparaciones
+                </Text>
+              </View>
+              <View style={styles.totalBreakdownPill}>
+                <Text style={styles.totalBreakdownText}>
+                  {totalExtras} otros
+                </Text>
+              </View>
+            </View>
+          </LinearGradient>
 
           {/* Lista de vehículos */}
           <Text style={[styles.sectionTitle, { color: colors.text }]}>
@@ -299,7 +291,7 @@ const StatsScreen = ({ navigation }) => {
                       </Text>
                     )}
                   </View>
-                  <View style={styles.statsRow}>
+                  <View style={styles.statsColumn}>
                     <View
                       style={[
                         styles.statItem,
@@ -465,61 +457,51 @@ const styles = StyleSheet.create({
     marginBottom: vs(24),
     marginHorizontal: spacing.lg,
     elevation: s(4),
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: s(8),
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.18,
+    shadowRadius: s(14),
+    overflow: "hidden",
+  },
+  totalIconBadge: {
+    width: s(64),
+    height: s(64),
+    borderRadius: s(32),
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.14)",
   },
   totalLabel: {
     color: "#fff",
     fontSize: rf(14),
     marginTop: spacing.sm,
-    opacity: 0.9,
+    opacity: 0.88,
+    textTransform: "uppercase",
+    letterSpacing: 0.6,
+    fontWeight: "700",
   },
   totalAmount: {
     color: "#fff",
     fontSize: rf(36),
-    fontWeight: "bold",
+    fontWeight: "800",
     marginTop: spacing.xs,
   },
-  totalSubtitle: {
-    color: "#fff",
-    fontSize: rf(12),
-    marginTop: spacing.xxs,
-    opacity: 0.8,
-    textAlign: "center",
-  },
-  summaryGrid: {
+  totalBreakdownRow: {
     flexDirection: "row",
-    gap: spacing.sm,
-    marginTop: vs(14),
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: spacing.xs,
+    marginTop: spacing.md,
   },
-  heroMetricCard: {
-    flex: 1,
-    borderWidth: 1,
-    borderRadius: borderRadius.md,
+  totalBreakdownPill: {
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
-    minHeight: vs(76),
-    backgroundColor: "rgba(255,255,255,0.12)",
+    borderRadius: s(999),
+    backgroundColor: "rgba(255,255,255,0.14)",
   },
-  heroMetricIconWrap: {
-    width: s(28),
-    height: s(28),
-    borderRadius: s(14),
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: vs(8),
-  },
-  heroMetricValue: {
-    fontSize: rf(18),
-    fontWeight: "800",
-    marginBottom: vs(2),
+  totalBreakdownText: {
     color: "#fff",
-  },
-  heroMetricLabel: {
-    fontSize: rf(10),
+    fontSize: rf(12),
     fontWeight: "600",
-    color: "rgba(255,255,255,0.76)",
   },
   sectionTitle: {
     fontSize: rf(20),
@@ -570,18 +552,17 @@ const styles = StyleSheet.create({
     fontSize: rf(12),
     fontWeight: "800",
   },
-  statsRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: spacing.sm,
+  statsColumn: {
+    gap: spacing.xs,
   },
   statItem: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.xxs,
+    gap: spacing.xs,
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
     borderRadius: s(999),
+    alignSelf: "flex-start",
   },
   statText: {
     fontSize: rf(13),

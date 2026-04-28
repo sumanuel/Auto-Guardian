@@ -898,13 +898,19 @@ const VehicleDetailScreen = ({ navigation, route }) => {
                   Cuando cargues tu primer servicio, aquí verás la bitácora
                   reciente de esta unidad.
                 </Text>
-                <Button
-                  title="Registrar primer mantenimiento"
+                <TouchableOpacity
+                  style={[
+                    styles.emptyStateButton,
+                    { backgroundColor: colors.primary },
+                  ]}
                   onPress={() =>
                     navigation.navigate("AddMaintenance", { vehicleId })
                   }
-                  style={{ marginTop: spacing.md }}
-                />
+                >
+                  <Text style={styles.emptyStateButtonText}>
+                    Registrar mantenimiento
+                  </Text>
+                </TouchableOpacity>
               </View>
             ) : (
               <View>
@@ -1561,6 +1567,21 @@ const styles = StyleSheet.create({
     fontSize: rf(14),
     textAlign: "center",
     lineHeight: rf(20),
+  },
+  emptyStateButton: {
+    width: "100%",
+    minHeight: vs(54),
+    borderRadius: borderRadius.md,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: spacing.md,
+    paddingHorizontal: spacing.md,
+  },
+  emptyStateButtonText: {
+    color: "#fff",
+    fontSize: rf(16),
+    fontWeight: "800",
+    textAlign: "center",
   },
   recentList: {
     gap: vs(10),

@@ -381,7 +381,7 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     padding: ms(20),
-    paddingTop: 0,
+    paddingTop: vs(14),
     paddingBottom: ms(32),
   },
   vehicleCard: {
