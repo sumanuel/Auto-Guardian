@@ -1,6 +1,7 @@
 ﻿import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from "expo-notifications";
 import { useEffect, useState } from "react";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AppProvider } from "./src/context/AppContext";
 import {
   AppSettingsProvider,
@@ -95,10 +96,12 @@ function AppBootstrap() {
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <AppSettingsProvider>
-        <AppBootstrap />
-      </AppSettingsProvider>
-    </ThemeProvider>
+    <SafeAreaProvider>
+      <ThemeProvider>
+        <AppSettingsProvider>
+          <AppBootstrap />
+        </AppSettingsProvider>
+      </ThemeProvider>
+    </SafeAreaProvider>
   );
 }

@@ -1,10 +1,15 @@
 import { Ionicons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { NavigationContainer } from "@react-navigation/native";
+import {
+  NavigationContainer,
+  DarkTheme as NavigationDarkTheme,
+  DefaultTheme as NavigationDefaultTheme,
+} from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import { Platform } from "react-native";
+import { Platform, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../context/ThemeContext";
-import { isTablet, ms, rf } from "../utils/responsive";
+import { borderRadius, hs, isTablet, ms, rf, s } from "../utils/responsive";
 
 // Screens
 // import AddContactScreen from "../screens/AddContactScreen";
@@ -36,6 +41,19 @@ import VehicleDocumentsScreen from "../screens/VehicleDocumentsScreen";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
+
+const TabBarIcon = ({ name, color, size, containerSize }) => (
+  <View
+    style={{
+      width: containerSize,
+      height: containerSize,
+      alignItems: "center",
+      justifyContent: "center",
+    }}
+  >
+    <Ionicons name={name} size={size} color={color} />
+  </View>
+);
 
 // Stack Navigator para el Home y sus pantallas relacionadas
 const HomeStack = () => {
@@ -293,15 +311,58 @@ const MoreStack = () => {
 
 // Bottom Tab Navigator principal
 const AppNavigator = () => {
-  const { colors } = useTheme();
+  const { colors, isDarkMode } = useTheme();
+  const insets = useSafeAreaInsets();
   const tablet = isTablet();
+  const tabIconSize = tablet ? rf(24) : rf(21);
+  const tabLabelSize = tablet ? rf(13) : rf(12);
+  const tabIconContainerSize = tablet ? ms(34) : ms(28);
+  const tabBarBottomPadding =
+    Platform.OS === "ios"
+      ? Math.max(insets.bottom, tablet ? ms(16) : ms(12))
+      : tablet
+        ? ms(10)
+        : ms(8);
+  const tabBarHeight =
+    Platform.OS === "ios"
+      ? (tablet ? ms(70) : ms(60)) + tabBarBottomPadding
+      : (tablet ? ms(74) : ms(66)) + tabBarBottomPadding;
+  const tabBarBottomOffset = Platform.OS === "ios" ? ms(10) : ms(2);
+  const tabBarReservedSpace = tabBarHeight + tabBarBottomOffset;
+  const navigationTheme = isDarkMode
+    ? {
+        ...NavigationDarkTheme,
+        colors: {
+          ...NavigationDarkTheme.colors,
+          background: colors.background,
+          card: colors.background,
+          border: colors.border,
+          primary: colors.primaryDark,
+          text: colors.text,
+        },
+      }
+    : {
+        ...NavigationDefaultTheme,
+        colors: {
+          ...NavigationDefaultTheme.colors,
+          background: colors.background,
+          card: colors.background,
+          border: colors.border,
+          primary: colors.primaryDark,
+          text: colors.text,
+        },
+      };
+
   return (
-    <NavigationContainer>
+    <NavigationContainer theme={navigationTheme}>
       <Tab.Navigator
         screenOptions={({ route }) => ({
           headerShown: false,
+          sceneStyle: {
+            paddingBottom: tabBarReservedSpace,
+          },
           tabBarLabelPosition: "below-icon",
-          tabBarIcon: ({ focused, color, size }) => {
+          tabBarIcon: ({ focused, color }) => {
             let iconName;
 
             if (route.name === "Inicio") {
@@ -317,58 +378,50 @@ const AppNavigator = () => {
             }
 
             return (
-              <Ionicons
+              <TabBarIcon
                 name={iconName}
-                size={ms(tablet ? size - 1 : size)}
                 color={color}
+                size={tabIconSize}
+                containerSize={tabIconContainerSize}
               />
             );
           },
           tabBarActiveTintColor: colors.primaryDark,
           tabBarInactiveTintColor: colors.tabBarInactive,
           tabBarStyle: {
+            position: "absolute",
+            left: hs(14),
+            right: hs(14),
+            bottom: tabBarBottomOffset,
             backgroundColor: colors.tabBarBackground,
-            borderTopWidth: ms(1),
-            borderTopColor: colors.tabBarBorder,
-            paddingBottom:
-              Platform.OS === "ios"
-                ? tablet
-                  ? ms(24)
-                  : 34
-                : tablet
-                  ? ms(16)
-                  : 44,
-            paddingTop: tablet ? ms(8) : 8,
-            height:
-              Platform.OS === "ios"
-                ? tablet
-                  ? ms(84)
-                  : 95
-                : tablet
-                  ? ms(84)
-                  : 96,
-            elevation: ms(8),
+            borderTopWidth: 0,
+            borderRadius: borderRadius.xl,
+            paddingBottom: tabBarBottomPadding,
+            paddingTop: tablet ? ms(8) : ms(4),
+            height: tabBarHeight,
+            elevation: 8,
             shadowColor: colors.shadow,
-            shadowOffset: { width: 0, height: ms(-2) },
-            shadowOpacity: 0.1,
-            shadowRadius: ms(3),
+            shadowOffset: { width: 0, height: s(6) },
+            shadowOpacity: 0.12,
+            shadowRadius: s(14),
           },
           tabBarItemStyle: {
-            flexDirection: "column",
+            paddingVertical: tablet ? ms(4) : 0,
             alignItems: "center",
             justifyContent: "center",
+            borderRadius: borderRadius.lg,
           },
           tabBarLabelStyle: {
-            fontSize: rf(13),
+            fontSize: tabLabelSize,
             fontWeight: "600",
-            marginBottom: ms(4),
+            includeFontPadding: false,
+            marginTop: tablet ? ms(1) : 0,
             textAlign: "center",
-            gap: ms(2),
           },
           tabBarIconStyle: {
-            marginTop: ms(4),
-            height: ms(24),
-            width: ms(24),
+            marginTop: 0,
+            height: tabIconContainerSize,
+            width: tabIconContainerSize,
           },
         })}
       >
