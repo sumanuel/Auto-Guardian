@@ -216,10 +216,7 @@ const VehicleDocumentsScreen = ({ navigation, route }) => {
           </View>
           <View style={styles.actionButtons}>
             <TouchableOpacity
-              style={[
-                styles.editButton,
-                { backgroundColor: colors.inputBackground },
-              ]}
+              style={styles.editButton}
               onPress={() =>
                 navigation.navigate("AddDocument", {
                   vehicleId,
@@ -230,20 +227,17 @@ const VehicleDocumentsScreen = ({ navigation, route }) => {
             >
               <Ionicons
                 name="create-outline"
-                size={iconSize.md}
-                color={colors.primary}
+                size={iconSize.sm}
+                color={colors.primaryDark}
               />
             </TouchableOpacity>
             <TouchableOpacity
-              style={[
-                styles.deleteButton,
-                { backgroundColor: colors.inputBackground },
-              ]}
+              style={styles.deleteButton}
               onPress={() => handleDeleteDocument(item)}
             >
               <Ionicons
                 name="trash-outline"
-                size={iconSize.md}
+                size={iconSize.sm}
                 color="#E53935"
               />
             </TouchableOpacity>
@@ -502,13 +496,14 @@ const styles = StyleSheet.create({
   actionButtons: {
     flexDirection: "row",
     gap: spacing.xs,
+    marginTop: spacing.xxs,
   },
   editButton: {
-    padding: spacing.xs,
+    padding: spacing.xxs,
     borderRadius: borderRadius.xs,
   },
   deleteButton: {
-    padding: spacing.xs,
+    padding: spacing.xxs,
     borderRadius: borderRadius.xs,
   },
   emptyContainer: {
