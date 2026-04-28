@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useTheme } from "../context/ThemeContext";
 import {
   borderRadius,
@@ -49,7 +49,11 @@ const AboutScreen = () => {
         >
           <Text style={styles.heroEyebrow}>Información de producto</Text>
           <View style={styles.iconContainer}>
-            <Ionicons name="car-sport" size={iconSize.xxl} color="#fff" />
+            <Image
+              source={require("../../assets/icon.png")}
+              style={styles.appIcon}
+              resizeMode="contain"
+            />
           </View>
           <Text style={styles.title}>Auto-Guardian</Text>
           <Text style={styles.subtitle}>
@@ -167,15 +171,20 @@ const styles = StyleSheet.create({
     elevation: s(8),
   },
   iconContainer: {
-    width: s(84),
-    height: s(84),
-    borderRadius: s(42),
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    width: s(96),
+    height: s(96),
+    borderRadius: s(28),
+    backgroundColor: "rgba(255, 255, 255, 0.12)",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: spacing.md,
-    borderWidth: s(3),
-    borderColor: "rgba(255, 255, 255, 0.3)",
+    padding: s(8),
+    borderWidth: s(1.5),
+    borderColor: "rgba(255, 255, 255, 0.22)",
+  },
+  appIcon: {
+    width: "100%",
+    height: "100%",
   },
   heroEyebrow: {
     fontSize: rf(12),

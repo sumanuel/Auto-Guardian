@@ -2,6 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRef, useState } from "react";
 import {
   Dimensions,
+  Image,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -12,7 +13,7 @@ import {
 import { useTheme } from "../context/ThemeContext";
 import { ms, rf } from "../utils/responsive";
 
-const { width, height } = Dimensions.get("window");
+const { width } = Dimensions.get("window");
 
 const slides = [
   {
@@ -108,6 +109,14 @@ export const OnboardingScreen = ({ onComplete }) => {
         {slides.map((slide) => (
           <View key={slide.id} style={styles.slide}>
             <View style={styles.iconContainer}>
+              <Image
+                source={require("../../assets/icon.png")}
+                style={styles.appIcon}
+                resizeMode="contain"
+              />
+            </View>
+
+            <View style={styles.slideBadge}>
               <Text style={styles.icon}>{slide.icon}</Text>
             </View>
 
@@ -180,16 +189,33 @@ const styles = StyleSheet.create({
     paddingHorizontal: ms(40),
   },
   iconContainer: {
-    width: ms(120),
-    height: ms(120),
-    borderRadius: ms(60),
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    width: ms(136),
+    height: ms(136),
+    borderRadius: ms(34),
+    backgroundColor: "rgba(255, 255, 255, 0.12)",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: ms(40),
+    padding: ms(10),
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.18)",
+    marginBottom: ms(16),
+  },
+  appIcon: {
+    width: "100%",
+    height: "100%",
+  },
+  slideBadge: {
+    minWidth: ms(52),
+    paddingHorizontal: ms(12),
+    height: ms(40),
+    borderRadius: ms(20),
+    backgroundColor: "rgba(255, 255, 255, 0.16)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: ms(28),
   },
   icon: {
-    fontSize: rf(60),
+    fontSize: rf(24),
   },
   textContainer: {
     alignItems: "center",
