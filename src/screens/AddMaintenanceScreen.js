@@ -420,19 +420,13 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
                   )}
 
                   <View style={styles.headerTitleWrap}>
-                    <Text style={styles.headerEyebrow}>Registro MRO</Text>
+                    <Text style={styles.headerEyebrow}>Bitácora técnica</Text>
                     <Text style={styles.headerTitle}>
-                      {maintenanceData?.id
-                        ? "Editar mantenimiento"
-                        : "Agregar mantenimiento"}
+                      {vehicle?.name || "Vehículo"}
                     </Text>
                     {!!vehicleMeta && (
                       <Text style={styles.heroSubtitle}>{vehicleMeta}</Text>
                     )}
-                    <Text style={styles.headerSubtitle}>
-                      Configura el servicio, define su próxima programación y
-                      documenta el trabajo realizado.
-                    </Text>
                   </View>
                 </View>
 
@@ -453,17 +447,6 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
                     color="#fff"
                   />
                 </TouchableOpacity>
-              </View>
-
-              <View style={styles.vehicleBadge}>
-                <Ionicons
-                  name="car-sport-outline"
-                  size={iconSize.xs}
-                  color="#fff"
-                />
-                <Text style={styles.vehicleBadgeText}>
-                  {vehicle?.name || "Vehículo"}
-                </Text>
               </View>
             </LinearGradient>
           </View>
