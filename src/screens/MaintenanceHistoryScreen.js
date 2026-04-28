@@ -1441,7 +1441,7 @@ const styles = StyleSheet.create({
     padding: spacing.xxl,
   },
   emptyTitle: {
-    fontSize: rf(18),
+    fontSize: rf(17),
     fontWeight: "800",
     marginTop: vs(16),
   },
@@ -1499,13 +1499,13 @@ const styles = StyleSheet.create({
     marginBottom: vs(24),
   },
   approveModalTitle: {
-    fontSize: rf(20),
+    fontSize: rf(17),
     fontWeight: "bold",
     marginTop: vs(16),
     marginBottom: vs(8),
   },
   approveModalMessage: {
-    fontSize: rf(16),
+    fontSize: rf(14),
     textAlign: "center",
     lineHeight: vs(22),
   },
@@ -1531,7 +1531,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primaryDark,
   },
   checkboxText: {
-    fontSize: rf(16),
+    fontSize: rf(14),
     flex: 1,
   },
   checkboxHint: {
@@ -1591,7 +1591,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   editModalTitle: {
-    fontSize: rf(20),
+    fontSize: rf(17),
     fontWeight: "bold",
   },
   editModalScroll: {
@@ -1611,7 +1611,7 @@ const styles = StyleSheet.create({
     marginTop: -5,
   },
   label: {
-    fontSize: rf(16),
+    fontSize: rf(14),
     fontWeight: "600",
     marginBottom: spacing.xs,
   },

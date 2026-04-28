@@ -563,7 +563,7 @@ const styles = StyleSheet.create({
     marginBottom: ms(20),
   },
   sectionTitle: {
-    fontSize: rf(16),
+    fontSize: rf(17),
     fontWeight: "600",
     marginBottom: ms(8),
   },
@@ -627,7 +627,7 @@ const styles = StyleSheet.create({
     borderBottomColor: "#e0e0e0",
   },
   modalTitle: {
-    fontSize: rf(18),
+    fontSize: rf(17),
     fontWeight: "bold",
   },
   typeList: {

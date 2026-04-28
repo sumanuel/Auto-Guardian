@@ -513,7 +513,7 @@ const styles = StyleSheet.create({
     paddingVertical: vs(60),
   },
   emptyText: {
-    fontSize: rf(18),
+    fontSize: rf(17),
     fontWeight: "600",
     marginTop: spacing.md,
     textAlign: "center",

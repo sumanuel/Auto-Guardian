@@ -1184,7 +1184,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   sectionTitle: {
-    fontSize: rf(20),
+    fontSize: rf(17),
     fontWeight: "bold",
     marginBottom: spacing.md,
   },
@@ -1304,7 +1304,7 @@ const styles = StyleSheet.create({
     paddingVertical: vs(60),
   },
   emptyText: {
-    fontSize: rf(16),
+    fontSize: rf(14),
     marginTop: spacing.md,
   },
   emptySubtext: {
@@ -1363,7 +1363,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   modalTitle: {
-    fontSize: rf(20),
+    fontSize: rf(17),
     fontWeight: "bold",
   },
   modalBody: {

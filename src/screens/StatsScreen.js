@@ -504,7 +504,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   sectionTitle: {
-    fontSize: rf(20),
+    fontSize: rf(17),
     fontWeight: "800",
     marginBottom: spacing.md,
     marginHorizontal: spacing.lg,
@@ -578,7 +578,7 @@ const styles = StyleSheet.create({
     paddingVertical: vs(60),
   },
   emptyText: {
-    fontSize: rf(16),
+    fontSize: rf(14),
     marginTop: spacing.md,
   },
 });

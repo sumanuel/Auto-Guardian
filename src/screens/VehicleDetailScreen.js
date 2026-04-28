@@ -1559,7 +1559,7 @@ const styles = StyleSheet.create({
     marginBottom: vs(14),
   },
   emptyTitle: {
-    fontSize: rf(18),
+    fontSize: rf(17),
     fontWeight: "800",
     marginBottom: vs(8),
   },
@@ -1643,7 +1643,7 @@ const styles = StyleSheet.create({
     marginBottom: vs(14),
   },
   actionDockTitle: {
-    fontSize: rf(18),
+    fontSize: rf(17),
     fontWeight: "800",
     marginBottom: vs(6),
   },
@@ -1667,7 +1667,7 @@ const styles = StyleSheet.create({
     maxWidth: s(420),
   },
   modalTitle: {
-    fontSize: rf(20),
+    fontSize: rf(17),
     fontWeight: "bold",
     marginBottom: vs(16),
     textAlign: "center",
@@ -1689,7 +1689,7 @@ const styles = StyleSheet.create({
     marginVertical: vs(12),
   },
   modalSectionTitle: {
-    fontSize: rf(16),
+    fontSize: rf(14),
     fontWeight: "bold",
     color: COLORS.primary,
     marginBottom: vs(8),
