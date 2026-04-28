@@ -43,15 +43,19 @@ const AlertModal = ({ visible, onClose, summary }) => {
             },
           ]}
         >
-          {/* Header */}
           <View style={[styles.header, { borderBottomColor: colors.border }]}>
             <View style={styles.headerContent}>
               {hasAlerts ? (
                 <>
-                  <View style={styles.iconContainer}>
+                  <View
+                    style={[
+                      styles.iconContainer,
+                      { backgroundColor: "rgba(255,152,0,0.12)" },
+                    ]}
+                  >
                     <Ionicons
                       name="alert-circle"
-                      size={ms(32)}
+                      size={ms(26)}
                       color={COLORS.warning}
                     />
                   </View>
@@ -64,7 +68,7 @@ const AlertModal = ({ visible, onClose, summary }) => {
                   <View style={[styles.iconContainer, styles.iconSuccess]}>
                     <Ionicons
                       name="checkmark-circle"
-                      size={ms(32)}
+                      size={ms(26)}
                       color={COLORS.success}
                     />
                   </View>
@@ -216,7 +220,10 @@ const AlertModal = ({ visible, onClose, summary }) => {
 
           {/* Footer */}
           <View style={[styles.footer, { borderTopColor: colors.border }]}>
-            <TouchableOpacity style={styles.button} onPress={onClose}>
+            <TouchableOpacity
+              style={[styles.button, { backgroundColor: colors.primaryDark }]}
+              onPress={onClose}
+            >
               <Text style={styles.buttonText}>Entendido</Text>
             </TouchableOpacity>
           </View>
@@ -265,15 +272,18 @@ const styles = StyleSheet.create({
   },
   iconContainer: {
     marginRight: ms(12),
+    width: ms(48),
+    height: ms(48),
+    borderRadius: ms(24),
+    alignItems: "center",
+    justifyContent: "center",
   },
   iconSuccess: {
-    backgroundColor: "#f0fdf4",
-    borderRadius: ms(20),
-    padding: ms(4),
+    backgroundColor: "rgba(76,175,80,0.12)",
   },
   title: {
     fontSize: rf(20),
-    fontWeight: "bold",
+    fontWeight: "800",
   },
   closeButton: {
     padding: ms(4),
@@ -307,7 +317,7 @@ const styles = StyleSheet.create({
   },
   alertCard: {
     flexDirection: "row",
-    borderRadius: ms(12),
+    borderRadius: ms(16),
     marginBottom: ms(12),
     overflow: "hidden",
   },
@@ -337,9 +347,8 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
   },
   button: {
-    backgroundColor: COLORS.primary,
     paddingVertical: ms(14),
-    borderRadius: ms(12),
+    borderRadius: ms(14),
     alignItems: "center",
   },
   buttonText: {

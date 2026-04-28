@@ -405,16 +405,6 @@ const HomeScreen = ({ navigation }) => {
             ListHeaderComponent={renderTopContent}
           />
         )}
-
-        {vehicles.length > 0 && (
-          <TouchableOpacity
-            style={styles.fab}
-            onPress={() => navigation.navigate("AddVehicle")}
-            activeOpacity={0.8}
-          >
-            <Ionicons name="add" size={iconSize.lg} color="#fff" />
-          </TouchableOpacity>
-        )}
       </View>
     </DialogComponent>
   );
@@ -690,22 +680,6 @@ const styles = StyleSheet.create({
   },
   emptyButton: {
     minWidth: s(200),
-  },
-  fab: {
-    position: "absolute",
-    right: hs(20),
-    bottom: vs(20),
-    backgroundColor: "#0D6EFD",
-    width: s(60),
-    height: s(60),
-    borderRadius: s(30),
-    justifyContent: "center",
-    alignItems: "center",
-    elevation: s(8),
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.28,
-    shadowRadius: s(10),
   },
 });
 

@@ -421,7 +421,8 @@ const styles = StyleSheet.create({
     marginLeft: hs(12),
   },
   listContainer: {
-    padding: spacing.lg,
+    paddingHorizontal: hs(16),
+    paddingVertical: spacing.lg,
     paddingTop: 0,
     marginTop: vs(14),
     paddingBottom: vs(100),

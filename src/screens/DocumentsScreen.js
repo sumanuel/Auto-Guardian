@@ -380,7 +380,8 @@ const styles = StyleSheet.create({
     color: "rgba(255,255,255,0.84)",
   },
   listContainer: {
-    padding: ms(20),
+    paddingHorizontal: hs(16),
+    paddingVertical: ms(20),
     paddingTop: vs(14),
     paddingBottom: ms(32),
   },
