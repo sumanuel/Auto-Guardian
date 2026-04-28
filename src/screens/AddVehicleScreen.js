@@ -228,7 +228,7 @@ const AddVehicleScreen = ({ navigation, route }) => {
         >
           <View style={styles.headerBlock}>
             <Text style={[styles.headerEyebrow, { color: colors.primary }]}>
-              Ficha técnica
+              Registro de unidad
             </Text>
             <Text style={[styles.headerTitle, { color: colors.text }]}>
               {isEditing ? "Editar vehículo" : "Nuevo vehículo"}

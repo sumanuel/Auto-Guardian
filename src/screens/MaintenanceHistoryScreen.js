@@ -709,7 +709,9 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
               )}
 
               <View style={styles.headerInfo}>
-                <Text style={styles.headerEyebrow}>Bitácora técnica</Text>
+                <Text style={styles.headerEyebrow}>
+                  Bitácora de mantenimiento
+                </Text>
                 <Text style={styles.headerTitle}>
                   {vehicle?.name || "Todos los vehículos"}
                 </Text>

@@ -159,7 +159,7 @@ const StatsScreen = ({ navigation }) => {
                 </View>
 
                 <View style={styles.headerInfo}>
-                  <Text style={styles.eyebrow}>Dashboard financiero</Text>
+                  <Text style={styles.eyebrow}>Control financiero</Text>
                   <Text style={styles.title}>Inversión Total</Text>
                   <Text style={styles.subtitle}>
                     Visualiza costos de mantenimiento, reparaciones y gastos por
