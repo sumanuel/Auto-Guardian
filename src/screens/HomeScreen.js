@@ -2,6 +2,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 import {
+  Animated,
+  Easing,
   FlatList,
   RefreshControl,
   ScrollView,
@@ -102,11 +104,29 @@ const HomeScreen = ({ navigation }) => {
   const { colors } = useTheme();
   const [refreshing, setRefreshing] = React.useState(false);
   const [alertSummary, setAlertSummary] = React.useState(null);
+  const bellAnimation = React.useRef(new Animated.Value(0)).current;
+  const alertGlowAnimation = React.useRef(new Animated.Value(0)).current;
 
   const overdueCount = alertSummary?.totalOverdue || 0;
   const urgentCount = alertSummary?.totalUrgent || 0;
   const expiringDocumentsCount = alertSummary?.totalDocuments || 0;
   const totalAlerts = overdueCount + urgentCount + expiringDocumentsCount;
+  const bellRotate = bellAnimation.interpolate({
+    inputRange: [0, 0.2, 0.4, 0.6, 0.8, 1],
+    outputRange: ["0deg", "18deg", "-16deg", "13deg", "-8deg", "0deg"],
+  });
+  const bellScale = bellAnimation.interpolate({
+    inputRange: [0, 0.35, 0.7, 1],
+    outputRange: [1, 1.08, 1.02, 1],
+  });
+  const alertGlowOpacity = alertGlowAnimation.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [0, 0.18, 0.04],
+  });
+  const alertGlowScale = alertGlowAnimation.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [0.96, 1.03, 1],
+  });
 
   const loadAlertSummary = React.useCallback(async () => {
     if (!checkPendingMaintenances) return;
@@ -120,6 +140,62 @@ const HomeScreen = ({ navigation }) => {
   React.useEffect(() => {
     loadAlertSummary();
   }, [loadAlertSummary, vehicles]);
+
+  React.useEffect(() => {
+    if (totalAlerts <= 0) {
+      bellAnimation.stopAnimation();
+      alertGlowAnimation.stopAnimation();
+      bellAnimation.setValue(0);
+      alertGlowAnimation.setValue(0);
+      return undefined;
+    }
+
+    const animation = Animated.loop(
+      Animated.sequence([
+        Animated.delay(1500),
+        Animated.parallel([
+          Animated.sequence([
+            Animated.timing(bellAnimation, {
+              toValue: 1,
+              duration: 900,
+              easing: Easing.out(Easing.ease),
+              useNativeDriver: true,
+            }),
+            Animated.timing(bellAnimation, {
+              toValue: 0,
+              duration: 220,
+              easing: Easing.inOut(Easing.ease),
+              useNativeDriver: true,
+            }),
+          ]),
+          Animated.sequence([
+            Animated.timing(alertGlowAnimation, {
+              toValue: 1,
+              duration: 360,
+              easing: Easing.out(Easing.quad),
+              useNativeDriver: true,
+            }),
+            Animated.timing(alertGlowAnimation, {
+              toValue: 0,
+              duration: 760,
+              easing: Easing.inOut(Easing.quad),
+              useNativeDriver: true,
+            }),
+          ]),
+        ]),
+      ]),
+    );
+
+    animation.start();
+
+    return () => {
+      animation.stop();
+      bellAnimation.stopAnimation();
+      alertGlowAnimation.stopAnimation();
+      bellAnimation.setValue(0);
+      alertGlowAnimation.setValue(0);
+    };
+  }, [alertGlowAnimation, bellAnimation, totalAlerts]);
 
   const showAlertDetails = () => {
     navigation.navigate("AlertSummary", { summary: alertSummary });
@@ -224,11 +300,27 @@ const HomeScreen = ({ navigation }) => {
                 onPress={showAlertDetails}
                 activeOpacity={0.85}
               >
-                <Ionicons
-                  name="notifications"
-                  size={iconSize.sm}
-                  color="#fff"
+                <Animated.View
+                  pointerEvents="none"
+                  style={[
+                    styles.alertPillGlow,
+                    {
+                      opacity: alertGlowOpacity,
+                      transform: [{ scale: alertGlowScale }],
+                    },
+                  ]}
                 />
+                <Animated.View
+                  style={{
+                    transform: [{ rotate: bellRotate }, { scale: bellScale }],
+                  }}
+                >
+                  <Ionicons
+                    name="notifications"
+                    size={iconSize.sm}
+                    color="#fff"
+                  />
+                </Animated.View>
                 <Text style={styles.alertPillText}>
                   {totalAlerts} alerta{totalAlerts !== 1 ? "s" : ""}
                 </Text>
@@ -501,6 +593,7 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   alertPill: {
+    position: "relative",
     flexDirection: "row",
     alignItems: "center",
     gap: hs(6),
@@ -510,6 +603,12 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.14)",
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.16)",
+    overflow: "hidden",
+  },
+  alertPillGlow: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(255,255,255,0.42)",
+    borderRadius: s(999),
   },
   alertPillText: {
     color: "#fff",
