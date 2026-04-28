@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { useState } from "react";
 import {
   ActivityIndicator,
@@ -126,9 +127,7 @@ const DataManagementScreen = ({ navigation }) => {
         >
           <Ionicons name="arrow-back" size={iconSize.md} color={colors.text} />
         </TouchableOpacity>
-        <Text style={[styles.title, { color: colors.text }]}>
-          Gestión de Datos
-        </Text>
+        <View style={styles.headerSpacer} />
         <TouchableOpacity style={styles.infoButton} onPress={showBackupInfo}>
           <Ionicons
             name="information-circle-outline"
@@ -139,6 +138,32 @@ const DataManagementScreen = ({ navigation }) => {
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        <LinearGradient
+          colors={[colors.primary, "#0F5FD2", "#0A3F8F"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.heroGradient}
+        >
+          <View style={styles.heroMediaRow}>
+            <View style={[styles.iconBadge, styles.heroIconBadge]}>
+              <Ionicons
+                name="server-outline"
+                size={iconSize.lg}
+                color="#D6E7FF"
+              />
+            </View>
+
+            <View style={styles.heroInfo}>
+              <Text style={styles.heroEyebrow}>Control de respaldo</Text>
+              <Text style={styles.title}>Gestión de datos</Text>
+              <Text style={styles.heroSubtitle}>
+                Exporta, importa y protege la información operativa de la app
+                con trazabilidad clara.
+              </Text>
+            </View>
+          </View>
+        </LinearGradient>
+
         <View style={[styles.card, { backgroundColor: colors.cardBackground }]}>
           <View style={styles.cardHeader}>
             <Ionicons
@@ -317,9 +342,51 @@ const styles = StyleSheet.create({
   backButton: {
     padding: spacing.xs,
   },
+  headerSpacer: {
+    flex: 1,
+  },
+  heroGradient: {
+    marginBottom: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.lg,
+    borderRadius: borderRadius.xl,
+  },
+  heroMediaRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+  },
+  iconBadge: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.16)",
+  },
+  heroIconBadge: {
+    width: s(76),
+    height: s(76),
+    borderRadius: borderRadius.lg,
+  },
+  heroInfo: {
+    flex: 1,
+  },
+  heroEyebrow: {
+    fontSize: rf(12),
+    fontWeight: "700",
+    letterSpacing: 1,
+    textTransform: "uppercase",
+    color: "#D6E7FF",
+    marginBottom: spacing.xxs,
+  },
   title: {
-    fontSize: rf(20),
-    fontWeight: "bold",
+    fontSize: rf(22),
+    fontWeight: "800",
+    color: "#fff",
+  },
+  heroSubtitle: {
+    fontSize: rf(13),
+    lineHeight: rf(18),
+    color: "#D6E7FF",
   },
   infoButton: {
     padding: spacing.xs,

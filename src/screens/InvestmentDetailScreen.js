@@ -1,7 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { useFocusEffect } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
 import {
+  Image,
   Modal,
   ScrollView,
   StyleSheet,
@@ -50,6 +52,9 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
   const [dateFrom, setDateFrom] = useState(null);
   const [dateTo, setDateTo] = useState(null);
   const [isFiltered, setIsFiltered] = useState(false);
+  const vehicleMeta = [vehicle?.brand, vehicle?.model, vehicle?.year]
+    .filter(Boolean)
+    .join(" • ");
 
   useFocusEffect(
     React.useCallback(() => {
@@ -279,62 +284,94 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
           style={styles.content}
           contentContainerStyle={styles.scrollContent}
         >
-          {/* Header del vehículo */}
-          <View style={styles.header}>
-            <View style={styles.headerLeft}>
-              <Text style={[styles.vehicleName, { color: colors.text }]}>
-                {vehicle.name}
-              </Text>
-              {vehicle.brand && vehicle.model && (
-                <Text
-                  style={[
-                    styles.vehicleDetails,
-                    { color: colors.textSecondary },
-                  ]}
+          <View style={styles.headerBlock}>
+            <LinearGradient
+              colors={[colors.primary, "#0F5FD2", "#0A3F8F"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.heroGradient}
+            >
+              <View style={styles.heroHeaderRow}>
+                <View style={styles.heroMediaRow}>
+                  {vehicle?.photo ? (
+                    <Image
+                      source={{ uri: vehicle.photo }}
+                      style={styles.vehicleImage}
+                    />
+                  ) : (
+                    <View
+                      style={[
+                        styles.imagePlaceholder,
+                        styles.heroImagePlaceholder,
+                      ]}
+                    >
+                      <Ionicons
+                        name="wallet-outline"
+                        size={s(40)}
+                        color="#D6E7FF"
+                      />
+                    </View>
+                  )}
+
+                  <View style={styles.headerInfo}> 
+                    <Text style={styles.headerEyebrow}>Bitácora financiera</Text>
+                    <Text style={styles.headerTitle}>{vehicle.name}</Text>
+                    {!!vehicleMeta && (
+                      <Text style={styles.headerSubtitle}>{vehicleMeta}</Text>
+                    )}
+                  </View>
+                </View>
+
+                <TouchableOpacity
+                  style={styles.infoButtonHero}
+                  onPress={() =>
+                    showDialog({
+                      title: "Historial financiero",
+                      message:
+                        "Revisa el gasto acumulado del vehículo y filtra el análisis por fechas para comparar mantenimientos, reparaciones y otros movimientos.",
+                      type: "info",
+                    })
+                  }
                 >
-                  {vehicle.brand} {vehicle.model}
-                </Text>
-              )}
-            </View>
-            <View style={styles.headerRight}>
-              <TouchableOpacity
-                style={styles.filterIcon}
-                onPress={openDateFilter}
-              >
-                <Ionicons
-                  name="calendar-outline"
-                  size={iconSize.md}
-                  color={isFiltered ? COLORS.success : colors.primary}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.filterIcon}
-                onPress={clearDateFilter}
-              >
-                <Ionicons
-                  name="refresh-outline"
-                  size={iconSize.md}
-                  color={colors.primary}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.filterIcon}
-                onPress={() =>
-                  showDialog({
-                    title: "📅 Filtro por fechas",
-                    message:
-                      "Utiliza el calendario para filtrar los movimientos financieros por un rango de fechas específico. El total mostrado se actualizará automáticamente para reflejar solo los gastos, reparaciones y mantenimientos dentro del período seleccionado. Usa el botón de refrescar para limpiar el filtro y ver todos los movimientos.",
-                    type: "info",
-                  })
-                }
-              >
-                <Ionicons
-                  name="information-circle-outline"
-                  size={iconSize.md}
-                  color={colors.primary}
-                />
-              </TouchableOpacity>
-            </View>
+                  <Ionicons
+                    name="information-circle-outline"
+                    size={iconSize.lg}
+                    color="#fff"
+                  />
+                </TouchableOpacity>
+              </View>
+            </LinearGradient>
+          </View>
+
+          <View
+            style={[
+              styles.filterActionsCard,
+              {
+                backgroundColor: colors.cardBackground,
+                borderColor: colors.border,
+              },
+            ]}
+          >
+            <TouchableOpacity style={styles.filterAction} onPress={openDateFilter}>
+              <Ionicons
+                name="calendar-outline"
+                size={iconSize.md}
+                color={isFiltered ? COLORS.success : colors.primary}
+              />
+              <Text style={[styles.filterActionText, { color: colors.text }]}> 
+                Filtrar fechas
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.filterAction} onPress={clearDateFilter}>
+              <Ionicons
+                name="refresh-outline"
+                size={iconSize.md}
+                color={colors.primary}
+              />
+              <Text style={[styles.filterActionText, { color: colors.text }]}> 
+                Limpiar filtro
+              </Text>
+            </TouchableOpacity>
           </View>
 
           {/* Tarjeta de total */}

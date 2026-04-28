@@ -1,8 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRef, useState } from "react";
 import {
   Alert,
+  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -32,6 +34,9 @@ const AddExpenseScreen = ({ route, navigation }) => {
   const isEditing = !!expense;
 
   const vehicle = vehicles.find((v) => v.id === vehicleId);
+  const vehicleMeta = [vehicle?.brand, vehicle?.model, vehicle?.year]
+    .filter(Boolean)
+    .join(" • ");
 
   const [description, setDescription] = useState(expense?.description || "");
   const [date, setDate] = useState(
@@ -106,7 +111,71 @@ const AddExpenseScreen = ({ route, navigation }) => {
       style={[styles.container, { backgroundColor: colors.background }]}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <ScrollView ref={scrollViewRef} style={styles.content}>
+      <ScrollView
+        ref={scrollViewRef}
+        style={styles.scrollView}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.headerBlock}>
+          <LinearGradient
+            colors={[colors.primary, "#0F5FD2", "#0A3F8F"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.heroGradient}
+          >
+            <View style={styles.heroHeaderRow}>
+              <View style={styles.heroMediaRow}>
+                {vehicle?.photo ? (
+                  <Image
+                    source={{ uri: vehicle.photo }}
+                    style={styles.vehicleImage}
+                  />
+                ) : (
+                  <View
+                    style={[
+                      styles.imagePlaceholder,
+                      styles.heroImagePlaceholder,
+                    ]}
+                  >
+                    <Ionicons
+                      name="receipt-outline"
+                      size={s(40)}
+                      color="#D6E7FF"
+                    />
+                  </View>
+                )}
+
+                <View style={styles.headerInfo}>
+                  <Text style={styles.headerEyebrow}>Registro financiero</Text>
+                  <Text style={styles.headerTitle}>
+                    {vehicle?.name || "Vehículo"}
+                  </Text>
+                  {!!vehicleMeta && (
+                    <Text style={styles.headerSubtitle}>{vehicleMeta}</Text>
+                  )}
+                </View>
+              </View>
+
+              <TouchableOpacity
+                style={styles.infoButton}
+                onPress={() =>
+                  Alert.alert(
+                    isEditing ? "Actualizar gasto" : "Registrar gasto",
+                    "Documenta gastos operativos como combustible, peajes, lavado u otros costos asociados al vehículo para mantener el control financiero al día."
+                  )
+                }
+              >
+                <Ionicons
+                  name="information-circle-outline"
+                  size={iconSize.lg}
+                  color="#fff"
+                />
+              </TouchableOpacity>
+            </View>
+          </LinearGradient>
+        </View>
+
         {/* Descripción */}
         <View style={styles.section}>
           <Text style={[styles.label, { color: colors.text }]}>
@@ -231,9 +300,79 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  content: {
+  scrollView: {
     flex: 1,
+  },
+  content: {
     padding: spacing.lg,
+    paddingBottom: vs(40),
+  },
+  headerBlock: {
+    marginBottom: spacing.lg,
+  },
+  heroGradient: {
+    marginHorizontal: -spacing.lg,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.lg,
+    borderBottomLeftRadius: borderRadius.xl,
+    borderBottomRightRadius: borderRadius.xl,
+  },
+  heroHeaderRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: spacing.md,
+  },
+  heroMediaRow: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+  },
+  imagePlaceholder: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.16)",
+  },
+  heroImagePlaceholder: {
+    width: s(76),
+    height: s(76),
+    borderRadius: borderRadius.lg,
+  },
+  vehicleImage: {
+    width: s(76),
+    height: s(76),
+    borderRadius: borderRadius.lg,
+  },
+  headerInfo: {
+    flex: 1,
+    gap: spacing.xxs,
+  },
+  headerEyebrow: {
+    fontSize: rf(12),
+    fontWeight: "700",
+    letterSpacing: 1,
+    textTransform: "uppercase",
+    color: "#D6E7FF",
+  },
+  headerTitle: {
+    fontSize: rf(22),
+    fontWeight: "800",
+    color: "#fff",
+  },
+  headerSubtitle: {
+    fontSize: rf(13),
+    lineHeight: rf(18),
+    color: "#D6E7FF",
+  },
+  infoButton: {
+    width: s(42),
+    height: s(42),
+    borderRadius: borderRadius.full,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.14)",
   },
   section: {
     marginBottom: spacing.xl,

@@ -1,7 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useState } from "react";
 import {
   FlatList,
+  Image,
   Modal,
   ScrollView,
   StyleSheet,
@@ -18,7 +20,14 @@ import {
   getVehicleDocuments,
   updateVehicleDocument,
 } from "../services/vehicleDocumentService";
-import { ms, rf } from "../utils/responsive";
+import {
+  borderRadius,
+  iconSize,
+  ms,
+  rf,
+  s,
+  spacing,
+} from "../utils/responsive";
 
 const AddDocumentScreen = ({ navigation, route }) => {
   const { vehicleId, vehicle, document } = route.params;
@@ -35,6 +44,9 @@ const AddDocumentScreen = ({ navigation, route }) => {
   const [expiryDateSelected, setExpiryDateSelected] = useState(false);
 
   const isEditing = !!document;
+  const vehicleMeta = [vehicle?.brand, vehicle?.model, vehicle?.year]
+    .filter(Boolean)
+    .join(" • ");
 
   // Función para parsear fechas locales correctamente
   const parseLocalDate = (dateString) => {
@@ -277,10 +289,71 @@ const AddDocumentScreen = ({ navigation, route }) => {
   return (
     <DialogComponent>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-          <Text style={[styles.vehicleName, { color: colors.textSecondary }]}>
-            {vehicle?.name || "Vehículo"}
-          </Text>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.content}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.headerBlock}>
+            <LinearGradient
+              colors={[colors.primary, "#0F5FD2", "#0A3F8F"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.heroGradient}
+            >
+              <View style={styles.heroHeaderRow}>
+                <View style={styles.heroMediaRow}>
+                  {vehicle?.photo ? (
+                    <Image
+                      source={{ uri: vehicle.photo }}
+                      style={styles.vehicleImage}
+                    />
+                  ) : (
+                    <View
+                      style={[
+                        styles.imagePlaceholder,
+                        styles.heroImagePlaceholder,
+                      ]}
+                    >
+                      <Ionicons
+                        name="document-text-outline"
+                        size={s(40)}
+                        color="#D6E7FF"
+                      />
+                    </View>
+                  )}
+
+                  <View style={styles.headerInfo}>
+                    <Text style={styles.headerEyebrow}>Registro documental</Text>
+                    <Text style={styles.headerTitle}>
+                      {vehicle?.name || "Vehículo"}
+                    </Text>
+                    {!!vehicleMeta && (
+                      <Text style={styles.headerSubtitle}>{vehicleMeta}</Text>
+                    )}
+                  </View>
+                </View>
+
+                <TouchableOpacity
+                  style={styles.infoButton}
+                  onPress={() =>
+                    showDialog({
+                      title: "Registro documental",
+                      message:
+                        "Asocia documentos clave al vehículo y define sus fechas de expedición y vencimiento para mantener alertas y trazabilidad vigentes.",
+                      type: "info",
+                    })
+                  }
+                >
+                  <Ionicons
+                    name="information-circle-outline"
+                    size={iconSize.lg}
+                    color="#fff"
+                  />
+                </TouchableOpacity>
+              </View>
+            </LinearGradient>
+          </View>
 
           {/* Selector de tipo de documento */}
           <View style={styles.section}>
@@ -406,15 +479,78 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  content: {
+  scrollView: {
     flex: 1,
+  },
+  content: {
     padding: ms(20),
   },
-  vehicleName: {
-    fontSize: rf(16),
-    fontWeight: "600",
-    marginBottom: ms(20),
-    textAlign: "center",
+  headerBlock: {
+    marginBottom: spacing.lg,
+  },
+  heroGradient: {
+    marginHorizontal: -ms(20),
+    paddingHorizontal: ms(20),
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.lg,
+    borderBottomLeftRadius: borderRadius.xl,
+    borderBottomRightRadius: borderRadius.xl,
+  },
+  heroHeaderRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: spacing.md,
+  },
+  heroMediaRow: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+  },
+  imagePlaceholder: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.16)",
+  },
+  heroImagePlaceholder: {
+    width: s(76),
+    height: s(76),
+    borderRadius: borderRadius.lg,
+  },
+  vehicleImage: {
+    width: s(76),
+    height: s(76),
+    borderRadius: borderRadius.lg,
+  },
+  headerInfo: {
+    flex: 1,
+    gap: spacing.xxs,
+  },
+  headerEyebrow: {
+    fontSize: rf(12),
+    fontWeight: "700",
+    letterSpacing: 1,
+    textTransform: "uppercase",
+    color: "#D6E7FF",
+  },
+  headerTitle: {
+    fontSize: rf(22),
+    fontWeight: "800",
+    color: "#fff",
+  },
+  headerSubtitle: {
+    fontSize: rf(13),
+    lineHeight: rf(18),
+    color: "#D6E7FF",
+  },
+  infoButton: {
+    width: s(42),
+    height: s(42),
+    borderRadius: borderRadius.full,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.14)",
   },
   section: {
     marginBottom: ms(20),

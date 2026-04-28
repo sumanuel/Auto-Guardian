@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import Constants from "expo-constants";
+import { LinearGradient } from "expo-linear-gradient";
 import * as Notifications from "expo-notifications";
 import { useEffect } from "react";
 import {
@@ -105,8 +106,36 @@ const MoreScreen = () => {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScrollView style={styles.content}>
-        <Text style={[styles.title, { color: colors.text }]}>Más opciones</Text>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+        <LinearGradient
+          colors={[colors.primary, "#0F5FD2", "#0A3F8F"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.heroGradient}
+        >
+          <View style={styles.heroMediaRow}>
+            <View style={[styles.iconBadge, styles.heroIconBadge]}>
+              <Ionicons
+                name="apps-outline"
+                size={iconSize.lg}
+                color="#D6E7FF"
+              />
+            </View>
+
+            <View style={styles.headerInfo}>
+              <Text style={styles.eyebrow}>Centro de utilidades</Text>
+              <Text style={styles.title}>Más opciones</Text>
+              <Text style={styles.subtitle}>
+                Reúne accesos secundarios, recursos de aprendizaje y estado de
+                versión de la aplicación.
+              </Text>
+            </View>
+          </View>
+        </LinearGradient>
 
         <View
           style={[
@@ -192,14 +221,57 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  content: {
+  scrollView: {
     flex: 1,
+  },
+  content: {
     padding: spacing.lg,
   },
-  title: {
-    fontSize: rf(28),
-    fontWeight: "bold",
+  heroGradient: {
+    marginHorizontal: -spacing.lg,
+    marginTop: -spacing.lg,
     marginBottom: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.lg,
+    borderBottomLeftRadius: borderRadius.xl,
+    borderBottomRightRadius: borderRadius.xl,
+  },
+  heroMediaRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+  },
+  iconBadge: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.16)",
+  },
+  heroIconBadge: {
+    width: s(76),
+    height: s(76),
+    borderRadius: borderRadius.lg,
+  },
+  headerInfo: {
+    flex: 1,
+    gap: spacing.xxs,
+  },
+  eyebrow: {
+    fontSize: rf(12),
+    fontWeight: "700",
+    letterSpacing: 1,
+    textTransform: "uppercase",
+    color: "#D6E7FF",
+  },
+  title: {
+    fontSize: rf(22),
+    fontWeight: "800",
+    color: "#fff",
+  },
+  subtitle: {
+    fontSize: rf(13),
+    lineHeight: rf(18),
+    color: "#D6E7FF",
   },
   menuContainer: {
     borderRadius: borderRadius.md,

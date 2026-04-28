@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useState } from "react";
 import {
   Alert,
@@ -57,20 +58,10 @@ const NotificationsScreen = () => {
     const setup = async () => {
       await initDatabase();
       loadNotifications();
-      loadAlertNotificationSettings();
+      setAlertNotificationsEnabled(notificationsEnabled);
     };
     setup();
-  }, []);
-
-  const loadAlertNotificationSettings = async () => {
-    try {
-      // Aquí podrías cargar desde AsyncStorage si guardas la preferencia
-      // Por ahora, asumimos que están activas si las notificaciones generales están activas
-      setAlertNotificationsEnabled(notificationsEnabled);
-    } catch (error) {
-      console.error("Error cargando configuración de alertas:", error);
-    }
-  };
+  }, [notificationsEnabled]);
 
   const toggleAlertNotifications = async () => {
     try {
@@ -193,76 +184,101 @@ const NotificationsScreen = () => {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Text style={[styles.header, { color: colors.text }]}>
-        Notificaciones Programadas
-      </Text>
-
-      {/* Sección de notificaciones de alertas */}
-      <View
-        style={[
-          styles.alertSection,
-          { backgroundColor: colors.cardBackground },
-        ]}
+      <LinearGradient
+        colors={[colors.primary, "#0F5FD2", "#0A3F8F"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.heroGradient}
       >
-        <View style={styles.alertSectionHeader}>
-          <Ionicons
-            name="notifications"
-            size={iconSize.md}
-            color={colors.primary}
-          />
-          <Text style={[styles.alertSectionTitle, { color: colors.text }]}>
-            Notificaciones de Alertas
-          </Text>
+        <View style={styles.heroMediaRow}>
+          <View style={[styles.iconBadge, styles.heroIconBadge]}>
+            <Ionicons
+              name="notifications-outline"
+              size={iconSize.lg}
+              color="#D6E7FF"
+            />
+          </View>
+
+          <View style={styles.heroInfo}>
+            <Text style={styles.heroEyebrow}>Automatización de alertas</Text>
+            <Text style={styles.heroTitle}>Notificaciones programadas</Text>
+            <Text style={styles.heroSubtitle}>
+              Administra avisos manuales y recordatorios automáticos para no
+              perder eventos críticos.
+            </Text>
+          </View>
         </View>
-        <Text
+      </LinearGradient>
+
+      <View style={styles.screenContent}>
+
+        <View
           style={[
-            styles.alertSectionDescription,
-            { color: colors.textSecondary },
+            styles.alertSection,
+            { backgroundColor: colors.cardBackground, borderColor: colors.border },
           ]}
         >
-          Recibe recordatorios semanales los lunes y miércoles a las 9:00 AM
-          cuando tengas mantenimientos o documentos urgentes.
-        </Text>
-        <TouchableOpacity
-          style={[
-            styles.alertToggle,
-            {
-              backgroundColor: alertNotificationsEnabled
-                ? colors.primary
-                : colors.inputBackground,
-              borderColor: colors.border,
-            },
-          ]}
-          onPress={toggleAlertNotifications}
-        >
+          <View style={styles.alertSectionHeader}>
+            <Ionicons
+              name="notifications"
+              size={iconSize.md}
+              color={colors.primary}
+            />
+            <Text style={[styles.alertSectionTitle, { color: colors.text }]}>
+              Notificaciones de alertas
+            </Text>
+          </View>
           <Text
             style={[
-              styles.alertToggleText,
-              { color: alertNotificationsEnabled ? "#fff" : colors.text },
+              styles.alertSectionDescription,
+              { color: colors.textSecondary },
             ]}
           >
-            {alertNotificationsEnabled ? "Activadas" : "Desactivadas"}
+            Recibe recordatorios semanales los lunes y miércoles a las 9:00 AM
+            cuando tengas mantenimientos o documentos urgentes.
           </Text>
-          <Ionicons
-            name={
-              alertNotificationsEnabled ? "checkmark-circle" : "close-circle"
-            }
-            size={iconSize.sm}
-            color={alertNotificationsEnabled ? "#fff" : colors.textSecondary}
-          />
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity
+            style={[
+              styles.alertToggle,
+              {
+                backgroundColor: alertNotificationsEnabled
+                  ? colors.primary
+                  : colors.inputBackground,
+                borderColor: colors.border,
+              },
+            ]}
+            onPress={toggleAlertNotifications}
+          >
+            <Text
+              style={[
+                styles.alertToggleText,
+                { color: alertNotificationsEnabled ? "#fff" : colors.text },
+              ]}
+            >
+              {alertNotificationsEnabled ? "Activadas" : "Desactivadas"}
+            </Text>
+            <Ionicons
+              name={
+                alertNotificationsEnabled ? "checkmark-circle" : "close-circle"
+              }
+              size={iconSize.sm}
+              color={alertNotificationsEnabled ? "#fff" : colors.textSecondary}
+            />
+          </TouchableOpacity>
+        </View>
 
-      <FlatList
-        data={notifications}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={renderNotification}
-        ListEmptyComponent={
-          <Text style={[styles.empty, { color: colors.textSecondary }]}>
-            No hay notificaciones
-          </Text>
-        }
-      />
+        <FlatList
+          data={notifications}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderNotification}
+          contentContainerStyle={styles.listContent}
+          ListEmptyComponent={
+            <Text style={[styles.empty, { color: colors.textSecondary }]}>
+              No hay notificaciones
+            </Text>
+          }
+        />
+      </View>
       <TouchableOpacity
         style={[styles.addButton, { backgroundColor: colors.primary }]}
         onPress={() => setModalVisible(true)}
@@ -408,7 +424,55 @@ const NotificationsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: spacing.lg,
+  },
+  heroGradient: {
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.lg,
+    borderBottomLeftRadius: borderRadius.xl,
+    borderBottomRightRadius: borderRadius.xl,
+  },
+  heroMediaRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+  },
+  iconBadge: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.16)",
+  },
+  heroIconBadge: {
+    width: s(76),
+    height: s(76),
+    borderRadius: borderRadius.lg,
+  },
+  heroInfo: {
+    flex: 1,
+  },
+  heroEyebrow: {
+    fontSize: rf(12),
+    fontWeight: "700",
+    letterSpacing: 1,
+    textTransform: "uppercase",
+    color: "#D6E7FF",
+    marginBottom: spacing.xxs,
+  },
+  heroTitle: {
+    fontSize: rf(22),
+    fontWeight: "800",
+    color: "#fff",
+    marginBottom: spacing.xxs,
+  },
+  heroSubtitle: {
+    fontSize: rf(13),
+    lineHeight: rf(18),
+    color: "#D6E7FF",
+  },
+  screenContent: {
+    flex: 1,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
   },
   header: {
     fontSize: rf(24),
@@ -441,6 +505,9 @@ const styles = StyleSheet.create({
     marginTop: vs(50),
     fontSize: rf(16),
   },
+  listContent: {
+    paddingBottom: vs(100),
+  },
   addButton: {
     position: "absolute",
     bottom: vs(20),
@@ -452,8 +519,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   alertSection: {
-    margin: spacing.md,
     padding: spacing.md,
+    marginBottom: spacing.md,
     borderRadius: borderRadius.md,
     borderWidth: s(1),
   },

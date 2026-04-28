@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import {
   Alert,
   FlatList,
@@ -114,7 +115,7 @@ const ContactsScreen = ({ navigation }) => {
           await Linking.openURL(whatsappUrl);
           return;
         }
-      } catch (error) {
+      } catch (_error) {
         console.log("WhatsApp app no disponible, intentando con web API");
       }
 
@@ -264,33 +265,50 @@ const ContactsScreen = ({ navigation }) => {
   return (
     <DialogComponent>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={styles.header}>
-          <View>
-            <Text style={[styles.headerTitle, { color: colors.text }]}>
-              Contactos
-            </Text>
-            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-              {contacts.length} contacto{contacts.length !== 1 ? "s" : ""}
-            </Text>
+        <LinearGradient
+          colors={[colors.primary, "#0F5FD2", "#0A3F8F"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.heroGradient}
+        >
+          <View style={styles.heroHeaderRow}>
+            <View style={styles.heroMediaRow}>
+              <View style={[styles.iconBadge, styles.heroIconBadge]}>
+                <Ionicons
+                  name="people-outline"
+                  size={ms(34)}
+                  color="#D6E7FF"
+                />
+              </View>
+
+              <View style={styles.heroInfo}>
+                <Text style={styles.heroEyebrow}>Red de apoyo</Text>
+                <Text style={styles.headerTitle}>Contactos</Text>
+                <Text style={styles.subtitle}>
+                  {contacts.length} contacto{contacts.length !== 1 ? "s" : ""}
+                </Text>
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={styles.helpButtonHero}
+              onPress={() =>
+                showDialog({
+                  title: "Contactos de Confianza",
+                  message:
+                    "Aquí puedes gestionar tus contactos de confianza como mecánicos, servicios de grúas, compañías de seguros, etc. Tenlos a mano para un acceso mucho más rápido cuando necesites asistencia con tus vehículos.",
+                  type: "info",
+                })
+              }
+            >
+              <Ionicons
+                name="information-circle-outline"
+                size={ms(24)}
+                color="#fff"
+              />
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity
-            style={styles.helpButton}
-            onPress={() =>
-              showDialog({
-                title: "Contactos de Confianza",
-                message:
-                  "Aquí puedes gestionar tus contactos de confianza como mecánicos, servicios de grúas, compañías de seguros, etc. Tenlos a mano para un acceso mucho más rápido cuando necesites asistencia con tus vehículos.",
-                type: "info",
-              })
-            }
-          >
-            <Ionicons
-              name="information-circle-outline"
-              size={ms(24)}
-              color={colors.primary}
-            />
-          </TouchableOpacity>
-        </View>
+        </LinearGradient>
 
         {contacts.length === 0 ? (
           <View style={styles.emptyContainer}>{renderEmptyState()}</View>
@@ -319,8 +337,55 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
+  heroGradient: {
+    paddingHorizontal: ms(20),
+    paddingTop: ms(28),
+    paddingBottom: ms(20),
+    borderBottomLeftRadius: ms(28),
+    borderBottomRightRadius: ms(28),
+  },
+  heroHeaderRow: {
     flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    gap: ms(12),
+  },
+  heroMediaRow: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: ms(14),
+  },
+  iconBadge: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.16)",
+  },
+  heroIconBadge: {
+    width: ms(76),
+    height: ms(76),
+    borderRadius: ms(20),
+  },
+  heroInfo: {
+    flex: 1,
+  },
+  heroEyebrow: {
+    fontSize: rf(12),
+    fontWeight: "700",
+    letterSpacing: 1,
+    textTransform: "uppercase",
+    color: "#D6E7FF",
+    marginBottom: ms(4),
+  },
+  helpButtonHero: {
+    width: ms(42),
+    height: ms(42),
+    borderRadius: ms(21),
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.14)",
+  },
+  header: {
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: ms(20),
@@ -328,12 +393,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: ms(20),
   },
   headerTitle: {
-    fontSize: rf(20),
-    fontWeight: "bold",
+    fontSize: rf(22),
+    fontWeight: "800",
+    color: "#fff",
     marginBottom: ms(4),
   },
   subtitle: {
-    fontSize: rf(16),
+    fontSize: rf(13),
+    color: "#D6E7FF",
   },
   emptyContainer: {
     flex: 1,
