@@ -1273,7 +1273,7 @@ const styles = StyleSheet.create({
     color: "rgba(255,255,255,0.74)",
   },
   headerTitle: {
-    fontSize: rf(28),
+    fontSize: rf(22),
     fontWeight: "800",
     color: "#fff",
   },
