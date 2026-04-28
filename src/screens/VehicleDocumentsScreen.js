@@ -282,7 +282,7 @@ const VehicleDocumentsScreen = ({ navigation, route }) => {
               )}
 
               <View style={styles.headerInfo}>
-                <Text style={styles.heroEyebrow}>Expediente</Text>
+                <Text style={styles.heroEyebrow}>Bitácora documental</Text>
                 <Text style={styles.heroTitle}>
                   {vehicle?.name || "Vehículo"}
                 </Text>

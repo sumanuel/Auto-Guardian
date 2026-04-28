@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
+import { LinearGradient } from "expo-linear-gradient";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Image,
@@ -39,6 +40,13 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
   const [maintenanceMode, setMaintenanceMode] = useState("date"); // "date" o "km"
 
   const vehicle = vehicles.find((v) => v.id === vehicleId);
+  const vehicleMeta = [
+    vehicle?.brand,
+    vehicle?.model,
+    vehicle?.year && `${vehicle.year}`,
+  ]
+    .filter(Boolean)
+    .join(" • ");
   const [maintenanceTypes, setMaintenanceTypes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showOptionalFields, setShowOptionalFields] = useState(false);
@@ -383,63 +391,81 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.headerBlock}>
-            <View style={styles.header}>
-              <View style={styles.headerTitleWrap}>
-                <Text style={[styles.headerEyebrow, { color: colors.primary }]}>
-                  Registro MRO
-                </Text>
-                <Text style={[styles.headerTitle, { color: colors.text }]}>
-                  {maintenanceData?.id
-                    ? "Editar mantenimiento"
-                    : "Agregar mantenimiento"}
-                </Text>
-                <Text
-                  style={[
-                    styles.headerSubtitle,
-                    { color: colors.textSecondary },
-                  ]}
+            <LinearGradient
+              colors={[COLORS.primary, "#0F5FD2", "#0A3F8F"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.heroGradient}
+            >
+              <View style={styles.header}>
+                <View style={styles.heroMediaRow}>
+                  {vehicle?.photo ? (
+                    <Image
+                      source={{ uri: vehicle.photo }}
+                      style={styles.vehicleImage}
+                    />
+                  ) : (
+                    <View
+                      style={[
+                        styles.imagePlaceholder,
+                        styles.heroImagePlaceholder,
+                      ]}
+                    >
+                      <Ionicons
+                        name="car-sport-outline"
+                        size={s(44)}
+                        color="#D6E7FF"
+                      />
+                    </View>
+                  )}
+
+                  <View style={styles.headerTitleWrap}>
+                    <Text style={styles.headerEyebrow}>Registro MRO</Text>
+                    <Text style={styles.headerTitle}>
+                      {maintenanceData?.id
+                        ? "Editar mantenimiento"
+                        : "Agregar mantenimiento"}
+                    </Text>
+                    {!!vehicleMeta && (
+                      <Text style={styles.heroSubtitle}>{vehicleMeta}</Text>
+                    )}
+                    <Text style={styles.headerSubtitle}>
+                      Configura el servicio, define su próxima programación y
+                      documenta el trabajo realizado.
+                    </Text>
+                  </View>
+                </View>
+
+                <TouchableOpacity
+                  style={styles.infoIcon}
+                  onPress={() =>
+                    showDialog({
+                      title: "Registro de Mantenimiento",
+                      message:
+                        "Aquí puedes registrar mantenimientos realizados. Elige un tipo de mantenimiento de las opciones predefinidas o escribe uno personalizado. Programa el próximo servicio por fecha (útil para servicios periódicos como cambio de aceite) o por kilometraje (ideal para servicios basados en uso).",
+                      type: "info",
+                    })
+                  }
                 >
-                  Configura el servicio, define su próxima programación y
-                  documenta el trabajo realizado.
+                  <Ionicons
+                    name="information-circle-outline"
+                    size={iconSize.lg}
+                    color="#fff"
+                  />
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.vehicleBadge}>
+                <Ionicons
+                  name="car-sport-outline"
+                  size={iconSize.xs}
+                  color="#fff"
+                />
+                <Text style={styles.vehicleBadgeText}>
+                  {vehicle?.name || "Vehículo"}
                 </Text>
               </View>
-              <TouchableOpacity
-                style={[
-                  styles.infoIcon,
-                  { backgroundColor: colors.inputBackground },
-                ]}
-                onPress={() =>
-                  showDialog({
-                    title: "Registro de Mantenimiento",
-                    message:
-                      "Aquí puedes registrar mantenimientos realizados. Elige un tipo de mantenimiento de las opciones predefinidas o escribe uno personalizado. Programa el próximo servicio por fecha (útil para servicios periódicos como cambio de aceite) o por kilometraje (ideal para servicios basados en uso).",
-                    type: "info",
-                  })
-                }
-              >
-                <Ionicons
-                  name="information-circle-outline"
-                  size={iconSize.md}
-                  color={colors.primary}
-                />
-              </TouchableOpacity>
-            </View>
-
-            <View
-              style={[
-                styles.vehicleBadge,
-                { backgroundColor: colors.inputBackground },
-              ]}
-            >
-              <Ionicons
-                name="car-sport-outline"
-                size={iconSize.xs}
-                color={colors.primary}
-              />
-              <Text style={[styles.vehicleBadgeText, { color: colors.text }]}>
-                {vehicle?.name || "Vehículo"}
-              </Text>
-            </View>
+            </LinearGradient>
           </View>
 
           <View
@@ -1080,6 +1106,13 @@ const styles = StyleSheet.create({
   headerBlock: {
     marginBottom: spacing.lg,
   },
+  heroGradient: {
+    marginHorizontal: -hs(20),
+    marginTop: -vs(20),
+    paddingHorizontal: hs(20),
+    paddingTop: vs(18),
+    paddingBottom: vs(18),
+  },
   vehicleName: {
     fontSize: rf(20),
     fontWeight: "bold",
@@ -1151,8 +1184,8 @@ const styles = StyleSheet.create({
     minHeight: s(100),
   },
   radioGroup: {
-    flexDirection: "row",
-    gap: hs(12),
+    flexDirection: "column",
+    gap: hs(10),
     marginVertical: vs(8),
   },
   radioOption: {
@@ -1163,13 +1196,14 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.md,
     paddingHorizontal: hs(14),
     paddingVertical: vs(14),
-    flex: 1,
     minHeight: vs(56),
+    width: "100%",
   },
   radioLabel: {
     marginLeft: hs(8),
     fontSize: rf(16),
     fontWeight: "700",
+    flexShrink: 1,
   },
   photoContainer: {
     gap: vs(12),
@@ -1217,6 +1251,29 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "flex-start",
     marginBottom: vs(14),
+    gap: hs(12),
+  },
+  heroMediaRow: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  vehicleImage: {
+    width: s(78),
+    height: s(78),
+    borderRadius: borderRadius.md,
+    marginRight: hs(12),
+  },
+  imagePlaceholder: {
+    width: s(78),
+    height: s(78),
+    borderRadius: borderRadius.md,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: hs(12),
+  },
+  heroImagePlaceholder: {
+    backgroundColor: "rgba(255,255,255,0.12)",
   },
   headerTitleWrap: {
     flex: 1,
@@ -1228,22 +1285,33 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     letterSpacing: 0.7,
     marginBottom: vs(4),
+    color: "rgba(255,255,255,0.74)",
   },
   headerTitle: {
     fontSize: rf(28),
     fontWeight: "800",
+    color: "#fff",
+  },
+  heroSubtitle: {
+    fontSize: rf(13),
+    color: "rgba(255,255,255,0.84)",
+    marginTop: vs(4),
+    marginBottom: vs(4),
   },
   headerSubtitle: {
     fontSize: rf(14),
     lineHeight: rf(20),
     marginTop: vs(6),
+    color: "rgba(255,255,255,0.84)",
   },
   infoIcon: {
-    width: s(42),
-    height: s(42),
-    borderRadius: s(21),
+    width: s(44),
+    height: s(44),
+    borderRadius: s(22),
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.12)",
+    marginLeft: hs(12),
   },
   vehicleBadge: {
     alignSelf: "flex-start",
@@ -1252,11 +1320,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: hs(12),
     paddingVertical: vs(8),
     borderRadius: s(999),
+    backgroundColor: "rgba(255,255,255,0.14)",
   },
   vehicleBadgeText: {
     fontSize: rf(13),
     fontWeight: "700",
     marginLeft: hs(6),
+    color: "#fff",
   },
   editIconContainer: {
     flexDirection: "row",
