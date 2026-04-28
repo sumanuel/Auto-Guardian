@@ -128,13 +128,6 @@ const DataManagementScreen = ({ navigation }) => {
           style={styles.heroGradient}
         >
           <View style={styles.heroHeaderRow}>
-            <TouchableOpacity
-              style={styles.backButtonHero}
-              onPress={() => navigation.goBack()}
-            >
-              <Ionicons name="arrow-back" size={iconSize.md} color="#fff" />
-            </TouchableOpacity>
-
             <View style={styles.heroMediaRow}>
               <View style={[styles.iconBadge, styles.heroIconBadge]}>
                 <Ionicons
@@ -351,14 +344,6 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     justifyContent: "space-between",
     gap: spacing.md,
-  },
-  backButtonHero: {
-    width: s(44),
-    height: s(44),
-    borderRadius: s(22),
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(255,255,255,0.12)",
   },
   heroMediaRow: {
     flex: 1,
