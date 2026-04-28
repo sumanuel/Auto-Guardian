@@ -327,7 +327,7 @@ const AppNavigator = () => {
     Platform.OS === "ios"
       ? (tablet ? ms(70) : ms(60)) + tabBarBottomPadding
       : (tablet ? ms(74) : ms(66)) + tabBarBottomPadding;
-  const tabBarBottomOffset = Platform.OS === "ios" ? ms(10) : ms(2);
+  const tabBarBottomOffset = Platform.OS === "ios" ? ms(10) : ms(6);
   const tabBarReservedSpace = tabBarHeight + tabBarBottomOffset;
   const navigationTheme = isDarkMode
     ? {
