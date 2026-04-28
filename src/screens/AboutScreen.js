@@ -13,7 +13,7 @@ import {
 } from "../utils/responsive";
 
 const AboutScreen = () => {
-  const { colors, isDarkMode } = useTheme();
+  const { colors } = useTheme();
 
   const features = [
     {
@@ -42,11 +42,7 @@ const AboutScreen = () => {
       >
         {/* Header con gradiente */}
         <LinearGradient
-          colors={
-            isDarkMode
-              ? [colors.primary, "#1a4d6d"]
-              : [colors.primary, "#4a9bc7"]
-          }
+          colors={[colors.primary, "#0F5FD2", "#0A3F8F"]}
           style={styles.header}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
@@ -71,7 +67,7 @@ const AboutScreen = () => {
               <Ionicons
                 name="book-outline"
                 size={iconSize.md}
-                color={colors.primary}
+                color={colors.primaryDark}
               />
               <Text style={[styles.cardTitle, { color: colors.text }]}>
                 Nuestra Historia
@@ -84,7 +80,7 @@ const AboutScreen = () => {
             </Text>
             <Text style={[styles.text, { color: colors.textSecondary }]}>
               Creemos que un auto bien cuidado es sinónimo de{" "}
-              <Text style={{ fontWeight: "bold", color: colors.primary }}>
+              <Text style={{ fontWeight: "bold", color: colors.primaryDark }}>
                 seguridad, ahorro y tranquilidad
               </Text>
               .
@@ -103,7 +99,7 @@ const AboutScreen = () => {
               <Ionicons
                 name="people"
                 size={iconSize.md}
-                color={colors.primary}
+                color={colors.primaryDark}
               />
               <Text style={[styles.cardTitle, { color: colors.text }]}>
                 Para quién es esta app
@@ -115,13 +111,13 @@ const AboutScreen = () => {
                 <View
                   style={[
                     styles.iconBadge,
-                    { backgroundColor: colors.primary + "15" },
+                    { backgroundColor: `${colors.primaryDark}15` },
                   ]}
                 >
                   <Ionicons
                     name={feature.icon}
                     size={iconSize.md}
-                    color={colors.primary}
+                    color={colors.primaryDark}
                   />
                 </View>
                 <Text
@@ -135,7 +131,11 @@ const AboutScreen = () => {
 
           {/* Footer */}
           <View style={styles.footer}>
-            <Ionicons name="heart" size={iconSize.sm} color={colors.primary} />
+            <Ionicons
+              name="heart"
+              size={iconSize.sm}
+              color={colors.primaryDark}
+            />
             <Text style={[styles.footerText, { color: colors.textSecondary }]}>
               Hecho con amor para cuidar tu auto
             </Text>
