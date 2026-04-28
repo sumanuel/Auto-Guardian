@@ -43,45 +43,6 @@ import {
   vs,
 } from "../utils/responsive";
 
-const DetailMetricCard = ({ icon, label, value, accent, inverse = false }) => (
-  <View
-    style={[
-      styles.detailMetricCard,
-      inverse && styles.detailMetricCardInverse,
-      accent ? { borderColor: accent } : null,
-    ]}
-  >
-    <View
-      style={[
-        styles.detailMetricIconWrap,
-        { backgroundColor: inverse ? "rgba(255,255,255,0.12)" : `${accent}18` },
-      ]}
-    >
-      <Ionicons
-        name={icon}
-        size={iconSize.sm}
-        color={inverse ? "#fff" : accent}
-      />
-    </View>
-    <Text
-      style={[
-        styles.detailMetricValue,
-        inverse && styles.detailMetricValueInverse,
-      ]}
-    >
-      {value}
-    </Text>
-    <Text
-      style={[
-        styles.detailMetricLabel,
-        inverse && styles.detailMetricLabelInverse,
-      ]}
-    >
-      {label}
-    </Text>
-  </View>
-);
-
 const QuickActionCard = ({ icon, label, color, onPress, colors }) => (
   <TouchableOpacity
     style={[
@@ -503,8 +464,6 @@ const VehicleDetailScreen = ({ navigation, route }) => {
     );
   }
 
-  const totalServices = stats?.totalServices || 0;
-  const totalInvestment = stats?.totalCost || 0;
   const plateLabel = vehicle.plate || "Sin placa";
   const quickMaintenanceTypes = getQuickMaintenanceTypes();
   const vehicleMeta = [
@@ -599,30 +558,6 @@ const VehicleDetailScreen = ({ navigation, route }) => {
                 color="#fff"
               />
             </TouchableOpacity>
-          </View>
-
-          <View style={styles.heroStatsGrid}>
-            <DetailMetricCard
-              icon="time-outline"
-              label="Pendientes"
-              value={upcomingMaintenances.length}
-              accent={COLORS.warning}
-              inverse
-            />
-            <DetailMetricCard
-              icon="build-outline"
-              label="Servicios"
-              value={totalServices}
-              accent="#8ED1FF"
-              inverse
-            />
-            <DetailMetricCard
-              icon="wallet-outline"
-              label="Inversión"
-              value={formatCurrency(totalInvestment, currencySymbol)}
-              accent="#B8F1C6"
-              inverse
-            />
           </View>
         </LinearGradient>
 
@@ -1189,48 +1124,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginLeft: hs(12),
-  },
-  heroStatsGrid: {
-    flexDirection: "row",
-    gap: hs(8),
-    marginTop: vs(18),
-  },
-  detailMetricCard: {
-    flex: 1,
-    minHeight: vs(92),
-    borderRadius: borderRadius.md,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.sm,
-    borderWidth: 1,
-  },
-  detailMetricCardInverse: {
-    backgroundColor: "rgba(255,255,255,0.12)",
-    borderColor: "rgba(255,255,255,0.14)",
-  },
-  detailMetricIconWrap: {
-    width: s(32),
-    height: s(32),
-    borderRadius: s(16),
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: vs(10),
-  },
-  detailMetricValue: {
-    fontSize: rf(15),
-    fontWeight: "800",
-    color: COLORS.primary,
-    marginBottom: vs(3),
-  },
-  detailMetricValueInverse: {
-    color: "#fff",
-  },
-  detailMetricLabel: {
-    fontSize: rf(11),
-    fontWeight: "600",
-    color: COLORS.gray,
-  },
-  detailMetricLabelInverse: {
-    color: "rgba(255,255,255,0.74)",
   },
   kmSection: {
     marginHorizontal: hs(16),
