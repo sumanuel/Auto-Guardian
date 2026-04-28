@@ -327,11 +327,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   heroGradient: {
+    marginHorizontal: -spacing.lg,
+    marginTop: -spacing.lg,
     marginBottom: spacing.lg,
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.xl,
     paddingBottom: spacing.lg,
-    borderRadius: borderRadius.xl,
+    borderBottomLeftRadius: borderRadius.xl,
+    borderBottomRightRadius: borderRadius.xl,
   },
   heroHeaderRow: {
     flexDirection: "row",

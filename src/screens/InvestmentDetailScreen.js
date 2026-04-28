@@ -507,8 +507,12 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                 {
                   backgroundColor:
                     activeTab === "mantenimientos"
-                      ? colors.primary
+                      ? colors.primaryDark
                       : colors.cardBackground,
+                  borderColor:
+                    activeTab === "mantenimientos"
+                      ? colors.primaryDark
+                      : colors.border,
                 },
               ]}
               onPress={() => setActiveTab("mantenimientos")}
@@ -539,8 +543,12 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                 {
                   backgroundColor:
                     activeTab === "reparaciones"
-                      ? colors.primary
+                      ? colors.primaryDark
                       : colors.cardBackground,
+                  borderColor:
+                    activeTab === "reparaciones"
+                      ? colors.primaryDark
+                      : colors.border,
                 },
               ]}
               onPress={() => setActiveTab("reparaciones")}
@@ -571,8 +579,10 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                 {
                   backgroundColor:
                     activeTab === "otros"
-                      ? colors.primary
+                      ? colors.primaryDark
                       : colors.cardBackground,
+                  borderColor:
+                    activeTab === "otros" ? colors.primaryDark : colors.border,
                 },
               ]}
               onPress={() => setActiveTab("otros")}
@@ -909,7 +919,10 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
           <TouchableOpacity
             style={[
               styles.fab,
-              { backgroundColor: colors.primary, shadowColor: colors.shadow },
+              {
+                backgroundColor: colors.primaryDark,
+                shadowColor: colors.shadow,
+              },
             ]}
             onPress={() =>
               activeTab === "otros"
@@ -1123,7 +1136,6 @@ const styles = StyleSheet.create({
     padding: spacing.xl,
     alignItems: "center",
     marginBottom: vs(24),
-    marginHorizontal: spacing.lg,
     elevation: s(4),
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.18,
@@ -1375,7 +1387,7 @@ const styles = StyleSheet.create({
     borderColor: COLORS.border,
   },
   confirmButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.primaryDark,
   },
   modalButtonText: {
     fontSize: rf(16),

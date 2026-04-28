@@ -901,7 +901,7 @@ const VehicleDetailScreen = ({ navigation, route }) => {
                 <TouchableOpacity
                   style={[
                     styles.emptyStateButton,
-                    { backgroundColor: colors.primary },
+                    { backgroundColor: colors.primaryDark },
                   ]}
                   onPress={() =>
                     navigation.navigate("AddMaintenance", { vehicleId })

@@ -318,7 +318,7 @@ const ContactsScreen = ({ navigation }) => {
         )}
 
         <TouchableOpacity
-          style={[styles.fab, { backgroundColor: colors.primary }]}
+          style={[styles.fab, { backgroundColor: colors.primaryDark }]}
           onPress={() => navigation.navigate("AddContact")}
           activeOpacity={0.8}
         >

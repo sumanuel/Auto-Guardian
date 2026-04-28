@@ -482,7 +482,7 @@ const CategoriesScreen = ({ navigation }) => {
 
         {/* Botón flotante para agregar */}
         <TouchableOpacity
-          style={[styles.fab, { backgroundColor: colors.primary }]}
+          style={[styles.fab, { backgroundColor: colors.primaryDark }]}
           onPress={handleAddType}
           activeOpacity={0.8}
         >

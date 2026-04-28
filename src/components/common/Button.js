@@ -21,7 +21,7 @@ const Button = ({
         return [
           styles.button,
           styles.buttonOutline,
-          { borderColor: colors.primary },
+          { borderColor: colors.primaryDark },
           style,
         ];
       case "danger":
@@ -42,7 +42,7 @@ const Button = ({
         return [
           styles.button,
           styles.buttonPrimary,
-          { backgroundColor: colors.primary },
+          { backgroundColor: colors.primaryDark },
           style,
         ];
     }
@@ -54,7 +54,7 @@ const Button = ({
         return [
           styles.buttonText,
           styles.textOutline,
-          { color: colors.primary },
+          { color: colors.primaryDark },
         ];
       case "danger":
         return [styles.buttonText, styles.textDanger];
@@ -78,7 +78,7 @@ const Button = ({
             <Ionicons
               name={icon}
               size={ms(20)}
-              color={variant === "outline" ? colors.primary : "#fff"}
+              color={variant === "outline" ? colors.primaryDark : "#fff"}
               style={styles.icon}
             />
           )}

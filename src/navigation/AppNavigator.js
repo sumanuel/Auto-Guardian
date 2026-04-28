@@ -280,7 +280,7 @@ const MoreStack = () => {
       <Stack.Screen
         name="DataManagement"
         component={DataManagementScreen}
-        options={{ title: "Gestión de Datos" }}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="About"

@@ -282,7 +282,7 @@ const NotificationsScreen = () => {
         />
       </View>
       <TouchableOpacity
-        style={[styles.addButton, { backgroundColor: colors.primary }]}
+        style={[styles.addButton, { backgroundColor: colors.primaryDark }]}
         onPress={() => setModalVisible(true)}
       >
         <Ionicons name="add" size={iconSize.md} color="white" />

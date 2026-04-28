@@ -340,7 +340,7 @@ const VehicleDocumentsScreen = ({ navigation, route }) => {
         <TouchableOpacity
           style={[
             styles.floatingAddButton,
-            { backgroundColor: colors.primary },
+            { backgroundColor: colors.primaryDark },
           ]}
           onPress={() =>
             navigation.navigate("AddDocument", { vehicleId, vehicle })
