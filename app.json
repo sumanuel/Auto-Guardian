@@ -14,19 +14,14 @@
     "android": {
       "versionCode": 3,
       "adaptiveIcon": {
-        "backgroundColor": "#2196F3",
-        "foregroundImage": "./assets/icon.png"
+        "backgroundColor": "#0F5FD2",
+        "foregroundImage": "./assets/adaptive-icon.png"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "package": "com.trenkit.autoguardian",
       "queries": {
-        "schemes": [
-          "tel",
-          "sms",
-          "mailto",
-          "whatsapp"
-        ],
+        "schemes": ["tel", "sms", "mailto", "whatsapp"],
         "intents": [
           {
             "action": "android.intent.action.VIEW",
@@ -40,7 +35,7 @@
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-router",
@@ -50,9 +45,9 @@
           "image": "./assets/splash.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#2196F3",
+          "backgroundColor": "#0F5FD2",
           "dark": {
-            "backgroundColor": "#2196F3"
+            "backgroundColor": "#0F5FD2"
           }
         }
       ],
