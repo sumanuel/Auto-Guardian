@@ -504,18 +504,12 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   editButton: {
-    width: s(36),
-    height: s(36),
-    borderRadius: s(18),
-    alignItems: "center",
-    justifyContent: "center",
+    padding: spacing.xs,
+    borderRadius: borderRadius.xs,
   },
   deleteButton: {
-    width: s(36),
-    height: s(36),
-    borderRadius: s(18),
-    alignItems: "center",
-    justifyContent: "center",
+    padding: spacing.xs,
+    borderRadius: borderRadius.xs,
   },
   emptyContainer: {
     flex: 1,

@@ -1,8 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
-import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { LinearGradient } from "expo-linear-gradient";
 import { useCallback, useEffect, useState } from "react";
-import { FlatList, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
 import { COLORS } from "../data/constants";
@@ -15,20 +14,6 @@ import {
   spacing,
   vs,
 } from "../utils/responsive";
-
-const Tab = createMaterialTopTabNavigator();
-
-const HeroMetricCard = ({ icon, label, value, accent }) => (
-  <View style={[styles.heroMetricCard, { borderColor: accent }]}>
-    <View
-      style={[styles.heroMetricIconWrap, { backgroundColor: `${accent}22` }]}
-    >
-      <Ionicons name={icon} size={iconSize.sm} color="#fff" />
-    </View>
-    <Text style={styles.heroMetricValue}>{value}</Text>
-    <Text style={styles.heroMetricLabel}>{label}</Text>
-  </View>
-);
 
 const SummaryHero = ({ summary }) => {
   const overdueCount =
@@ -81,40 +66,16 @@ const SummaryHero = ({ summary }) => {
           </View>
         </View>
       </View>
-      <View style={styles.heroStatsRow}>
-        <HeroMetricCard
-          icon="alert-circle-outline"
-          label="Vencidos"
-          value={overdueCount}
-          accent={COLORS.danger}
-        />
-        <HeroMetricCard
-          icon="warning-outline"
-          label="Urgentes"
-          value={urgentCount}
-          accent={COLORS.warning}
-        />
-        <HeroMetricCard
-          icon="document-text-outline"
-          label="Docs"
-          value={totalDocuments}
-          accent="#8ED1FF"
-        />
-      </View>
     </LinearGradient>
   );
 };
 
-// Componente para el tab de Vehículos
-const VehiclesTab = ({ route }) => {
-  const summary = route?.params?.summary;
+const VehiclesSection = ({ summary }) => {
   const { colors } = useTheme();
 
   if (!summary) {
     return (
-      <View
-        style={[styles.tabContainer, { backgroundColor: colors.background }]}
-      >
+      <View style={styles.sectionBlock}>
         <Text style={[styles.errorText, { color: colors.text }]}>
           No hay información de alertas disponible
         </Text>
@@ -170,10 +131,15 @@ const VehiclesTab = ({ route }) => {
   );
 
   return (
-    <ScrollView
-      style={[styles.tabContainer, { backgroundColor: colors.background }]}
-      showsVerticalScrollIndicator={false}
-    >
+    <View style={styles.sectionBlock}>
+      <View style={styles.sectionLead}>
+        <Text style={[styles.sectionEyebrow, { color: colors.primaryDark }]}>
+          Vehículos
+        </Text>
+        <Text style={[styles.sectionHeading, { color: colors.text }]}>
+          Mantenimientos críticos
+        </Text>
+      </View>
       {!hasAlerts ? (
         <View style={styles.emptyState}>
           <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
@@ -182,7 +148,6 @@ const VehiclesTab = ({ route }) => {
         </View>
       ) : (
         <>
-          {/* Vencidos */}
           {overdueAlerts.length > 0 && (
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
@@ -195,16 +160,14 @@ const VehiclesTab = ({ route }) => {
                   Vencidos ({overdueAlerts.length})
                 </Text>
               </View>
-              <FlatList
-                data={overdueAlerts}
-                renderItem={renderAlertItem}
-                keyExtractor={(item, index) => `overdue-${index}`}
-                scrollEnabled={false}
-              />
+              {overdueAlerts.map((item, index) => (
+                <View key={`overdue-${index}`}>
+                  {renderAlertItem({ item })}
+                </View>
+              ))}
             </View>
           )}
 
-          {/* Urgentes */}
           {urgentAlerts.length > 0 && (
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
@@ -217,22 +180,18 @@ const VehiclesTab = ({ route }) => {
                   Urgentes ({urgentAlerts.length})
                 </Text>
               </View>
-              <FlatList
-                data={urgentAlerts}
-                renderItem={renderAlertItem}
-                keyExtractor={(item, index) => `urgent-${index}`}
-                scrollEnabled={false}
-              />
+              {urgentAlerts.map((item, index) => (
+                <View key={`urgent-${index}`}>{renderAlertItem({ item })}</View>
+              ))}
             </View>
           )}
         </>
       )}
-    </ScrollView>
+    </View>
   );
 };
 
-// Componente para el tab de Documentos
-const DocumentsTab = () => {
+const DocumentsSection = () => {
   const { colors } = useTheme();
   const { getExpiringDocuments, updateAppBadge } = useApp();
   const [expiringDocuments, setExpiringDocuments] = useState([]);
@@ -356,9 +315,7 @@ const DocumentsTab = () => {
 
   if (loading) {
     return (
-      <View
-        style={[styles.tabContainer, { backgroundColor: colors.background }]}
-      >
+      <View style={styles.sectionBlock}>
         <View style={styles.emptyState}>
           <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
             Cargando documentos...
@@ -369,10 +326,15 @@ const DocumentsTab = () => {
   }
 
   return (
-    <ScrollView
-      style={[styles.tabContainer, { backgroundColor: colors.background }]}
-      showsVerticalScrollIndicator={false}
-    >
+    <View style={styles.sectionBlock}>
+      <View style={styles.sectionLead}>
+        <Text style={[styles.sectionEyebrow, { color: colors.primaryDark }]}>
+          Documentos
+        </Text>
+        <Text style={[styles.sectionHeading, { color: colors.text }]}>
+          Vencimientos próximos
+        </Text>
+      </View>
       {expiringDocuments.length === 0 ? (
         <View style={styles.emptyState}>
           <Ionicons
@@ -395,62 +357,34 @@ const DocumentsTab = () => {
               Urgentes ({expiringDocuments.length})
             </Text>
           </View>
-          <FlatList
-            data={expiringDocuments}
-            renderItem={renderDocumentItem}
-            keyExtractor={(item) => `document-${item.id}`}
-            scrollEnabled={false}
-          />
+          {expiringDocuments.map((item) => (
+            <View key={`document-${item.id}`}>
+              {renderDocumentItem({ item })}
+            </View>
+          ))}
         </View>
       )}
-    </ScrollView>
+    </View>
   );
 };
 
-const AlertSummaryScreen = ({ navigation, route }) => {
+const AlertSummaryScreen = ({ route }) => {
   const { colors } = useTheme();
   const { summary } = route.params;
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { backgroundColor: colors.background }]}>
-        <SummaryHero summary={summary} />
-      </View>
-
-      {/* Tabs */}
-      <Tab.Navigator
-        screenOptions={{
-          tabBarActiveTintColor: colors.primary,
-          tabBarInactiveTintColor: colors.textSecondary,
-          tabBarStyle: {
-            backgroundColor: colors.cardBackground,
-            borderRadius: borderRadius.lg,
-            marginHorizontal: spacing.md,
-            marginBottom: spacing.md,
-          },
-          tabBarIndicatorStyle: { backgroundColor: colors.primary },
-        }}
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
       >
-        <Tab.Screen
-          name="Vehículos"
-          component={VehiclesTab}
-          initialParams={{ summary }}
-          options={{
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="car-sport-outline" size={size} color={color} />
-            ),
-          }}
-        />
-        <Tab.Screen
-          name="Documentos"
-          component={DocumentsTab}
-          options={{
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="document-outline" size={size} color={color} />
-            ),
-          }}
-        />
-      </Tab.Navigator>
+        <View style={[styles.header, { backgroundColor: colors.background }]}>
+          <SummaryHero summary={summary} />
+        </View>
+        <VehiclesSection summary={summary} />
+        <DocumentsSection />
+      </ScrollView>
     </View>
   );
 };
@@ -459,13 +393,19 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: spacing.xl,
+  },
   header: {
     paddingBottom: spacing.md,
   },
   heroGradient: {
     paddingHorizontal: hs(20),
     paddingTop: vs(26),
-    paddingBottom: vs(28),
+    paddingBottom: vs(18),
   },
   heroTopRow: {
     flexDirection: "row",
@@ -509,7 +449,7 @@ const styles = StyleSheet.create({
     fontSize: rf(14),
     lineHeight: rf(20),
     color: "rgba(255,255,255,0.84)",
-    marginBottom: vs(10),
+    marginBottom: vs(6),
   },
   heroMetaRow: {
     flexDirection: "row",
@@ -531,39 +471,6 @@ const styles = StyleSheet.create({
     fontSize: rf(12),
     fontWeight: "700",
     color: "#fff",
-  },
-  heroStatsRow: {
-    flexDirection: "row",
-    gap: spacing.sm,
-    marginTop: spacing.md,
-  },
-  heroMetricCard: {
-    flex: 1,
-    borderWidth: 1,
-    borderRadius: borderRadius.md,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    minHeight: vs(92),
-    backgroundColor: "rgba(255,255,255,0.12)",
-  },
-  heroMetricIconWrap: {
-    width: s(32),
-    height: s(32),
-    borderRadius: s(16),
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: vs(10),
-  },
-  heroMetricValue: {
-    fontSize: rf(18),
-    fontWeight: "800",
-    marginBottom: vs(2),
-    color: "#fff",
-  },
-  heroMetricLabel: {
-    fontSize: rf(11),
-    fontWeight: "600",
-    color: "rgba(255,255,255,0.76)",
   },
   backButton: {
     padding: spacing.xs,
@@ -615,9 +522,23 @@ const styles = StyleSheet.create({
     textAlign: "center",
     padding: spacing.lg,
   },
-  tabContainer: {
-    flex: 1,
+  sectionBlock: {
     padding: spacing.md,
+    paddingTop: 0,
+  },
+  sectionLead: {
+    marginBottom: spacing.md,
+  },
+  sectionEyebrow: {
+    fontSize: rf(12),
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.7,
+    marginBottom: spacing.xxs,
+  },
+  sectionHeading: {
+    fontSize: rf(20),
+    fontWeight: "800",
   },
   section: {
     marginBottom: spacing.xl,
