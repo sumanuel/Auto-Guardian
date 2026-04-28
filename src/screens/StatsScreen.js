@@ -392,6 +392,8 @@ const styles = StyleSheet.create({
     paddingTop: vs(18),
     paddingBottom: vs(18),
     marginBottom: spacing.lg,
+    borderBottomLeftRadius: borderRadius.xl,
+    borderBottomRightRadius: borderRadius.xl,
   },
   heroTopRow: {
     flexDirection: "row",

@@ -1097,6 +1097,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: hs(20),
     paddingTop: vs(18),
     paddingBottom: vs(18),
+    borderBottomLeftRadius: borderRadius.xl,
+    borderBottomRightRadius: borderRadius.xl,
   },
   vehicleName: {
     fontSize: rf(20),

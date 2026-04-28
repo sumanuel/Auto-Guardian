@@ -1045,6 +1045,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: hs(20),
     paddingTop: vs(26),
     paddingBottom: vs(28),
+    borderBottomLeftRadius: borderRadius.xl,
+    borderBottomRightRadius: borderRadius.xl,
   },
   heroTopRow: {
     flexDirection: "row",
