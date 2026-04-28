@@ -165,7 +165,7 @@ const StatsScreen = ({ navigation }) => {
                 >
                   <Ionicons
                     name="wallet-outline"
-                    size={s(60)}
+                    size={s(44)}
                     color="#D6E7FF"
                   />
                 </View>
@@ -177,24 +177,6 @@ const StatsScreen = ({ navigation }) => {
                     Visualiza costos de mantenimiento, reparaciones y gastos por
                     unidad.
                   </Text>
-
-                  <View style={styles.heroMetaRow}>
-                    <View style={styles.heroMetaPill}>
-                      <Text style={styles.heroMetaText}>
-                        {vehicles.length} unidades
-                      </Text>
-                    </View>
-                    <View style={styles.heroMetaPill}>
-                      <Ionicons
-                        name="cash-outline"
-                        size={iconSize.xs}
-                        color="#D6E7FF"
-                      />
-                      <Text style={styles.heroMetaText}>
-                        {formatCurrency(totalInvestment, currencySymbol)}
-                      </Text>
-                    </View>
-                  </View>
                 </View>
               </View>
 
@@ -415,8 +397,8 @@ const styles = StyleSheet.create({
   },
   heroGradient: {
     paddingHorizontal: hs(20),
-    paddingTop: vs(26),
-    paddingBottom: vs(28),
+    paddingTop: vs(18),
+    paddingBottom: vs(18),
     marginBottom: spacing.lg,
   },
   heroTopRow: {
@@ -430,12 +412,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   imagePlaceholder: {
-    width: s(100),
-    height: s(100),
+    width: s(78),
+    height: s(78),
     borderRadius: borderRadius.md,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: hs(14),
+    marginRight: hs(12),
   },
   heroImagePlaceholder: {
     backgroundColor: "rgba(255,255,255,0.12)",
@@ -456,37 +438,16 @@ const styles = StyleSheet.create({
     color: "rgba(255,255,255,0.74)",
   },
   title: {
-    fontSize: rf(28),
+    fontSize: rf(22),
     fontWeight: "800",
     color: "#fff",
   },
   subtitle: {
-    fontSize: rf(14),
-    lineHeight: rf(20),
+    fontSize: rf(13),
+    lineHeight: rf(18),
     marginTop: vs(4),
-    marginBottom: vs(10),
+    marginBottom: vs(4),
     color: "rgba(255,255,255,0.84)",
-  },
-  heroMetaRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: spacing.sm,
-  },
-  heroMetaPill: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.xxs,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: s(999),
-    backgroundColor: "rgba(255,255,255,0.14)",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.1)",
-  },
-  heroMetaText: {
-    fontSize: rf(12),
-    fontWeight: "700",
-    color: "#fff",
   },
   helpButtonHero: {
     width: s(44),
@@ -530,33 +491,33 @@ const styles = StyleSheet.create({
   summaryGrid: {
     flexDirection: "row",
     gap: spacing.sm,
-    marginTop: vs(18),
+    marginTop: vs(14),
   },
   heroMetricCard: {
     flex: 1,
     borderWidth: 1,
     borderRadius: borderRadius.md,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    minHeight: vs(92),
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    minHeight: vs(76),
     backgroundColor: "rgba(255,255,255,0.12)",
   },
   heroMetricIconWrap: {
-    width: s(32),
-    height: s(32),
-    borderRadius: s(16),
+    width: s(28),
+    height: s(28),
+    borderRadius: s(14),
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: vs(10),
+    marginBottom: vs(8),
   },
   heroMetricValue: {
-    fontSize: rf(20),
+    fontSize: rf(18),
     fontWeight: "800",
     marginBottom: vs(2),
     color: "#fff",
   },
   heroMetricLabel: {
-    fontSize: rf(11),
+    fontSize: rf(10),
     fontWeight: "600",
     color: "rgba(255,255,255,0.76)",
   },

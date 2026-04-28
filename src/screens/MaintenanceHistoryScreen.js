@@ -221,7 +221,6 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
     (item) => item.nextServiceKm || item.nextServiceDate,
   ).length;
   const completedCount = maintenances.length - inProgressCount;
-  const plateLabel = vehicle?.plate || (vehicle ? "Sin placa" : "Vista global");
   const vehicleMeta = vehicle
     ? [vehicle.brand, vehicle.model, vehicle.year && `${vehicle.year}`]
         .filter(Boolean)
@@ -719,7 +718,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
                 >
                   <Ionicons
                     name="car-sport-outline"
-                    size={ms(60)}
+                    size={ms(44)}
                     color="#D6E7FF"
                   />
                 </View>
@@ -733,24 +732,6 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
                 {!!vehicleMeta && (
                   <Text style={styles.headerSubtitle}>{vehicleMeta}</Text>
                 )}
-
-                <View style={styles.heroMetaRow}>
-                  <View style={styles.heroMetaPill}>
-                    <Text style={styles.heroMetaText}>{plateLabel}</Text>
-                  </View>
-                  <View style={styles.heroMetaPill}>
-                    <Ionicons
-                      name="speedometer-outline"
-                      size={iconSize.xs}
-                      color="#D6E7FF"
-                    />
-                    <Text style={styles.heroMetaText}>
-                      {vehicle
-                        ? formatKm(vehicle.currentKm)
-                        : `${maintenances.length} registros`}
-                    </Text>
-                  </View>
-                </View>
               </View>
             </View>
 
@@ -1295,8 +1276,8 @@ const styles = StyleSheet.create({
   },
   heroGradient: {
     paddingHorizontal: hs(20),
-    paddingTop: vs(26),
-    paddingBottom: vs(28),
+    paddingTop: vs(18),
+    paddingBottom: vs(18),
   },
   headerTopRow: {
     flexDirection: "row",
@@ -1309,18 +1290,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   vehicleImage: {
-    width: s(100),
-    height: s(100),
+    width: s(78),
+    height: s(78),
     borderRadius: borderRadius.md,
-    marginRight: hs(14),
+    marginRight: hs(12),
   },
   imagePlaceholder: {
-    width: s(100),
-    height: s(100),
+    width: s(78),
+    height: s(78),
     borderRadius: borderRadius.md,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: hs(14),
+    marginRight: hs(12),
   },
   heroImagePlaceholder: {
     backgroundColor: "rgba(255,255,255,0.12)",
@@ -1337,36 +1318,15 @@ const styles = StyleSheet.create({
     color: "rgba(255,255,255,0.74)",
   },
   headerTitle: {
-    fontSize: rf(24),
+    fontSize: rf(22),
     fontWeight: "800",
     color: "#fff",
   },
   headerSubtitle: {
-    fontSize: rf(14),
+    fontSize: rf(13),
     marginTop: vs(4),
     color: "rgba(255,255,255,0.84)",
-    marginBottom: vs(10),
-  },
-  heroMetaRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: hs(8),
-  },
-  heroMetaPill: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: hs(6),
-    paddingHorizontal: hs(10),
-    paddingVertical: vs(6),
-    borderRadius: s(999),
-    backgroundColor: "rgba(255,255,255,0.14)",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.1)",
-  },
-  heroMetaText: {
-    fontSize: rf(12),
-    fontWeight: "700",
-    color: "#fff",
+    marginBottom: vs(4),
   },
   helpButtonHero: {
     width: s(44),
@@ -1413,28 +1373,31 @@ const styles = StyleSheet.create({
   listContent: {
     padding: spacing.lg,
     flexGrow: 1,
-    paddingBottom: spacing.xxl,
+    marginTop: vs(14),
   },
   tabsContainer: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: vs(10),
-    marginBottom: vs(4),
+    paddingVertical: spacing.xs,
     paddingHorizontal: hs(16),
     position: "relative",
   },
   infoIcon: {
     position: "absolute",
     right: hs(16),
-    padding: spacing.sm,
+    width: s(28),
+    height: s(28),
+    borderRadius: s(14),
+    alignItems: "center",
+    justifyContent: "center",
   },
   tab: {
     paddingVertical: vs(8),
     paddingHorizontal: hs(24),
+    marginBottom: vs(8),
     borderRadius: borderRadius.xl,
     marginHorizontal: hs(4),
-    elevation: s(2),
     borderWidth: 1,
   },
   tabText: {

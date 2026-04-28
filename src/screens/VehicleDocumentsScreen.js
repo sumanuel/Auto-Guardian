@@ -17,7 +17,7 @@ import {
   deleteVehicleDocument,
   getVehicleDocuments,
 } from "../services/vehicleDocumentService";
-import { formatKm, getDocumentExpiryColor } from "../utils/formatUtils";
+import { getDocumentExpiryColor } from "../utils/formatUtils";
 import {
   borderRadius,
   hs,
@@ -110,7 +110,6 @@ const VehicleDocumentsScreen = ({ navigation, route }) => {
 
     return totals;
   }, [documents]);
-  const plateLabel = vehicle?.plate || "Sin placa";
   const vehicleMeta = [
     vehicle?.brand,
     vehicle?.model,
@@ -316,7 +315,7 @@ const VehicleDocumentsScreen = ({ navigation, route }) => {
                 >
                   <Ionicons
                     name="car-sport-outline"
-                    size={s(60)}
+                    size={s(44)}
                     color="#D6E7FF"
                   />
                 </View>
@@ -330,22 +329,6 @@ const VehicleDocumentsScreen = ({ navigation, route }) => {
                 {!!vehicleMeta && (
                   <Text style={styles.heroSubtitle}>{vehicleMeta}</Text>
                 )}
-
-                <View style={styles.heroMetaRow}>
-                  <View style={styles.heroMetaPill}>
-                    <Text style={styles.heroMetaText}>{plateLabel}</Text>
-                  </View>
-                  <View style={styles.heroMetaPill}>
-                    <Ionicons
-                      name="speedometer-outline"
-                      size={iconSize.xs}
-                      color="#D6E7FF"
-                    />
-                    <Text style={styles.heroMetaText}>
-                      {formatKm(vehicle?.currentKm)}
-                    </Text>
-                  </View>
-                </View>
               </View>
             </View>
 
@@ -437,8 +420,8 @@ const styles = StyleSheet.create({
   },
   heroGradient: {
     paddingHorizontal: hs(20),
-    paddingTop: vs(26),
-    paddingBottom: vs(28),
+    paddingTop: vs(18),
+    paddingBottom: vs(18),
   },
   heroTopRow: {
     flexDirection: "row",
@@ -451,18 +434,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   vehicleImage: {
-    width: s(100),
-    height: s(100),
+    width: s(78),
+    height: s(78),
     borderRadius: borderRadius.md,
-    marginRight: hs(14),
+    marginRight: hs(12),
   },
   imagePlaceholder: {
-    width: s(100),
-    height: s(100),
+    width: s(78),
+    height: s(78),
     borderRadius: borderRadius.md,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: hs(14),
+    marginRight: hs(12),
   },
   heroImagePlaceholder: {
     backgroundColor: "rgba(255,255,255,0.12)",
@@ -479,36 +462,15 @@ const styles = StyleSheet.create({
     color: "rgba(255,255,255,0.74)",
   },
   heroTitle: {
-    fontSize: rf(26),
+    fontSize: rf(22),
     fontWeight: "800",
     color: "#fff",
   },
   heroSubtitle: {
-    fontSize: rf(14),
+    fontSize: rf(13),
     color: "rgba(255,255,255,0.84)",
     marginTop: vs(4),
-    marginBottom: vs(10),
-  },
-  heroMetaRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: hs(8),
-  },
-  heroMetaPill: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: hs(6),
-    paddingHorizontal: hs(10),
-    paddingVertical: vs(6),
-    borderRadius: s(999),
-    backgroundColor: "rgba(255,255,255,0.14)",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.1)",
-  },
-  heroMetaText: {
-    fontSize: rf(12),
-    fontWeight: "700",
-    color: "#fff",
+    marginBottom: vs(4),
   },
   helpButtonHero: {
     width: s(44),
@@ -555,33 +517,33 @@ const styles = StyleSheet.create({
   listContainer: {
     padding: spacing.lg,
     paddingTop: 0,
-    paddingBottom: vs(100),
+    marginTop: vs(14),
   },
   documentCard: {
     borderRadius: borderRadius.lg,
     borderWidth: 1,
     padding: spacing.md,
-    marginBottom: spacing.sm,
-    elevation: s(3),
-    shadowOffset: { width: 0, height: 6 },
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    minHeight: vs(76),
     shadowOpacity: 0.08,
     shadowRadius: s(10),
   },
-  documentTopRow: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
-    gap: hs(10),
-  },
+  width: s(28),
+  height: s(28),
+  borderRadius: s(14),
+  justifyContent: "space-between",
+  gap: hs(10),
+  marginBottom: vs(8),
   documentInfo: {
     flexDirection: "row",
-    alignItems: "flex-start",
+    fontSize: rf(18),
     flex: 1,
     minWidth: 0,
   },
   documentIconWrap: {
     width: s(44),
-    height: s(44),
+    fontSize: rf(10),
     borderRadius: s(22),
     alignItems: "center",
     justifyContent: "center",
