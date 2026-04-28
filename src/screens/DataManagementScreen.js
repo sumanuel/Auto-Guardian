@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { useState } from "react";
 import {
   ActivityIndicator,
@@ -119,26 +120,46 @@ const DataManagementScreen = ({ navigation }) => {
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.background }]}
     >
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Ionicons name="arrow-back" size={iconSize.md} color={colors.text} />
-        </TouchableOpacity>
-        <Text style={[styles.title, { color: colors.text }]}>
-          Gestión de Datos
-        </Text>
-        <TouchableOpacity style={styles.infoButton} onPress={showBackupInfo}>
-          <Ionicons
-            name="information-circle-outline"
-            size={iconSize.md}
-            color={colors.primary}
-          />
-        </TouchableOpacity>
-      </View>
-
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        <LinearGradient
+          colors={[colors.primary, "#0F5FD2", "#0A3F8F"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.heroGradient}
+        >
+          <View style={styles.heroHeaderRow}>
+            <View style={styles.heroMediaRow}>
+              <View style={[styles.iconBadge, styles.heroIconBadge]}>
+                <Ionicons
+                  name="server-outline"
+                  size={iconSize.lg}
+                  color="#D6E7FF"
+                />
+              </View>
+
+              <View style={styles.heroInfo}>
+                <Text style={styles.heroEyebrow}>Control de respaldo</Text>
+                <Text style={styles.title}>Gestión de datos</Text>
+                <Text style={styles.heroSubtitle}>
+                  Exporta, importa y protege la información operativa de la app
+                  con trazabilidad clara.
+                </Text>
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={styles.helpButtonHero}
+              onPress={showBackupInfo}
+            >
+              <Ionicons
+                name="information-circle-outline"
+                size={iconSize.lg}
+                color="#fff"
+              />
+            </TouchableOpacity>
+          </View>
+        </LinearGradient>
+
         <View style={[styles.card, { backgroundColor: colors.cardBackground }]}>
           <View style={styles.cardHeader}>
             <Ionicons
@@ -162,7 +183,7 @@ const DataManagementScreen = ({ navigation }) => {
             <TouchableOpacity
               style={[
                 styles.actionButton,
-                { backgroundColor: colors.primary },
+                { backgroundColor: colors.primaryDark },
                 backupBusy && styles.buttonDisabled,
               ]}
               onPress={handleExportData}
@@ -185,23 +206,26 @@ const DataManagementScreen = ({ navigation }) => {
             <TouchableOpacity
               style={[
                 styles.actionButton,
-                { borderColor: colors.primary, borderWidth: ms(1) },
+                { borderColor: colors.primaryDark, borderWidth: ms(1) },
                 backupBusy && styles.buttonDisabled,
               ]}
               onPress={handleImportData}
               disabled={backupBusy}
             >
               {backupBusy ? (
-                <ActivityIndicator color={colors.primary} />
+                <ActivityIndicator color={colors.primaryDark} />
               ) : (
                 <>
                   <Ionicons
                     name="cloud-upload-outline"
                     size={iconSize.sm}
-                    color={colors.primary}
+                    color={colors.primaryDark}
                   />
                   <Text
-                    style={[styles.actionButtonText, { color: colors.primary }]}
+                    style={[
+                      styles.actionButtonText,
+                      { color: colors.primaryDark },
+                    ]}
                   >
                     Importar Datos
                   </Text>
@@ -305,24 +329,66 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
+  heroGradient: {
+    marginHorizontal: -spacing.lg,
+    marginTop: -spacing.lg,
+    marginBottom: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.lg,
+    borderBottomLeftRadius: borderRadius.xl,
+    borderBottomRightRadius: borderRadius.xl,
+  },
+  heroHeaderRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: spacing.md,
+  },
+  heroMediaRow: {
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    borderBottomWidth: s(1),
-    borderBottomColor: "#f0f0f0",
+    gap: spacing.md,
   },
-  backButton: {
-    padding: spacing.xs,
+  iconBadge: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.16)",
+  },
+  heroIconBadge: {
+    width: s(76),
+    height: s(76),
+    borderRadius: borderRadius.lg,
+  },
+  heroInfo: {
+    flex: 1,
+  },
+  heroEyebrow: {
+    fontSize: rf(12),
+    fontWeight: "700",
+    letterSpacing: 1,
+    textTransform: "uppercase",
+    color: "#D6E7FF",
+    marginBottom: spacing.xxs,
   },
   title: {
-    fontSize: rf(20),
-    fontWeight: "bold",
+    fontSize: rf(22),
+    fontWeight: "800",
+    color: "#fff",
   },
-  infoButton: {
-    padding: spacing.xs,
+  heroSubtitle: {
+    fontSize: rf(13),
+    lineHeight: rf(18),
+    color: "#D6E7FF",
+  },
+  helpButtonHero: {
+    width: s(44),
+    height: s(44),
+    borderRadius: s(22),
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.12)",
   },
   content: {
     flex: 1,

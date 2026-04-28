@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useTheme } from "../context/ThemeContext";
 import { borderRadius, iconSize, ms, rf, spacing } from "../utils/responsive";
@@ -30,12 +31,43 @@ const LearnCarScreen = ({ navigation }) => {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScrollView style={styles.content}>
-        <Text style={[styles.sectionTitle, { color: colors.primary }]}>
-          Señales de Alerta que No Debes Ignorar
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+        <LinearGradient
+          colors={[colors.primary, "#1673E6", "#0F5FD2"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.heroCard}
+        >
+          <View style={styles.heroMediaRow}>
+            <View style={styles.heroIconBadge}>
+              <Ionicons
+                name="search-outline"
+                size={iconSize.lg}
+                color="#D6E7FF"
+              />
+            </View>
+
+            <View style={styles.heroInfo}>
+              <Text style={styles.heroEyebrow}>Lectura del vehículo</Text>
+              <Text style={styles.heroTitle}>Aprende sobre tu auto</Text>
+              <Text style={styles.heroSubtitle}>
+                Reconoce síntomas, interpreta señales tempranas y adopta buenas
+                prácticas para cuidar mejor tu unidad.
+              </Text>
+            </View>
+          </View>
+        </LinearGradient>
+
+        <Text style={[styles.sectionTitle, { color: colors.primaryDark }]}>
+          Señales de alerta que no debes ignorar
         </Text>
         <Text style={[styles.introText, { color: colors.text }]}>
-          &apos;Si ves, escuchas o sientes esto, revisa tu auto:&apos;
+          Si ves, escuchas o sientes esto, conviene revisar el vehículo cuanto
+          antes.
         </Text>
 
         {alerts.map((alert, index) => (
@@ -85,7 +117,7 @@ const LearnCarScreen = ({ navigation }) => {
             <Ionicons
               name="checkmark-circle"
               size={iconSize.sm}
-              color={colors.primary}
+              color={colors.primaryDark}
               style={styles.icon}
             />
             <Text style={[styles.practiceContent, { color: colors.text }]}>
@@ -103,10 +135,58 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  content: {
+  scrollView: {
     flex: 1,
+  },
+  content: {
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.lg,
+    paddingBottom: spacing.xl,
+  },
+  heroCard: {
+    marginHorizontal: -spacing.lg,
+    marginTop: -spacing.lg,
+    marginBottom: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.lg,
+    borderBottomLeftRadius: borderRadius.xl,
+    borderBottomRightRadius: borderRadius.xl,
+  },
+  heroMediaRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+  },
+  heroIconBadge: {
+    width: ms(68),
+    height: ms(68),
+    borderRadius: borderRadius.lg,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.14)",
+  },
+  heroInfo: {
+    flex: 1,
+  },
+  heroEyebrow: {
+    fontSize: rf(12),
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.7,
+    color: "rgba(255,255,255,0.74)",
+    marginBottom: spacing.xxs,
+  },
+  heroTitle: {
+    fontSize: rf(22),
+    fontWeight: "800",
+    color: "#fff",
+  },
+  heroSubtitle: {
+    fontSize: rf(13),
+    lineHeight: rf(18),
+    color: "rgba(255,255,255,0.84)",
+    marginTop: spacing.xxs,
   },
   sectionTitle: {
     fontSize: rf(18),

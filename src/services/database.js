@@ -138,7 +138,7 @@ const seedMaintenanceTypes = () => {
           type.defaultIntervalTime,
           type.defaultIntervalUnit,
           type.icon,
-        ]
+        ],
       );
     } catch (error) {
       // Ignorar si ya existe
@@ -201,7 +201,7 @@ const seedDocumentTypes = () => {
     },
     {
       code: 4,
-      type_document: "SOAT",
+      type_document: "Seguro Obligatorio",
       description: "Seguro Obligatorio de Accidentes de Tránsito",
     },
     {
@@ -225,11 +225,24 @@ const seedDocumentTypes = () => {
     documentTypes.forEach((docType) => {
       db.runSync(
         "INSERT OR IGNORE INTO document_types (code, type_document, description) VALUES (?, ?, ?)",
-        [docType.code, docType.type_document, docType.description]
+        [docType.code, docType.type_document, docType.description],
       );
     });
   } catch (error) {
     console.error("Error insertando tipos de documentos:", error);
+  }
+
+  migrateDocumentTypeNames();
+};
+
+const migrateDocumentTypeNames = () => {
+  try {
+    db.runSync(
+      "UPDATE document_types SET type_document = ? WHERE code = ? AND type_document = ?",
+      ["Seguro Obligatorio", 4, "SOAT"],
+    );
+  } catch (error) {
+    console.error("Error migrando nombres de tipos de documentos:", error);
   }
 };
 
@@ -382,17 +395,17 @@ const migrateDatabase = () => {
 
     if (!hasOrderColumn) {
       console.log(
-        "🔄 Migrando tabla maintenance_types: agregando campo 'order'"
+        "🔄 Migrando tabla maintenance_types: agregando campo 'order'",
       );
 
       // Agregar columna order
       db.execSync(
-        "ALTER TABLE maintenance_types ADD COLUMN `order` INTEGER DEFAULT 0"
+        "ALTER TABLE maintenance_types ADD COLUMN `order` INTEGER DEFAULT 0",
       );
 
       // Asignar orden inicial basado en el orden actual
       const types = db.getAllSync(
-        "SELECT id FROM maintenance_types ORDER BY id"
+        "SELECT id FROM maintenance_types ORDER BY id",
       );
       types.forEach((type, index) => {
         db.runSync("UPDATE maintenance_types SET `order` = ? WHERE id = ?", [
@@ -402,51 +415,51 @@ const migrateDatabase = () => {
       });
 
       console.log(
-        "✅ Migración completada: campo 'order' agregado a maintenance_types"
+        "✅ Migración completada: campo 'order' agregado a maintenance_types",
       );
     }
 
     // Migrar defaultIntervalMonths a defaultIntervalTime y agregar unit
     const hasMonthsColumn = tableInfo.some(
-      (column) => column.name === "defaultIntervalMonths"
+      (column) => column.name === "defaultIntervalMonths",
     );
     const hasTimeColumn = tableInfo.some(
-      (column) => column.name === "defaultIntervalTime"
+      (column) => column.name === "defaultIntervalTime",
     );
     const hasUnitColumn = tableInfo.some(
-      (column) => column.name === "defaultIntervalUnit"
+      (column) => column.name === "defaultIntervalUnit",
     );
 
     if (hasMonthsColumn && !hasTimeColumn) {
       console.log(
-        "🔄 Migrando tabla maintenance_types: renombrando defaultIntervalMonths a defaultIntervalTime y agregando defaultIntervalUnit"
+        "🔄 Migrando tabla maintenance_types: renombrando defaultIntervalMonths a defaultIntervalTime y agregando defaultIntervalUnit",
       );
 
       // Renombrar columna
       db.execSync(
-        "ALTER TABLE maintenance_types RENAME COLUMN defaultIntervalMonths TO defaultIntervalTime"
+        "ALTER TABLE maintenance_types RENAME COLUMN defaultIntervalMonths TO defaultIntervalTime",
       );
 
       // Agregar columna unit
       db.execSync(
-        "ALTER TABLE maintenance_types ADD COLUMN defaultIntervalUnit TEXT DEFAULT 'months'"
+        "ALTER TABLE maintenance_types ADD COLUMN defaultIntervalUnit TEXT DEFAULT 'months'",
       );
 
       console.log(
-        "✅ Migración completada: defaultIntervalMonths renombrado a defaultIntervalTime y defaultIntervalUnit agregado"
+        "✅ Migración completada: defaultIntervalMonths renombrado a defaultIntervalTime y defaultIntervalUnit agregado",
       );
     } else if (!hasUnitColumn) {
       console.log(
-        "🔄 Migrando tabla maintenance_types: agregando campo 'defaultIntervalUnit'"
+        "🔄 Migrando tabla maintenance_types: agregando campo 'defaultIntervalUnit'",
       );
 
       // Agregar columna unit
       db.execSync(
-        "ALTER TABLE maintenance_types ADD COLUMN defaultIntervalUnit TEXT DEFAULT 'months'"
+        "ALTER TABLE maintenance_types ADD COLUMN defaultIntervalUnit TEXT DEFAULT 'months'",
       );
 
       console.log(
-        "✅ Migración completada: campo 'defaultIntervalUnit' agregado a maintenance_types"
+        "✅ Migración completada: campo 'defaultIntervalUnit' agregado a maintenance_types",
       );
     }
   } catch (error) {

@@ -1,12 +1,16 @@
+import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRef, useState } from "react";
 import {
+  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from "react-native";
 import Button from "../components/common/Button";
@@ -24,6 +28,9 @@ const AddRepairScreen = ({ route, navigation }) => {
   const isEditing = !!repair;
 
   const vehicle = vehicles.find((v) => v.id === vehicleId);
+  const vehicleMeta = [vehicle?.brand, vehicle?.model, vehicle?.year]
+    .filter(Boolean)
+    .join(" • ");
 
   const [formData, setFormData] = useState({
     description: repair?.description || "",
@@ -65,7 +72,7 @@ const AddRepairScreen = ({ route, navigation }) => {
       return;
     }
 
-    const result = await ImagePicker.launchImagePickerAsync({
+    const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 0.8,
@@ -190,7 +197,7 @@ const AddRepairScreen = ({ route, navigation }) => {
       }
 
       navigation.goBack();
-    } catch (error) {
+    } catch (_error) {
       showDialog({
         title: "Error",
         message: "No se pudo guardar la reparación",
@@ -211,10 +218,70 @@ const AddRepairScreen = ({ route, navigation }) => {
           ref={scrollViewRef}
           style={styles.scrollView}
           contentContainerStyle={styles.content}
+          showsVerticalScrollIndicator={false}
         >
-          <Text style={[styles.vehicleName, { color: colors.text }]}>
-            {vehicle?.name}
-          </Text>
+          <View style={styles.headerBlock}>
+            <LinearGradient
+              colors={[colors.primary, "#0F5FD2", "#0A3F8F"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.heroGradient}
+            >
+              <View style={styles.heroHeaderRow}>
+                <View style={styles.heroMediaRow}>
+                  {vehicle?.photo ? (
+                    <Image
+                      source={{ uri: vehicle.photo }}
+                      style={styles.vehicleImage}
+                    />
+                  ) : (
+                    <View
+                      style={[
+                        styles.imagePlaceholder,
+                        styles.heroImagePlaceholder,
+                      ]}
+                    >
+                      <Ionicons
+                        name="build-outline"
+                        size={s(40)}
+                        color="#D6E7FF"
+                      />
+                    </View>
+                  )}
+
+                  <View style={styles.headerInfo}>
+                    <Text style={styles.headerEyebrow}>
+                      Registro de reparación
+                    </Text>
+                    <Text style={styles.headerTitle}>
+                      {vehicle?.name || "Vehículo"}
+                    </Text>
+                    {!!vehicleMeta && (
+                      <Text style={styles.headerSubtitle}>{vehicleMeta}</Text>
+                    )}
+                  </View>
+                </View>
+
+                <TouchableOpacity
+                  style={styles.infoButton}
+                  onPress={() =>
+                    showDialog({
+                      title: "Registro de Reparación",
+                      message:
+                        "Registra averías, trabajos correctivos y costos asociados para mantener trazabilidad técnica y financiera del vehículo.",
+                      type: "info",
+                    })
+                  }
+                >
+                  <Ionicons
+                    name="information-circle-outline"
+                    size={vs(24)}
+                    color="#fff"
+                  />
+                </TouchableOpacity>
+              </View>
+            </LinearGradient>
+          </View>
 
           {/* Descripción */}
           <View style={styles.inputGroup}>
@@ -382,16 +449,80 @@ const styles = StyleSheet.create({
   content: {
     padding: spacing.lg,
   },
-  vehicleName: {
-    fontSize: rf(20),
-    fontWeight: "bold",
+  headerBlock: {
     marginBottom: spacing.lg,
+  },
+  heroGradient: {
+    marginHorizontal: -spacing.lg,
+    marginTop: -spacing.lg,
+    paddingHorizontal: spacing.lg,
+    paddingTop: vs(18),
+    paddingBottom: vs(18),
+    borderBottomLeftRadius: borderRadius.xl,
+    borderBottomRightRadius: borderRadius.xl,
+  },
+  heroHeaderRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: spacing.md,
+  },
+  heroMediaRow: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+  },
+  imagePlaceholder: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.16)",
+  },
+  heroImagePlaceholder: {
+    width: s(78),
+    height: s(78),
+    borderRadius: borderRadius.md,
+  },
+  vehicleImage: {
+    width: s(78),
+    height: s(78),
+    borderRadius: borderRadius.md,
+  },
+  headerInfo: {
+    flex: 1,
+    paddingRight: spacing.md,
+  },
+  headerEyebrow: {
+    fontSize: rf(12),
+    fontWeight: "700",
+    letterSpacing: 0.7,
+    textTransform: "uppercase",
+    marginBottom: vs(4),
+    color: "rgba(255,255,255,0.74)",
+  },
+  headerTitle: {
+    fontSize: rf(22),
+    fontWeight: "800",
+    color: "#fff",
+  },
+  headerSubtitle: {
+    fontSize: rf(13),
+    marginTop: vs(4),
+    color: "rgba(255,255,255,0.84)",
+  },
+  infoButton: {
+    width: s(44),
+    height: s(44),
+    borderRadius: s(22),
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.12)",
   },
   inputGroup: {
     marginBottom: spacing.lg,
   },
   label: {
-    fontSize: rf(16),
+    fontSize: rf(14),
     fontWeight: "600",
     marginBottom: spacing.xs,
   },

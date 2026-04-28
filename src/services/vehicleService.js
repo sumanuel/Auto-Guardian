@@ -4,7 +4,7 @@ import db from "./database";
 export const getAllVehicles = () => {
   try {
     const vehicles = db.getAllSync(
-      "SELECT * FROM vehicles ORDER BY createdAt DESC"
+      "SELECT * FROM vehicles ORDER BY createdAt DESC",
     );
     return vehicles;
   } catch (error) {
@@ -42,7 +42,7 @@ export const createVehicle = (vehicleData) => {
         vehicleData.vin || null,
         vehicleData.currentKm || 0,
         vehicleData.photo || null,
-      ]
+      ],
     );
     return result.lastInsertRowId;
   } catch (error) {
@@ -69,11 +69,24 @@ export const updateVehicle = (id, vehicleData) => {
         vehicleData.currentKm || 0,
         vehicleData.photo || null,
         id,
-      ]
+      ],
     );
     return true;
   } catch (error) {
     console.error("Error actualizando vehículo:", error);
+    throw error;
+  }
+};
+
+export const updateVehiclePhoto = (id, photo) => {
+  try {
+    db.runSync("UPDATE vehicles SET photo = ? WHERE id = ?", [
+      photo || null,
+      id,
+    ]);
+    return true;
+  } catch (error) {
+    console.error("Error actualizando foto del vehículo:", error);
     throw error;
   }
 };

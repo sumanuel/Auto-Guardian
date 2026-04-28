@@ -1,13 +1,22 @@
-﻿import { Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { Image, StyleSheet, Text, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useTheme } from "../../context/ThemeContext";
 import { COLORS } from "../../data/constants";
 import { formatKm } from "../../utils/formatUtils";
-import { ms, rf } from "../../utils/responsive";
+import {
+  borderRadius,
+  hs,
+  iconSize,
+  ms,
+  rf,
+  spacing,
+  vs,
+} from "../../utils/responsive";
 
 const VehicleCard = ({
   vehicle,
+  compact = false,
   onPress,
   onEdit,
   onDelete,
@@ -15,6 +24,15 @@ const VehicleCard = ({
   showDialog,
 }) => {
   const { colors } = useTheme();
+  const imageSize = compact ? ms(54) : ms(64);
+  const actionSize = compact ? ms(30) : ms(34);
+  const actionIconSize = compact ? ms(16) : ms(18);
+  const plateMaxWidth = compact ? "38%" : "42%";
+  const verticalPadding = compact ? spacing.sm : spacing.md;
+  const horizontalPadding = compact ? spacing.sm : spacing.md;
+  const titleSize = compact ? rf(15) : rf(17);
+  const metaSize = compact ? rf(12) : rf(13);
+
   const handleDelete = () => {
     if (showDialog) {
       showDialog({
@@ -43,7 +61,7 @@ const VehicleCard = ({
             style: "destructive",
             onPress: () => onDelete(vehicle.id),
           },
-        ]
+        ],
       );
     }
   };
@@ -52,92 +70,231 @@ const VehicleCard = ({
     onEdit(vehicle);
   };
 
+  const vehicleTitle = vehicle.name || "Vehículo sin nombre";
+  const vehicleMeta = [
+    vehicle.brand,
+    vehicle.model,
+    vehicle.year && `${vehicle.year}`,
+  ]
+    .filter(Boolean)
+    .join(" • ");
+  const plateLabel = vehicle.plate || "Sin placa";
+
   return (
     <View
       style={[
         styles.card,
-        { backgroundColor: colors.cardBackground, shadowColor: colors.shadow },
+        {
+          backgroundColor: colors.cardBackground,
+          borderColor: colors.border,
+          shadowColor: colors.shadow,
+          marginBottom: compact ? vs(10) : vs(12),
+        },
       ]}
     >
       <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
-        <View style={styles.cardContent}>
-          <View style={styles.imageContainer}>
+        <View
+          style={[
+            styles.cardContent,
+            {
+              paddingHorizontal: horizontalPadding,
+              paddingVertical: verticalPadding,
+            },
+          ]}
+        >
+          <View
+            style={[
+              styles.imageContainer,
+              { marginRight: compact ? hs(10) : hs(12) },
+            ]}
+          >
             {vehicle.photo ? (
               <Image
                 source={{ uri: vehicle.photo }}
-                style={styles.vehicleImage}
+                style={[
+                  styles.vehicleImage,
+                  { width: imageSize, height: imageSize },
+                ]}
               />
             ) : (
               <View
                 style={[
                   styles.imagePlaceholder,
-                  { backgroundColor: colors.disabled },
+                  { backgroundColor: colors.inputBackground },
+                  { width: imageSize, height: imageSize },
                 ]}
               >
                 <Ionicons
-                  name="car"
-                  size={ms(40)}
-                  color={colors.textTertiary}
+                  name="car-sport-outline"
+                  size={compact ? ms(24) : ms(28)}
+                  color={colors.textSecondary}
                 />
               </View>
             )}
+            <View
+              style={[
+                styles.imageBadge,
+                { backgroundColor: colors.cardBackground },
+              ]}
+            >
+              <Ionicons
+                name="shield-checkmark-outline"
+                size={iconSize.xs}
+                color={colors.primary}
+              />
+            </View>
           </View>
 
           <View style={styles.info}>
-            <Text
-              style={[styles.name, { color: colors.text }]}
-              numberOfLines={1}
+            <View
+              style={[
+                styles.titleRow,
+                { marginBottom: compact ? vs(3) : vs(4) },
+              ]}
             >
-              {vehicle.name}
-            </Text>
-            <Text
-              style={[styles.details, { color: colors.textSecondary }]}
-              numberOfLines={1}
-            >
-              {vehicle.brand} {vehicle.model}{" "}
-              {vehicle.year ? `(${vehicle.year})` : ""}
-            </Text>
-            <View style={styles.kmContainer}>
-              <Ionicons
-                name="speedometer-outline"
-                size={ms(16)}
-                color={colors.primary}
-              />
-              <Text style={[styles.kmText, { color: colors.primary }]}>
-                {formatKm(vehicle.currentKm)}
+              <Text
+                style={[
+                  styles.name,
+                  { color: colors.text, fontSize: titleSize },
+                ]}
+                numberOfLines={1}
+              >
+                {vehicleTitle}
               </Text>
-            </View>
-
-            {showUpcoming && vehicle.upcomingCount > 0 && (
-              <View style={styles.badge}>
-                <Ionicons
-                  name="time-outline"
-                  size={ms(14)}
-                  color={COLORS.warning}
-                />
-                <Text style={styles.badgeText}>
-                  {vehicle.upcomingCount} próximo
-                  {vehicle.upcomingCount > 1 ? "s" : ""}
+              <View
+                style={[
+                  styles.platePill,
+                  { backgroundColor: colors.inputBackground },
+                  { maxWidth: plateMaxWidth },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.plateText,
+                    {
+                      color: colors.textSecondary,
+                      fontSize: compact ? rf(10) : rf(11),
+                    },
+                  ]}
+                  numberOfLines={1}
+                >
+                  {plateLabel}
                 </Text>
               </View>
+            </View>
+
+            {!!vehicleMeta && (
+              <Text
+                style={[
+                  styles.details,
+                  {
+                    color: colors.textSecondary,
+                    fontSize: metaSize,
+                    marginBottom: compact ? vs(6) : vs(8),
+                  },
+                ]}
+                numberOfLines={1}
+              >
+                {vehicleMeta}
+              </Text>
             )}
+
+            <View style={styles.metaRow}>
+              <View
+                style={[
+                  styles.metricPill,
+                  { backgroundColor: colors.inputBackground },
+                ]}
+              >
+                <Ionicons
+                  name="speedometer-outline"
+                  size={compact ? ms(13) : ms(14)}
+                  color={colors.primary}
+                />
+                <Text
+                  style={[
+                    styles.metricText,
+                    { color: colors.text, fontSize: compact ? rf(11) : rf(12) },
+                  ]}
+                >
+                  {formatKm(vehicle.currentKm)}
+                </Text>
+              </View>
+
+              {showUpcoming && vehicle.upcomingCount > 0 && (
+                <View style={styles.badge}>
+                  <Ionicons
+                    name="time-outline"
+                    size={compact ? ms(12) : ms(13)}
+                    color={COLORS.warning}
+                  />
+                  <Text
+                    style={[
+                      styles.badgeText,
+                      { fontSize: compact ? rf(10) : rf(11) },
+                    ]}
+                  >
+                    {vehicle.upcomingCount} próximo
+                    {vehicle.upcomingCount > 1 ? "s" : ""}
+                  </Text>
+                </View>
+              )}
+            </View>
+
+            <View style={styles.hintRow}>
+              <Text
+                style={[
+                  styles.hintText,
+                  {
+                    color: colors.textSecondary,
+                    fontSize: compact ? rf(10) : rf(11),
+                  },
+                ]}
+              >
+                Presione para ver detalle
+              </Text>
+              <Ionicons
+                name="chevron-forward"
+                size={compact ? ms(12) : ms(13)}
+                color={colors.textSecondary}
+              />
+            </View>
           </View>
 
           <View style={styles.actions}>
-            <TouchableOpacity style={styles.actionButton} onPress={handleEdit}>
+            <TouchableOpacity
+              style={[
+                styles.actionButton,
+                { backgroundColor: colors.inputBackground },
+                {
+                  width: actionSize,
+                  height: actionSize,
+                  borderRadius: actionSize / 2,
+                },
+              ]}
+              onPress={handleEdit}
+            >
               <Ionicons
                 name="create-outline"
-                size={ms(22)}
+                size={actionIconSize}
                 color={colors.primary}
               />
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.actionButton}
+              style={[
+                styles.actionButton,
+                { backgroundColor: colors.inputBackground },
+                {
+                  width: actionSize,
+                  height: actionSize,
+                  borderRadius: actionSize / 2,
+                },
+              ]}
               onPress={handleDelete}
             >
               <Ionicons
                 name="trash-outline"
-                size={ms(22)}
+                size={actionIconSize}
                 color={colors.danger}
               />
             </TouchableOpacity>
@@ -150,76 +307,117 @@ const VehicleCard = ({
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: ms(12),
-    marginBottom: ms(16),
-    elevation: ms(2),
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: ms(4),
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    elevation: ms(3),
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: ms(10),
   },
   cardContent: {
     flexDirection: "row",
     alignItems: "center",
-    padding: ms(16),
   },
   imageContainer: {
-    marginRight: ms(16),
+    position: "relative",
   },
   vehicleImage: {
-    width: ms(70),
-    height: ms(70),
-    borderRadius: ms(8),
+    width: ms(64),
+    height: ms(64),
+    borderRadius: borderRadius.md,
   },
   imagePlaceholder: {
-    width: ms(70),
-    height: ms(70),
-    borderRadius: ms(8),
+    width: ms(64),
+    height: ms(64),
+    borderRadius: borderRadius.md,
     justifyContent: "center",
     alignItems: "center",
+  },
+  imageBadge: {
+    position: "absolute",
+    right: ms(-6),
+    bottom: ms(-6),
+    width: ms(22),
+    height: ms(22),
+    borderRadius: ms(11),
+    alignItems: "center",
+    justifyContent: "center",
+    elevation: ms(2),
   },
   info: {
     flex: 1,
   },
-  name: {
-    fontSize: rf(18),
-    fontWeight: "bold",
-    marginBottom: ms(4),
-  },
-  details: {
-    fontSize: rf(14),
-    marginBottom: ms(6),
-  },
-  kmContainer: {
+  titleRow: {
     flexDirection: "row",
     alignItems: "center",
+    marginBottom: vs(4),
   },
-  kmText: {
-    fontSize: rf(14),
-    marginLeft: ms(6),
+  name: {
+    flex: 1,
+    fontWeight: "800",
+    marginRight: hs(8),
+  },
+  platePill: {
+    paddingHorizontal: hs(8),
+    paddingVertical: vs(4),
+    borderRadius: ms(999),
+  },
+  plateText: {
+    fontSize: rf(11),
+    fontWeight: "700",
+    textTransform: "uppercase",
+  },
+  details: {},
+  metaRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    flexWrap: "wrap",
+    gap: hs(8),
+  },
+  metricPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: hs(10),
+    paddingVertical: vs(6),
+    borderRadius: ms(999),
+  },
+  metricText: {
+    marginLeft: hs(6),
     fontWeight: "600",
   },
   badge: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: ms(6),
     backgroundColor: "#FFF9E6",
-    paddingHorizontal: ms(8),
-    paddingVertical: ms(4),
-    borderRadius: ms(12),
-    alignSelf: "flex-start",
+    paddingHorizontal: hs(10),
+    paddingVertical: vs(6),
+    borderRadius: ms(999),
   },
   badgeText: {
-    fontSize: rf(12),
     color: COLORS.warning,
-    marginLeft: ms(4),
+    marginLeft: hs(4),
+    fontWeight: "600",
+  },
+  hintRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: vs(8),
+    gap: hs(4),
+  },
+  hintText: {
     fontWeight: "600",
   },
   actions: {
     flexDirection: "column",
-    gap: ms(8),
+    marginLeft: hs(10),
+    gap: vs(8),
   },
   actionButton: {
-    padding: ms(4),
+    width: ms(34),
+    height: ms(34),
+    borderRadius: ms(17),
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
 

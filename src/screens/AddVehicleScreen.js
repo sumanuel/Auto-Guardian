@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRef, useState } from "react";
 import {
   Image,
@@ -27,6 +28,7 @@ import {
 } from "../utils/responsive";
 import {
   deleteVehiclePhotoIfOwnedAsync,
+  ensurePersistentVehiclePhotoAsync,
   persistVehiclePhotoAsync,
 } from "../utils/vehiclePhotoStorage";
 
@@ -173,19 +175,18 @@ const AddVehicleScreen = ({ navigation, route }) => {
         ...formData,
         year: formData.year ? parseInt(formData.year) : null,
         currentKm: parseInt(formData.currentKm) || 0,
+        photo: await ensurePersistentVehiclePhotoAsync(formData.photo),
       };
 
-      // Si estamos editando y se cambió la foto, eliminar la anterior si era un archivo interno de la app
-      if (isEditing) {
-        const oldPhoto = vehicleToEdit?.photo || null;
-        const newPhoto = vehicleData.photo || null;
-        if (oldPhoto && oldPhoto !== newPhoto) {
-          await deleteVehiclePhotoIfOwnedAsync(oldPhoto);
-        }
-      }
+      const oldPhoto = vehicleToEdit?.photo || null;
 
       if (isEditing) {
         await updateVehicle(vehicleToEdit.id, vehicleData);
+
+        if (oldPhoto && oldPhoto !== vehicleData.photo) {
+          await deleteVehiclePhotoIfOwnedAsync(oldPhoto);
+        }
+
         showDialog({
           title: "Éxito",
           message: "Vehículo actualizado correctamente",
@@ -201,7 +202,7 @@ const AddVehicleScreen = ({ navigation, route }) => {
       }
 
       navigation.goBack();
-    } catch (error) {
+    } catch (_error) {
       showDialog({
         title: "Error",
         message: "No se pudo guardar el vehículo",
@@ -226,243 +227,333 @@ const AddVehicleScreen = ({ navigation, route }) => {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Foto del vehículo */}
-          <View style={styles.photoSection}>
-            <TouchableOpacity
-              style={styles.photoContainer}
-              onPress={showImagePickerOptions}
+          <View style={styles.headerBlock}>
+            <LinearGradient
+              colors={[colors.primary, "#0F5FD2", "#0A3F8F"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.heroGradient}
             >
-              {formData.photo ? (
-                <Image source={{ uri: formData.photo }} style={styles.photo} />
-              ) : (
-                <View
+              <View style={styles.heroHeaderRow}>
+                <View style={styles.heroMediaRow}>
+                  {formData.photo ? (
+                    <Image
+                      source={{ uri: formData.photo }}
+                      style={styles.heroImage}
+                    />
+                  ) : (
+                    <View
+                      style={[styles.heroImage, styles.heroImagePlaceholder]}
+                    >
+                      <Ionicons
+                        name="car-sport-outline"
+                        size={s(42)}
+                        color="#D6E7FF"
+                      />
+                    </View>
+                  )}
+
+                  <View style={styles.headerInfo}>
+                    <Text style={styles.headerEyebrow}>Registro de unidad</Text>
+                    <Text style={styles.headerTitle}>
+                      {isEditing ? "Editar vehículo" : "Nuevo vehículo"}
+                    </Text>
+                    <Text style={styles.headerSubtitle}>
+                      Registra identidad, kilometraje y datos clave para activar
+                      alertas y seguimiento.
+                    </Text>
+                  </View>
+                </View>
+
+                <TouchableOpacity
+                  style={styles.helpButtonHero}
+                  onPress={() =>
+                    showDialog({
+                      title: isEditing ? "Editar vehículo" : "Nuevo vehículo",
+                      message:
+                        "Carga la identidad de la unidad, su kilometraje actual y una foto para mantener el control operativo desde el inicio.",
+                      type: "info",
+                    })
+                  }
+                >
+                  <Ionicons
+                    name="information-circle-outline"
+                    size={iconSize.lg}
+                    color="#fff"
+                  />
+                </TouchableOpacity>
+              </View>
+            </LinearGradient>
+          </View>
+
+          <View
+            style={[
+              styles.sectionCard,
+              {
+                backgroundColor: colors.cardBackground,
+                borderColor: colors.border,
+                shadowColor: colors.shadow,
+              },
+            ]}
+          >
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>
+              Identidad visual
+            </Text>
+
+            <View style={styles.photoSection}>
+              <TouchableOpacity
+                style={styles.photoContainer}
+                onPress={showImagePickerOptions}
+              >
+                {formData.photo ? (
+                  <Image
+                    source={{ uri: formData.photo }}
+                    style={styles.photo}
+                  />
+                ) : (
+                  <View
+                    style={[
+                      styles.photoPlaceholder,
+                      {
+                        backgroundColor: colors.inputBackground,
+                        borderColor: colors.border,
+                      },
+                    ]}
+                  >
+                    <Ionicons
+                      name="camera"
+                      size={iconSize.lg}
+                      color={colors.textSecondary}
+                    />
+                    <Text
+                      style={[
+                        styles.photoText,
+                        { color: colors.textSecondary },
+                      ]}
+                    >
+                      Agregar foto
+                    </Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={[styles.label, { color: colors.text }]}>
+                Nombre del vehículo *
+              </Text>
+              <TextInput
+                ref={nameRef}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: colors.inputBackground,
+                    borderColor: colors.border,
+                    color: colors.text,
+                  },
+                ]}
+                value={formData.name}
+                onChangeText={(value) => handleInputChange("name", value)}
+                placeholder="Ej: Mi auto, Auto familiar..."
+                placeholderTextColor={colors.textSecondary}
+                returnKeyType="next"
+                onFocus={() => scrollToInput(nameRef)}
+                onSubmitEditing={() => brandRef.current?.focus()}
+                blurOnSubmit={false}
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={[styles.label, { color: colors.text }]}>Marca</Text>
+              <TextInput
+                ref={brandRef}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: colors.inputBackground,
+                    borderColor: colors.border,
+                    color: colors.text,
+                  },
+                ]}
+                value={formData.brand}
+                onChangeText={(value) => handleInputChange("brand", value)}
+                placeholder="Toyota, Honda, Ford..."
+                placeholderTextColor={colors.textSecondary}
+                returnKeyType="next"
+                onFocus={() => scrollToInput(brandRef)}
+                onSubmitEditing={() => modelRef.current?.focus()}
+                blurOnSubmit={false}
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={[styles.label, { color: colors.text }]}>Modelo</Text>
+              <TextInput
+                ref={modelRef}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: colors.inputBackground,
+                    borderColor: colors.border,
+                    color: colors.text,
+                  },
+                ]}
+                value={formData.model}
+                onChangeText={(value) => handleInputChange("model", value)}
+                placeholder="Camry, Civic, Focus..."
+                placeholderTextColor={colors.textSecondary}
+                returnKeyType="next"
+                onFocus={() => scrollToInput(modelRef)}
+                onSubmitEditing={() => yearRef.current?.focus()}
+                blurOnSubmit={false}
+              />
+            </View>
+
+            <View style={styles.inlineGrid}>
+              <View style={[styles.inputGroup, styles.inlineField]}>
+                <Text style={[styles.label, { color: colors.text }]}>Año</Text>
+                <TextInput
+                  ref={yearRef}
                   style={[
-                    styles.photoPlaceholder,
+                    styles.input,
                     {
                       backgroundColor: colors.inputBackground,
                       borderColor: colors.border,
+                      color: colors.text,
                     },
                   ]}
-                >
-                  <Ionicons
-                    name="camera"
-                    size={iconSize.lg}
-                    color={colors.textSecondary}
-                  />
-                  <Text
-                    style={[styles.photoText, { color: colors.textSecondary }]}
-                  >
-                    Agregar foto
-                  </Text>
-                </View>
-              )}
-            </TouchableOpacity>
+                  value={formData.year}
+                  onChangeText={(value) => handleInputChange("year", value)}
+                  placeholder="2024"
+                  placeholderTextColor={colors.textSecondary}
+                  keyboardType="numeric"
+                  maxLength={4}
+                  returnKeyType="next"
+                  onFocus={() => scrollToInput(yearRef)}
+                  onSubmitEditing={() => colorRef.current?.focus()}
+                  blurOnSubmit={false}
+                />
+              </View>
+
+              <View style={[styles.inputGroup, styles.inlineField]}>
+                <Text style={[styles.label, { color: colors.text }]}>
+                  Color
+                </Text>
+                <TextInput
+                  ref={colorRef}
+                  style={[
+                    styles.input,
+                    {
+                      backgroundColor: colors.inputBackground,
+                      borderColor: colors.border,
+                      color: colors.text,
+                    },
+                  ]}
+                  value={formData.color}
+                  onChangeText={(value) => handleInputChange("color", value)}
+                  placeholder="Blanco, Negro, Rojo..."
+                  placeholderTextColor={colors.textSecondary}
+                  returnKeyType="next"
+                  onFocus={() => scrollToInput(colorRef)}
+                  onSubmitEditing={() => plateRef.current?.focus()}
+                  blurOnSubmit={false}
+                />
+              </View>
+            </View>
           </View>
 
-          {/* Nombre del vehículo */}
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.text }]}>
-              Nombre del vehículo *
+          <View
+            style={[
+              styles.sectionCard,
+              {
+                backgroundColor: colors.cardBackground,
+                borderColor: colors.border,
+                shadowColor: colors.shadow,
+              },
+            ]}
+          >
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>
+              Registro operativo
             </Text>
-            <TextInput
-              ref={nameRef}
-              style={[
-                styles.input,
-                {
-                  backgroundColor: colors.inputBackground,
-                  borderColor: colors.border,
-                  color: colors.text,
-                },
-              ]}
-              value={formData.name}
-              onChangeText={(value) => handleInputChange("name", value)}
-              placeholder="Ej: Mi auto, Auto familiar..."
-              placeholderTextColor={colors.textSecondary}
-              returnKeyType="next"
-              onFocus={() => scrollToInput(nameRef)}
-              onSubmitEditing={() => brandRef.current?.focus()}
-              blurOnSubmit={false}
-            />
-          </View>
 
-          {/* Marca */}
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.text }]}>Marca</Text>
-            <TextInput
-              ref={brandRef}
-              style={[
-                styles.input,
-                {
-                  backgroundColor: colors.inputBackground,
-                  borderColor: colors.border,
-                  color: colors.text,
-                },
-              ]}
-              value={formData.brand}
-              onChangeText={(value) => handleInputChange("brand", value)}
-              placeholder="Toyota, Honda, Ford..."
-              placeholderTextColor={colors.textSecondary}
-              returnKeyType="next"
-              onFocus={() => scrollToInput(brandRef)}
-              onSubmitEditing={() => modelRef.current?.focus()}
-              blurOnSubmit={false}
-            />
-          </View>
+            <View style={styles.inputGroup}>
+              <Text style={[styles.label, { color: colors.text }]}>Placa</Text>
+              <TextInput
+                ref={plateRef}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: colors.inputBackground,
+                    borderColor: colors.border,
+                    color: colors.text,
+                  },
+                ]}
+                value={formData.plate}
+                onChangeText={(value) =>
+                  handleInputChange("plate", value.toUpperCase())
+                }
+                placeholder="ABC123"
+                placeholderTextColor={colors.textSecondary}
+                autoCapitalize="characters"
+                returnKeyType="next"
+                onFocus={() => scrollToInput(plateRef)}
+                onSubmitEditing={() => vinRef.current?.focus()}
+                blurOnSubmit={false}
+              />
+            </View>
 
-          {/* Modelo */}
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.text }]}>Modelo</Text>
-            <TextInput
-              ref={modelRef}
-              style={[
-                styles.input,
-                {
-                  backgroundColor: colors.inputBackground,
-                  borderColor: colors.border,
-                  color: colors.text,
-                },
-              ]}
-              value={formData.model}
-              onChangeText={(value) => handleInputChange("model", value)}
-              placeholder="Camry, Civic, Focus..."
-              placeholderTextColor={colors.textSecondary}
-              returnKeyType="next"
-              onFocus={() => scrollToInput(modelRef)}
-              onSubmitEditing={() => yearRef.current?.focus()}
-              blurOnSubmit={false}
-            />
-          </View>
+            <View style={styles.inputGroup}>
+              <Text style={[styles.label, { color: colors.text }]}>
+                VIN (Número de serie)
+              </Text>
+              <TextInput
+                ref={vinRef}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: colors.inputBackground,
+                    borderColor: colors.border,
+                    color: colors.text,
+                  },
+                ]}
+                value={formData.vin}
+                onChangeText={(value) =>
+                  handleInputChange("vin", value.toUpperCase())
+                }
+                placeholder="1HGBH41JXMN109186"
+                placeholderTextColor={colors.textSecondary}
+                autoCapitalize="characters"
+                returnKeyType="next"
+                onFocus={() => scrollToInput(vinRef)}
+                onSubmitEditing={() => kmRef.current?.focus()}
+                blurOnSubmit={false}
+              />
+            </View>
 
-          {/* Año */}
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.text }]}>Año</Text>
-            <TextInput
-              ref={yearRef}
-              style={[
-                styles.input,
-                {
-                  backgroundColor: colors.inputBackground,
-                  borderColor: colors.border,
-                  color: colors.text,
-                },
-              ]}
-              value={formData.year}
-              onChangeText={(value) => handleInputChange("year", value)}
-              placeholder="2024"
-              placeholderTextColor={colors.textSecondary}
-              keyboardType="numeric"
-              maxLength={4}
-              returnKeyType="next"
-              onFocus={() => scrollToInput(yearRef)}
-              onSubmitEditing={() => colorRef.current?.focus()}
-              blurOnSubmit={false}
-            />
-          </View>
-
-          {/* Color */}
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.text }]}>Color</Text>
-            <TextInput
-              ref={colorRef}
-              style={[
-                styles.input,
-                {
-                  backgroundColor: colors.inputBackground,
-                  borderColor: colors.border,
-                  color: colors.text,
-                },
-              ]}
-              value={formData.color}
-              onChangeText={(value) => handleInputChange("color", value)}
-              placeholder="Blanco, Negro, Rojo..."
-              placeholderTextColor={colors.textSecondary}
-              returnKeyType="next"
-              onFocus={() => scrollToInput(colorRef)}
-              onSubmitEditing={() => plateRef.current?.focus()}
-              blurOnSubmit={false}
-            />
-          </View>
-
-          {/* Placa */}
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.text }]}>Placa</Text>
-            <TextInput
-              ref={plateRef}
-              style={[
-                styles.input,
-                {
-                  backgroundColor: colors.inputBackground,
-                  borderColor: colors.border,
-                  color: colors.text,
-                },
-              ]}
-              value={formData.plate}
-              onChangeText={(value) =>
-                handleInputChange("plate", value.toUpperCase())
-              }
-              placeholder="ABC123"
-              placeholderTextColor={colors.textSecondary}
-              autoCapitalize="characters"
-              returnKeyType="next"
-              onFocus={() => scrollToInput(plateRef)}
-              onSubmitEditing={() => vinRef.current?.focus()}
-              blurOnSubmit={false}
-            />
-          </View>
-
-          {/* VIN */}
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.text }]}>
-              VIN (Número de serie)
-            </Text>
-            <TextInput
-              ref={vinRef}
-              style={[
-                styles.input,
-                {
-                  backgroundColor: colors.inputBackground,
-                  borderColor: colors.border,
-                  color: colors.text,
-                },
-              ]}
-              value={formData.vin}
-              onChangeText={(value) =>
-                handleInputChange("vin", value.toUpperCase())
-              }
-              placeholder="1HGBH41JXMN109186"
-              placeholderTextColor={colors.textSecondary}
-              autoCapitalize="characters"
-              returnKeyType="next"
-              onFocus={() => scrollToInput(vinRef)}
-              onSubmitEditing={() => kmRef.current?.focus()}
-              blurOnSubmit={false}
-            />
-          </View>
-
-          {/* Kilometraje actual */}
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.text }]}>
-              Kilometraje actual
-            </Text>
-            <TextInput
-              ref={kmRef}
-              style={[
-                styles.input,
-                {
-                  backgroundColor: colors.inputBackground,
-                  borderColor: colors.border,
-                  color: colors.text,
-                },
-              ]}
-              value={formData.currentKm}
-              onChangeText={(value) => handleInputChange("currentKm", value)}
-              placeholder="0"
-              placeholderTextColor={colors.textSecondary}
-              keyboardType="numeric"
-              returnKeyType="done"
-              onFocus={() => scrollToInput(kmRef)}
-              onSubmitEditing={handleSubmit}
-            />
+            <View style={styles.inputGroup}>
+              <Text style={[styles.label, { color: colors.text }]}>
+                Kilometraje actual
+              </Text>
+              <TextInput
+                ref={kmRef}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: colors.inputBackground,
+                    borderColor: colors.border,
+                    color: colors.text,
+                  },
+                ]}
+                value={formData.currentKm}
+                onChangeText={(value) => handleInputChange("currentKm", value)}
+                placeholder="0"
+                placeholderTextColor={colors.textSecondary}
+                keyboardType="numeric"
+                returnKeyType="done"
+                onFocus={() => scrollToInput(kmRef)}
+                onSubmitEditing={handleSubmit}
+              />
+            </View>
           </View>
 
           <Button
@@ -487,6 +578,86 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: hs(20),
     paddingVertical: vs(20),
+  },
+  headerBlock: {
+    marginBottom: spacing.lg,
+  },
+  heroGradient: {
+    marginHorizontal: -hs(20),
+    marginTop: -vs(20),
+    paddingHorizontal: hs(20),
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.lg,
+    borderBottomLeftRadius: borderRadius.xl,
+    borderBottomRightRadius: borderRadius.xl,
+  },
+  heroHeaderRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+  },
+  heroMediaRow: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  heroImage: {
+    width: s(78),
+    height: s(78),
+    borderRadius: borderRadius.md,
+    marginRight: hs(12),
+  },
+  heroImagePlaceholder: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.12)",
+  },
+  headerInfo: {
+    flex: 1,
+    paddingRight: spacing.md,
+  },
+  headerEyebrow: {
+    fontSize: rf(12),
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.7,
+    marginBottom: vs(4),
+    color: "rgba(255,255,255,0.74)",
+  },
+  headerTitle: {
+    fontSize: rf(22),
+    fontWeight: "800",
+    color: "#fff",
+  },
+  headerSubtitle: {
+    fontSize: rf(13),
+    lineHeight: rf(18),
+    marginTop: vs(4),
+    color: "rgba(255,255,255,0.84)",
+  },
+  helpButtonHero: {
+    width: s(44),
+    height: s(44),
+    borderRadius: s(22),
+    backgroundColor: "rgba(255,255,255,0.12)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginLeft: hs(12),
+  },
+  sectionCard: {
+    borderWidth: 1,
+    borderRadius: borderRadius.lg,
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
+    elevation: s(3),
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: s(10),
+  },
+  sectionTitle: {
+    fontSize: rf(17),
+    fontWeight: "800",
+    marginBottom: spacing.md,
   },
   photoSection: {
     alignItems: "center",
@@ -517,8 +688,15 @@ const styles = StyleSheet.create({
   inputGroup: {
     marginBottom: spacing.lg,
   },
+  inlineGrid: {
+    flexDirection: "row",
+    gap: hs(12),
+  },
+  inlineField: {
+    flex: 1,
+  },
   label: {
-    fontSize: rf(16),
+    fontSize: rf(14),
     fontWeight: "600",
     marginBottom: spacing.sm,
   },

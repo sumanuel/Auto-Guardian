@@ -1,7 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useState } from "react";
 import {
   FlatList,
+  Image,
   Modal,
   ScrollView,
   StyleSheet,
@@ -18,7 +20,14 @@ import {
   getVehicleDocuments,
   updateVehicleDocument,
 } from "../services/vehicleDocumentService";
-import { ms, rf } from "../utils/responsive";
+import {
+  borderRadius,
+  iconSize,
+  ms,
+  rf,
+  s,
+  spacing,
+} from "../utils/responsive";
 
 const AddDocumentScreen = ({ navigation, route }) => {
   const { vehicleId, vehicle, document } = route.params;
@@ -35,6 +44,9 @@ const AddDocumentScreen = ({ navigation, route }) => {
   const [expiryDateSelected, setExpiryDateSelected] = useState(false);
 
   const isEditing = !!document;
+  const vehicleMeta = [vehicle?.brand, vehicle?.model, vehicle?.year]
+    .filter(Boolean)
+    .join(" • ");
 
   // Función para parsear fechas locales correctamente
   const parseLocalDate = (dateString) => {
@@ -62,7 +74,7 @@ const AddDocumentScreen = ({ navigation, route }) => {
       const localToday = new Date(
         today.getFullYear(),
         today.getMonth(),
-        today.getDate()
+        today.getDate(),
       );
       setIssueDate(localToday);
       setIssueDateSelected(true); // La fecha de expedición por defecto ya está "seleccionada"
@@ -94,12 +106,12 @@ const AddDocumentScreen = ({ navigation, route }) => {
     const localToday = new Date(
       today.getFullYear(),
       today.getMonth(),
-      today.getDate()
+      today.getDate(),
     );
     const compareDate = new Date(
       date.getFullYear(),
       date.getMonth(),
-      date.getDate()
+      date.getDate(),
     );
     return localToday.getTime() === compareDate.getTime();
   };
@@ -119,7 +131,7 @@ const AddDocumentScreen = ({ navigation, route }) => {
     const duplicateDocument = existingDocuments.find(
       (doc) =>
         doc.document_type_id === selectedDocumentType.id &&
-        (!isEditing || doc.id !== document.id)
+        (!isEditing || doc.id !== document.id),
     );
 
     if (duplicateDocument) {
@@ -154,12 +166,12 @@ const AddDocumentScreen = ({ navigation, route }) => {
     const issueDateOnly = new Date(
       issueDate.getFullYear(),
       issueDate.getMonth(),
-      issueDate.getDate()
+      issueDate.getDate(),
     );
     const expiryDateOnly = new Date(
       expiryDate.getFullYear(),
       expiryDate.getMonth(),
-      expiryDate.getDate()
+      expiryDate.getDate(),
     );
 
     if (expiryDateOnly <= issueDateOnly) {
@@ -192,14 +204,14 @@ const AddDocumentScreen = ({ navigation, route }) => {
           document.id,
           selectedDocumentType.id,
           issueDateString,
-          expiryDateString
+          expiryDateString,
         );
       } else {
         success = addVehicleDocument(
           vehicleId,
           selectedDocumentType.id,
           issueDateString,
-          expiryDateString
+          expiryDateString,
         );
       }
 
@@ -277,10 +289,73 @@ const AddDocumentScreen = ({ navigation, route }) => {
   return (
     <DialogComponent>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-          <Text style={[styles.vehicleName, { color: colors.textSecondary }]}>
-            {vehicle?.name || "Vehículo"}
-          </Text>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.content}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.headerBlock}>
+            <LinearGradient
+              colors={[colors.primary, "#0F5FD2", "#0A3F8F"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.heroGradient}
+            >
+              <View style={styles.heroHeaderRow}>
+                <View style={styles.heroMediaRow}>
+                  {vehicle?.photo ? (
+                    <Image
+                      source={{ uri: vehicle.photo }}
+                      style={styles.vehicleImage}
+                    />
+                  ) : (
+                    <View
+                      style={[
+                        styles.imagePlaceholder,
+                        styles.heroImagePlaceholder,
+                      ]}
+                    >
+                      <Ionicons
+                        name="document-text-outline"
+                        size={s(40)}
+                        color="#D6E7FF"
+                      />
+                    </View>
+                  )}
+
+                  <View style={styles.headerInfo}>
+                    <Text style={styles.headerEyebrow}>
+                      Registro documental
+                    </Text>
+                    <Text style={styles.headerTitle}>
+                      {vehicle?.name || "Vehículo"}
+                    </Text>
+                    {!!vehicleMeta && (
+                      <Text style={styles.headerSubtitle}>{vehicleMeta}</Text>
+                    )}
+                  </View>
+                </View>
+
+                <TouchableOpacity
+                  style={styles.infoButton}
+                  onPress={() =>
+                    showDialog({
+                      title: "Registro documental",
+                      message:
+                        "Asocia documentos clave al vehículo y define sus fechas de expedición y vencimiento para mantener alertas y trazabilidad vigentes.",
+                      type: "info",
+                    })
+                  }
+                >
+                  <Ionicons
+                    name="information-circle-outline"
+                    size={iconSize.lg}
+                    color="#fff"
+                  />
+                </TouchableOpacity>
+              </View>
+            </LinearGradient>
+          </View>
 
           {/* Selector de tipo de documento */}
           <View style={styles.section}>
@@ -349,7 +424,10 @@ const AddDocumentScreen = ({ navigation, route }) => {
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.saveButton, { backgroundColor: colors.primary }]}
+              style={[
+                styles.saveButton,
+                { backgroundColor: colors.primaryDark },
+              ]}
               onPress={handleSave}
               disabled={loading}
             >
@@ -357,8 +435,8 @@ const AddDocumentScreen = ({ navigation, route }) => {
                 {loading
                   ? "Guardando..."
                   : isEditing
-                  ? "Actualizar"
-                  : "Agregar"}
+                    ? "Actualizar"
+                    : "Agregar"}
               </Text>
             </TouchableOpacity>
           </View>
@@ -406,21 +484,86 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  content: {
+  scrollView: {
     flex: 1,
+  },
+  content: {
     padding: ms(20),
   },
-  vehicleName: {
-    fontSize: rf(16),
-    fontWeight: "600",
-    marginBottom: ms(20),
-    textAlign: "center",
+  headerBlock: {
+    marginBottom: spacing.lg,
+  },
+  heroGradient: {
+    marginHorizontal: -ms(20),
+    marginTop: -ms(20),
+    paddingHorizontal: ms(20),
+    paddingTop: ms(18),
+    paddingBottom: ms(18),
+    borderBottomLeftRadius: borderRadius.xl,
+    borderBottomRightRadius: borderRadius.xl,
+  },
+  heroHeaderRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: spacing.md,
+  },
+  heroMediaRow: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+  },
+  imagePlaceholder: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.16)",
+  },
+  heroImagePlaceholder: {
+    width: s(78),
+    height: s(78),
+    borderRadius: borderRadius.md,
+  },
+  vehicleImage: {
+    width: s(78),
+    height: s(78),
+    borderRadius: borderRadius.md,
+  },
+  headerInfo: {
+    flex: 1,
+    paddingRight: spacing.md,
+  },
+  headerEyebrow: {
+    fontSize: rf(12),
+    fontWeight: "700",
+    letterSpacing: 0.7,
+    textTransform: "uppercase",
+    marginBottom: ms(4),
+    color: "rgba(255,255,255,0.74)",
+  },
+  headerTitle: {
+    fontSize: rf(22),
+    fontWeight: "800",
+    color: "#fff",
+  },
+  headerSubtitle: {
+    fontSize: rf(13),
+    marginTop: ms(4),
+    color: "rgba(255,255,255,0.84)",
+  },
+  infoButton: {
+    width: s(44),
+    height: s(44),
+    borderRadius: s(22),
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.12)",
   },
   section: {
     marginBottom: ms(20),
   },
   sectionTitle: {
-    fontSize: rf(16),
+    fontSize: rf(17),
     fontWeight: "600",
     marginBottom: ms(8),
   },
@@ -484,7 +627,7 @@ const styles = StyleSheet.create({
     borderBottomColor: "#e0e0e0",
   },
   modalTitle: {
-    fontSize: rf(18),
+    fontSize: rf(17),
     fontWeight: "bold",
   },
   typeList: {

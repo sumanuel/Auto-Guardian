@@ -1,14 +1,17 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
-import React, { useState } from "react";
+import { LinearGradient } from "expo-linear-gradient";
+import { useCallback, useState } from "react";
 import {
   FlatList,
+  Image,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import { useTheme } from "../context/ThemeContext";
+import { COLORS } from "../data/constants";
 import { useDialog } from "../hooks/useDialog";
 import {
   deleteVehicleDocument,
@@ -25,34 +28,75 @@ import {
   vs,
 } from "../utils/responsive";
 
+const formatDateLabel = (dateString) => {
+  const [year, month, day] = dateString.split("-");
+  return `${day.padStart(2, "0")}/${month.padStart(2, "0")}/${year}`;
+};
+
+const getExpiryMeta = (expiryDate) => {
+  if (!expiryDate) {
+    return {
+      label: "Sin vencimiento",
+      tone: "rgba(107,114,128,0.12)",
+    };
+  }
+
+  const expiry = new Date(expiryDate + "T00:00:00");
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const daysRemaining = Math.floor((expiry - today) / (1000 * 60 * 60 * 24));
+  const color = getDocumentExpiryColor(expiryDate);
+
+  if (daysRemaining < 0) {
+    return {
+      label: `Vencido hace ${Math.abs(daysRemaining)} día${Math.abs(daysRemaining) !== 1 ? "s" : ""}`,
+      color,
+      tone: `${color}20`,
+    };
+  }
+  if (daysRemaining === 0) {
+    return { label: "Vence hoy", color, tone: `${color}20` };
+  }
+  return {
+    label: `Vence en ${daysRemaining} día${daysRemaining !== 1 ? "s" : ""}`,
+    color,
+    tone: `${color}20`,
+  };
+};
+
 const VehicleDocumentsScreen = ({ navigation, route }) => {
   const { vehicleId, vehicle } = route.params;
   const { colors } = useTheme();
   const { DialogComponent, showDialog } = useDialog();
   const [documents, setDocuments] = useState([]);
-  const [loading, setLoading] = useState(true);
 
-  useFocusEffect(
-    React.useCallback(() => {
-      loadDocuments();
-    }, [vehicleId])
-  );
+  const vehicleMeta = [
+    vehicle?.brand,
+    vehicle?.model,
+    vehicle?.year && `${vehicle.year}`,
+  ]
+    .filter(Boolean)
+    .join(" • ");
 
-  const loadDocuments = () => {
-    setLoading(true);
+  const loadDocuments = useCallback(() => {
     const docs = getVehicleDocuments(vehicleId);
     setDocuments(docs);
-    setLoading(false);
-  };
+  }, [vehicleId]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadDocuments();
+    }, [loadDocuments]),
+  );
 
   const handleDeleteDocument = async (document) => {
-    const confirmed = await showDialog({
-      title: "Eliminar Documento",
-      message: `¿Estás seguro de que quieres eliminar "${document.type_document}"?`,
+    const result = await showDialog({
+      title: "Eliminar documento",
+      message: `¿Deseas eliminar \"${document.type_document}\"?`,
       type: "confirm",
     });
 
-    if (!confirmed) {
+    if (!result) {
       return; // Usuario canceló
     }
 
@@ -75,101 +119,129 @@ const VehicleDocumentsScreen = ({ navigation, route }) => {
 
   const renderDocumentItem = ({ item }) => {
     const expiryColor = getDocumentExpiryColor(item.expiry_date);
-
-    // Helper function to format date as dd/mm/yyyy
-    const formatDate = (dateString) => {
-      const [year, month, day] = dateString.split("-");
-      return `${day.padStart(2, "0")}/${month.padStart(2, "0")}/${year}`;
-    };
-
-    const getExpiryText = (expiryDate) => {
-      if (!expiryDate) return null;
-
-      const expiry = new Date(expiryDate + "T00:00:00");
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const daysRemaining = Math.floor(
-        (expiry - today) / (1000 * 60 * 60 * 24)
-      );
-
-      if (daysRemaining < 0) {
-        return `Vencido hace ${Math.abs(daysRemaining)} día${
-          Math.abs(daysRemaining) !== 1 ? "s" : ""
-        }`;
-      } else if (daysRemaining === 0) {
-        return "Vence hoy";
-      } else if (daysRemaining === 1) {
-        return "Vence en 1 día";
-      } else if (daysRemaining < 10) {
-        return `Vence en ${daysRemaining} días`;
-      } else if (daysRemaining < 30) {
-        return `Vence en ${Math.floor(daysRemaining / 7)} semana${
-          Math.floor(daysRemaining / 7) !== 1 ? "s" : ""
-        }`;
-      } else {
-        return `Vence en ${Math.floor(daysRemaining / 30)} mes${
-          Math.floor(daysRemaining / 30) !== 1 ? "es" : ""
-        }`;
-      }
-    };
+    const expiryMeta = getExpiryMeta(item.expiry_date);
 
     return (
       <View
         style={[
           styles.documentCard,
-          { backgroundColor: colors.cardBackground },
+          {
+            backgroundColor: colors.cardBackground,
+            borderColor: colors.border,
+            shadowColor: colors.shadow,
+          },
         ]}
       >
-        <View style={styles.documentInfo}>
-          <Ionicons
-            name="document-text-outline"
-            size={iconSize.md}
-            color={colors.primary}
-          />
-          <View style={styles.documentDetails}>
-            <Text style={[styles.documentType, { color: colors.text }]}>
-              {item.type_document}
-            </Text>
-            <Text style={[styles.issueDate, { color: colors.textSecondary }]}>
-              Expedición: {formatDate(item.issue_date)}
-            </Text>
-            {item.expiry_date && (
-              <View style={styles.expiryContainer}>
-                <Text
-                  style={[styles.expiryDate, { color: colors.textSecondary }]}
+        <View style={styles.documentTopRow}>
+          <View style={styles.documentInfo}>
+            <View
+              style={[
+                styles.documentIconWrap,
+                { backgroundColor: `${expiryColor}16` },
+              ]}
+            >
+              <Ionicons
+                name="document-text-outline"
+                size={iconSize.md}
+                color={expiryColor}
+              />
+            </View>
+            <View style={styles.documentDetails}>
+              <Text
+                style={[styles.documentType, { color: colors.text }]}
+                numberOfLines={2}
+              >
+                {item.type_document}
+              </Text>
+
+              <View style={styles.documentMetaWrap}>
+                <View
+                  style={[
+                    styles.documentMetaPill,
+                    { backgroundColor: colors.inputBackground },
+                  ]}
                 >
-                  Vencimiento: {formatDate(item.expiry_date)}
-                </Text>
-                <Text style={[styles.expiryStatus, { color: expiryColor }]}>
-                  {getExpiryText(item.expiry_date)}
-                </Text>
+                  <Ionicons
+                    name="calendar-outline"
+                    size={iconSize.xs}
+                    color={colors.primary}
+                  />
+                  <Text
+                    style={[styles.issueDate, { color: colors.textSecondary }]}
+                  >
+                    Expedición {formatDateLabel(item.issue_date)}
+                  </Text>
+                </View>
+                {item.expiry_date && (
+                  <View
+                    style={[
+                      styles.documentMetaPill,
+                      { backgroundColor: colors.inputBackground },
+                    ]}
+                  >
+                    <Ionicons
+                      name="time-outline"
+                      size={iconSize.xs}
+                      color={expiryColor}
+                    />
+                    <Text
+                      style={[
+                        styles.expiryDate,
+                        { color: colors.textSecondary },
+                      ]}
+                    >
+                      {formatDateLabel(item.expiry_date)}
+                    </Text>
+                  </View>
+                )}
+                {item.expiry_date && (
+                  <View
+                    style={[
+                      styles.expiryPill,
+                      { backgroundColor: expiryMeta.tone },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.expiryPillText,
+                        { color: expiryMeta.color || colors.textSecondary },
+                      ]}
+                    >
+                      {expiryMeta.label}
+                    </Text>
+                  </View>
+                )}
               </View>
-            )}
+            </View>
           </View>
-        </View>
-        <View style={styles.actionButtons}>
-          <TouchableOpacity
-            style={styles.editButton}
-            onPress={() =>
-              navigation.navigate("AddDocument", {
-                vehicleId,
-                vehicle,
-                document: item,
-              })
-            }
-          >
-            <Ionicons
-              name="create-outline"
-              size={iconSize.md}
-              color={colors.primary}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.deleteButton}
-            onPress={() => handleDeleteDocument(item)}
-          >
-            <Ionicons name="trash-outline" size={iconSize.md} color="#E53935" />
-          </TouchableOpacity>
+          <View style={styles.actionButtons}>
+            <TouchableOpacity
+              style={styles.editButton}
+              onPress={() =>
+                navigation.navigate("AddDocument", {
+                  vehicleId,
+                  vehicle,
+                  document: item,
+                })
+              }
+            >
+              <Ionicons
+                name="create-outline"
+                size={iconSize.sm}
+                color={colors.primaryDark}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.deleteButton}
+              onPress={() => handleDeleteDocument(item)}
+            >
+              <Ionicons
+                name="trash-outline"
+                size={iconSize.sm}
+                color="#E53935"
+              />
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     );
@@ -178,11 +250,61 @@ const VehicleDocumentsScreen = ({ navigation, route }) => {
   return (
     <DialogComponent>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={styles.vehicleHeader}>
-          <Text style={[styles.vehicleName, { color: colors.textSecondary }]}>
-            {vehicle?.name || "Vehículo"}
-          </Text>
-        </View>
+        <LinearGradient
+          colors={[COLORS.primary, "#0F5FD2", "#0A3F8F"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.heroGradient}
+        >
+          <View style={styles.heroTopRow}>
+            <View style={styles.heroMediaRow}>
+              {vehicle?.photo ? (
+                <Image
+                  source={{ uri: vehicle.photo }}
+                  style={styles.vehicleImage}
+                />
+              ) : (
+                <View
+                  style={[styles.imagePlaceholder, styles.heroImagePlaceholder]}
+                >
+                  <Ionicons
+                    name="car-sport-outline"
+                    size={s(44)}
+                    color="#D6E7FF"
+                  />
+                </View>
+              )}
+
+              <View style={styles.headerInfo}>
+                <Text style={styles.heroEyebrow}>Bitácora documental</Text>
+                <Text style={styles.heroTitle}>
+                  {vehicle?.name || "Vehículo"}
+                </Text>
+                {!!vehicleMeta && (
+                  <Text style={styles.heroSubtitle}>{vehicleMeta}</Text>
+                )}
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={styles.helpButtonHero}
+              onPress={() =>
+                showDialog({
+                  title: "Expediente del vehículo",
+                  message:
+                    "Aquí puedes revisar los documentos cargados, controlar vencimientos y editar cada archivo del vehículo desde un solo lugar.",
+                  type: "info",
+                })
+              }
+            >
+              <Ionicons
+                name="information-circle-outline"
+                size={iconSize.lg}
+                color="#fff"
+              />
+            </TouchableOpacity>
+          </View>
+        </LinearGradient>
 
         <FlatList
           data={documents}
@@ -212,7 +334,7 @@ const VehicleDocumentsScreen = ({ navigation, route }) => {
         <TouchableOpacity
           style={[
             styles.floatingAddButton,
-            { backgroundColor: colors.primary },
+            { backgroundColor: colors.primaryDark },
           ]}
           onPress={() =>
             navigation.navigate("AddDocument", { vehicleId, vehicle })
@@ -229,72 +351,161 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  vehicleHeader: {
-    padding: spacing.lg,
-    paddingBottom: spacing.sm,
+  heroGradient: {
+    paddingHorizontal: hs(20),
+    paddingTop: vs(18),
+    paddingBottom: vs(18),
+    borderBottomLeftRadius: borderRadius.xl,
+    borderBottomRightRadius: borderRadius.xl,
+  },
+  heroTopRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+  },
+  heroMediaRow: {
+    flex: 1,
+    flexDirection: "row",
     alignItems: "center",
   },
-  vehicleName: {
-    fontSize: rf(16),
-    fontWeight: "600",
+  vehicleImage: {
+    width: s(78),
+    height: s(78),
+    borderRadius: borderRadius.md,
+    marginRight: hs(12),
+  },
+  imagePlaceholder: {
+    width: s(78),
+    height: s(78),
+    borderRadius: borderRadius.md,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: hs(12),
+  },
+  heroImagePlaceholder: {
+    backgroundColor: "rgba(255,255,255,0.12)",
+  },
+  headerInfo: {
+    flex: 1,
+  },
+  heroEyebrow: {
+    fontSize: rf(12),
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.7,
+    marginBottom: vs(4),
+    color: "rgba(255,255,255,0.74)",
+  },
+  heroTitle: {
+    fontSize: rf(22),
+    fontWeight: "800",
+    color: "#fff",
+  },
+  heroSubtitle: {
+    fontSize: rf(13),
+    color: "rgba(255,255,255,0.84)",
+    marginTop: vs(4),
+    marginBottom: vs(4),
+  },
+  helpButtonHero: {
+    width: s(44),
+    height: s(44),
+    borderRadius: s(22),
+    backgroundColor: "rgba(255,255,255,0.12)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginLeft: hs(12),
   },
   listContainer: {
-    padding: spacing.lg,
+    paddingHorizontal: hs(16),
+    paddingVertical: spacing.lg,
     paddingTop: 0,
+    marginTop: vs(14),
     paddingBottom: vs(100),
   },
   documentCard: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    borderRadius: borderRadius.md,
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
     padding: spacing.md,
     marginBottom: spacing.sm,
-    elevation: s(2),
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: s(2),
+    elevation: s(3),
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: s(10),
+  },
+  documentTopRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: hs(10),
   },
   documentInfo: {
     flexDirection: "row",
     alignItems: "flex-start",
     flex: 1,
+    minWidth: 0,
+  },
+  documentIconWrap: {
+    width: s(44),
+    height: s(44),
+    borderRadius: s(22),
+    alignItems: "center",
+    justifyContent: "center",
   },
   documentDetails: {
     flex: 1,
     marginLeft: spacing.sm,
+    minWidth: 0,
   },
   documentType: {
     fontSize: rf(16),
-    fontWeight: "600",
-    marginBottom: spacing.xs,
+    fontWeight: "700",
+    lineHeight: rf(22),
+    marginBottom: spacing.sm,
+  },
+  expiryPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: hs(10),
+    paddingVertical: vs(6),
+    borderRadius: s(999),
+  },
+  expiryPillText: {
+    fontSize: rf(10),
+    fontWeight: "800",
+    textTransform: "uppercase",
+  },
+  documentMetaWrap: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: hs(8),
+  },
+  documentMetaPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: hs(10),
+    paddingVertical: vs(6),
+    borderRadius: s(999),
   },
   issueDate: {
-    fontSize: rf(14),
-    marginBottom: spacing.xxs,
+    fontSize: rf(12),
+    fontWeight: "600",
   },
   expiryDate: {
-    fontSize: rf(14),
-    marginBottom: spacing.xxs,
-  },
-  expiryContainer: {
-    marginTop: spacing.xs,
-  },
-  expiryStatus: {
-    fontSize: rf(14),
-    fontWeight: "500",
+    fontSize: rf(12),
+    fontWeight: "600",
   },
   actionButtons: {
     flexDirection: "row",
     gap: spacing.xs,
+    marginTop: spacing.xxs,
   },
   editButton: {
-    padding: spacing.xs,
+    padding: spacing.xxs,
     borderRadius: borderRadius.xs,
   },
   deleteButton: {
-    padding: spacing.xs,
+    padding: spacing.xxs,
     borderRadius: borderRadius.xs,
   },
   emptyContainer: {
@@ -304,7 +515,7 @@ const styles = StyleSheet.create({
     paddingVertical: vs(60),
   },
   emptyText: {
-    fontSize: rf(18),
+    fontSize: rf(17),
     fontWeight: "600",
     marginTop: spacing.md,
     textAlign: "center",

@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useRef, useState } from "react";
 import {
   FlatList,
@@ -218,7 +219,8 @@ const CategoriesScreen = ({ navigation }) => {
     setEditCategory(type.category || "");
     setEditKm(type.defaultIntervalKm?.toString() || "");
     setEditTime(
-      (type.defaultIntervalTime || type.defaultIntervalMonths)?.toString() || ""
+      (type.defaultIntervalTime || type.defaultIntervalMonths)?.toString() ||
+        "",
     );
     setEditTimeUnit(type.defaultIntervalUnit || "months");
     setEditIcon(type.icon || "build-outline");
@@ -304,7 +306,7 @@ const CategoriesScreen = ({ navigation }) => {
               try {
                 await deleteMaintenanceType(type.id);
                 loadCategories();
-              } catch (error) {
+              } catch (_error) {
                 showDialog({
                   title: "Error",
                   message: "No se pudo eliminar el tipo de mantenimiento",
@@ -423,29 +425,51 @@ const CategoriesScreen = ({ navigation }) => {
           { backgroundColor: colors.background },
         ]}
       >
-        {/* Header con título e ícono de ayuda */}
-        <View style={styles.header}>
-          <Text style={[styles.headerTitle, { color: colors.text }]}>
-            Tipos de Mantenimiento
-          </Text>
-          <TouchableOpacity
-            style={styles.helpButton}
-            onPress={() =>
-              showDialog({
-                title: "Personalizar Orden",
-                message:
-                  "Organiza tus tipos de mantenimiento colocando los más frecuentes al inicio de la lista. Mantén presionado el ícono ≡ de cualquier tipo y arrástralo hacia arriba o abajo para cambiar su posición. El orden se guardará automáticamente.",
-                type: "info",
-              })
-            }
-          >
-            <Ionicons
-              name="information-circle-outline"
-              size={iconSize.md}
-              color={colors.primary}
-            />
-          </TouchableOpacity>
-        </View>
+        <LinearGradient
+          colors={[colors.primary, "#0F5FD2", "#0A3F8F"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.heroGradient}
+        >
+          <View style={styles.heroHeaderRow}>
+            <View style={styles.heroMediaRow}>
+              <View style={[styles.iconBadge, styles.heroIconBadge]}>
+                <Ionicons
+                  name="build-outline"
+                  size={iconSize.lg}
+                  color="#D6E7FF"
+                />
+              </View>
+
+              <View style={styles.heroInfo}>
+                <Text style={styles.heroEyebrow}>Catálogo técnico</Text>
+                <Text style={styles.headerTitle}>Tipos de Mantenimiento</Text>
+                <Text style={styles.heroSubtitle}>
+                  Organiza servicios frecuentes y define el orden operativo del
+                  catálogo técnico.
+                </Text>
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={styles.helpButtonHero}
+              onPress={() =>
+                showDialog({
+                  title: "Personalizar Orden",
+                  message:
+                    "Organiza tus tipos de mantenimiento colocando los más frecuentes al inicio de la lista. Mantén presionado el ícono ≡ de cualquier tipo y arrástralo hacia arriba o abajo para cambiar su posición. El orden se guardará automáticamente.",
+                  type: "info",
+                })
+              }
+            >
+              <Ionicons
+                name="information-circle-outline"
+                size={iconSize.lg}
+                color="#fff"
+              />
+            </TouchableOpacity>
+          </View>
+        </LinearGradient>
 
         <DraggableFlatList
           data={categories}
@@ -458,7 +482,7 @@ const CategoriesScreen = ({ navigation }) => {
 
         {/* Botón flotante para agregar */}
         <TouchableOpacity
-          style={[styles.fab, { backgroundColor: colors.primary }]}
+          style={[styles.fab, { backgroundColor: colors.primaryDark }]}
           onPress={handleAddType}
           activeOpacity={0.8}
         >
@@ -610,7 +634,7 @@ const CategoriesScreen = ({ navigation }) => {
                           style={[
                             styles.unitButton,
                             editTimeUnit === "days" && {
-                              backgroundColor: colors.primary,
+                              backgroundColor: colors.primaryDark,
                             },
                             { borderColor: colors.border },
                           ]}
@@ -634,7 +658,7 @@ const CategoriesScreen = ({ navigation }) => {
                           style={[
                             styles.unitButton,
                             editTimeUnit === "months" && {
-                              backgroundColor: colors.primary,
+                              backgroundColor: colors.primaryDark,
                             },
                             { borderColor: colors.border },
                           ]}
@@ -704,7 +728,7 @@ const CategoriesScreen = ({ navigation }) => {
                     <TouchableOpacity
                       style={[
                         styles.saveButton,
-                        { backgroundColor: colors.primary },
+                        { backgroundColor: colors.primaryDark },
                       ]}
                       onPress={handleSaveType}
                     >
@@ -866,7 +890,7 @@ const CategoriesScreen = ({ navigation }) => {
                         style={[
                           styles.unitButton,
                           newTypeTimeUnit === "days" && {
-                            backgroundColor: colors.primary,
+                            backgroundColor: colors.primaryDark,
                           },
                           { borderColor: colors.border },
                         ]}
@@ -890,7 +914,7 @@ const CategoriesScreen = ({ navigation }) => {
                         style={[
                           styles.unitButton,
                           newTypeTimeUnit === "months" && {
-                            backgroundColor: colors.primary,
+                            backgroundColor: colors.primaryDark,
                           },
                           { borderColor: colors.border },
                         ]}
@@ -959,7 +983,7 @@ const CategoriesScreen = ({ navigation }) => {
                   <TouchableOpacity
                     style={[
                       styles.saveButton,
-                      { backgroundColor: colors.primary },
+                      { backgroundColor: colors.primaryDark },
                     ]}
                     onPress={handleSaveNewType}
                   >
@@ -1015,16 +1039,16 @@ const CategoriesScreen = ({ navigation }) => {
                           (editingIconFor === "edit"
                             ? editIcon
                             : editingIconFor === "add"
-                            ? newTypeIcon
-                            : "") === item.name
+                              ? newTypeIcon
+                              : "") === item.name
                             ? colors.primary
                             : colors.border,
                         borderWidth:
                           (editingIconFor === "edit"
                             ? editIcon
                             : editingIconFor === "add"
-                            ? newTypeIcon
-                            : "") === item.name
+                              ? newTypeIcon
+                              : "") === item.name
                             ? ms(2)
                             : ms(1),
                       },
@@ -1038,8 +1062,8 @@ const CategoriesScreen = ({ navigation }) => {
                         (editingIconFor === "edit"
                           ? editIcon
                           : editingIconFor === "add"
-                          ? newTypeIcon
-                          : "") === item.name
+                            ? newTypeIcon
+                            : "") === item.name
                           ? colors.primary
                           : colors.text
                       }
@@ -1052,8 +1076,8 @@ const CategoriesScreen = ({ navigation }) => {
                             (editingIconFor === "edit"
                               ? editIcon
                               : editingIconFor === "add"
-                              ? newTypeIcon
-                              : "") === item.name
+                                ? newTypeIcon
+                                : "") === item.name
                               ? colors.primary
                               : colors.textSecondary,
                         },
@@ -1091,9 +1115,65 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
     paddingTop: spacing.lg,
   },
+  heroGradient: {
+    marginHorizontal: -spacing.lg,
+    marginBottom: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.lg,
+    borderBottomLeftRadius: borderRadius.xl,
+    borderBottomRightRadius: borderRadius.xl,
+  },
+  heroHeaderRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: spacing.md,
+  },
+  heroMediaRow: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+  },
+  iconBadge: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.16)",
+  },
+  heroIconBadge: {
+    width: s(76),
+    height: s(76),
+    borderRadius: borderRadius.lg,
+  },
+  heroInfo: {
+    flex: 1,
+    gap: spacing.xxs,
+  },
+  heroEyebrow: {
+    fontSize: rf(12),
+    fontWeight: "700",
+    letterSpacing: 1,
+    textTransform: "uppercase",
+    color: "#D6E7FF",
+  },
+  heroSubtitle: {
+    fontSize: rf(13),
+    lineHeight: rf(18),
+    color: "#D6E7FF",
+  },
+  helpButtonHero: {
+    width: s(42),
+    height: s(42),
+    borderRadius: borderRadius.full,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.14)",
+  },
   headerTitle: {
-    fontSize: rf(20),
-    fontWeight: "bold",
+    fontSize: rf(22),
+    fontWeight: "800",
+    color: "#fff",
   },
   helpButton: {
     padding: spacing.xs,
@@ -1172,7 +1252,7 @@ const styles = StyleSheet.create({
   },
   iconSelectorText: {
     flex: 1,
-    fontSize: rf(16),
+    fontSize: rf(14),
   },
   iconPickerContent: {
     width: "90%",
@@ -1227,7 +1307,7 @@ const styles = StyleSheet.create({
     borderBottomColor: "#e0e0e0",
   },
   modalTitle: {
-    fontSize: rf(18),
+    fontSize: rf(17),
     fontWeight: "bold",
   },
   modalBody: {

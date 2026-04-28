@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useTheme } from "../context/ThemeContext";
 import {
   borderRadius,
@@ -13,7 +13,7 @@ import {
 } from "../utils/responsive";
 
 const AboutScreen = () => {
-  const { colors, isDarkMode } = useTheme();
+  const { colors } = useTheme();
 
   const features = [
     {
@@ -42,21 +42,22 @@ const AboutScreen = () => {
       >
         {/* Header con gradiente */}
         <LinearGradient
-          colors={
-            isDarkMode
-              ? [colors.primary, "#1a4d6d"]
-              : [colors.primary, "#4a9bc7"]
-          }
+          colors={[colors.primary, "#0F5FD2", "#0A3F8F"]}
           style={styles.header}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
         >
+          <Text style={styles.heroEyebrow}>Información de producto</Text>
           <View style={styles.iconContainer}>
-            <Ionicons name="car-sport" size={iconSize.xxl} color="#fff" />
+            <Image
+              source={require("../../assets/icon.png")}
+              style={styles.appIcon}
+              resizeMode="contain"
+            />
           </View>
           <Text style={styles.title}>Auto-Guardian</Text>
           <Text style={styles.subtitle}>
-            Tu compañero inteligente para el cuidado del auto
+            Bitácora clara para mantenimiento, documentos y costos del vehículo.
           </Text>
         </LinearGradient>
 
@@ -70,7 +71,7 @@ const AboutScreen = () => {
               <Ionicons
                 name="book-outline"
                 size={iconSize.md}
-                color={colors.primary}
+                color={colors.primaryDark}
               />
               <Text style={[styles.cardTitle, { color: colors.text }]}>
                 Nuestra Historia
@@ -83,7 +84,7 @@ const AboutScreen = () => {
             </Text>
             <Text style={[styles.text, { color: colors.textSecondary }]}>
               Creemos que un auto bien cuidado es sinónimo de{" "}
-              <Text style={{ fontWeight: "bold", color: colors.primary }}>
+              <Text style={{ fontWeight: "bold", color: colors.primaryDark }}>
                 seguridad, ahorro y tranquilidad
               </Text>
               .
@@ -102,7 +103,7 @@ const AboutScreen = () => {
               <Ionicons
                 name="people"
                 size={iconSize.md}
-                color={colors.primary}
+                color={colors.primaryDark}
               />
               <Text style={[styles.cardTitle, { color: colors.text }]}>
                 Para quién es esta app
@@ -114,13 +115,13 @@ const AboutScreen = () => {
                 <View
                   style={[
                     styles.iconBadge,
-                    { backgroundColor: colors.primary + "15" },
+                    { backgroundColor: `${colors.primaryDark}15` },
                   ]}
                 >
                   <Ionicons
                     name={feature.icon}
                     size={iconSize.md}
-                    color={colors.primary}
+                    color={colors.primaryDark}
                   />
                 </View>
                 <Text
@@ -134,7 +135,11 @@ const AboutScreen = () => {
 
           {/* Footer */}
           <View style={styles.footer}>
-            <Ionicons name="heart" size={iconSize.sm} color={colors.primary} />
+            <Ionicons
+              name="heart"
+              size={iconSize.sm}
+              color={colors.primaryDark}
+            />
             <Text style={[styles.footerText, { color: colors.textSecondary }]}>
               Hecho con amor para cuidar tu auto
             </Text>
@@ -153,8 +158,8 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   header: {
-    paddingTop: vs(40),
-    paddingBottom: vs(40),
+    paddingTop: vs(28),
+    paddingBottom: vs(28),
     paddingHorizontal: hs(24),
     alignItems: "center",
     borderBottomLeftRadius: s(30),
@@ -166,29 +171,43 @@ const styles = StyleSheet.create({
     elevation: s(8),
   },
   iconContainer: {
-    width: s(100),
-    height: s(100),
-    borderRadius: s(50),
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    width: s(96),
+    height: s(96),
+    borderRadius: s(28),
+    backgroundColor: "rgba(255, 255, 255, 0.12)",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: spacing.md,
-    borderWidth: s(3),
-    borderColor: "rgba(255, 255, 255, 0.3)",
+    padding: s(8),
+    borderWidth: s(1.5),
+    borderColor: "rgba(255, 255, 255, 0.22)",
+  },
+  appIcon: {
+    width: "100%",
+    height: "100%",
+  },
+  heroEyebrow: {
+    fontSize: rf(12),
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.7,
+    color: "rgba(255,255,255,0.78)",
+    marginBottom: spacing.sm,
   },
   title: {
-    fontSize: rf(32),
-    fontWeight: "bold",
+    fontSize: rf(22),
+    fontWeight: "800",
     color: "#fff",
     marginBottom: spacing.xs,
     textAlign: "center",
   },
   subtitle: {
-    fontSize: rf(16),
+    fontSize: rf(14),
     color: "#fff",
     textAlign: "center",
     opacity: 0.95,
     fontWeight: "500",
+    lineHeight: rf(20),
   },
   content: {
     padding: spacing.lg,
@@ -210,12 +229,12 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   cardTitle: {
-    fontSize: rf(20),
+    fontSize: rf(18),
     fontWeight: "bold",
   },
   text: {
-    fontSize: rf(15),
-    lineHeight: rf(24),
+    fontSize: rf(14),
+    lineHeight: rf(22),
     marginBottom: spacing.sm,
     textAlign: "justify",
   },

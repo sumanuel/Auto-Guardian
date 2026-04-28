@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
-import { useEffect, useRef, useState } from "react";
+import { LinearGradient } from "expo-linear-gradient";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Image,
   KeyboardAvoidingView,
@@ -39,6 +40,13 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
   const [maintenanceMode, setMaintenanceMode] = useState("date"); // "date" o "km"
 
   const vehicle = vehicles.find((v) => v.id === vehicleId);
+  const vehicleMeta = [
+    vehicle?.brand,
+    vehicle?.model,
+    vehicle?.year && `${vehicle.year}`,
+  ]
+    .filter(Boolean)
+    .join(" • ");
   const [maintenanceTypes, setMaintenanceTypes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showOptionalFields, setShowOptionalFields] = useState(false);
@@ -52,8 +60,6 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
   });
 
   // Referencias para navegación en modal de edición
-  const costRef = useRef(null);
-  const providerRef = useRef(null);
   const notesRef = useRef(null);
 
   const [formData, setFormData] = useState({
@@ -70,6 +76,42 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
     nextServiceDate: new Date(),
   });
 
+  const handleTypeSelect = useCallback(
+    (type) => {
+      let nextServiceDate = null;
+
+      if (type.defaultIntervalTime && type.defaultIntervalUnit) {
+        const currentDate = new Date();
+        if (type.defaultIntervalUnit === "days") {
+          nextServiceDate = new Date(
+            currentDate.getTime() +
+              type.defaultIntervalTime * 24 * 60 * 60 * 1000,
+          );
+        } else if (type.defaultIntervalUnit === "months") {
+          nextServiceDate = new Date(
+            currentDate.getFullYear(),
+            currentDate.getMonth() + type.defaultIntervalTime,
+            currentDate.getDate(),
+          );
+        }
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        type: type.name,
+        category: type.category,
+        nextServiceKm: type.defaultIntervalKm
+          ? (
+              parseInt(prev.km || vehicle?.currentKm || 0) +
+              type.defaultIntervalKm
+            ).toString()
+          : "",
+        nextServiceDate: nextServiceDate,
+      }));
+    },
+    [vehicle?.currentKm],
+  );
+
   useEffect(() => {
     const types = getMaintenanceTypes();
     setMaintenanceTypes(types);
@@ -81,7 +123,7 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
         handleTypeSelect(matchedType);
       }
     }
-  }, [quickType]);
+  }, [getMaintenanceTypes, handleTypeSelect, quickType]);
 
   useEffect(() => {
     if (maintenanceData) {
@@ -144,53 +186,8 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
     }
   }, [maintenanceData]);
 
-  const handleEdit = () => {
-    setEditFormData({
-      date: formData.date,
-      cost: formData.cost,
-      provider: formData.provider,
-      notes: formData.notes,
-      photo: formData.photo,
-    });
-    setEditModalVisible(true);
-  };
-
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleTypeSelect = (type) => {
-    let nextServiceDate = null;
-
-    // Calcular fecha del próximo servicio si hay intervalo de tiempo definido
-    if (type.defaultIntervalTime && type.defaultIntervalUnit) {
-      const currentDate = new Date();
-      if (type.defaultIntervalUnit === "days") {
-        nextServiceDate = new Date(
-          currentDate.getTime() + type.defaultIntervalTime * 24 * 60 * 60 * 1000
-        );
-      } else if (type.defaultIntervalUnit === "months") {
-        nextServiceDate = new Date(
-          currentDate.getFullYear(),
-          currentDate.getMonth() + type.defaultIntervalTime,
-          currentDate.getDate()
-        );
-      }
-    }
-
-    setFormData((prev) => ({
-      ...prev,
-      type: type.name,
-      category: type.category,
-      // Calcular próximo servicio automáticamente
-      nextServiceKm: type.defaultIntervalKm
-        ? (
-            parseInt(prev.km || vehicle?.currentKm || 0) +
-            type.defaultIntervalKm
-          ).toString()
-        : "",
-      nextServiceDate: nextServiceDate,
-    }));
   };
 
   const handleSaveEdit = () => {
@@ -307,12 +304,12 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
       const serviceDateOnly = new Date(
         serviceDate.getFullYear(),
         serviceDate.getMonth(),
-        serviceDate.getDate()
+        serviceDate.getDate(),
       );
       const nextServiceDateOnly = new Date(
         nextServiceDate.getFullYear(),
         nextServiceDate.getMonth(),
-        nextServiceDate.getDate()
+        nextServiceDate.getDate(),
       );
 
       if (serviceDateOnly.getTime() === nextServiceDateOnly.getTime()) {
@@ -369,7 +366,7 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
         });
       }
       navigation.goBack();
-    } catch (error) {
+    } catch (_error) {
       showDialog({
         title: "Error",
         message: "No se pudo registrar el mantenimiento",
@@ -393,40 +390,90 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Header con título e icono informativo */}
-          <View style={styles.header}>
-            <Text style={[styles.headerTitle, { color: colors.text }]}>
-              {maintenanceData?.id
-                ? "Editar Mantenimiento"
-                : "Nuevo Mantenimiento"}
-            </Text>
-            <TouchableOpacity
-              style={styles.infoIcon}
-              onPress={() =>
-                showDialog({
-                  title: "Registro de Mantenimiento",
-                  message:
-                    "Aquí puedes registrar mantenimientos realizados. Elige un tipo de mantenimiento de las opciones predefinidas o escribe uno personalizado. Programa el próximo servicio por fecha (útil para servicios periódicos como cambio de aceite) o por kilometraje (ideal para servicios basados en uso).",
-                  type: "info",
-                })
-              }
+          <View style={styles.headerBlock}>
+            <LinearGradient
+              colors={[COLORS.primary, "#0F5FD2", "#0A3F8F"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.heroGradient}
             >
-              <Ionicons
-                name="information-circle-outline"
-                size={iconSize.md}
-                color={colors.primary}
-              />
-            </TouchableOpacity>
+              <View style={styles.header}>
+                <View style={styles.heroMediaRow}>
+                  {vehicle?.photo ? (
+                    <Image
+                      source={{ uri: vehicle.photo }}
+                      style={styles.vehicleImage}
+                    />
+                  ) : (
+                    <View
+                      style={[
+                        styles.imagePlaceholder,
+                        styles.heroImagePlaceholder,
+                      ]}
+                    >
+                      <Ionicons
+                        name="car-sport-outline"
+                        size={s(44)}
+                        color="#D6E7FF"
+                      />
+                    </View>
+                  )}
+
+                  <View style={styles.headerTitleWrap}>
+                    <Text style={styles.headerEyebrow}>
+                      Programación de servicio
+                    </Text>
+                    <Text style={styles.headerTitle}>
+                      {vehicle?.name || "Vehículo"}
+                    </Text>
+                    {!!vehicleMeta && (
+                      <Text style={styles.heroSubtitle}>{vehicleMeta}</Text>
+                    )}
+                  </View>
+                </View>
+
+                <TouchableOpacity
+                  style={styles.infoIcon}
+                  onPress={() =>
+                    showDialog({
+                      title: "Registro de Mantenimiento",
+                      message:
+                        "Aquí puedes registrar mantenimientos realizados. Elige un tipo de mantenimiento de las opciones predefinidas o escribe uno personalizado. Programa el próximo servicio por fecha (útil para servicios periódicos como cambio de aceite) o por kilometraje (ideal para servicios basados en uso).",
+                      type: "info",
+                    })
+                  }
+                >
+                  <Ionicons
+                    name="information-circle-outline"
+                    size={iconSize.lg}
+                    color="#fff"
+                  />
+                </TouchableOpacity>
+              </View>
+            </LinearGradient>
           </View>
 
-          <Text style={[styles.vehicleName, { color: colors.text }]}>
-            {vehicle?.name}
-          </Text>
-
-          {/* Tipos de mantenimiento predefinidos */}
-          <View style={styles.section}>
+          <View
+            style={[
+              styles.sectionCard,
+              {
+                backgroundColor: colors.cardBackground,
+                borderColor: colors.border,
+                shadowColor: colors.shadow,
+              },
+            ]}
+          >
             <Text style={[styles.sectionTitle, { color: colors.text }]}>
               Tipo de mantenimiento
+            </Text>
+            <Text
+              style={[
+                styles.sectionDescription,
+                { color: colors.textSecondary },
+              ]}
+            >
+              Elige una categoría sugerida o escribe un servicio puntual para
+              mantener la bitácora consistente.
             </Text>
             <ScrollView
               horizontal
@@ -443,7 +490,7 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
                       borderColor: colors.border,
                     },
                     formData.type === type.name && {
-                      backgroundColor: colors.primary,
+                      backgroundColor: colors.primaryDark,
                     },
                     maintenanceData?.id && { opacity: 0.5 },
                   ]}
@@ -482,134 +529,176 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
             />
           </View>
 
-          {/* Radio buttons para modo de mantenimiento */}
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.text }]}>
-              ¿Cómo deseas programar el mantenimiento?
-            </Text>
-            <View style={styles.radioGroup}>
-              <TouchableOpacity
-                style={styles.radioOption}
-                onPress={() => setMaintenanceMode("date")}
+          <View
+            style={[
+              styles.sectionCard,
+              {
+                backgroundColor: colors.cardBackground,
+                borderColor: colors.border,
+                shadowColor: colors.shadow,
+              },
+            ]}
+          >
+            <View style={styles.inputGroup}>
+              <Text style={[styles.label, { color: colors.text }]}>
+                ¿Cómo deseas programar el mantenimiento?
+              </Text>
+              <Text
+                style={[
+                  styles.sectionDescriptionCompact,
+                  { color: colors.textSecondary },
+                ]}
               >
-                <Ionicons
-                  name={
-                    maintenanceMode === "date"
-                      ? "radio-button-on"
-                      : "radio-button-off"
-                  }
-                  size={iconSize.md}
-                  color={colors.primary}
-                />
-                <Text style={[styles.radioLabel, { color: colors.text }]}>
-                  Por fecha
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.radioOption}
-                onPress={() => setMaintenanceMode("km")}
-              >
-                <Ionicons
-                  name={
-                    maintenanceMode === "km"
-                      ? "radio-button-on"
-                      : "radio-button-off"
-                  }
-                  size={iconSize.md}
-                  color={colors.primary}
-                />
-                <Text style={[styles.radioLabel, { color: colors.text }]}>
-                  Por kilometraje
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          {/* Mostrar campos según el modo seleccionado */}
-          {maintenanceMode === "date" && (
-            <>
-              {/* Fecha del servicio */}
-              <DatePicker
-                key={`date-${
-                  maintenanceData?.id || "new"
-                }-${formData.date?.getTime()}`}
-                label="Fecha del servicio"
-                value={formData.date}
-                onChange={(date) => handleInputChange("date", date)}
-              />
-
-              {/* Próxima fecha de servicio */}
-              <View style={styles.inputGroup}>
-                <DatePicker
-                  key={`nextDate-${
-                    maintenanceData?.id || "new"
-                  }-${formData.nextServiceDate?.getTime()}`}
-                  label="Próximo servicio (fecha)"
-                  value={formData.nextServiceDate}
-                  onChange={(date) =>
-                    handleInputChange("nextServiceDate", date)
-                  }
-                  minimumDate={new Date()}
-                />
-                <Text
-                  style={[styles.helperText, { color: colors.textSecondary }]}
+                Define si el siguiente control se activará por calendario o por
+                kilometraje.
+              </Text>
+              <View style={styles.radioGroup}>
+                <TouchableOpacity
+                  style={[
+                    styles.radioOption,
+                    {
+                      backgroundColor:
+                        maintenanceMode === "date"
+                          ? colors.inputBackground
+                          : "transparent",
+                      borderColor:
+                        maintenanceMode === "date"
+                          ? colors.primary
+                          : colors.border,
+                    },
+                  ]}
+                  onPress={() => setMaintenanceMode("date")}
                 >
-                  Útil para servicios por tiempo (ej: cambio de aceite cada 6
-                  meses)
-                </Text>
-              </View>
-            </>
-          )}
-
-          {maintenanceMode === "km" && (
-            <>
-              {/* Kilometraje cuando se realizó */}
-              <View style={styles.inputGroup}>
-                <Text style={[styles.label, { color: colors.text }]}>
-                  Kilometraje cuando se realizó
-                </Text>
-                <TextInput
+                  <Ionicons
+                    name={
+                      maintenanceMode === "date"
+                        ? "radio-button-on"
+                        : "radio-button-off"
+                    }
+                    size={iconSize.md}
+                    color={colors.primary}
+                  />
+                  <Text style={[styles.radioLabel, { color: colors.text }]}>
+                    Por fecha
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
                   style={[
-                    styles.input,
+                    styles.radioOption,
                     {
-                      backgroundColor: colors.inputBackground,
-                      borderColor: colors.border,
-                      color: colors.text,
+                      backgroundColor:
+                        maintenanceMode === "km"
+                          ? colors.inputBackground
+                          : "transparent",
+                      borderColor:
+                        maintenanceMode === "km"
+                          ? colors.primary
+                          : colors.border,
                     },
                   ]}
-                  value={formData.km}
-                  onChangeText={(value) => handleInputChange("km", value)}
-                  placeholder="0"
-                  placeholderTextColor={colors.textSecondary}
-                  keyboardType="numeric"
-                />
+                  onPress={() => setMaintenanceMode("km")}
+                >
+                  <Ionicons
+                    name={
+                      maintenanceMode === "km"
+                        ? "radio-button-on"
+                        : "radio-button-off"
+                    }
+                    size={iconSize.md}
+                    color={colors.primary}
+                  />
+                  <Text style={[styles.radioLabel, { color: colors.text }]}>
+                    Por kilometraje
+                  </Text>
+                </TouchableOpacity>
               </View>
+            </View>
 
-              {/* Próximo servicio km */}
-              <View style={styles.inputGroup}>
-                <Text style={[styles.label, { color: colors.text }]}>
-                  Próximo servicio (km)
-                </Text>
-                <TextInput
-                  style={[
-                    styles.input,
-                    {
-                      backgroundColor: colors.inputBackground,
-                      borderColor: colors.border,
-                      color: colors.text,
-                    },
-                  ]}
-                  value={formData.nextServiceKm}
-                  onChangeText={(value) =>
-                    handleInputChange("nextServiceKm", value)
-                  }
-                  placeholder="0"
-                  placeholderTextColor={colors.textSecondary}
-                  keyboardType="numeric"
+            {maintenanceMode === "date" && (
+              <>
+                {/* Fecha del servicio */}
+                <DatePicker
+                  key={`date-${
+                    maintenanceData?.id || "new"
+                  }-${formData.date?.getTime()}`}
+                  label="Fecha del servicio"
+                  value={formData.date}
+                  onChange={(date) => handleInputChange("date", date)}
                 />
-              </View>
-            </>
-          )}
+
+                {/* Próxima fecha de servicio */}
+                <View style={styles.inputGroup}>
+                  <DatePicker
+                    key={`nextDate-${
+                      maintenanceData?.id || "new"
+                    }-${formData.nextServiceDate?.getTime()}`}
+                    label="Próximo servicio (fecha)"
+                    value={formData.nextServiceDate}
+                    onChange={(date) =>
+                      handleInputChange("nextServiceDate", date)
+                    }
+                    minimumDate={new Date()}
+                  />
+                  <Text
+                    style={[styles.helperText, { color: colors.textSecondary }]}
+                  >
+                    Útil para servicios por tiempo (ej: cambio de aceite cada 6
+                    meses)
+                  </Text>
+                </View>
+              </>
+            )}
+
+            {maintenanceMode === "km" && (
+              <>
+                {/* Kilometraje cuando se realizó */}
+                <View style={styles.inputGroup}>
+                  <Text style={[styles.label, { color: colors.text }]}>
+                    Kilometraje cuando se realizó
+                  </Text>
+                  <TextInput
+                    style={[
+                      styles.input,
+                      {
+                        backgroundColor: colors.inputBackground,
+                        borderColor: colors.border,
+                        color: colors.text,
+                      },
+                    ]}
+                    value={formData.km}
+                    onChangeText={(value) => handleInputChange("km", value)}
+                    placeholder="0"
+                    placeholderTextColor={colors.textSecondary}
+                    keyboardType="numeric"
+                  />
+                </View>
+
+                {/* Próximo servicio km */}
+                <View style={styles.inputGroup}>
+                  <Text style={[styles.label, { color: colors.text }]}>
+                    Próximo servicio (km)
+                  </Text>
+                  <TextInput
+                    style={[
+                      styles.input,
+                      {
+                        backgroundColor: colors.inputBackground,
+                        borderColor: colors.border,
+                        color: colors.text,
+                      },
+                    ]}
+                    value={formData.nextServiceKm}
+                    onChangeText={(value) =>
+                      handleInputChange("nextServiceKm", value)
+                    }
+                    placeholder="0"
+                    placeholderTextColor={colors.textSecondary}
+                    keyboardType="numeric"
+                  />
+                </View>
+              </>
+            )}
+          </View>
 
           {/* Botón desplegable para campos opcionales - Oculto */}
           {/* 
@@ -638,7 +727,20 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
 
           {/* Campos opcionales desplegables */}
           {showOptionalFields && (
-            <View style={styles.optionalFieldsContainer}>
+            <View
+              style={[
+                styles.sectionCard,
+                styles.optionalFieldsContainer,
+                {
+                  backgroundColor: colors.cardBackground,
+                  borderColor: colors.border,
+                  shadowColor: colors.shadow,
+                },
+              ]}
+            >
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                Detalles adicionales
+              </Text>
               {/* Costo */}
               <View style={styles.inputGroup}>
                 <Text style={[styles.label, { color: colors.text }]}>
@@ -984,19 +1086,52 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: hs(20),
     paddingVertical: vs(20),
+    paddingBottom: vs(36),
+  },
+  headerBlock: {
+    marginBottom: spacing.lg,
+  },
+  heroGradient: {
+    marginHorizontal: -hs(20),
+    marginTop: -vs(20),
+    paddingHorizontal: hs(20),
+    paddingTop: vs(18),
+    paddingBottom: vs(18),
+    borderBottomLeftRadius: borderRadius.xl,
+    borderBottomRightRadius: borderRadius.xl,
   },
   vehicleName: {
     fontSize: rf(20),
     fontWeight: "bold",
     marginBottom: vs(20),
   },
+  sectionCard: {
+    borderWidth: 1,
+    borderRadius: borderRadius.lg,
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
+    elevation: s(3),
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: s(10),
+  },
   section: {
     marginBottom: vs(20),
   },
   sectionTitle: {
-    fontSize: rf(16),
-    fontWeight: "600",
-    marginBottom: vs(12),
+    fontSize: rf(17),
+    fontWeight: "800",
+    marginBottom: vs(8),
+  },
+  sectionDescription: {
+    fontSize: rf(13),
+    lineHeight: rf(19),
+    marginBottom: spacing.md,
+  },
+  sectionDescriptionCompact: {
+    fontSize: rf(12),
+    lineHeight: rf(18),
+    marginBottom: spacing.sm,
   },
   typesScroll: {
     marginBottom: vs(12),
@@ -1009,7 +1144,7 @@ const styles = StyleSheet.create({
     borderWidth: s(1),
   },
   typeChipActive: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.primaryDark,
   },
   typeChipText: {
     fontSize: rf(14),
@@ -1022,7 +1157,7 @@ const styles = StyleSheet.create({
     marginBottom: vs(20),
   },
   label: {
-    fontSize: rf(16),
+    fontSize: rf(14),
     fontWeight: "600",
     marginBottom: vs(8),
   },
@@ -1036,18 +1171,26 @@ const styles = StyleSheet.create({
     minHeight: s(100),
   },
   radioGroup: {
-    flexDirection: "row",
-    gap: hs(16),
+    flexDirection: "column",
+    gap: hs(10),
     marginVertical: vs(8),
   },
   radioOption: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "flex-start",
+    borderWidth: 1,
+    borderRadius: borderRadius.md,
+    paddingHorizontal: hs(14),
+    paddingVertical: vs(14),
+    minHeight: vs(56),
+    width: "100%",
   },
   radioLabel: {
-    marginLeft: hs(6),
-    fontSize: rf(18),
-    fontWeight: "500",
+    marginLeft: hs(8),
+    fontSize: rf(14),
+    fontWeight: "700",
+    flexShrink: 1,
   },
   photoContainer: {
     gap: vs(12),
@@ -1075,7 +1218,7 @@ const styles = StyleSheet.create({
     borderWidth: s(1),
   },
   optionalToggleText: {
-    fontSize: rf(16),
+    fontSize: rf(14),
     fontWeight: "500",
   },
   optionalFieldsContainer: {
@@ -1093,15 +1236,84 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: vs(14),
+    gap: hs(12),
+  },
+  heroMediaRow: {
+    flex: 1,
+    flexDirection: "row",
     alignItems: "center",
-    marginBottom: vs(16),
+  },
+  vehicleImage: {
+    width: s(78),
+    height: s(78),
+    borderRadius: borderRadius.md,
+    marginRight: hs(12),
+  },
+  imagePlaceholder: {
+    width: s(78),
+    height: s(78),
+    borderRadius: borderRadius.md,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: hs(12),
+  },
+  heroImagePlaceholder: {
+    backgroundColor: "rgba(255,255,255,0.12)",
+  },
+  headerTitleWrap: {
+    flex: 1,
+    paddingRight: spacing.md,
+  },
+  headerEyebrow: {
+    fontSize: rf(12),
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.7,
+    marginBottom: vs(4),
+    color: "rgba(255,255,255,0.74)",
   },
   headerTitle: {
-    fontSize: rf(20),
-    fontWeight: "bold",
+    fontSize: rf(22),
+    fontWeight: "800",
+    color: "#fff",
+  },
+  heroSubtitle: {
+    fontSize: rf(13),
+    color: "rgba(255,255,255,0.84)",
+    marginTop: vs(4),
+    marginBottom: vs(4),
+  },
+  headerSubtitle: {
+    fontSize: rf(13),
+    lineHeight: rf(18),
+    marginTop: vs(6),
+    color: "rgba(255,255,255,0.84)",
   },
   infoIcon: {
-    padding: spacing.sm,
+    width: s(44),
+    height: s(44),
+    borderRadius: s(22),
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.12)",
+    marginLeft: hs(12),
+  },
+  vehicleBadge: {
+    alignSelf: "flex-start",
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: hs(12),
+    paddingVertical: vs(8),
+    borderRadius: s(999),
+    backgroundColor: "rgba(255,255,255,0.14)",
+  },
+  vehicleBadgeText: {
+    fontSize: rf(13),
+    fontWeight: "700",
+    marginLeft: hs(6),
+    color: "#fff",
   },
   editIconContainer: {
     flexDirection: "row",
@@ -1141,7 +1353,7 @@ const styles = StyleSheet.create({
     marginBottom: ms(20),
   },
   editModalTitle: {
-    fontSize: rf(20),
+    fontSize: rf(18),
     fontWeight: "bold",
   },
   editModalScroll: {
@@ -1172,7 +1384,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: ms(24),
     borderRadius: ms(8),
     alignItems: "center",
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.primaryDark,
   },
   editModalSaveText: {
     fontSize: rf(16),

@@ -1,17 +1,29 @@
+import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { useState } from "react";
 import {
+  Image,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from "react-native";
 import Button from "../components/common/Button";
 import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
 import { useDialog } from "../hooks/useDialog";
-import { borderRadius, hs, rf, s, spacing, vs } from "../utils/responsive";
+import {
+  borderRadius,
+  hs,
+  iconSize,
+  rf,
+  s,
+  spacing,
+  vs,
+} from "../utils/responsive";
 
 const UpdateKmScreen = ({ navigation, route }) => {
   const { vehicle } = route.params;
@@ -20,6 +32,7 @@ const UpdateKmScreen = ({ navigation, route }) => {
   const { colors } = useTheme();
   const [km, setKm] = useState(vehicle.currentKm.toString());
   const [loading, setLoading] = useState(false);
+  const vehicleMeta = [vehicle.brand, vehicle.model].filter(Boolean).join(" ");
 
   const handleSubmit = async () => {
     const newKm = parseInt(km);
@@ -76,17 +89,74 @@ const UpdateKmScreen = ({ navigation, route }) => {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <View style={styles.content}>
-          <Text style={[styles.title, { color: colors.text }]}>
-            Actualizar Kilometraje
-          </Text>
-          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-            {vehicle.name}
-          </Text>
+          <View style={styles.headerBlock}>
+            <LinearGradient
+              colors={[colors.primary, "#0F5FD2", "#0A3F8F"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.heroGradient}
+            >
+              <View style={styles.heroHeaderRow}>
+                <View style={styles.heroMediaRow}>
+                  {vehicle.photo ? (
+                    <Image
+                      source={{ uri: vehicle.photo }}
+                      style={styles.vehicleImage}
+                    />
+                  ) : (
+                    <View
+                      style={[
+                        styles.imagePlaceholder,
+                        styles.heroImagePlaceholder,
+                      ]}
+                    >
+                      <Ionicons
+                        name="speedometer-outline"
+                        size={s(40)}
+                        color="#D6E7FF"
+                      />
+                    </View>
+                  )}
+
+                  <View style={styles.headerInfo}>
+                    <Text style={styles.headerEyebrow}>
+                      Lectura de kilometraje
+                    </Text>
+                    <Text style={styles.headerTitle}>{vehicle.name}</Text>
+                    {!!vehicleMeta && (
+                      <Text style={styles.headerSubtitle}>{vehicleMeta}</Text>
+                    )}
+                  </View>
+                </View>
+
+                <TouchableOpacity
+                  style={styles.infoButton}
+                  onPress={() =>
+                    showDialog({
+                      title: "Actualizar Kilometraje",
+                      message:
+                        "Registra el kilometraje actual del vehículo para mantener precisas las alertas y próximos servicios.",
+                      type: "info",
+                    })
+                  }
+                >
+                  <Ionicons
+                    name="information-circle-outline"
+                    size={iconSize.lg}
+                    color="#fff"
+                  />
+                </TouchableOpacity>
+              </View>
+            </LinearGradient>
+          </View>
 
           <View
             style={[
               styles.currentKmContainer,
-              { backgroundColor: colors.cardBackground },
+              {
+                backgroundColor: colors.cardBackground,
+                borderColor: colors.border,
+              },
             ]}
           >
             <Text style={[styles.label, { color: colors.textSecondary }]}>
@@ -139,18 +209,84 @@ const styles = StyleSheet.create({
     paddingHorizontal: hs(20),
     paddingVertical: vs(20),
   },
-  title: {
-    fontSize: rf(24),
-    fontWeight: "bold",
-    marginBottom: vs(8),
+  headerBlock: {
+    marginBottom: spacing.lg,
   },
-  subtitle: {
-    fontSize: rf(16),
-    marginBottom: vs(24),
+  heroGradient: {
+    marginHorizontal: -hs(20),
+    marginTop: -vs(20),
+    paddingHorizontal: hs(20),
+    paddingTop: vs(18),
+    paddingBottom: vs(18),
+    borderBottomLeftRadius: borderRadius.xl,
+    borderBottomRightRadius: borderRadius.xl,
+  },
+  heroHeaderRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: hs(12),
+  },
+  heroMediaRow: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  vehicleImage: {
+    width: s(78),
+    height: s(78),
+    borderRadius: borderRadius.md,
+    marginRight: hs(12),
+  },
+  imagePlaceholder: {
+    width: s(78),
+    height: s(78),
+    borderRadius: borderRadius.md,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: hs(12),
+  },
+  heroImagePlaceholder: {
+    backgroundColor: "rgba(255,255,255,0.12)",
+  },
+  headerInfo: {
+    flex: 1,
+    paddingRight: spacing.md,
+  },
+  headerEyebrow: {
+    fontSize: rf(12),
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.7,
+    marginBottom: vs(4),
+    color: "rgba(255,255,255,0.74)",
+  },
+  headerTitle: {
+    fontSize: rf(22),
+    fontWeight: "800",
+    color: "#fff",
+  },
+  headerSubtitle: {
+    fontSize: rf(13),
+    color: "rgba(255,255,255,0.84)",
+    marginTop: vs(4),
+  },
+  infoButton: {
+    width: s(44),
+    height: s(44),
+    borderRadius: s(22),
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.12)",
+  },
+  title: {
+    fontSize: rf(20),
+    fontWeight: "bold",
   },
   currentKmContainer: {
     padding: spacing.lg,
-    borderRadius: borderRadius.sm,
+    borderRadius: borderRadius.md,
+    borderWidth: s(1),
     marginBottom: vs(24),
   },
   label: {

@@ -1,7 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
+import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useState } from "react";
 import {
+  Image,
   Modal,
   ScrollView,
   StyleSheet,
@@ -50,125 +52,137 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
   const [dateFrom, setDateFrom] = useState(null);
   const [dateTo, setDateTo] = useState(null);
   const [isFiltered, setIsFiltered] = useState(false);
+  const vehicleMeta = [vehicle?.brand, vehicle?.model, vehicle?.year]
+    .filter(Boolean)
+    .join(" • ");
+
+  const categoryIconMap = {
+    Mantenimientos: "construct",
+    Reparaciones: "build",
+    Otros: "cart",
+  };
+
+  const loadData = React.useCallback(
+    (filterFrom = null, filterTo = null) => {
+      const vehicleData = vehicles.find((v) => v.id === vehicleId);
+      setVehicle(vehicleData);
+
+      const allMaintenances = getAllMaintenances();
+      let vehicleMaintenances = allMaintenances
+        .filter((m) => m.vehicleId === vehicleId)
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      // Obtener movimientos particulares
+      let vehicleExpenses = getExpensesByVehicle(vehicleId);
+
+      // Obtener reparaciones
+      let vehicleRepairs = getRepairsByVehicle(vehicleId);
+
+      // Aplicar filtro de fechas si existe
+      if (filterFrom && filterTo) {
+        // Función helper para comparar solo fechas (sin hora ni zona horaria)
+        const isDateInRange = (dateStr) => {
+          // Extraer la fecha como string YYYY-MM-DD
+          let itemDateStr;
+          if (dateStr.includes("T")) {
+            itemDateStr = dateStr.split("T")[0];
+          } else {
+            itemDateStr = dateStr;
+          }
+
+          // Extraer las fechas del filtro como strings YYYY-MM-DD
+          const fromDateStr = filterFrom.toISOString().split("T")[0];
+          const toDateStr = filterTo.toISOString().split("T")[0];
+
+          // Comparar las strings de fecha
+          return itemDateStr >= fromDateStr && itemDateStr <= toDateStr;
+        };
+
+        vehicleMaintenances = vehicleMaintenances.filter((m) =>
+          isDateInRange(m.date),
+        );
+        vehicleExpenses = vehicleExpenses.filter((e) => isDateInRange(e.date));
+        vehicleRepairs = vehicleRepairs.filter((r) => isDateInRange(r.date));
+      }
+
+      setMaintenances(vehicleMaintenances);
+      setExpenses(vehicleExpenses);
+      setRepairs(vehicleRepairs);
+
+      // Calcular total (mantenimientos + movimientos + reparaciones)
+      const maintenanceTotal = vehicleMaintenances.reduce(
+        (sum, m) => sum + (m.cost || 0),
+        0,
+      );
+      const expenseTotal = vehicleExpenses.reduce(
+        (sum, e) => sum + (e.cost || 0),
+        0,
+      );
+      const repairTotal = vehicleRepairs.reduce(
+        (sum, r) => sum + (r.cost || 0),
+        0,
+      );
+      setTotalCost(maintenanceTotal + expenseTotal + repairTotal);
+
+      // Calcular estadísticas de servicios, reparaciones y otros
+      const stats = [];
+
+      // Mantenimientos (mantenimientos con costo)
+      const servicesWithCost = vehicleMaintenances.filter(
+        (m) => m.cost && m.cost > 0,
+      );
+      const servicesTotal = servicesWithCost.reduce(
+        (sum, m) => sum + (m.cost || 0),
+        0,
+      );
+      if (servicesWithCost.length > 0) {
+        stats.push({
+          name: "Mantenimientos",
+          total: servicesTotal,
+          count: servicesWithCost.length,
+        });
+      }
+
+      // Reparaciones
+      const repairsTotal = vehicleRepairs.reduce(
+        (sum, r) => sum + (r.cost || 0),
+        0,
+      );
+      if (vehicleRepairs.length > 0) {
+        stats.push({
+          name: "Reparaciones",
+          total: repairsTotal,
+          count: vehicleRepairs.length,
+        });
+      }
+
+      // Otros (gastos)
+      const expensesTotal = vehicleExpenses.reduce(
+        (sum, e) => sum + (e.cost || 0),
+        0,
+      );
+      if (vehicleExpenses.length > 0) {
+        stats.push({
+          name: "Otros",
+          total: expensesTotal,
+          count: vehicleExpenses.length,
+        });
+      }
+
+      setCategoryStats(stats);
+    },
+    [getAllMaintenances, vehicleId, vehicles],
+  );
 
   useFocusEffect(
     React.useCallback(() => {
       loadData();
-    }, [vehicleId, vehicles]),
+    }, [loadData]),
   );
 
   useEffect(() => {
     loadData();
-  }, [vehicleId, vehicles]);
-
-  const loadData = (filterFrom = null, filterTo = null) => {
-    const vehicleData = vehicles.find((v) => v.id === vehicleId);
-    setVehicle(vehicleData);
-
-    const allMaintenances = getAllMaintenances();
-    let vehicleMaintenances = allMaintenances
-      .filter((m) => m.vehicleId === vehicleId)
-      .sort((a, b) => new Date(b.date) - new Date(a.date));
-
-    // Obtener movimientos particulares
-    let vehicleExpenses = getExpensesByVehicle(vehicleId);
-
-    // Obtener reparaciones
-    let vehicleRepairs = getRepairsByVehicle(vehicleId);
-
-    // Aplicar filtro de fechas si existe
-    if (filterFrom && filterTo) {
-      // Función helper para comparar solo fechas (sin hora ni zona horaria)
-      const isDateInRange = (dateStr) => {
-        // Extraer la fecha como string YYYY-MM-DD
-        let itemDateStr;
-        if (dateStr.includes("T")) {
-          itemDateStr = dateStr.split("T")[0];
-        } else {
-          itemDateStr = dateStr;
-        }
-
-        // Extraer las fechas del filtro como strings YYYY-MM-DD
-        const fromDateStr = filterFrom.toISOString().split("T")[0];
-        const toDateStr = filterTo.toISOString().split("T")[0];
-
-        // Comparar las strings de fecha
-        return itemDateStr >= fromDateStr && itemDateStr <= toDateStr;
-      };
-
-      vehicleMaintenances = vehicleMaintenances.filter((m) =>
-        isDateInRange(m.date),
-      );
-      vehicleExpenses = vehicleExpenses.filter((e) => isDateInRange(e.date));
-      vehicleRepairs = vehicleRepairs.filter((r) => isDateInRange(r.date));
-    }
-
-    setMaintenances(vehicleMaintenances);
-    setExpenses(vehicleExpenses);
-    setRepairs(vehicleRepairs);
-
-    // Calcular total (mantenimientos + movimientos + reparaciones)
-    const maintenanceTotal = vehicleMaintenances.reduce(
-      (sum, m) => sum + (m.cost || 0),
-      0,
-    );
-    const expenseTotal = vehicleExpenses.reduce(
-      (sum, e) => sum + (e.cost || 0),
-      0,
-    );
-    const repairTotal = vehicleRepairs.reduce(
-      (sum, r) => sum + (r.cost || 0),
-      0,
-    );
-    setTotalCost(maintenanceTotal + expenseTotal + repairTotal);
-
-    // Calcular estadísticas de servicios, reparaciones y otros
-    const stats = [];
-
-    // Mantenimientos (mantenimientos con costo)
-    const servicesWithCost = vehicleMaintenances.filter(
-      (m) => m.cost && m.cost > 0,
-    );
-    const servicesTotal = servicesWithCost.reduce(
-      (sum, m) => sum + (m.cost || 0),
-      0,
-    );
-    if (servicesWithCost.length > 0) {
-      stats.push({
-        name: "Mantenimientos",
-        total: servicesTotal,
-        count: servicesWithCost.length,
-      });
-    }
-
-    // Reparaciones
-    const repairsTotal = vehicleRepairs.reduce(
-      (sum, r) => sum + (r.cost || 0),
-      0,
-    );
-    if (vehicleRepairs.length > 0) {
-      stats.push({
-        name: "Reparaciones",
-        total: repairsTotal,
-        count: vehicleRepairs.length,
-      });
-    }
-
-    // Otros (gastos)
-    const expensesTotal = vehicleExpenses.reduce(
-      (sum, e) => sum + (e.cost || 0),
-      0,
-    );
-    if (vehicleExpenses.length > 0) {
-      stats.push({
-        name: "Otros",
-        total: expensesTotal,
-        count: vehicleExpenses.length,
-      });
-    }
-
-    setCategoryStats(stats);
-  };
+  }, [loadData]);
 
   const openDateFilter = () => {
     setDateFilterModal(true);
@@ -215,7 +229,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                 message: "El movimiento fue eliminado correctamente.",
                 type: "success",
               });
-            } catch (error) {
+            } catch (_error) {
               showDialog({
                 title: "Error",
                 message: "No se pudo eliminar el movimiento",
@@ -247,7 +261,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                 message: "La reparación fue eliminada correctamente.",
                 type: "success",
               });
-            } catch (error) {
+            } catch (_error) {
               showDialog({
                 title: "Error",
                 message: "No se pudo eliminar la reparación",
@@ -279,67 +293,114 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
           style={styles.content}
           contentContainerStyle={styles.scrollContent}
         >
-          {/* Header del vehículo */}
-          <View style={styles.header}>
-            <View style={styles.headerLeft}>
-              <Text style={[styles.vehicleName, { color: colors.text }]}>
-                {vehicle.name}
-              </Text>
-              {vehicle.brand && vehicle.model && (
-                <Text
-                  style={[
-                    styles.vehicleDetails,
-                    { color: colors.textSecondary },
-                  ]}
+          <View style={styles.headerBlock}>
+            <LinearGradient
+              colors={[colors.primary, "#0F5FD2", "#0A3F8F"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.heroGradient}
+            >
+              <View style={styles.heroHeaderRow}>
+                <View style={styles.heroMediaRow}>
+                  {vehicle?.photo ? (
+                    <Image
+                      source={{ uri: vehicle.photo }}
+                      style={styles.vehicleImage}
+                    />
+                  ) : (
+                    <View
+                      style={[
+                        styles.imagePlaceholder,
+                        styles.heroImagePlaceholder,
+                      ]}
+                    >
+                      <Ionicons
+                        name="wallet-outline"
+                        size={s(40)}
+                        color="#D6E7FF"
+                      />
+                    </View>
+                  )}
+
+                  <View style={styles.headerInfo}>
+                    <Text style={styles.headerEyebrow}>
+                      Bitácora financiera
+                    </Text>
+                    <Text style={styles.headerTitle}>{vehicle.name}</Text>
+                    {!!vehicleMeta && (
+                      <Text style={styles.headerSubtitle}>{vehicleMeta}</Text>
+                    )}
+                  </View>
+                </View>
+
+                <TouchableOpacity
+                  style={styles.infoButtonHero}
+                  onPress={() =>
+                    showDialog({
+                      title: "Historial financiero",
+                      message:
+                        "Revisa el gasto acumulado del vehículo y filtra el análisis por fechas para comparar mantenimientos, reparaciones y otros movimientos.",
+                      type: "info",
+                    })
+                  }
                 >
-                  {vehicle.brand} {vehicle.model}
-                </Text>
-              )}
-            </View>
-            <View style={styles.headerRight}>
-              <TouchableOpacity
-                style={styles.filterIcon}
-                onPress={openDateFilter}
-              >
-                <Ionicons
-                  name="calendar-outline"
-                  size={iconSize.md}
-                  color={isFiltered ? COLORS.success : colors.primary}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.filterIcon}
-                onPress={clearDateFilter}
-              >
-                <Ionicons
-                  name="refresh-outline"
-                  size={iconSize.md}
-                  color={colors.primary}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.filterIcon}
-                onPress={() =>
-                  showDialog({
-                    title: "📅 Filtro por fechas",
-                    message:
-                      "Utiliza el calendario para filtrar los movimientos financieros por un rango de fechas específico. El total mostrado se actualizará automáticamente para reflejar solo los gastos, reparaciones y mantenimientos dentro del período seleccionado. Usa el botón de refrescar para limpiar el filtro y ver todos los movimientos.",
-                    type: "info",
-                  })
-                }
-              >
-                <Ionicons
-                  name="information-circle-outline"
-                  size={iconSize.md}
-                  color={colors.primary}
-                />
-              </TouchableOpacity>
-            </View>
+                  <Ionicons
+                    name="information-circle-outline"
+                    size={iconSize.lg}
+                    color="#fff"
+                  />
+                </TouchableOpacity>
+              </View>
+            </LinearGradient>
+          </View>
+
+          <View
+            style={[
+              styles.filterActionsCard,
+              {
+                backgroundColor: colors.cardBackground,
+                borderColor: colors.border,
+              },
+            ]}
+          >
+            <TouchableOpacity
+              style={styles.filterAction}
+              onPress={openDateFilter}
+            >
+              <Ionicons
+                name="calendar-outline"
+                size={iconSize.md}
+                color={isFiltered ? COLORS.success : colors.primary}
+              />
+              <Text style={[styles.filterActionText, { color: colors.text }]}>
+                Filtrar fechas
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.filterAction}
+              onPress={clearDateFilter}
+            >
+              <Ionicons
+                name="refresh-outline"
+                size={iconSize.md}
+                color={colors.primary}
+              />
+              <Text style={[styles.filterActionText, { color: colors.text }]}>
+                Limpiar filtro
+              </Text>
+            </TouchableOpacity>
           </View>
 
           {/* Tarjeta de total */}
-          <View style={[styles.totalCard, { backgroundColor: colors.primary }]}>
-            <Ionicons name="cash-outline" size={iconSize.xl} color="#fff" />
+          <LinearGradient
+            colors={[colors.primary, "#0F5FD2", "#1673E6"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.totalCard}
+          >
+            <View style={styles.totalIconBadge}>
+              <Ionicons name="cash-outline" size={iconSize.xl} color="#fff" />
+            </View>
             <Text style={styles.totalLabel}>Total Invertido</Text>
             {isFiltered && (
               <Text
@@ -351,14 +412,28 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
             <Text style={styles.totalAmount}>
               {formatCurrency(totalCost, currencySymbol)}
             </Text>
-            <Text style={styles.totalSubtitle}>
-              {maintenances.length}{" "}
-              {maintenances.length === 1 ? "mantenimiento" : "mantenimientos"} •{" "}
-              {repairs.length}{" "}
-              {repairs.length === 1 ? "reparación" : "reparaciones"} •{" "}
-              {expenses.length} {expenses.length === 1 ? "otro" : "otros"}
-            </Text>
-          </View>
+            <View style={styles.totalBreakdownRow}>
+              <View style={styles.totalBreakdownPill}>
+                <Text style={styles.totalBreakdownText}>
+                  {maintenances.length}{" "}
+                  {maintenances.length === 1
+                    ? "mantenimiento"
+                    : "mantenimientos"}
+                </Text>
+              </View>
+              <View style={styles.totalBreakdownPill}>
+                <Text style={styles.totalBreakdownText}>
+                  {repairs.length}{" "}
+                  {repairs.length === 1 ? "reparación" : "reparaciones"}
+                </Text>
+              </View>
+              <View style={styles.totalBreakdownPill}>
+                <Text style={styles.totalBreakdownText}>
+                  {expenses.length} {expenses.length === 1 ? "otro" : "otros"}
+                </Text>
+              </View>
+            </View>
+          </LinearGradient>
 
           {/* Movimientos por categoría */}
           {categoryStats.length > 0 && (
@@ -380,7 +455,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                   <View style={styles.categoryHeader}>
                     <View style={styles.categoryInfo}>
                       <Ionicons
-                        name={getMaintenanceIcon(category.name)}
+                        name={categoryIconMap[category.name] || "cash-outline"}
                         size={iconSize.md}
                         color={colors.primary}
                       />
@@ -418,7 +493,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                       style={[
                         styles.progressBar,
                         {
-                          backgroundColor: colors.primary,
+                          backgroundColor: colors.primaryDark,
                           width: `${(category.total / totalCost) * 100}%`,
                         },
                       ]}
@@ -438,8 +513,12 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                 {
                   backgroundColor:
                     activeTab === "mantenimientos"
-                      ? colors.primary
+                      ? colors.primaryDark
                       : colors.cardBackground,
+                  borderColor:
+                    activeTab === "mantenimientos"
+                      ? colors.primaryDark
+                      : colors.border,
                 },
               ]}
               onPress={() => setActiveTab("mantenimientos")}
@@ -449,6 +528,19 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                 size={iconSize.md}
                 color={activeTab === "mantenimientos" ? "#fff" : colors.text}
               />
+              <Text
+                style={[
+                  styles.tabText,
+                  {
+                    color:
+                      activeTab === "mantenimientos"
+                        ? "#fff"
+                        : colors.textSecondary,
+                  },
+                ]}
+              >
+                Mantenimientos
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[
@@ -457,8 +549,12 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                 {
                   backgroundColor:
                     activeTab === "reparaciones"
-                      ? colors.primary
+                      ? colors.primaryDark
                       : colors.cardBackground,
+                  borderColor:
+                    activeTab === "reparaciones"
+                      ? colors.primaryDark
+                      : colors.border,
                 },
               ]}
               onPress={() => setActiveTab("reparaciones")}
@@ -468,6 +564,19 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                 size={iconSize.md}
                 color={activeTab === "reparaciones" ? "#fff" : colors.text}
               />
+              <Text
+                style={[
+                  styles.tabText,
+                  {
+                    color:
+                      activeTab === "reparaciones"
+                        ? "#fff"
+                        : colors.textSecondary,
+                  },
+                ]}
+              >
+                Reparaciones
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[
@@ -476,8 +585,10 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                 {
                   backgroundColor:
                     activeTab === "otros"
-                      ? colors.primary
+                      ? colors.primaryDark
                       : colors.cardBackground,
+                  borderColor:
+                    activeTab === "otros" ? colors.primaryDark : colors.border,
                 },
               ]}
               onPress={() => setActiveTab("otros")}
@@ -487,6 +598,17 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                 size={iconSize.md}
                 color={activeTab === "otros" ? "#fff" : colors.text}
               />
+              <Text
+                style={[
+                  styles.tabText,
+                  {
+                    color:
+                      activeTab === "otros" ? "#fff" : colors.textSecondary,
+                  },
+                ]}
+              >
+                Otros
+              </Text>
             </TouchableOpacity>
           </View>
 
@@ -801,7 +923,13 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
         {/* Botón flotante para agregar gasto o reparación */}
         {(activeTab === "otros" || activeTab === "reparaciones") && (
           <TouchableOpacity
-            style={styles.fab}
+            style={[
+              styles.fab,
+              {
+                backgroundColor: colors.primaryDark,
+                shadowColor: colors.shadow,
+              },
+            ]}
             onPress={() =>
               activeTab === "otros"
                 ? navigation.navigate("AddExpense", { vehicleId })
@@ -891,6 +1019,99 @@ const styles = StyleSheet.create({
     paddingTop: spacing.lg,
     paddingBottom: vs(100),
   },
+  headerBlock: {
+    marginBottom: spacing.lg,
+  },
+  heroGradient: {
+    marginHorizontal: -spacing.lg,
+    marginTop: -spacing.lg,
+    paddingHorizontal: hs(20),
+    paddingTop: vs(18),
+    paddingBottom: vs(18),
+    borderBottomLeftRadius: borderRadius.xl,
+    borderBottomRightRadius: borderRadius.xl,
+  },
+  heroHeaderRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+  },
+  heroMediaRow: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  vehicleImage: {
+    width: s(78),
+    height: s(78),
+    borderRadius: borderRadius.md,
+    marginRight: hs(12),
+  },
+  imagePlaceholder: {
+    width: s(78),
+    height: s(78),
+    borderRadius: borderRadius.md,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: hs(12),
+  },
+  heroImagePlaceholder: {
+    backgroundColor: "rgba(255,255,255,0.12)",
+  },
+  headerInfo: {
+    flex: 1,
+    paddingRight: spacing.md,
+  },
+  headerEyebrow: {
+    fontSize: rf(12),
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.7,
+    marginBottom: vs(4),
+    color: "rgba(255,255,255,0.74)",
+  },
+  headerTitle: {
+    fontSize: rf(22),
+    fontWeight: "800",
+    color: "#fff",
+  },
+  headerSubtitle: {
+    fontSize: rf(13),
+    marginTop: vs(4),
+    color: "rgba(255,255,255,0.84)",
+  },
+  infoButtonHero: {
+    width: s(44),
+    height: s(44),
+    borderRadius: s(22),
+    backgroundColor: "rgba(255,255,255,0.12)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginLeft: hs(12),
+  },
+  filterActionsCard: {
+    borderRadius: borderRadius.md,
+    borderWidth: s(1),
+    padding: spacing.sm,
+    marginBottom: spacing.lg,
+    flexDirection: "row",
+    gap: spacing.sm,
+  },
+  filterAction: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: spacing.xs,
+    paddingVertical: vs(10),
+    paddingHorizontal: spacing.sm,
+    borderRadius: borderRadius.sm,
+    backgroundColor: "rgba(15,95,210,0.06)",
+  },
+  filterActionText: {
+    fontSize: rf(13),
+    fontWeight: "600",
+  },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -909,43 +1130,67 @@ const styles = StyleSheet.create({
     padding: spacing.xs,
   },
   vehicleName: {
-    fontSize: rf(28),
+    fontSize: rf(22),
     fontWeight: "bold",
     marginBottom: spacing.xs,
   },
   vehicleDetails: {
-    fontSize: rf(16),
+    fontSize: rf(14),
   },
   totalCard: {
     borderRadius: borderRadius.lg,
     padding: spacing.xl,
     alignItems: "center",
-    marginBottom: vs(32),
+    marginBottom: vs(24),
     elevation: s(4),
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: s(8),
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.18,
+    shadowRadius: s(14),
+    overflow: "hidden",
+  },
+  totalIconBadge: {
+    width: s(64),
+    height: s(64),
+    borderRadius: s(32),
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.14)",
   },
   totalLabel: {
     color: "#fff",
     fontSize: rf(14),
     marginTop: spacing.sm,
-    opacity: 0.9,
+    opacity: 0.88,
+    textTransform: "uppercase",
+    letterSpacing: 0.6,
+    fontWeight: "700",
   },
   totalAmount: {
     color: "#fff",
     fontSize: rf(36),
-    fontWeight: "bold",
+    fontWeight: "800",
     marginTop: spacing.xs,
   },
-  totalSubtitle: {
+  totalBreakdownRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: spacing.xs,
+    marginTop: spacing.md,
+  },
+  totalBreakdownPill: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: s(999),
+    backgroundColor: "rgba(255,255,255,0.14)",
+  },
+  totalBreakdownText: {
     color: "#fff",
     fontSize: rf(12),
-    marginTop: spacing.xxs,
-    opacity: 0.8,
+    fontWeight: "600",
   },
   sectionTitle: {
-    fontSize: rf(20),
+    fontSize: rf(17),
     fontWeight: "bold",
     marginBottom: spacing.md,
   },
@@ -1001,11 +1246,12 @@ const styles = StyleSheet.create({
   },
   tab: {
     flex: 1,
-    paddingVertical: vs(10),
-    paddingHorizontal: spacing.xs,
-    borderRadius: borderRadius.sm,
+    paddingVertical: vs(12),
+    paddingHorizontal: spacing.sm,
+    borderRadius: borderRadius.md,
     alignItems: "center",
     gap: spacing.xxs,
+    borderWidth: s(1),
   },
   tabActive: {
     elevation: s(2),
@@ -1016,6 +1262,7 @@ const styles = StyleSheet.create({
   tabText: {
     fontSize: rf(12),
     fontWeight: "600",
+    textAlign: "center",
   },
   viewAllText: {
     fontSize: rf(14),
@@ -1063,7 +1310,7 @@ const styles = StyleSheet.create({
     paddingVertical: vs(60),
   },
   emptyText: {
-    fontSize: rf(16),
+    fontSize: rf(14),
     marginTop: spacing.md,
   },
   emptySubtext: {
@@ -1084,7 +1331,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: spacing.lg,
     bottom: spacing.lg,
-    backgroundColor: COLORS.primary,
     width: s(60),
     height: s(60),
     borderRadius: s(30),
@@ -1123,7 +1369,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   modalTitle: {
-    fontSize: rf(20),
+    fontSize: rf(17),
     fontWeight: "bold",
   },
   modalBody: {
@@ -1147,7 +1393,7 @@ const styles = StyleSheet.create({
     borderColor: COLORS.border,
   },
   confirmButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.primaryDark,
   },
   modalButtonText: {
     fontSize: rf(16),

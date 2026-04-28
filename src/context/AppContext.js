@@ -1,13 +1,13 @@
 import { createContext, useContext, useEffect, useState } from "react";
 // import * as contactService from "../services/contactService";
 import { cleanOrphanedRecords, initDatabase } from "../services/database";
-import * as documentService from "../services/documentService";
 import * as expenseService from "../services/expenseService";
 import * as maintenanceService from "../services/maintenanceService";
 import * as notificationService from "../services/notificationService";
 import * as repairService from "../services/repairService";
 import * as vehicleDocumentService from "../services/vehicleDocumentService";
 import * as vehicleService from "../services/vehicleService";
+import { ensurePersistentVehiclePhotoAsync } from "../utils/vehiclePhotoStorage";
 
 const AppContext = createContext();
 
@@ -44,7 +44,7 @@ export const AppProvider = ({ children }) => {
           // Las notificaciones de mantenimientos urgentes se mostrarán automáticamente
           // cuando se carguen los vehículos (ver updateAppBadge)
         }
-      } catch (notifError) {
+      } catch (_notifError) {
         console.log(
           "⚠️ Notificaciones no disponibles en Expo Go. Funcionarán en build de producción.",
         );
@@ -61,9 +61,24 @@ export const AppProvider = ({ children }) => {
   const loadVehicles = async () => {
     try {
       const allVehicles = vehicleService.getAllVehicles();
-      setVehicles(allVehicles);
+      const normalizedVehicles = await Promise.all(
+        allVehicles.map(async (vehicle) => {
+          const normalizedPhoto = await ensurePersistentVehiclePhotoAsync(
+            vehicle.photo,
+          );
+
+          if (normalizedPhoto !== vehicle.photo) {
+            vehicleService.updateVehiclePhoto(vehicle.id, normalizedPhoto);
+            return { ...vehicle, photo: normalizedPhoto };
+          }
+
+          return vehicle;
+        }),
+      );
+
+      setVehicles(normalizedVehicles);
       // Actualizar badge después de cargar vehículos
-      await updateAppBadge(allVehicles);
+      await updateAppBadge(normalizedVehicles);
     } catch (error) {
       console.error("Error cargando vehículos:", error);
     }
@@ -265,10 +280,31 @@ export const AppProvider = ({ children }) => {
   // Funciones de documentos
   const getDocuments = async () => {
     try {
-      const documents = await documentService.getAllDocuments();
+      const documents = await vehicleDocumentService.getAllVehicleDocuments();
       return documents;
     } catch (error) {
       console.error("Error getting documents:", error);
+      throw error;
+    }
+  };
+
+  const getExpenseStats = async (vehicleId = null) => {
+    try {
+      const expenses = vehicleId
+        ? expenseService.getExpensesByVehicle(vehicleId)
+        : expenseService.getAllExpenses();
+
+      const totalAmount = expenses.reduce(
+        (sum, expense) => sum + (Number(expense.cost) || 0),
+        0,
+      );
+
+      return {
+        totalExpenses: expenses.length,
+        totalAmount,
+      };
+    } catch (error) {
+      console.error("Error getting expense stats:", error);
       throw error;
     }
   };
@@ -582,7 +618,7 @@ export const AppProvider = ({ children }) => {
     addExpense,
     updateExpense,
     removeExpense,
-    getExpenseStats: expenseService.getExpenseStats,
+    getExpenseStats,
     // Document functions
     getDocuments,
     getExpiringDocuments,

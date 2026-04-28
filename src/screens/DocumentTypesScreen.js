@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useRef, useState } from "react";
 import {
   FlatList,
@@ -196,7 +197,7 @@ const DocumentTypesScreen = ({ navigation }) => {
                   message: "Tipo de documento eliminado correctamente",
                   type: "success",
                 });
-              } catch (error) {
+              } catch (_error) {
                 showDialog({
                   title: "Error",
                   message: "No se pudo eliminar el tipo de documento",
@@ -226,28 +227,51 @@ const DocumentTypesScreen = ({ navigation }) => {
           { backgroundColor: colors.background },
         ]}
       >
-        <View style={styles.header}>
-          <Text style={[styles.headerTitle, { color: colors.text }]}>
-            Tipos de Documentos
-          </Text>
-          <TouchableOpacity
-            style={styles.helpButton}
-            onPress={() =>
-              showDialog({
-                title: "Tipos de Documentos",
-                message:
-                  "Aquí puedes gestionar los diferentes tipos de documentos que requieren tus vehículos, como licencias de conducir, seguros, revisiones técnicas, etc. Puedes agregar, editar o eliminar tipos según tus necesidades.",
-                type: "info",
-              })
-            }
-          >
-            <Ionicons
-              name="information-circle-outline"
-              size={iconSize.md}
-              color={colors.primary}
-            />
-          </TouchableOpacity>
-        </View>
+        <LinearGradient
+          colors={[colors.primary, "#0F5FD2", "#0A3F8F"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.heroGradient}
+        >
+          <View style={styles.heroHeaderRow}>
+            <View style={styles.heroMediaRow}>
+              <View style={[styles.iconBadge, styles.heroIconBadge]}>
+                <Ionicons
+                  name="document-text-outline"
+                  size={iconSize.lg}
+                  color="#D6E7FF"
+                />
+              </View>
+
+              <View style={styles.heroInfo}>
+                <Text style={styles.heroEyebrow}>Catálogo documental</Text>
+                <Text style={styles.headerTitle}>Tipos de Documentos</Text>
+                <Text style={styles.heroSubtitle}>
+                  Define el universo documental que la app controlará para cada
+                  vehículo y sus vencimientos.
+                </Text>
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={styles.helpButtonHero}
+              onPress={() =>
+                showDialog({
+                  title: "Tipos de Documentos",
+                  message:
+                    "Aquí puedes gestionar los diferentes tipos de documentos que requieren tus vehículos, como licencias de conducir, seguros, revisiones técnicas, etc. Puedes agregar, editar o eliminar tipos según tus necesidades.",
+                  type: "info",
+                })
+              }
+            >
+              <Ionicons
+                name="information-circle-outline"
+                size={iconSize.lg}
+                color="#fff"
+              />
+            </TouchableOpacity>
+          </View>
+        </LinearGradient>
 
         <FlatList
           data={documentTypes}
@@ -260,7 +284,7 @@ const DocumentTypesScreen = ({ navigation }) => {
         <TouchableOpacity
           style={[
             styles.floatingAddButton,
-            { backgroundColor: colors.primary },
+            { backgroundColor: colors.primaryDark },
           ]}
           onPress={() => {
             setAddError("");
@@ -354,7 +378,10 @@ const DocumentTypesScreen = ({ navigation }) => {
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    style={[styles.button, { backgroundColor: colors.primary }]}
+                    style={[
+                      styles.button,
+                      { backgroundColor: colors.primaryDark },
+                    ]}
                     onPress={handleSaveType}
                   >
                     <Text style={{ color: "white", fontSize: rf(16) }}>
@@ -457,7 +484,10 @@ const DocumentTypesScreen = ({ navigation }) => {
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    style={[styles.button, { backgroundColor: colors.primary }]}
+                    style={[
+                      styles.button,
+                      { backgroundColor: colors.primaryDark },
+                    ]}
                     onPress={handleAddType}
                   >
                     <Text style={{ color: "white", fontSize: rf(16) }}>
@@ -490,9 +520,65 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
     paddingTop: spacing.lg,
   },
+  heroGradient: {
+    marginHorizontal: -spacing.lg,
+    marginBottom: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.lg,
+    borderBottomLeftRadius: borderRadius.xl,
+    borderBottomRightRadius: borderRadius.xl,
+  },
+  heroHeaderRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: spacing.md,
+  },
+  heroMediaRow: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+  },
+  iconBadge: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.16)",
+  },
+  heroIconBadge: {
+    width: s(76),
+    height: s(76),
+    borderRadius: borderRadius.lg,
+  },
+  heroInfo: {
+    flex: 1,
+    gap: spacing.xxs,
+  },
+  heroEyebrow: {
+    fontSize: rf(12),
+    fontWeight: "700",
+    letterSpacing: 1,
+    textTransform: "uppercase",
+    color: "#D6E7FF",
+  },
+  heroSubtitle: {
+    fontSize: rf(13),
+    lineHeight: rf(18),
+    color: "#D6E7FF",
+  },
+  helpButtonHero: {
+    width: s(42),
+    height: s(42),
+    borderRadius: borderRadius.full,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.14)",
+  },
   headerTitle: {
-    fontSize: rf(20),
-    fontWeight: "bold",
+    fontSize: rf(22),
+    fontWeight: "800",
+    color: "#fff",
   },
   listContainer: {
     paddingTop: 0,
@@ -582,14 +668,14 @@ const styles = StyleSheet.create({
     borderBottomColor: "#e0e0e0",
   },
   modalTitle: {
-    fontSize: rf(18),
+    fontSize: rf(17),
     fontWeight: "bold",
   },
   modalBody: {
     padding: spacing.lg,
   },
   label: {
-    fontSize: rf(16),
+    fontSize: rf(14),
     fontWeight: "600",
     marginBottom: spacing.xs,
     marginTop: spacing.md,

@@ -1,9 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
 // CONTACTOS DESHABILITADO: se removió `expo-contacts` para pasar revisión (permisos sensibles).
 // import * as Contacts from "expo-contacts";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRef, useState } from "react";
 import {
-  Alert,
   FlatList,
   KeyboardAvoidingView,
   Modal,
@@ -63,7 +63,7 @@ const AddContactScreen = ({ navigation, route }) => {
   const [showCountryModal, setShowCountryModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [importModalVisible, setImportModalVisible] = useState(false);
-  const [phoneContacts, setPhoneContacts] = useState([]);
+  const [phoneContacts] = useState([]);
   const [searchText, setSearchText] = useState("");
 
   // Referencias para navegación entre campos
@@ -89,35 +89,12 @@ const AddContactScreen = ({ navigation, route }) => {
   };
 
   const importContacts = async () => {
-    try {
-      const { status } = await Contacts.requestPermissionsAsync();
-      if (status !== "granted") {
-        Alert.alert(
-          "Permiso denegado",
-          "Necesitas permitir el acceso a contactos.",
-        );
-        return;
-      }
-      const { data } = await Contacts.getContactsAsync({
-        fields: [
-          Contacts.Fields.Name,
-          Contacts.Fields.PhoneNumbers,
-          Contacts.Fields.Emails,
-        ],
-      });
-      setPhoneContacts(
-        data.filter(
-          (contact) =>
-            contact.name &&
-            contact.phoneNumbers &&
-            contact.phoneNumbers.length > 0,
-        ),
-      );
-      setImportModalVisible(true);
-    } catch (error) {
-      console.error(error);
-      Alert.alert("Error", "No se pudieron cargar los contactos.");
-    }
+    showDialog({
+      title: "Importación no disponible",
+      message:
+        "La importación desde la agenda del teléfono está deshabilitada en esta versión para evitar permisos sensibles. Puedes registrar el contacto manualmente desde este formulario.",
+      type: "info",
+    });
   };
 
   const selectContact = (contact) => {
@@ -234,7 +211,7 @@ const AddContactScreen = ({ navigation, route }) => {
         await addContact(contactData);
       }
       navigation.goBack();
-    } catch (error) {
+    } catch (_error) {
       showDialog({
         title: "Error al guardar",
         message: "No se pudo guardar el contacto. Inténtalo de nuevo.",
@@ -258,24 +235,76 @@ const AddContactScreen = ({ navigation, route }) => {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.header}>
+          <View style={styles.topBar}>
             <TouchableOpacity
               style={styles.backButton}
               onPress={() => navigation.goBack()}
             >
               <Ionicons name="arrow-back" size={ms(24)} color={colors.text} />
             </TouchableOpacity>
-            <Text style={[styles.title, { color: colors.text }]}>
-              {isEditing ? "Editar Contacto" : "Agregar Contacto"}
-            </Text>
+            <View style={styles.topBarSpacer} />
           </View>
 
+          <LinearGradient
+            colors={[colors.primary, "#0F5FD2", "#0A3F8F"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.heroGradient}
+          >
+            <View style={styles.heroHeaderRow}>
+              <View style={styles.heroMediaRow}>
+                <View style={[styles.iconBadge, styles.heroIconBadge]}>
+                  <Ionicons
+                    name="person-add-outline"
+                    size={ms(34)}
+                    color="#D6E7FF"
+                  />
+                </View>
+
+                <View style={styles.heroInfo}>
+                  <Text style={styles.heroEyebrow}>Directorio de soporte</Text>
+                  <Text style={styles.title}>
+                    {isEditing ? "Editar contacto" : "Agregar contacto"}
+                  </Text>
+                  <Text style={styles.heroSubtitle}>
+                    Registra mecánicos, grúas, aseguradoras o contactos clave
+                    para respuesta rápida.
+                  </Text>
+                </View>
+              </View>
+
+              <TouchableOpacity
+                style={styles.helpButtonHero}
+                onPress={() =>
+                  showDialog({
+                    title: "Contactos de apoyo",
+                    message:
+                      "Guarda datos de soporte frecuentes para tenerlos disponibles cuando necesites asistencia, cotizaciones o atención de emergencia.",
+                    type: "info",
+                  })
+                }
+              >
+                <Ionicons
+                  name="information-circle-outline"
+                  size={ms(24)}
+                  color="#fff"
+                />
+              </TouchableOpacity>
+            </View>
+          </LinearGradient>
+
           <TouchableOpacity
-            style={[styles.importButton, { borderColor: colors.primary }]}
+            style={[styles.importButton, { borderColor: colors.primaryDark }]}
             onPress={importContacts}
           >
-            <Ionicons name="person-add" size={ms(20)} color={colors.primary} />
-            <Text style={[styles.importButtonText, { color: colors.primary }]}>
+            <Ionicons
+              name="person-add"
+              size={ms(20)}
+              color={colors.primaryDark}
+            />
+            <Text
+              style={[styles.importButtonText, { color: colors.primaryDark }]}
+            >
               Importar desde Contactos
             </Text>
           </TouchableOpacity>
@@ -399,7 +428,10 @@ const AddContactScreen = ({ navigation, route }) => {
             </View>
 
             <TouchableOpacity
-              style={[styles.saveButton, { backgroundColor: colors.primary }]}
+              style={[
+                styles.saveButton,
+                { backgroundColor: colors.primaryDark },
+              ]}
               onPress={handleSave}
               disabled={loading}
             >
@@ -447,7 +479,7 @@ const AddContactScreen = ({ navigation, route }) => {
                       style={[
                         styles.countryItem,
                         selectedCountry?.code === item.code && {
-                          backgroundColor: colors.primary + "20",
+                          backgroundColor: `${colors.primaryDark}20`,
                         },
                       ]}
                       onPress={() => handleCountrySelect(item)}
@@ -562,18 +594,77 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
+  topBar: {
     flexDirection: "row",
     alignItems: "center",
     padding: ms(16),
     paddingTop: ms(50),
   },
+  topBarSpacer: {
+    flex: 1,
+  },
   backButton: {
     marginRight: ms(16),
   },
+  heroGradient: {
+    marginHorizontal: ms(16),
+    marginBottom: ms(16),
+    paddingHorizontal: ms(16),
+    paddingTop: ms(20),
+    paddingBottom: ms(18),
+    borderRadius: ms(24),
+  },
+  heroHeaderRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: ms(12),
+  },
+  heroMediaRow: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: ms(14),
+  },
+  iconBadge: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.16)",
+  },
+  heroIconBadge: {
+    width: ms(76),
+    height: ms(76),
+    borderRadius: ms(20),
+  },
+  heroInfo: {
+    flex: 1,
+  },
+  heroEyebrow: {
+    fontSize: rf(12),
+    fontWeight: "700",
+    letterSpacing: 1,
+    textTransform: "uppercase",
+    color: "#D6E7FF",
+    marginBottom: ms(4),
+  },
   title: {
-    fontSize: rf(20),
-    fontWeight: "bold",
+    fontSize: rf(22),
+    fontWeight: "800",
+    color: "#fff",
+  },
+  heroSubtitle: {
+    fontSize: rf(13),
+    lineHeight: rf(18),
+    color: "#D6E7FF",
+    marginTop: ms(4),
+  },
+  helpButtonHero: {
+    width: ms(42),
+    height: ms(42),
+    borderRadius: ms(21),
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.14)",
   },
   form: {
     padding: ms(16),
@@ -582,7 +673,7 @@ const styles = StyleSheet.create({
     marginBottom: ms(20),
   },
   label: {
-    fontSize: rf(16),
+    fontSize: rf(14),
     fontWeight: "500",
     marginBottom: ms(8),
   },
@@ -662,7 +753,7 @@ const styles = StyleSheet.create({
     borderBottomColor: "#eee",
   },
   modalTitle: {
-    fontSize: rf(18),
+    fontSize: rf(17),
     fontWeight: "bold",
   },
   closeButton: {

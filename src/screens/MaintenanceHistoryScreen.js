@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { useEffect, useRef, useState } from "react";
+import { LinearGradient } from "expo-linear-gradient";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   FlatList,
   Image,
@@ -18,6 +19,7 @@ import { useAppSettings } from "../context/AppSettingsContext";
 import { useTheme } from "../context/ThemeContext";
 import { COLORS } from "../data/constants";
 import { useDialog } from "../hooks/useDialog";
+import { getMaintenanceTypes } from "../services/maintenanceService";
 import { formatDate } from "../utils/dateUtils";
 import {
   formatCurrency,
@@ -27,6 +29,7 @@ import {
   getDateUrgencyColor,
   getKmUrgencyColor,
 } from "../utils/formatUtils";
+import { getMaintenanceIcon } from "../utils/maintenanceIcons";
 import {
   borderRadius,
   hs,
@@ -37,6 +40,14 @@ import {
   spacing,
   vs,
 } from "../utils/responsive";
+
+const QUICK_ACTION_COLORS = [
+  "#FF9800",
+  "#4CAF50",
+  "#F44336",
+  "#9C27B0",
+  "#1976D2",
+];
 
 const MaintenanceHistoryScreen = ({ route, navigation }) => {
   const { vehicleId = null, sortByUrgency = false } = route.params || {};
@@ -51,6 +62,15 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
   const { DialogComponent, showDialog } = useDialog();
   const { colors } = useTheme();
   const { currencySymbol } = useAppSettings();
+  const maintenanceTypeColorMap = useMemo(() => {
+    const allTypes = getMaintenanceTypes();
+
+    return allTypes.reduce((accumulator, type, index) => {
+      accumulator[type.name] =
+        QUICK_ACTION_COLORS[index % QUICK_ACTION_COLORS.length];
+      return accumulator;
+    }, {});
+  }, []);
 
   const vehicle = vehicleId ? vehicles.find((v) => v.id === vehicleId) : null;
   const [maintenances, setMaintenances] = useState([]);
@@ -87,16 +107,16 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
 
   useEffect(() => {
     loadMaintenances();
-  }, [vehicleId]);
+  }, [loadMaintenances]);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener("focus", () => {
       loadMaintenances();
     });
     return unsubscribe;
-  }, [navigation]);
+  }, [loadMaintenances, navigation]);
 
-  const loadMaintenances = () => {
+  const loadMaintenances = useCallback(() => {
     let data;
     if (vehicleId) {
       data = getVehicleMaintenances(vehicleId);
@@ -165,7 +185,13 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
       data = sorted;
     }
     setMaintenances(data);
-  };
+  }, [
+    vehicle?.currentKm,
+    vehicleId,
+    getAllMaintenances,
+    getVehicleMaintenances,
+    sortByUrgency,
+  ]);
 
   // Filtrar mantenimientos según tab activa
   const filteredMaintenances = maintenances.filter((item) => {
@@ -178,6 +204,12 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
 
   // Saber si el item está realizado
   const isCompleted = (item) => !item.nextServiceKm && !item.nextServiceDate;
+
+  const vehicleMeta = vehicle
+    ? [vehicle.brand, vehicle.model, vehicle.year && `${vehicle.year}`]
+        .filter(Boolean)
+        .join(" • ")
+    : `${vehicles.length} unidad${vehicles.length === 1 ? "" : "es"}`;
 
   const handleDelete = (id, type) => {
     showDialog({
@@ -193,7 +225,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
             try {
               await removeMaintenance(id);
               loadMaintenances();
-            } catch (error) {
+            } catch (_error) {
               showDialog({
                 title: "Error",
                 message: "No se pudo eliminar el registro",
@@ -369,136 +401,170 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
     }
   };
 
-  const renderMaintenanceItem = ({ item }) => (
-    <View
-      style={[
-        styles.maintenanceCard,
-        { backgroundColor: colors.cardBackground, shadowColor: colors.shadow },
-      ]}
-    >
+  const renderMaintenanceItem = ({ item }) => {
+    const completed = isCompleted(item);
+    const maintenanceColor =
+      maintenanceTypeColorMap[item.type] || colors.primary;
+    const maintenanceIcon = getMaintenanceIcon(item.type);
+    const scheduleColor = item.nextServiceKm
+      ? getKmUrgencyColor(vehicle?.currentKm, item.nextServiceKm)
+      : item.nextServiceDate
+        ? getDateUrgencyColor(item.nextServiceDate)
+        : COLORS.success;
+
+    return (
       <View
         style={[
-          styles.cardHeader,
+          styles.maintenanceCard,
           {
-            backgroundColor: colors.background,
-            borderBottomColor: colors.border,
+            backgroundColor: colors.cardBackground,
+            borderColor: colors.border,
+            shadowColor: colors.shadow,
           },
         ]}
       >
-        <View style={styles.typeContainer}>
-          <Ionicons name="build" size={iconSize.md} color={COLORS.primary} />
-          <View>
-            <Text style={[styles.maintenanceType, { color: colors.text }]}>
-              {item.type}
-            </Text>
-            {!vehicleId && item.vehicleName && (
-              <Text
-                style={[styles.vehicleName, { color: colors.textSecondary }]}
-              >
-                {item.vehicleName}
-              </Text>
-            )}
+        <View style={styles.cardTopRow}>
+          <View style={styles.cardIdentity}>
+            <View
+              style={[
+                styles.cardIconWrap,
+                { backgroundColor: `${maintenanceColor}20` },
+              ]}
+            >
+              <Ionicons
+                name={maintenanceIcon}
+                size={iconSize.md}
+                color={maintenanceColor}
+              />
+            </View>
+            <View style={styles.cardTitleWrap}>
+              <View style={styles.cardTitleRow}>
+                <Text style={[styles.maintenanceType, { color: colors.text }]}>
+                  {item.type}
+                </Text>
+              </View>
+              {!vehicleId && item.vehicleName && (
+                <Text
+                  style={[styles.vehicleName, { color: colors.textSecondary }]}
+                >
+                  {item.vehicleName}
+                </Text>
+              )}
+            </View>
           </View>
-        </View>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: spacing.sm,
-          }}
-        >
-          {!isCompleted(item) && (
-            <>
-              <TouchableOpacity
-                onPress={() => handleEdit(item.id)}
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              >
-                <Ionicons
-                  name="create-outline"
-                  size={iconSize.md}
-                  color={COLORS.warning}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => handleApprove(item.id)}
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              >
-                <Ionicons
-                  name="checkmark-circle-outline"
-                  size={iconSize.md}
-                  color={COLORS.success}
-                />
-              </TouchableOpacity>
-            </>
-          )}
-          {isCompleted(item) && (
+
+          <View style={styles.cardActions}>
             <TouchableOpacity
+              style={[
+                styles.iconAction,
+                { backgroundColor: colors.inputBackground },
+              ]}
               onPress={() => handleEdit(item.id)}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
               <Ionicons
                 name="create-outline"
-                size={iconSize.md}
+                size={iconSize.sm}
                 color={COLORS.warning}
               />
             </TouchableOpacity>
-          )}
-          <TouchableOpacity
-            onPress={() => handleDelete(item.id, item.type)}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            {!completed && (
+              <TouchableOpacity
+                style={[
+                  styles.iconAction,
+                  { backgroundColor: colors.inputBackground },
+                ]}
+                onPress={() => handleApprove(item.id)}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Ionicons
+                  name="checkmark-circle-outline"
+                  size={iconSize.sm}
+                  color={COLORS.success}
+                />
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity
+              style={[
+                styles.iconAction,
+                { backgroundColor: colors.inputBackground },
+              ]}
+              onPress={() => handleDelete(item.id, item.type)}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <Ionicons
+                name="trash-outline"
+                size={iconSize.sm}
+                color={COLORS.danger}
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <View style={styles.metaGrid}>
+          <View
+            style={[
+              styles.metaPill,
+              { backgroundColor: colors.inputBackground },
+            ]}
           >
             <Ionicons
-              name="trash-outline"
-              size={iconSize.md}
-              color={COLORS.danger}
+              name="calendar-outline"
+              size={iconSize.xs}
+              color={colors.primary}
             />
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      <View style={styles.cardBody}>
-        <View style={styles.infoRow}>
-          <Ionicons
-            name="calendar-outline"
-            size={iconSize.sm}
-            color={colors.textSecondary}
-          />
-          <Text style={[styles.infoText, { color: colors.text }]}>
-            {formatDate(item.date)}
-          </Text>
-        </View>
-
-        {item.km && (
-          <View style={styles.infoRow}>
-            <Ionicons
-              name="speedometer-outline"
-              size={iconSize.sm}
-              color={colors.textSecondary}
-            />
-            <Text style={[styles.infoText, { color: colors.text }]}>
-              {formatKm(item.km)}
+            <Text style={[styles.metaPillText, { color: colors.text }]}>
+              {formatDate(item.date)}
             </Text>
           </View>
-        )}
-
-        {item.cost && (
-          <View style={styles.infoRow}>
-            <Ionicons
-              name="cash-outline"
-              size={iconSize.sm}
-              color={colors.textSecondary}
-            />
-            <Text style={[styles.infoText, styles.costText]}>
-              {formatCurrency(item.cost, currencySymbol)}
-            </Text>
-          </View>
-        )}
+          {item.km && (
+            <View
+              style={[
+                styles.metaPill,
+                { backgroundColor: colors.inputBackground },
+              ]}
+            >
+              <Ionicons
+                name="speedometer-outline"
+                size={iconSize.xs}
+                color={colors.primary}
+              />
+              <Text style={[styles.metaPillText, { color: colors.text }]}>
+                {formatKm(item.km)}
+              </Text>
+            </View>
+          )}
+          {item.cost && (
+            <View
+              style={[
+                styles.metaPill,
+                { backgroundColor: colors.inputBackground },
+              ]}
+            >
+              <Ionicons
+                name="wallet-outline"
+                size={iconSize.xs}
+                color={maintenanceColor}
+              />
+              <Text style={[styles.metaPillText, styles.costText]}>
+                {formatCurrency(item.cost, currencySymbol)}
+              </Text>
+            </View>
+          )}
+        </View>
 
         {item.notes && (
-          <View style={styles.notesContainer}>
-            <Text style={[styles.notesLabel, { color: colors.text }]}>
-              Notas:
+          <View
+            style={[
+              styles.notesContainer,
+              {
+                backgroundColor: colors.inputBackground,
+                borderColor: colors.border,
+              },
+            ]}
+          >
+            <Text style={[styles.notesLabel, { color: colors.textSecondary }]}>
+              Observaciones
             </Text>
             <Text style={[styles.notesText, { color: colors.text }]}>
               {item.notes}
@@ -525,105 +591,78 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
               keyExtractor={(photo) => photo.id}
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingRight: spacing.sm }}
+              contentContainerStyle={styles.photoStrip}
             />
           </View>
         )}
-      </View>
 
-      <View style={styles.cardFooter}>
-        {isCompleted(item) ? (
-          <View style={styles.nextServiceHeader}>
-            <Ionicons
-              name="checkmark-circle"
-              size={iconSize.sm}
-              color={COLORS.success}
-              style={{ marginRight: hs(8) }}
-            />
-            <Text style={[styles.nextServiceLabel, { color: colors.text }]}>
-              Realizado el:
-            </Text>
-            <Text
-              style={[
-                styles.nextServiceText,
-                { color: colors.text, marginLeft: spacing.xs },
-              ]}
-            >
-              {item.completedAt
-                ? formatDate(item.completedAt)
-                : item.updatedAt
-                  ? formatDate(item.updatedAt)
-                  : "-"}
-            </Text>
-          </View>
-        ) : (
-          <>
-            <View style={styles.nextServiceHeader}>
-              <Ionicons
-                name="alert-circle-outline"
-                size={iconSize.sm}
-                color={COLORS.warning}
-                style={{ marginRight: spacing.xs }}
-              />
-              <Text style={[styles.nextServiceLabel, { color: colors.text }]}>
-                Próximo servicio:
+        <View style={[styles.cardFooter, { borderTopColor: colors.border }]}>
+          {completed ? (
+            <View style={styles.footerInfoRow}>
+              <View
+                style={[
+                  styles.footerBadge,
+                  { backgroundColor: "rgba(76, 175, 80, 0.14)" },
+                ]}
+              >
+                <Ionicons
+                  name="checkmark-circle"
+                  size={iconSize.xs}
+                  color={COLORS.success}
+                />
+                <Text
+                  style={[styles.footerBadgeText, { color: COLORS.success }]}
+                >
+                  Completado
+                </Text>
+              </View>
+              <Text
+                style={[styles.footerText, { color: colors.textSecondary }]}
+              >
+                {item.completedAt
+                  ? formatDate(item.completedAt)
+                  : item.updatedAt
+                    ? formatDate(item.updatedAt)
+                    : "-"}
               </Text>
             </View>
-            <View className={styles.nextServiceInfo}>
-              {item.nextServiceKm ? (
-                <View style={styles.nextServiceItem}>
-                  <Ionicons
-                    name="speedometer-outline"
-                    size={iconSize.sm}
-                    color={getKmUrgencyColor(
-                      vehicle?.currentKm,
-                      item.nextServiceKm,
-                    )}
-                  />
-                  <Text
-                    style={[
-                      styles.nextServiceText,
-                      {
-                        color: getKmUrgencyColor(
-                          vehicle?.currentKm,
-                          item.nextServiceKm,
-                        ),
-                        fontWeight: "600",
-                      },
-                    ]}
-                  >
-                    {formatKmRemaining(
-                      vehicle?.currentKm,
-                      item.nextServiceKm,
-                    ) || `A los ${formatKm(item.nextServiceKm)}`}
-                  </Text>
-                </View>
-              ) : item.nextServiceDate ? (
-                <View style={styles.nextServiceItem}>
-                  <Ionicons
-                    name="calendar-outline"
-                    size={iconSize.sm}
-                    color={getDateUrgencyColor(item.nextServiceDate)}
-                  />
-                  <Text
-                    style={[
-                      styles.nextServiceText,
-                      {
-                        color: getDateUrgencyColor(item.nextServiceDate),
-                        fontWeight: "600",
-                      },
-                    ]}
-                  >
-                    {formatDaysRemaining(item.nextServiceDate)}
-                  </Text>
-                </View>
-              ) : null}
+          ) : (
+            <View style={styles.footerInfoRow}>
+              <View
+                style={[
+                  styles.footerBadge,
+                  { backgroundColor: `${scheduleColor}14` },
+                ]}
+              >
+                <Ionicons
+                  name={
+                    item.nextServiceKm
+                      ? "speedometer-outline"
+                      : "calendar-outline"
+                  }
+                  size={iconSize.xs}
+                  color={scheduleColor}
+                />
+                <Text
+                  style={[styles.footerBadgeText, { color: scheduleColor }]}
+                >
+                  Próximo servicio
+                </Text>
+              </View>
+              <Text style={[styles.footerText, { color: scheduleColor }]}>
+                {item.nextServiceKm
+                  ? formatKmRemaining(vehicle?.currentKm, item.nextServiceKm) ||
+                    `A los ${formatKm(item.nextServiceKm)}`
+                  : item.nextServiceDate
+                    ? formatDaysRemaining(item.nextServiceDate)
+                    : "Sin programación"}
+              </Text>
             </View>
-          </>
-        )}
+          )}
+        </View>
       </View>
-    </View>
-  );
+    );
+  };
 
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
@@ -644,37 +683,89 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
   return (
     <DialogComponent>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <View
-          style={[
-            styles.header,
-            {
-              backgroundColor: colors.cardBackground,
-              borderBottomColor: colors.border,
-            },
-          ]}
+        <LinearGradient
+          colors={[COLORS.primary, "#0F5FD2", "#0A3F8F"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.heroGradient}
         >
-          <Text style={[styles.headerTitle, { color: colors.text }]}>
-            {vehicle?.name || "Todos los vehículos"}
-          </Text>
-          <Text
-            style={[styles.headerSubtitle, { color: colors.textSecondary }]}
-          >
-            {maintenances.length}{" "}
-            {maintenances.length === 1 ? "registro" : "registros"}
-          </Text>
-        </View>
+          <View style={styles.headerTopRow}>
+            <View style={styles.heroMediaRow}>
+              {vehicle?.photo ? (
+                <Image
+                  source={{ uri: vehicle.photo }}
+                  style={styles.vehicleImage}
+                />
+              ) : (
+                <View
+                  style={[styles.imagePlaceholder, styles.heroImagePlaceholder]}
+                >
+                  <Ionicons
+                    name="car-sport-outline"
+                    size={ms(44)}
+                    color="#D6E7FF"
+                  />
+                </View>
+              )}
+
+              <View style={styles.headerInfo}>
+                <Text style={styles.headerEyebrow}>
+                  Bitácora de mantenimiento
+                </Text>
+                <Text style={styles.headerTitle}>
+                  {vehicle?.name || "Todos los vehículos"}
+                </Text>
+                {!!vehicleMeta && (
+                  <Text style={styles.headerSubtitle}>{vehicleMeta}</Text>
+                )}
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={styles.helpButtonHero}
+              onPress={() =>
+                showDialog(
+                  activeTab === "inProgress"
+                    ? {
+                        title: "Próximos mantenimientos",
+                        message:
+                          "Aquí puedes ver los mantenimientos programados para tu vehículo. Usa el icono del check para marcar como realizado cuando completes un servicio. También puedes editar o eliminar mantenimientos para mantener la bitácora precisa.",
+                        type: "info",
+                      }
+                    : {
+                        title: "Importancia de los costos",
+                        message:
+                          "Si editas y agregas costos a los mantenimientos realizados, estos se verán reflejados automáticamente en las estadísticas de inversión (MRO). Mantener estos datos actualizados mejora el control financiero del vehículo.",
+                        type: "info",
+                      },
+                )
+              }
+            >
+              <Ionicons
+                name="information-circle-outline"
+                size={iconSize.lg}
+                color="#fff"
+              />
+            </TouchableOpacity>
+          </View>
+        </LinearGradient>
 
         {/* Tabs para filtrar */}
-        <View style={styles.tabsContainer}>
+        <View
+          style={[styles.tabsContainer, { backgroundColor: colors.background }]}
+        >
           <TouchableOpacity
             style={[
               styles.tab,
-              activeTab === "inProgress" && styles.tabActive,
               {
                 backgroundColor:
                   activeTab === "inProgress"
-                    ? colors.primary
+                    ? colors.primaryDark
                     : colors.cardBackground,
+                borderColor:
+                  activeTab === "inProgress"
+                    ? colors.primaryDark
+                    : colors.border,
               },
             ]}
             onPress={() => setActiveTab("inProgress")}
@@ -691,10 +782,13 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
           <TouchableOpacity
             style={[
               styles.tab,
-              activeTab === "done" && styles.tabActive,
               {
                 backgroundColor:
-                  activeTab === "done" ? colors.primary : colors.cardBackground,
+                  activeTab === "done"
+                    ? colors.primaryDark
+                    : colors.cardBackground,
+                borderColor:
+                  activeTab === "done" ? colors.primaryDark : colors.border,
               },
             ]}
             onPress={() => setActiveTab("done")}
@@ -708,44 +802,6 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
               Realizados
             </Text>
           </TouchableOpacity>
-          {activeTab === "inProgress" && (
-            <TouchableOpacity
-              style={styles.infoIcon}
-              onPress={() =>
-                showDialog({
-                  title: "Próximos Mantenimientos",
-                  message:
-                    "Aquí puedes ver los mantenimientos programados para tu vehículo. Usa el icono del check (✓) para marcar como realizado cuando completes un servicio. También puedes editar o eliminar mantenimientos usando los iconos correspondientes. Mantén esta lista actualizada para tener un historial preciso.",
-                  type: "info",
-                })
-              }
-            >
-              <Ionicons
-                name="information-circle-outline"
-                size={iconSize.md}
-                color={colors.primary}
-              />
-            </TouchableOpacity>
-          )}
-          {activeTab === "done" && (
-            <TouchableOpacity
-              style={styles.infoIcon}
-              onPress={() =>
-                showDialog({
-                  title: "💰 Importancia de los costos",
-                  message:
-                    "Si editas y agregas costos a los mantenimientos realizados, estos se verán reflejados automáticamente en las estadísticas de inversión (MRO). Es de suma importancia mantener estos datos actualizados para tener un control financiero preciso y tomar mejores decisiones sobre el cuidado de tu vehículo.",
-                  type: "info",
-                })
-              }
-            >
-              <Ionicons
-                name="information-circle-outline"
-                size={iconSize.md}
-                color={colors.primary}
-              />
-            </TouchableOpacity>
-          )}
         </View>
 
         <FlatList
@@ -754,6 +810,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={styles.listContent}
           ListEmptyComponent={renderEmptyState}
+          showsVerticalScrollIndicator={false}
         />
 
         {/* Modal para ver imagen en pantalla completa */}
@@ -1157,99 +1214,177 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
-    padding: spacing.lg,
-    borderBottomWidth: 1,
+  heroGradient: {
+    paddingHorizontal: hs(20),
+    paddingTop: vs(18),
+    paddingBottom: vs(18),
+    borderBottomLeftRadius: borderRadius.xl,
+    borderBottomRightRadius: borderRadius.xl,
+  },
+  headerTopRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+  },
+  heroMediaRow: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  vehicleImage: {
+    width: s(78),
+    height: s(78),
+    borderRadius: borderRadius.md,
+    marginRight: hs(12),
+  },
+  imagePlaceholder: {
+    width: s(78),
+    height: s(78),
+    borderRadius: borderRadius.md,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: hs(12),
+  },
+  heroImagePlaceholder: {},
+  headerInfo: {
+    flex: 1,
+  },
+  headerEyebrow: {
+    fontSize: rf(12),
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.7,
+    marginBottom: vs(4),
+    color: "rgba(255,255,255,0.74)",
   },
   headerTitle: {
-    fontSize: rf(20),
-    fontWeight: "bold",
+    fontSize: rf(22),
+    fontWeight: "800",
+    color: "#fff",
   },
   headerSubtitle: {
-    fontSize: rf(14),
+    fontSize: rf(13),
     marginTop: vs(4),
+    color: "rgba(255,255,255,0.84)",
+    marginBottom: vs(4),
+  },
+  helpButtonHero: {
+    width: s(44),
+    height: s(44),
+    borderRadius: s(22),
+    backgroundColor: "rgba(255,255,255,0.12)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginLeft: hs(12),
   },
   listContent: {
     padding: spacing.lg,
     flexGrow: 1,
+    paddingTop: spacing.sm,
   },
   tabsContainer: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: vs(8),
-    marginBottom: vs(8),
-    position: "relative",
-  },
-  infoIcon: {
-    position: "absolute",
-    right: hs(16),
-    padding: spacing.sm,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.xs,
+    paddingHorizontal: hs(16),
   },
   tab: {
     paddingVertical: vs(8),
     paddingHorizontal: hs(24),
     borderRadius: borderRadius.xl,
     marginHorizontal: hs(4),
-    elevation: s(2),
-  },
-  tabActive: {
-    elevation: s(4),
+    borderWidth: 1,
   },
   tabText: {
     fontSize: rf(15),
     fontWeight: "600",
   },
   maintenanceCard: {
-    borderRadius: borderRadius.md,
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
     marginBottom: vs(16),
-    elevation: s(2),
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: s(4),
-    overflow: "hidden",
+    elevation: s(3),
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: s(10),
+    padding: spacing.md,
   },
-  cardHeader: {
+  cardTopRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
-    padding: spacing.lg,
-    borderBottomWidth: 1,
+    alignItems: "flex-start",
+    gap: hs(12),
+    marginBottom: vs(14),
   },
-  typeContainer: {
+  cardIdentity: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     flex: 1,
-    marginRight: hs(8),
+  },
+  cardIconWrap: {
+    width: s(46),
+    height: s(46),
+    borderRadius: s(23),
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: hs(12),
+  },
+  cardTitleWrap: {
+    flex: 1,
+  },
+  cardTitleRow: {
+    minHeight: s(24),
   },
   maintenanceType: {
     fontSize: rf(16),
-    fontWeight: "bold",
+    fontWeight: "800",
+    flex: 1,
   },
   vehicleName: {
     fontSize: rf(12),
-    marginTop: vs(2),
+    marginTop: vs(4),
   },
-  cardBody: {
-    padding: spacing.lg,
+  cardActions: {
+    flexDirection: "row",
+    gap: hs(8),
   },
-  infoRow: {
+  iconAction: {
+    width: s(34),
+    height: s(34),
+    borderRadius: s(17),
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  metaGrid: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: vs(8),
+    flexWrap: "wrap",
+    gap: hs(8),
+    marginBottom: vs(12),
   },
-  infoText: {
-    fontSize: rf(14),
-    marginLeft: hs(8),
+  metaPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: hs(10),
+    paddingVertical: vs(6),
+    borderRadius: s(999),
+  },
+  metaPillText: {
+    fontSize: rf(12),
+    marginLeft: hs(6),
+    fontWeight: "600",
   },
   costText: {
     fontWeight: "600",
     color: COLORS.primary,
   },
   notesContainer: {
-    marginTop: vs(8),
+    marginTop: vs(4),
     padding: spacing.md,
-    borderRadius: borderRadius.sm,
+    borderRadius: borderRadius.md,
+    borderWidth: 1,
   },
   notesLabel: {
     fontSize: rf(12),
@@ -1262,56 +1397,44 @@ const styles = StyleSheet.create({
   },
   photoContainer: {
     marginTop: vs(12),
-    borderRadius: borderRadius.sm,
-    overflow: "hidden",
-    position: "relative",
+  },
+  photoStrip: {
+    paddingRight: spacing.sm,
   },
   photoThumbnail: {
-    width: "100%",
-    height: s(150),
-  },
-  photoOverlay: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
-    paddingVertical: vs(8),
-    paddingHorizontal: hs(12),
-    flexDirection: "row",
-    alignItems: "center",
-    gap: hs(8),
-  },
-  photoOverlayText: {
-    color: "#fff",
-    fontSize: rf(14),
-    fontWeight: "600",
+    width: s(92),
+    height: s(92),
+    borderRadius: borderRadius.md,
+    marginRight: hs(10),
   },
   cardFooter: {
-    padding: spacing.lg,
     borderTopWidth: 1,
+    paddingTop: spacing.md,
+    marginTop: spacing.md,
   },
-  nextServiceHeader: {
+  footerInfoRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: vs(8),
+    justifyContent: "space-between",
+    gap: hs(10),
   },
-  nextServiceLabel: {
+  footerBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: hs(10),
+    paddingVertical: vs(6),
+    borderRadius: s(999),
+  },
+  footerBadgeText: {
+    fontSize: rf(11),
+    fontWeight: "700",
+    marginLeft: hs(6),
+  },
+  footerText: {
     fontSize: rf(13),
-    fontWeight: "600",
-  },
-  nextServiceInfo: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  nextServiceItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginRight: hs(8),
-  },
-  nextServiceText: {
-    fontSize: rf(13),
-    fontWeight: "500",
+    fontWeight: "700",
+    flexShrink: 1,
+    textAlign: "right",
   },
   emptyState: {
     flex: 1,
@@ -1320,8 +1443,8 @@ const styles = StyleSheet.create({
     padding: spacing.xxl,
   },
   emptyTitle: {
-    fontSize: rf(18),
-    fontWeight: "bold",
+    fontSize: rf(17),
+    fontWeight: "800",
     marginTop: vs(16),
   },
   emptySubtitle: {
@@ -1378,13 +1501,13 @@ const styles = StyleSheet.create({
     marginBottom: vs(24),
   },
   approveModalTitle: {
-    fontSize: rf(20),
+    fontSize: rf(17),
     fontWeight: "bold",
     marginTop: vs(16),
     marginBottom: vs(8),
   },
   approveModalMessage: {
-    fontSize: rf(16),
+    fontSize: rf(14),
     textAlign: "center",
     lineHeight: vs(22),
   },
@@ -1407,10 +1530,10 @@ const styles = StyleSheet.create({
     marginRight: hs(12),
   },
   checkboxChecked: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.primaryDark,
   },
   checkboxText: {
-    fontSize: rf(16),
+    fontSize: rf(14),
     flex: 1,
   },
   checkboxHint: {
@@ -1470,7 +1593,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   editModalTitle: {
-    fontSize: rf(20),
+    fontSize: rf(17),
     fontWeight: "bold",
   },
   editModalScroll: {
@@ -1490,7 +1613,7 @@ const styles = StyleSheet.create({
     marginTop: -5,
   },
   label: {
-    fontSize: rf(16),
+    fontSize: rf(14),
     fontWeight: "600",
     marginBottom: spacing.xs,
   },
@@ -1554,7 +1677,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: hs(24),
     borderRadius: borderRadius.sm,
     alignItems: "center",
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.primaryDark,
   },
   editModalSaveText: {
     fontSize: rf(16),

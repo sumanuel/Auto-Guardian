@@ -1,6 +1,9 @@
-import * as FileSystem from "expo-file-system";
+import * as FileSystem from "expo-file-system/legacy";
 
 const VEHICLE_PHOTOS_DIR = `${FileSystem.documentDirectory}vehicle_photos/`;
+
+const isOwnedVehiclePhoto = (uri) =>
+  Boolean(uri) && uri.startsWith(VEHICLE_PHOTOS_DIR);
 
 const guessExtension = (uri) => {
   const cleanUri = (uri || "").split("?")[0];
@@ -34,10 +37,27 @@ export const persistVehiclePhotoAsync = async (sourceUri) => {
   }
 };
 
+export const ensurePersistentVehiclePhotoAsync = async (sourceUri) => {
+  if (!sourceUri) return null;
+  if (isOwnedVehiclePhoto(sourceUri)) return sourceUri;
+
+  try {
+    const info = await FileSystem.getInfoAsync(sourceUri);
+    if (!info.exists) {
+      return null;
+    }
+
+    return await persistVehiclePhotoAsync(sourceUri);
+  } catch (error) {
+    console.warn("No se pudo normalizar la foto del vehículo:", error);
+    return sourceUri;
+  }
+};
+
 export const deleteVehiclePhotoIfOwnedAsync = async (uri) => {
   try {
     if (!uri) return;
-    if (!uri.startsWith(VEHICLE_PHOTOS_DIR)) return;
+    if (!isOwnedVehiclePhoto(uri)) return;
 
     const info = await FileSystem.getInfoAsync(uri);
     if (info.exists) {
