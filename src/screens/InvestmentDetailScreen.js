@@ -56,6 +56,12 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
     .filter(Boolean)
     .join(" • ");
 
+  const categoryIconMap = {
+    Mantenimientos: "construct",
+    Reparaciones: "build",
+    Otros: "cart",
+  };
+
   const loadData = React.useCallback(
     (filterFrom = null, filterTo = null) => {
       const vehicleData = vehicles.find((v) => v.id === vehicleId);
@@ -449,7 +455,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                   <View style={styles.categoryHeader}>
                     <View style={styles.categoryInfo}>
                       <Ionicons
-                        name={getMaintenanceIcon(category.name)}
+                        name={categoryIconMap[category.name] || "cash-outline"}
                         size={iconSize.md}
                         color={colors.primary}
                       />
