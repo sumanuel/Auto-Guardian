@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import { LinearGradient } from "expo-linear-gradient";
 import { useCallback, useEffect, useState } from "react";
 import { FlatList, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useApp } from "../context/AppContext";
@@ -7,6 +8,7 @@ import { useTheme } from "../context/ThemeContext";
 import { COLORS } from "../data/constants";
 import {
   borderRadius,
+  hs,
   iconSize,
   rf,
   s,
@@ -16,73 +18,90 @@ import {
 
 const Tab = createMaterialTopTabNavigator();
 
+const HeroMetricCard = ({ icon, label, value, accent }) => (
+  <View style={[styles.heroMetricCard, { borderColor: accent }]}>
+    <View
+      style={[styles.heroMetricIconWrap, { backgroundColor: `${accent}22` }]}
+    >
+      <Ionicons name={icon} size={iconSize.sm} color="#fff" />
+    </View>
+    <Text style={styles.heroMetricValue}>{value}</Text>
+    <Text style={styles.heroMetricLabel}>{label}</Text>
+  </View>
+);
+
 const SummaryHero = ({ summary }) => {
-  const { colors } = useTheme();
   const overdueCount =
     summary?.alerts?.filter((item) => item.type === "overdue").length || 0;
   const urgentCount =
     summary?.alerts?.filter((item) => item.type === "urgent").length || 0;
   const totalDocuments = summary?.totalDocuments || 0;
+  const totalAlerts = overdueCount + urgentCount;
 
   return (
-    <View
-      style={[
-        styles.heroPanel,
-        { backgroundColor: colors.cardBackground, borderColor: colors.border },
-      ]}
+    <LinearGradient
+      colors={[COLORS.primary, "#0F5FD2", "#0A3F8F"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.heroGradient}
     >
-      <Text style={[styles.heroEyebrow, { color: colors.primary }]}>
-        Centro de alertas
-      </Text>
-      <Text style={[styles.heroTitle, { color: colors.text }]}>
-        Prioridades activas
-      </Text>
-      <Text style={[styles.heroSubtitle, { color: colors.textSecondary }]}>
-        Revisa vencimientos, mantenimientos críticos y documentos próximos a
-        expirar.
-      </Text>
-      <View style={styles.heroStatsRow}>
-        <View
-          style={[
-            styles.heroStatCard,
-            { backgroundColor: colors.inputBackground },
-          ]}
-        >
-          <Text style={[styles.heroStatValue, { color: colors.text }]}>
-            {overdueCount}
-          </Text>
-          <Text style={[styles.heroStatLabel, { color: colors.textSecondary }]}>
-            Vencidos
-          </Text>
-        </View>
-        <View
-          style={[
-            styles.heroStatCard,
-            { backgroundColor: colors.inputBackground },
-          ]}
-        >
-          <Text style={[styles.heroStatValue, { color: colors.text }]}>
-            {urgentCount}
-          </Text>
-          <Text style={[styles.heroStatLabel, { color: colors.textSecondary }]}>
-            Urgentes
-          </Text>
-        </View>
-        <View
-          style={[
-            styles.heroStatCard,
-            { backgroundColor: colors.inputBackground },
-          ]}
-        >
-          <Text style={[styles.heroStatValue, { color: colors.text }]}>
-            {totalDocuments}
-          </Text>
-          <Text style={[styles.heroStatLabel, { color: colors.textSecondary }]}>
-            Docs
-          </Text>
+      <View style={styles.heroTopRow}>
+        <View style={styles.heroMediaRow}>
+          <View style={[styles.imagePlaceholder, styles.heroImagePlaceholder]}>
+            <Ionicons
+              name="notifications-outline"
+              size={s(60)}
+              color="#D6E7FF"
+            />
+          </View>
+
+          <View style={styles.headerInfo}>
+            <Text style={styles.heroEyebrow}>Centro de alertas</Text>
+            <Text style={styles.heroTitle}>Prioridades activas</Text>
+            <Text style={styles.heroSubtitle}>
+              Revisa vencimientos, mantenimientos críticos y documentos próximos
+              a expirar.
+            </Text>
+
+            <View style={styles.heroMetaRow}>
+              <View style={styles.heroMetaPill}>
+                <Text style={styles.heroMetaText}>{totalAlerts} alertas</Text>
+              </View>
+              <View style={styles.heroMetaPill}>
+                <Ionicons
+                  name="document-text-outline"
+                  size={iconSize.xs}
+                  color="#D6E7FF"
+                />
+                <Text style={styles.heroMetaText}>
+                  {totalDocuments} documentos
+                </Text>
+              </View>
+            </View>
+          </View>
         </View>
       </View>
-    </View>
+      <View style={styles.heroStatsRow}>
+        <HeroMetricCard
+          icon="alert-circle-outline"
+          label="Vencidos"
+          value={overdueCount}
+          accent={COLORS.danger}
+        />
+        <HeroMetricCard
+          icon="warning-outline"
+          label="Urgentes"
+          value={urgentCount}
+          accent={COLORS.warning}
+        />
+        <HeroMetricCard
+          icon="document-text-outline"
+          label="Docs"
+          value={totalDocuments}
+          accent="#8ED1FF"
+        />
+      </View>
+    </LinearGradient>
   );
 };
 
@@ -441,14 +460,36 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingTop: vs(18),
-    paddingHorizontal: spacing.md,
     paddingBottom: spacing.md,
   },
-  heroPanel: {
-    borderRadius: borderRadius.lg,
-    borderWidth: 1,
-    padding: spacing.lg,
+  heroGradient: {
+    paddingHorizontal: hs(20),
+    paddingTop: vs(26),
+    paddingBottom: vs(28),
+  },
+  heroTopRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+  },
+  heroMediaRow: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  imagePlaceholder: {
+    width: s(100),
+    height: s(100),
+    borderRadius: borderRadius.md,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: hs(14),
+  },
+  heroImagePlaceholder: {
+    backgroundColor: "rgba(255,255,255,0.12)",
+  },
+  headerInfo: {
+    flex: 1,
   },
   heroEyebrow: {
     fontSize: rf(12),
@@ -456,34 +497,73 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     letterSpacing: 0.7,
     marginBottom: spacing.xs,
+    color: "rgba(255,255,255,0.74)",
   },
   heroTitle: {
     fontSize: rf(24),
     fontWeight: "800",
     marginBottom: spacing.xs,
+    color: "#fff",
   },
   heroSubtitle: {
     fontSize: rf(14),
     lineHeight: rf(20),
+    color: "rgba(255,255,255,0.84)",
+    marginBottom: vs(10),
+  },
+  heroMetaRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.sm,
+  },
+  heroMetaPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xxs,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: s(999),
+    backgroundColor: "rgba(255,255,255,0.14)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.1)",
+  },
+  heroMetaText: {
+    fontSize: rf(12),
+    fontWeight: "700",
+    color: "#fff",
   },
   heroStatsRow: {
     flexDirection: "row",
     gap: spacing.sm,
     marginTop: spacing.md,
   },
-  heroStatCard: {
+  heroMetricCard: {
     flex: 1,
+    borderWidth: 1,
     borderRadius: borderRadius.md,
-    padding: spacing.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    minHeight: vs(92),
+    backgroundColor: "rgba(255,255,255,0.12)",
   },
-  heroStatValue: {
+  heroMetricIconWrap: {
+    width: s(32),
+    height: s(32),
+    borderRadius: s(16),
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: vs(10),
+  },
+  heroMetricValue: {
     fontSize: rf(18),
     fontWeight: "800",
     marginBottom: vs(2),
+    color: "#fff",
   },
-  heroStatLabel: {
+  heroMetricLabel: {
     fontSize: rf(11),
     fontWeight: "600",
+    color: "rgba(255,255,255,0.76)",
   },
   backButton: {
     padding: spacing.xs,

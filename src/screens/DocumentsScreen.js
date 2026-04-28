@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
+import { LinearGradient } from "expo-linear-gradient";
 import { useCallback, useState } from "react";
 import {
   FlatList,
@@ -10,6 +11,7 @@ import {
 } from "react-native";
 import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
+import { COLORS } from "../data/constants";
 import { useDialog } from "../hooks/useDialog";
 import { getVehicleDocuments } from "../services/vehicleDocumentService";
 import { getDocumentExpiryColor } from "../utils/formatUtils";
@@ -23,6 +25,18 @@ import {
   spacing,
   vs,
 } from "../utils/responsive";
+
+const HeroMetricCard = ({ icon, label, value, accent }) => (
+  <View style={[styles.heroMetricCard, { borderColor: accent }]}>
+    <View
+      style={[styles.heroMetricIconWrap, { backgroundColor: `${accent}22` }]}
+    >
+      <Ionicons name={icon} size={iconSize.sm} color="#fff" />
+    </View>
+    <Text style={styles.heroMetricValue}>{value}</Text>
+    <Text style={styles.heroMetricLabel}>{label}</Text>
+  </View>
+);
 
 const getDocumentHealth = (documents) => {
   if (!documents.length) {
@@ -257,86 +271,100 @@ const DocumentsScreen = ({ navigation }) => {
     (sum, vehicle) => sum + vehicle.documentCount,
     0,
   );
+  const totalReview = displayVehicles.reduce(
+    (sum, vehicle) => sum + getDocumentHealth(vehicle.documents).urgentCount,
+    0,
+  );
 
   return (
     <DialogComponent>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={styles.header}>
-          <View style={styles.headerTitleWrap}>
-            <Text style={[styles.headerEyebrow, { color: colors.primary }]}>
-              Centro documental
-            </Text>
-            <Text style={[styles.headerTitle, { color: colors.text }]}>
-              Documentos
-            </Text>
-            <Text
-              style={[styles.headerSubtitle, { color: colors.textSecondary }]}
-            >
-              Controla vencimientos, expedientes y estado legal por vehículo.
-            </Text>
-          </View>
-          <TouchableOpacity
-            style={[
-              styles.helpButton,
-              { backgroundColor: colors.inputBackground },
-            ]}
-            onPress={() =>
-              showDialog({
-                title: "Gestión de Documentos",
-                message:
-                  "Aquí puedes ver y gestionar todos los documentos asociados a tus vehículos. Organizados por vehículo, incluye licencias, seguros, revisiones técnicas y otros documentos importantes. Mantén al día la información de vencimiento para evitar multas o problemas legales.",
-                type: "info",
-              })
-            }
-          >
-            <Ionicons
-              name="information-circle-outline"
-              size={ms(24)}
-              color={colors.primary}
-            />
-          </TouchableOpacity>
-        </View>
+        <LinearGradient
+          colors={[COLORS.primary, "#0F5FD2", "#0A3F8F"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.heroGradient}
+        >
+          <View style={styles.heroTopRow}>
+            <View style={styles.heroMediaRow}>
+              <View
+                style={[styles.imagePlaceholder, styles.heroImagePlaceholder]}
+              >
+                <Ionicons
+                  name="document-text-outline"
+                  size={s(60)}
+                  color="#D6E7FF"
+                />
+              </View>
 
-        <View style={styles.summaryRow}>
-          <View
-            style={[
-              styles.summaryCard,
-              {
-                backgroundColor: colors.cardBackground,
-                borderColor: colors.border,
-                shadowColor: colors.shadow,
-              },
-            ]}
-          >
-            <Text style={[styles.summaryValue, { color: colors.text }]}>
-              {displayVehicles.length}
-            </Text>
-            <Text
-              style={[styles.summaryLabel, { color: colors.textSecondary }]}
+              <View style={styles.headerInfo}>
+                <Text style={styles.headerEyebrow}>Centro documental</Text>
+                <Text style={styles.headerTitle}>Documentos</Text>
+                <Text style={styles.headerSubtitle}>
+                  Controla vencimientos, expedientes y estado legal por
+                  vehículo.
+                </Text>
+
+                <View style={styles.heroMetaRow}>
+                  <View style={styles.heroMetaPill}>
+                    <Text style={styles.heroMetaText}>
+                      {displayVehicles.length} unidades
+                    </Text>
+                  </View>
+                  <View style={styles.heroMetaPill}>
+                    <Ionicons
+                      name="folder-open-outline"
+                      size={iconSize.xs}
+                      color="#D6E7FF"
+                    />
+                    <Text style={styles.heroMetaText}>
+                      {totalDocuments} archivos
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={styles.helpButtonHero}
+              onPress={() =>
+                showDialog({
+                  title: "Gestión de Documentos",
+                  message:
+                    "Aquí puedes ver y gestionar todos los documentos asociados a tus vehículos. Organizados por vehículo, incluye licencias, seguros, revisiones técnicas y otros documentos importantes. Mantén al día la información de vencimiento para evitar multas o problemas legales.",
+                  type: "info",
+                })
+              }
             >
-              Vehículos
-            </Text>
+              <Ionicons
+                name="information-circle-outline"
+                size={iconSize.lg}
+                color="#fff"
+              />
+            </TouchableOpacity>
           </View>
-          <View
-            style={[
-              styles.summaryCard,
-              {
-                backgroundColor: colors.cardBackground,
-                borderColor: colors.border,
-                shadowColor: colors.shadow,
-              },
-            ]}
-          >
-            <Text style={[styles.summaryValue, { color: colors.text }]}>
-              {totalDocuments}
-            </Text>
-            <Text
-              style={[styles.summaryLabel, { color: colors.textSecondary }]}
-            >
-              Documentos
-            </Text>
+
+          <View style={styles.summaryRow}>
+            <HeroMetricCard
+              icon="car-sport-outline"
+              label="Vehículos"
+              value={displayVehicles.length}
+              accent={COLORS.warning}
+            />
+            <HeroMetricCard
+              icon="document-text-outline"
+              label="Documentos"
+              value={totalDocuments}
+              accent="#8ED1FF"
+            />
+            <HeroMetricCard
+              icon="alert-circle-outline"
+              label="Por revisar"
+              value={totalReview}
+              accent="#B8F1C6"
+            />
           </View>
-        </View>
+        </LinearGradient>
 
         <FlatList
           data={displayVehicles}
@@ -371,17 +399,34 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
+  heroGradient: {
+    paddingHorizontal: hs(20),
+    paddingTop: vs(26),
+    paddingBottom: vs(28),
+  },
+  heroTopRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: ms(16),
-    paddingTop: ms(20),
-    paddingHorizontal: ms(20),
   },
-  headerTitleWrap: {
+  heroMediaRow: {
     flex: 1,
-    paddingRight: hs(12),
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  imagePlaceholder: {
+    width: s(100),
+    height: s(100),
+    borderRadius: borderRadius.md,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: hs(14),
+  },
+  heroImagePlaceholder: {
+    backgroundColor: "rgba(255,255,255,0.12)",
+  },
+  headerInfo: {
+    flex: 1,
   },
   headerEyebrow: {
     fontSize: rf(12),
@@ -389,40 +434,73 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     letterSpacing: 0.7,
     marginBottom: vs(4),
+    color: "rgba(255,255,255,0.74)",
   },
   headerTitle: {
     fontSize: rf(28),
     fontWeight: "800",
+    color: "#fff",
   },
   headerSubtitle: {
     fontSize: rf(14),
     lineHeight: rf(20),
-    marginTop: vs(6),
+    marginTop: vs(4),
+    marginBottom: vs(10),
+    color: "rgba(255,255,255,0.84)",
+  },
+  heroMetaRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: ms(8),
+  },
+  heroMetaPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: ms(6),
+    paddingHorizontal: hs(10),
+    paddingVertical: vs(6),
+    borderRadius: s(999),
+    backgroundColor: "rgba(255,255,255,0.14)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.1)",
+  },
+  heroMetaText: {
+    fontSize: rf(12),
+    fontWeight: "700",
+    color: "#fff",
   },
   summaryRow: {
     flexDirection: "row",
     gap: ms(12),
-    paddingHorizontal: ms(20),
-    marginBottom: ms(18),
+    marginTop: vs(18),
   },
-  summaryCard: {
+  heroMetricCard: {
     flex: 1,
     borderWidth: 1,
     borderRadius: borderRadius.md,
-    padding: spacing.md,
-    elevation: s(2),
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: s(8),
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    minHeight: vs(92),
+    backgroundColor: "rgba(255,255,255,0.12)",
   },
-  summaryValue: {
-    fontSize: rf(22),
+  heroMetricIconWrap: {
+    width: s(32),
+    height: s(32),
+    borderRadius: s(16),
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: vs(10),
+  },
+  heroMetricValue: {
+    fontSize: rf(20),
     fontWeight: "800",
     marginBottom: vs(2),
+    color: "#fff",
   },
-  summaryLabel: {
-    fontSize: rf(12),
+  heroMetricLabel: {
+    fontSize: rf(11),
     fontWeight: "600",
+    color: "rgba(255,255,255,0.76)",
   },
   listContainer: {
     padding: ms(20),

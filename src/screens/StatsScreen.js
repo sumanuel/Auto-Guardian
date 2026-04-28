@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { useCallback, useEffect, useState } from "react";
 import {
   ScrollView,
@@ -17,12 +18,25 @@ import { getAllRepairs } from "../services/repairService";
 import { formatCurrency } from "../utils/formatUtils";
 import {
   borderRadius,
+  hs,
   iconSize,
   rf,
   s,
   spacing,
   vs,
 } from "../utils/responsive";
+
+const HeroMetricCard = ({ icon, label, value, accent }) => (
+  <View style={[styles.heroMetricCard, { borderColor: accent }]}>
+    <View
+      style={[styles.heroMetricIconWrap, { backgroundColor: `${accent}22` }]}
+    >
+      <Ionicons name={icon} size={iconSize.sm} color="#fff" />
+    </View>
+    <Text style={styles.heroMetricValue}>{value}</Text>
+    <Text style={styles.heroMetricLabel}>{label}</Text>
+  </View>
+);
 
 const StatsScreen = ({ navigation }) => {
   const { colors } = useTheme();
@@ -118,6 +132,19 @@ const StatsScreen = ({ navigation }) => {
     navigation.navigate("InvestmentDetail", { vehicleId });
   };
 
+  const totalMaintenances = vehicleStats.reduce(
+    (sum, vehicle) => sum + vehicle.maintenanceCount,
+    0,
+  );
+  const totalRepairs = vehicleStats.reduce(
+    (sum, vehicle) => sum + vehicle.repairCount,
+    0,
+  );
+  const totalExtras = vehicleStats.reduce(
+    (sum, vehicle) => sum + vehicle.expenseCount,
+    0,
+  );
+
   return (
     <DialogComponent>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -125,40 +152,92 @@ const StatsScreen = ({ navigation }) => {
           style={styles.content}
           contentContainerStyle={styles.scrollContent}
         >
-          <View style={styles.titleContainer}>
-            <View style={styles.titleWrap}>
-              <Text style={[styles.eyebrow, { color: colors.primary }]}>
-                Dashboard financiero
-              </Text>
-              <Text style={[styles.title, { color: colors.text }]}>
-                Inversión Total
-              </Text>
-              <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-                Visualiza costos de mantenimiento, reparaciones y gastos por
-                unidad.
-              </Text>
+          <LinearGradient
+            colors={[COLORS.primary, "#0F5FD2", "#0A3F8F"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.heroGradient}
+          >
+            <View style={styles.heroTopRow}>
+              <View style={styles.heroMediaRow}>
+                <View
+                  style={[styles.imagePlaceholder, styles.heroImagePlaceholder]}
+                >
+                  <Ionicons
+                    name="wallet-outline"
+                    size={s(60)}
+                    color="#D6E7FF"
+                  />
+                </View>
+
+                <View style={styles.headerInfo}>
+                  <Text style={styles.eyebrow}>Dashboard financiero</Text>
+                  <Text style={styles.title}>Inversión Total</Text>
+                  <Text style={styles.subtitle}>
+                    Visualiza costos de mantenimiento, reparaciones y gastos por
+                    unidad.
+                  </Text>
+
+                  <View style={styles.heroMetaRow}>
+                    <View style={styles.heroMetaPill}>
+                      <Text style={styles.heroMetaText}>
+                        {vehicles.length} unidades
+                      </Text>
+                    </View>
+                    <View style={styles.heroMetaPill}>
+                      <Ionicons
+                        name="cash-outline"
+                        size={iconSize.xs}
+                        color="#D6E7FF"
+                      />
+                      <Text style={styles.heroMetaText}>
+                        {formatCurrency(totalInvestment, currencySymbol)}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+
+              <TouchableOpacity
+                style={styles.helpButtonHero}
+                onPress={() =>
+                  showDialog({
+                    title: "Estadísticas de Inversión",
+                    message:
+                      "Aquí puedes ver un resumen completo de toda la inversión realizada en tus vehículos. Incluye costos de mantenimientos, reparaciones y otros gastos, organizados por vehículo para que puedas hacer un seguimiento detallado de tus finanzas automotrices.",
+                    type: "info",
+                  })
+                }
+              >
+                <Ionicons
+                  name="information-circle-outline"
+                  size={iconSize.lg}
+                  color="#fff"
+                />
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity
-              style={[
-                styles.helpButton,
-                { backgroundColor: colors.inputBackground },
-              ]}
-              onPress={() =>
-                showDialog({
-                  title: "Estadísticas de Inversión",
-                  message:
-                    "Aquí puedes ver un resumen completo de toda la inversión realizada en tus vehículos. Incluye costos de mantenimientos, reparaciones y otros gastos, organizados por vehículo para que puedas hacer un seguimiento detallado de tus finanzas automotrices.",
-                  type: "info",
-                })
-              }
-            >
-              <Ionicons
-                name="information-circle-outline"
-                size={iconSize.md}
-                color={colors.primary}
+
+            <View style={styles.summaryGrid}>
+              <HeroMetricCard
+                icon="car-sport-outline"
+                label="Vehículos"
+                value={vehicles.length}
+                accent={COLORS.warning}
               />
-            </TouchableOpacity>
-          </View>
+              <HeroMetricCard
+                icon="construct-outline"
+                label="Servicios"
+                value={totalMaintenances}
+                accent="#8ED1FF"
+              />
+              <HeroMetricCard
+                icon="build-outline"
+                label="Reparaciones"
+                value={totalRepairs}
+                accent="#B8F1C6"
+              />
+            </View>
+          </LinearGradient>
 
           {/* Card de inversión total */}
           <View style={[styles.totalCard, { backgroundColor: colors.primary }]}>
@@ -168,78 +247,9 @@ const StatsScreen = ({ navigation }) => {
               {formatCurrency(totalInvestment, currencySymbol)}
             </Text>
             <Text style={styles.totalSubtitle}>
-              En {vehicleStats.reduce((sum, v) => sum + v.maintenanceCount, 0)}{" "}
-              mantenimientos •{" "}
-              {vehicleStats.reduce((sum, v) => sum + v.repairCount, 0)}{" "}
-              reparaciones •{" "}
-              {vehicleStats.reduce((sum, v) => sum + v.expenseCount, 0)} otros
+              En {totalMaintenances} mantenimientos • {totalRepairs}{" "}
+              reparaciones • {totalExtras} otros
             </Text>
-          </View>
-
-          <View style={styles.summaryGrid}>
-            <View
-              style={[
-                styles.summaryCard,
-                {
-                  backgroundColor: colors.cardBackground,
-                  borderColor: colors.border,
-                  shadowColor: colors.shadow,
-                },
-              ]}
-            >
-              <Text style={[styles.summaryValue, { color: colors.text }]}>
-                {vehicles.length}
-              </Text>
-              <Text
-                style={[styles.summaryLabel, { color: colors.textSecondary }]}
-              >
-                Vehículos
-              </Text>
-            </View>
-            <View
-              style={[
-                styles.summaryCard,
-                {
-                  backgroundColor: colors.cardBackground,
-                  borderColor: colors.border,
-                  shadowColor: colors.shadow,
-                },
-              ]}
-            >
-              <Text style={[styles.summaryValue, { color: colors.text }]}>
-                {vehicleStats.reduce(
-                  (sum, vehicle) => sum + vehicle.maintenanceCount,
-                  0,
-                )}
-              </Text>
-              <Text
-                style={[styles.summaryLabel, { color: colors.textSecondary }]}
-              >
-                Servicios
-              </Text>
-            </View>
-            <View
-              style={[
-                styles.summaryCard,
-                {
-                  backgroundColor: colors.cardBackground,
-                  borderColor: colors.border,
-                  shadowColor: colors.shadow,
-                },
-              ]}
-            >
-              <Text style={[styles.summaryValue, { color: colors.text }]}>
-                {vehicleStats.reduce(
-                  (sum, vehicle) => sum + vehicle.repairCount,
-                  0,
-                )}
-              </Text>
-              <Text
-                style={[styles.summaryLabel, { color: colors.textSecondary }]}
-              >
-                Reparaciones
-              </Text>
-            </View>
           </View>
 
           {/* Lista de vehículos */}
@@ -401,8 +411,37 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: spacing.lg,
     paddingBottom: vs(40),
+  },
+  heroGradient: {
+    paddingHorizontal: hs(20),
+    paddingTop: vs(26),
+    paddingBottom: vs(28),
+    marginBottom: spacing.lg,
+  },
+  heroTopRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+  },
+  heroMediaRow: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  imagePlaceholder: {
+    width: s(100),
+    height: s(100),
+    borderRadius: borderRadius.md,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: hs(14),
+  },
+  heroImagePlaceholder: {
+    backgroundColor: "rgba(255,255,255,0.12)",
+  },
+  headerInfo: {
+    flex: 1,
   },
   titleWrap: {
     flex: 1,
@@ -414,35 +453,56 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     letterSpacing: 0.7,
     marginBottom: vs(4),
+    color: "rgba(255,255,255,0.74)",
   },
   title: {
     fontSize: rf(28),
     fontWeight: "800",
+    color: "#fff",
   },
   subtitle: {
     fontSize: rf(14),
     lineHeight: rf(20),
-    marginTop: vs(6),
+    marginTop: vs(4),
+    marginBottom: vs(10),
+    color: "rgba(255,255,255,0.84)",
   },
-  titleContainer: {
+  heroMetaRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: spacing.lg,
-    paddingTop: spacing.lg,
+    flexWrap: "wrap",
+    gap: spacing.sm,
   },
-  helpButton: {
-    width: s(42),
-    height: s(42),
-    borderRadius: s(21),
+  heroMetaPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xxs,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: s(999),
+    backgroundColor: "rgba(255,255,255,0.14)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.1)",
+  },
+  heroMetaText: {
+    fontSize: rf(12),
+    fontWeight: "700",
+    color: "#fff",
+  },
+  helpButtonHero: {
+    width: s(44),
+    height: s(44),
+    borderRadius: s(22),
+    backgroundColor: "rgba(255,255,255,0.12)",
     alignItems: "center",
     justifyContent: "center",
+    marginLeft: hs(12),
   },
   totalCard: {
     borderRadius: borderRadius.lg,
     padding: spacing.xl,
     alignItems: "center",
-    marginBottom: vs(18),
+    marginBottom: vs(24),
+    marginHorizontal: spacing.lg,
     elevation: s(4),
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
@@ -470,31 +530,41 @@ const styles = StyleSheet.create({
   summaryGrid: {
     flexDirection: "row",
     gap: spacing.sm,
-    marginBottom: vs(24),
+    marginTop: vs(18),
   },
-  summaryCard: {
+  heroMetricCard: {
     flex: 1,
     borderWidth: 1,
     borderRadius: borderRadius.md,
-    padding: spacing.md,
-    elevation: s(2),
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: s(8),
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    minHeight: vs(92),
+    backgroundColor: "rgba(255,255,255,0.12)",
   },
-  summaryValue: {
+  heroMetricIconWrap: {
+    width: s(32),
+    height: s(32),
+    borderRadius: s(16),
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: vs(10),
+  },
+  heroMetricValue: {
     fontSize: rf(20),
     fontWeight: "800",
     marginBottom: vs(2),
+    color: "#fff",
   },
-  summaryLabel: {
-    fontSize: rf(12),
+  heroMetricLabel: {
+    fontSize: rf(11),
     fontWeight: "600",
+    color: "rgba(255,255,255,0.76)",
   },
   sectionTitle: {
     fontSize: rf(20),
     fontWeight: "800",
     marginBottom: spacing.md,
+    marginHorizontal: spacing.lg,
   },
   vehicleCard: {
     flexDirection: "row",
@@ -502,6 +572,7 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.lg,
     borderWidth: 1,
     marginBottom: spacing.sm,
+    marginHorizontal: spacing.lg,
     elevation: s(3),
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.08,
