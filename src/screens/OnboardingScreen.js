@@ -196,17 +196,17 @@ const styles = StyleSheet.create({
     maxWidth: ms(300),
   },
   title: {
-    fontSize: rf(28),
+    fontSize: rf(24),
     fontWeight: "bold",
     color: "#fff",
     textAlign: "center",
     marginBottom: ms(20),
   },
   description: {
-    fontSize: rf(16),
+    fontSize: rf(14),
     color: "rgba(255, 255, 255, 0.9)",
     textAlign: "center",
-    lineHeight: ms(24),
+    lineHeight: ms(22),
   },
   footer: {
     paddingHorizontal: ms(20),

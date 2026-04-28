@@ -1117,7 +1117,7 @@ const styles = StyleSheet.create({
     marginBottom: vs(20),
   },
   sectionTitle: {
-    fontSize: rf(18),
+    fontSize: rf(17),
     fontWeight: "800",
     marginBottom: vs(8),
   },
@@ -1155,7 +1155,7 @@ const styles = StyleSheet.create({
     marginBottom: vs(20),
   },
   label: {
-    fontSize: rf(16),
+    fontSize: rf(14),
     fontWeight: "600",
     marginBottom: vs(8),
   },
@@ -1186,7 +1186,7 @@ const styles = StyleSheet.create({
   },
   radioLabel: {
     marginLeft: hs(8),
-    fontSize: rf(16),
+    fontSize: rf(14),
     fontWeight: "700",
     flexShrink: 1,
   },
@@ -1216,7 +1216,7 @@ const styles = StyleSheet.create({
     borderWidth: s(1),
   },
   optionalToggleText: {
-    fontSize: rf(16),
+    fontSize: rf(14),
     fontWeight: "500",
   },
   optionalFieldsContainer: {
@@ -1284,8 +1284,8 @@ const styles = StyleSheet.create({
     marginBottom: vs(4),
   },
   headerSubtitle: {
-    fontSize: rf(14),
-    lineHeight: rf(20),
+    fontSize: rf(13),
+    lineHeight: rf(18),
     marginTop: vs(6),
     color: "rgba(255,255,255,0.84)",
   },
@@ -1351,7 +1351,7 @@ const styles = StyleSheet.create({
     marginBottom: ms(20),
   },
   editModalTitle: {
-    fontSize: rf(20),
+    fontSize: rf(18),
     fontWeight: "bold",
   },
   editModalScroll: {

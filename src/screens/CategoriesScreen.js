@@ -1252,7 +1252,7 @@ const styles = StyleSheet.create({
   },
   iconSelectorText: {
     flex: 1,
-    fontSize: rf(16),
+    fontSize: rf(14),
   },
   iconPickerContent: {
     width: "90%",
@@ -1307,7 +1307,7 @@ const styles = StyleSheet.create({
     borderBottomColor: "#e0e0e0",
   },
   modalTitle: {
-    fontSize: rf(18),
+    fontSize: rf(17),
     fontWeight: "bold",
   },
   modalBody: {

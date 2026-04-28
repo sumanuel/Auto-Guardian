@@ -492,7 +492,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    fontSize: rf(18),
+    fontSize: rf(17),
     fontWeight: "bold",
   },
   body: {
@@ -505,7 +505,7 @@ const styles = StyleSheet.create({
   empty: {
     textAlign: "center",
     marginTop: vs(50),
-    fontSize: rf(16),
+    fontSize: rf(14),
   },
   listContent: {
     paddingBottom: vs(100),
@@ -532,7 +532,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   alertSectionTitle: {
-    fontSize: rf(18),
+    fontSize: rf(17),
     fontWeight: "bold",
     marginLeft: spacing.sm,
   },
@@ -550,7 +550,7 @@ const styles = StyleSheet.create({
     borderWidth: s(1),
   },
   alertToggleText: {
-    fontSize: rf(16),
+    fontSize: rf(14),
     fontWeight: "500",
   },
   modalContainer: {
@@ -565,7 +565,7 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.md,
   },
   modalTitle: {
-    fontSize: rf(20),
+    fontSize: rf(18),
     fontWeight: "bold",
     marginBottom: spacing.lg,
     textAlign: "center",
@@ -577,7 +577,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   timeLabel: {
-    fontSize: rf(16),
+    fontSize: rf(14),
     marginBottom: spacing.sm,
   },
   timeContainer: {
@@ -595,7 +595,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   daysLabel: {
-    fontSize: rf(16),
+    fontSize: rf(14),
     marginBottom: spacing.sm,
   },
   daysContainer: {

@@ -440,14 +440,14 @@ const styles = StyleSheet.create({
     color: "rgba(255,255,255,0.74)",
   },
   heroTitle: {
-    fontSize: rf(24),
+    fontSize: rf(22),
     fontWeight: "800",
     marginBottom: spacing.xs,
     color: "#fff",
   },
   heroSubtitle: {
-    fontSize: rf(14),
-    lineHeight: rf(20),
+    fontSize: rf(13),
+    lineHeight: rf(18),
     color: "rgba(255,255,255,0.84)",
     marginBottom: vs(6),
   },
@@ -514,11 +514,11 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   emptyText: {
-    fontSize: rf(16),
+    fontSize: rf(14),
     textAlign: "center",
   },
   errorText: {
-    fontSize: rf(16),
+    fontSize: rf(14),
     textAlign: "center",
     padding: spacing.lg,
   },

@@ -655,7 +655,7 @@ const styles = StyleSheet.create({
     shadowRadius: s(10),
   },
   sectionTitle: {
-    fontSize: rf(18),
+    fontSize: rf(17),
     fontWeight: "800",
     marginBottom: spacing.md,
   },
@@ -696,7 +696,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   label: {
-    fontSize: rf(16),
+    fontSize: rf(14),
     fontWeight: "600",
     marginBottom: spacing.sm,
   },

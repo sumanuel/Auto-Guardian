@@ -1124,12 +1124,12 @@ const styles = StyleSheet.create({
     padding: spacing.xs,
   },
   vehicleName: {
-    fontSize: rf(28),
+    fontSize: rf(22),
     fontWeight: "bold",
     marginBottom: spacing.xs,
   },
   vehicleDetails: {
-    fontSize: rf(16),
+    fontSize: rf(14),
   },
   totalCard: {
     borderRadius: borderRadius.lg,

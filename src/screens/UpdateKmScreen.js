@@ -278,7 +278,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.12)",
   },
   title: {
-    fontSize: rf(24),
+    fontSize: rf(20),
     fontWeight: "bold",
   },
   currentKmContainer: {

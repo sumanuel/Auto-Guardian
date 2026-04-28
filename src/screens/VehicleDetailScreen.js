@@ -1150,7 +1150,7 @@ const styles = StyleSheet.create({
     marginBottom: vs(4),
   },
   vehicleName: {
-    fontSize: rf(24),
+    fontSize: rf(22),
     fontWeight: "800",
     color: "#fff",
   },

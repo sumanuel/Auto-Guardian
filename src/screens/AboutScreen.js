@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   title: {
-    fontSize: rf(28),
+    fontSize: rf(22),
     fontWeight: "800",
     color: "#fff",
     marginBottom: spacing.xs,
@@ -220,12 +220,12 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   cardTitle: {
-    fontSize: rf(20),
+    fontSize: rf(18),
     fontWeight: "bold",
   },
   text: {
-    fontSize: rf(15),
-    lineHeight: rf(24),
+    fontSize: rf(14),
+    lineHeight: rf(22),
     marginBottom: spacing.sm,
     textAlign: "justify",
   },
