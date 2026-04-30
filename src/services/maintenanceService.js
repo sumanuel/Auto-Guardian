@@ -5,7 +5,7 @@ export const getMaintenancesByVehicle = (vehicleId) => {
   try {
     const maintenances = db.getAllSync(
       "SELECT * FROM maintenances WHERE vehicleId = ? ORDER BY date DESC",
-      [vehicleId]
+      [vehicleId],
     );
     return maintenances;
   } catch (error) {
@@ -18,8 +18,12 @@ export const getMaintenancesByVehicle = (vehicleId) => {
 export const getRecentMaintenances = (vehicleId, limit = 5) => {
   try {
     const maintenances = db.getAllSync(
-      "SELECT * FROM maintenances WHERE vehicleId = ? ORDER BY date DESC LIMIT ?",
-      [vehicleId, limit]
+      `SELECT * FROM maintenances
+       WHERE vehicleId = ?
+       AND (completedAt IS NOT NULL OR (nextServiceKm IS NULL AND nextServiceDate IS NULL))
+       ORDER BY COALESCE(completedAt, date) DESC
+       LIMIT ?`,
+      [vehicleId, limit],
     );
     return maintenances;
   } catch (error) {
@@ -47,7 +51,7 @@ export const createMaintenance = (maintenanceData) => {
         maintenanceData.nextServiceKm || null,
         maintenanceData.nextServiceDate || null,
         maintenanceData.completedAt || null,
-      ]
+      ],
     );
     return result.lastInsertRowId;
   } catch (error) {
@@ -76,7 +80,7 @@ export const updateMaintenance = (id, maintenanceData) => {
         maintenanceData.nextServiceDate || null,
         maintenanceData.completedAt || null,
         id,
-      ]
+      ],
     );
     return true;
   } catch (error) {
@@ -104,7 +108,7 @@ export const getUpcomingMaintenances = (vehicleId, currentKm) => {
        WHERE vehicleId = ? 
        AND (nextServiceKm IS NOT NULL OR nextServiceDate IS NOT NULL)
        ORDER BY date DESC`,
-      [vehicleId]
+      [vehicleId],
     );
 
     // Ordenar en JavaScript para considerar ambos criterios (km y fecha)
@@ -117,23 +121,23 @@ export const getUpcomingMaintenances = (vehicleId, currentKm) => {
       // Calcular urgencia por fecha (días restantes)
       const aDaysDiff = a.nextServiceDate
         ? Math.floor(
-            (new Date(a.nextServiceDate) - now) / (1000 * 60 * 60 * 24)
+            (new Date(a.nextServiceDate) - now) / (1000 * 60 * 60 * 24),
           )
         : Infinity;
       const bDaysDiff = b.nextServiceDate
         ? Math.floor(
-            (new Date(b.nextServiceDate) - now) / (1000 * 60 * 60 * 24)
+            (new Date(b.nextServiceDate) - now) / (1000 * 60 * 60 * 24),
           )
         : Infinity;
 
       // Tomar el criterio más urgente de cada mantenimiento
       const aUrgency = Math.min(
         aKmDiff >= 0 ? aKmDiff / 100 : -1000, // Normalizar km (vencidos tienen prioridad)
-        aDaysDiff >= 0 ? aDaysDiff : -1000 // Días (vencidos tienen prioridad)
+        aDaysDiff >= 0 ? aDaysDiff : -1000, // Días (vencidos tienen prioridad)
       );
       const bUrgency = Math.min(
         bKmDiff >= 0 ? bKmDiff / 100 : -1000,
-        bDaysDiff >= 0 ? bDaysDiff : -1000
+        bDaysDiff >= 0 ? bDaysDiff : -1000,
       );
 
       // Ordenar por urgencia (menor = más urgente)
@@ -157,7 +161,7 @@ export const getMaintenanceStats = (vehicleId) => {
         AVG(cost) as avgCost
        FROM maintenances 
        WHERE vehicleId = ? AND cost IS NOT NULL`,
-      [vehicleId]
+      [vehicleId],
     );
     return stats;
   } catch (error) {
@@ -173,7 +177,7 @@ export const getMaintenanceTypes = () => {
   try {
     const types = db.getAllSync(
       `SELECT * FROM maintenance_types
-       ORDER BY \`order\` ASC, name ASC`
+       ORDER BY \`order\` ASC, name ASC`,
     );
     return types;
   } catch (error) {
@@ -187,7 +191,7 @@ export const getMaintenanceTypeByName = (name) => {
   try {
     const type = db.getFirstSync(
       "SELECT * FROM maintenance_types WHERE name = ?",
-      [name]
+      [name],
     );
     return type;
   } catch (error) {
@@ -215,7 +219,7 @@ export const createMaintenanceType = (typeData) => {
         typeData.defaultIntervalUnit || "months",
         typeData.icon || "construct-outline",
         maxOrder + 1,
-      ]
+      ],
     );
     return result.lastInsertRowId;
   } catch (error) {
@@ -239,7 +243,7 @@ export const updateMaintenanceType = (id, typeData) => {
         typeData.defaultIntervalUnit || "months",
         typeData.icon || "construct-outline",
         id,
-      ]
+      ],
     );
     return true;
   } catch (error) {
@@ -253,7 +257,7 @@ export const isMaintenanceTypeInUse = (typeId) => {
   try {
     const result = db.getFirstSync(
       "SELECT COUNT(*) as count FROM maintenances WHERE type = (SELECT name FROM maintenance_types WHERE id = ?)",
-      [typeId]
+      [typeId],
     );
     return result.count > 0;
   } catch (error) {
@@ -268,7 +272,7 @@ export const deleteMaintenanceType = (id) => {
     // Verificar si está en uso
     if (isMaintenanceTypeInUse(id)) {
       throw new Error(
-        "No se puede eliminar un tipo de mantenimiento que está en uso"
+        "No se puede eliminar un tipo de mantenimiento que está en uso",
       );
     }
 

@@ -397,6 +397,7 @@ const VehicleDetailScreen = ({ navigation, route }) => {
     const maintenanceColor =
       maintenanceTypeColorMap[item.type] || colors.primary;
     const maintenanceIcon = getMaintenanceIcon(item.type);
+    const completedDate = item.completedAt || item.date;
 
     return (
       <TouchableOpacity
@@ -411,6 +412,7 @@ const VehicleDetailScreen = ({ navigation, route }) => {
         onPress={() => {
           navigation.navigate("MaintenanceHistory", {
             vehicleId,
+            initialTab: "done",
           });
         }}
         activeOpacity={0.85}
@@ -428,13 +430,27 @@ const VehicleDetailScreen = ({ navigation, route }) => {
           />
         </View>
         <View style={styles.recentItemBody}>
-          <Text style={[styles.recentItemTitle, { color: colors.text }]}>
-            {item.type}
-          </Text>
+          <View style={styles.recentItemHeader}>
+            <Text style={[styles.recentItemTitle, { color: colors.text }]}>
+              {item.type}
+            </Text>
+            <View
+              style={[
+                styles.recentStatusPill,
+                { backgroundColor: `${COLORS.success}18` },
+              ]}
+            >
+              <Text
+                style={[styles.recentStatusText, { color: COLORS.success }]}
+              >
+                Completado
+              </Text>
+            </View>
+          </View>
           <Text
             style={[styles.recentItemMeta, { color: colors.textSecondary }]}
           >
-            {formatRelativeDate(item.date)}
+            {formatRelativeDate(completedDate)}
             {item.km ? ` • ${formatKm(item.km)}` : ""}
           </Text>
         </View>
@@ -786,6 +802,7 @@ const VehicleDetailScreen = ({ navigation, route }) => {
                 onPress={() => {
                   navigation.navigate("MaintenanceHistory", {
                     vehicleId,
+                    initialTab: "done",
                   });
                 }}
               >
@@ -1516,10 +1533,28 @@ const styles = StyleSheet.create({
   recentItemCost: {
     fontSize: rf(12),
     fontWeight: "700",
+    recentItemHeader: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: spacing.sm,
+      marginBottom: vs(4),
+    },
     marginBottom: vs(4),
   },
   historyCount: {
+    flex: 1,
     fontSize: rf(14),
+    recentStatusPill: {
+      paddingHorizontal: hs(8),
+      paddingVertical: vs(4),
+      borderRadius: s(999),
+    },
+    recentStatusText: {
+      fontSize: rf(11),
+      fontWeight: "700",
+      textTransform: "uppercase",
+      letterSpacing: 0.3,
+    },
     fontWeight: "500",
   },
   actionDock: {

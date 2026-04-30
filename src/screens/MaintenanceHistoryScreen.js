@@ -50,7 +50,11 @@ const QUICK_ACTION_COLORS = [
 ];
 
 const MaintenanceHistoryScreen = ({ route, navigation }) => {
-  const { vehicleId = null, sortByUrgency = false } = route.params || {};
+  const {
+    vehicleId = null,
+    sortByUrgency = false,
+    initialTab = "inProgress",
+  } = route.params || {};
   const {
     getVehicleMaintenances,
     removeMaintenance,
@@ -74,7 +78,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
 
   const vehicle = vehicleId ? vehicles.find((v) => v.id === vehicleId) : null;
   const [maintenances, setMaintenances] = useState([]);
-  const [activeTab, setActiveTab] = useState("inProgress");
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [selectedImage, setSelectedImage] = useState(null);
   const [imageModalVisible, setImageModalVisible] = useState(false);
   const [approveModalVisible, setApproveModalVisible] = useState(false);
@@ -110,11 +114,22 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
   }, [loadMaintenances]);
 
   useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab]);
+
+  useEffect(() => {
     const unsubscribe = navigation.addListener("focus", () => {
       loadMaintenances();
     });
     return unsubscribe;
   }, [loadMaintenances, navigation]);
+
+  const isCompleted = useCallback(
+    (item) =>
+      Boolean(item.completedAt) ||
+      (!item.nextServiceKm && !item.nextServiceDate),
+    [],
+  );
 
   const loadMaintenances = useCallback(() => {
     let data;
@@ -127,8 +142,8 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
     // Ordenar mantenimientos por defecto
     data = data.sort((a, b) => {
       // Primero los mantenimientos en curso (con nextServiceKm o nextServiceDate)
-      const aIsCompleted = !a.nextServiceKm && !a.nextServiceDate;
-      const bIsCompleted = !b.nextServiceKm && !b.nextServiceDate;
+      const aIsCompleted = isCompleted(a);
+      const bIsCompleted = isCompleted(b);
 
       if (aIsCompleted && !bIsCompleted) return 1; // Completados van después
       if (!aIsCompleted && bIsCompleted) return -1; // En curso van primero
@@ -190,6 +205,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
     vehicleId,
     getAllMaintenances,
     getVehicleMaintenances,
+    isCompleted,
     sortByUrgency,
   ]);
 
@@ -201,9 +217,6 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
       return !item.nextServiceKm && !item.nextServiceDate;
     }
   });
-
-  // Saber si el item está realizado
-  const isCompleted = (item) => !item.nextServiceKm && !item.nextServiceDate;
 
   const vehicleMeta = vehicle
     ? [vehicle.brand, vehicle.model, vehicle.year && `${vehicle.year}`]
