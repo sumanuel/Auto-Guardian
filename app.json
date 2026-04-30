@@ -2,7 +2,7 @@
   "expo": {
     "name": "Auto-Guardian",
     "slug": "Auto-Guardian",
-    "version": "0.1.1.260428",
+    "version": "0.1.1.260430",
     "orientation": "default",
     "icon": "./assets/icon.png",
     "scheme": "autoguardian",
@@ -12,7 +12,7 @@
       "supportsTablet": true
     },
     "android": {
-      "versionCode": 5,
+      "versionCode": 6,
       "adaptiveIcon": {
         "backgroundColor": "#0F5FD2",
         "foregroundImage": "./assets/adaptive-icon.png"
