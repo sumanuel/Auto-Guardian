@@ -62,6 +62,10 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
     Otros: "cart",
   };
 
+  const isCompletedMaintenance = (maintenance) =>
+    Boolean(maintenance.completedAt) ||
+    (!maintenance.nextServiceKm && !maintenance.nextServiceDate);
+
   const loadData = React.useCallback(
     (filterFrom = null, filterTo = null) => {
       const vehicleData = vehicles.find((v) => v.id === vehicleId);
@@ -71,6 +75,9 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
       let vehicleMaintenances = allMaintenances
         .filter((m) => m.vehicleId === vehicleId)
         .sort((a, b) => new Date(b.date) - new Date(a.date));
+      let completedMaintenances = vehicleMaintenances.filter(
+        isCompletedMaintenance,
+      );
 
       // Obtener movimientos particulares
       let vehicleExpenses = getExpensesByVehicle(vehicleId);
@@ -101,6 +108,9 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
         vehicleMaintenances = vehicleMaintenances.filter((m) =>
           isDateInRange(m.date),
         );
+        completedMaintenances = completedMaintenances.filter((m) =>
+          isDateInRange(m.completedAt || m.date),
+        );
         vehicleExpenses = vehicleExpenses.filter((e) => isDateInRange(e.date));
         vehicleRepairs = vehicleRepairs.filter((r) => isDateInRange(r.date));
       }
@@ -110,7 +120,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
       setRepairs(vehicleRepairs);
 
       // Calcular total (mantenimientos + movimientos + reparaciones)
-      const maintenanceTotal = vehicleMaintenances.reduce(
+      const maintenanceTotal = completedMaintenances.reduce(
         (sum, m) => sum + (m.cost || 0),
         0,
       );
@@ -127,8 +137,8 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
       // Calcular estadísticas de servicios, reparaciones y otros
       const stats = [];
 
-      // Mantenimientos (mantenimientos con costo)
-      const servicesWithCost = vehicleMaintenances.filter(
+      // Mantenimientos realizados con costo
+      const servicesWithCost = completedMaintenances.filter(
         (m) => m.cost && m.cost > 0,
       );
       const servicesTotal = servicesWithCost.reduce(
