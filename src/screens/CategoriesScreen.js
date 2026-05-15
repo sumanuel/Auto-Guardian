@@ -443,7 +443,7 @@ const CategoriesScreen = ({ navigation }) => {
 
               <View style={styles.heroInfo}>
                 <Text style={styles.heroEyebrow}>Catálogo técnico</Text>
-                <Text style={styles.headerTitle}>Tipos de Mantenimiento</Text>
+                <Text style={styles.headerTitle}>Tipos de Mantenimientos</Text>
                 <Text style={styles.heroSubtitle}>
                   Organiza servicios frecuentes y define el orden operativo del
                   catálogo técnico.
@@ -1106,7 +1106,7 @@ const styles = StyleSheet.create({
     paddingTop: 0,
   },
   scrollContent: {
-    paddingBottom: vs(100),
+    paddingBottom: vs(132),
   },
   header: {
     flexDirection: "row",

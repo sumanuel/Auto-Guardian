@@ -34,8 +34,12 @@ const StatsScreen = ({ navigation }) => {
   const [totalInvestment, setTotalInvestment] = useState(0);
   const [vehicleStats, setVehicleStats] = useState([]);
 
+  const isCompletedMaintenance = (maintenance) =>
+    Boolean(maintenance.completedAt) ||
+    (!maintenance.nextServiceKm && !maintenance.nextServiceDate);
+
   const calculateInvestment = useCallback(() => {
-    const allMaintenances = getAllMaintenances();
+    const allMaintenances = getAllMaintenances().filter(isCompletedMaintenance);
 
     // Obtener solo los IDs de vehículos existentes
     const existingVehicleIds = vehicles.map((v) => v.id);

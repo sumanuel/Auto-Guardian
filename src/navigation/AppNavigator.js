@@ -91,7 +91,7 @@ const HomeStack = () => {
       <Stack.Screen
         name="AddMaintenance"
         component={AddMaintenanceScreen}
-        options={{ title: "Agregar Mantenimiento" }}
+        options={{ title: "Programar Mantenimiento" }}
       />
       <Stack.Screen
         name="UpdateKm"
