@@ -38,7 +38,7 @@ export const requestNotificationPermissions = async () => {
           vibrationPattern: [0, 250, 250, 250],
           lightColor: "#FF6B00",
         });
-      } catch (channelError) {
+      } catch (_channelError) {
         // No hay problema si falla en Expo Go
       }
     }
@@ -78,7 +78,7 @@ export const scheduleAlertNotifications = async (getAlertSummary) => {
 
     // Cancelar solo las notificaciones de alertas existentes
     const alertNotifications = existingNotifications.filter(
-      (notif) => notif.content.data?.type === "alert-summary"
+      (notif) => notif.content.data?.type === "alert-summary",
     );
 
     for (const notif of alertNotifications) {
@@ -93,7 +93,8 @@ export const scheduleAlertNotifications = async (getAlertSummary) => {
       alertSummary &&
       (alertSummary.totalOverdue > 0 ||
         alertSummary.totalUrgent > 0 ||
-        (alertSummary.totalDocuments || 0) > 0)
+        (alertSummary.totalDocuments || 0) > 0 ||
+        (alertSummary.totalUpdates || 0) > 0)
     ) {
       const now = new Date();
       const currentDay = now.getDay(); // 0 = Domingo, 1 = Lunes, etc.
@@ -118,12 +119,23 @@ export const scheduleAlertNotifications = async (getAlertSummary) => {
         // Crear mensaje de notificación basado en las alertas
         let title = "🚨 Alertas de Auto Guardian";
         let body = "Tienes mantenimientos y documentos que requieren atención.";
+        const totalUpdates = alertSummary.totalUpdates || 0;
 
         const totalAlerts =
           (alertSummary.totalOverdue || 0) +
           (alertSummary.totalUrgent || 0) +
-          (alertSummary.totalDocuments || 0);
-        if (totalAlerts > 0) {
+          (alertSummary.totalDocuments || 0) +
+          totalUpdates;
+        if (
+          totalUpdates > 0 &&
+          (alertSummary.totalOverdue || 0) === 0 &&
+          (alertSummary.totalUrgent || 0) === 0 &&
+          (alertSummary.totalDocuments || 0) === 0
+        ) {
+          title = "Nueva versión de Auto-Guardian";
+          body =
+            "Hay una actualización disponible para instalar desde Play Store.";
+        } else if (totalAlerts > 0) {
           body = `Tienes ${totalAlerts} alerta${
             totalAlerts > 1 ? "s" : ""
           } pendiente${totalAlerts > 1 ? "s" : ""} en Auto Guardian.`;
@@ -151,11 +163,11 @@ export const scheduleAlertNotifications = async (getAlertSummary) => {
       }
 
       console.log(
-        "✅ Notificaciones de alertas programadas para lunes y miércoles"
+        "✅ Notificaciones de alertas programadas para lunes y miércoles",
       );
     } else {
       console.log(
-        "ℹ️ No hay alertas pendientes, no se programan notificaciones"
+        "ℹ️ No hay alertas pendientes, no se programan notificaciones",
       );
     }
   } catch (error) {
@@ -166,7 +178,7 @@ export const scheduleAlertNotifications = async (getAlertSummary) => {
 // Verificar mantenimientos pendientes y enviar alertas
 export const checkAndNotifyPendingMaintenances = async (
   vehicles,
-  getUpcomingMaintenances
+  getUpcomingMaintenances,
 ) => {
   try {
     let totalOverdue = 0;
@@ -176,7 +188,7 @@ export const checkAndNotifyPendingMaintenances = async (
     for (const vehicle of vehicles) {
       const upcomingMaintenances = getUpcomingMaintenances(
         vehicle.id,
-        vehicle.currentKm
+        vehicle.currentKm,
       );
 
       for (const maintenance of upcomingMaintenances) {
@@ -209,7 +221,7 @@ export const checkAndNotifyPendingMaintenances = async (
         if (maintenance.nextServiceDate) {
           const daysRemaining = Math.floor(
             (new Date(maintenance.nextServiceDate) - now) /
-              (1000 * 60 * 60 * 24)
+              (1000 * 60 * 60 * 24),
           );
 
           if (daysRemaining < 0) {
@@ -248,7 +260,7 @@ export const checkAndNotifyPendingMaintenances = async (
         `Tienes ${totalOverdue} mantenimiento${
           totalOverdue > 1 ? "s" : ""
         } vencido${totalOverdue > 1 ? "s" : ""}. ¡Atención urgente requerida!`,
-        { type: "overdue", count: totalOverdue }
+        { type: "overdue", count: totalOverdue },
       );
     } else if (totalUrgent > 0) {
       await sendImmediateNotification(
@@ -256,7 +268,7 @@ export const checkAndNotifyPendingMaintenances = async (
         `Tienes ${totalUrgent} mantenimiento${
           totalUrgent > 1 ? "s" : ""
         } próximo${totalUrgent > 1 ? "s" : ""}. Programa tu cita pronto.`,
-        { type: "urgent", count: totalUrgent }
+        { type: "urgent", count: totalUrgent },
       );
     }
 
@@ -334,7 +346,7 @@ export const scheduleAllNotifications = async (getAllNotifications) => {
     }
 
     // Schedule one random notification per group, weekly recurring
-    for (const [key, notifications] of Object.entries(groupedNotifications)) {
+    for (const [, notifications] of Object.entries(groupedNotifications)) {
       const randomNotification =
         notifications[Math.floor(Math.random() * notifications.length)];
       const [hours, minutes] = randomNotification.time.split(":").map(Number);

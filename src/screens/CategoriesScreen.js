@@ -1108,10 +1108,10 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingTop: 0,
-    paddingBottom: vs(100),
+    paddingBottom: vs(40),
   },
   listFooterSpacer: {
-    height: vs(36),
+    height: iconSize.xl + vs(180),
   },
   header: {
     flexDirection: "row",

@@ -22,14 +22,10 @@ import {
   vs,
 } from "../utils/responsive";
 
-const SummaryHero = ({ summary, versionAlertCount }) => {
-  const overdueCount =
-    summary?.alerts?.filter((item) => item.type === "overdue").length || 0;
-  const urgentCount =
-    summary?.alerts?.filter((item) => item.type === "urgent").length || 0;
+const SummaryHero = ({ summary }) => {
   const totalDocuments = summary?.totalDocuments || 0;
-  const totalAlerts =
-    overdueCount + urgentCount + totalDocuments + versionAlertCount;
+  const totalUpdates = summary?.totalUpdates || 0;
+  const totalAlerts = summary?.totalAlerts || 0;
 
   return (
     <LinearGradient
@@ -70,14 +66,16 @@ const SummaryHero = ({ summary, versionAlertCount }) => {
                   {totalDocuments} documentos
                 </Text>
               </View>
-              {versionAlertCount > 0 && (
+              {totalUpdates > 0 && (
                 <View style={styles.heroMetaPill}>
                   <Ionicons
                     name="download-outline"
                     size={iconSize.xs}
                     color="#D6E7FF"
                   />
-                  <Text style={styles.heroMetaText}>1 actualización</Text>
+                  <Text style={styles.heroMetaText}>
+                    {totalUpdates} actualización{totalUpdates !== 1 ? "es" : ""}
+                  </Text>
                 </View>
               )}
             </View>
@@ -88,12 +86,15 @@ const SummaryHero = ({ summary, versionAlertCount }) => {
   );
 };
 
-const UpdateSection = () => {
+const UpdateSection = ({ summary }) => {
   const { colors } = useTheme();
-  const { storeUpdateAvailable, storeLatestVersion, openStoreUpdate } =
-    useAppSettings();
+  const { openStoreUpdate } = useAppSettings();
+  const updateAlerts = summary?.alerts?.filter(
+    (item) => item.type === "app-update",
+  );
+  const latestUpdate = updateAlerts?.[0];
 
-  if (!storeUpdateAvailable) {
+  if (!latestUpdate) {
     return null;
   }
 
@@ -137,8 +138,8 @@ const UpdateSection = () => {
               Actualización lista para instalar
             </Text>
             <Text style={[styles.alertReason, { color: colors.textSecondary }]}>
-              {storeLatestVersion
-                ? `Ya puedes actualizar a la versión ${storeLatestVersion} desde Play Store.`
+              {latestUpdate.maintenance
+                ? `Ya puedes actualizar a ${latestUpdate.maintenance} desde Play Store.`
                 : "Ya puedes actualizar Auto-Guardian desde Play Store."}
             </Text>
           </View>
@@ -457,7 +458,6 @@ const DocumentsSection = () => {
 
 const AlertSummaryScreen = ({ route }) => {
   const { colors } = useTheme();
-  const { storeUpdateAvailable } = useAppSettings();
   const { summary } = route.params;
 
   return (
@@ -468,12 +468,9 @@ const AlertSummaryScreen = ({ route }) => {
         showsVerticalScrollIndicator={false}
       >
         <View style={[styles.header, { backgroundColor: colors.background }]}>
-          <SummaryHero
-            summary={summary}
-            versionAlertCount={storeUpdateAvailable ? 1 : 0}
-          />
+          <SummaryHero summary={summary} />
         </View>
-        <UpdateSection />
+        <UpdateSection summary={summary} />
         <VehiclesSection summary={summary} />
         <DocumentsSection />
       </ScrollView>
