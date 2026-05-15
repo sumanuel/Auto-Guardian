@@ -15,6 +15,7 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import Button from "../components/common/Button";
 import VehicleCard from "../components/vehicles/VehicleCard";
 import { useApp } from "../context/AppContext";
+import { useAppSettings } from "../context/AppSettingsContext";
 import { useTheme } from "../context/ThemeContext";
 import { COLORS } from "../data/constants";
 import { useDialog } from "../hooks/useDialog";
@@ -100,6 +101,7 @@ const HomeScreen = ({ navigation }) => {
     getUpcomingMaintenances,
     checkPendingMaintenances,
   } = useApp();
+  const { storeUpdateAvailable } = useAppSettings();
   const { DialogComponent, showDialog } = useDialog();
   const { colors } = useTheme();
   const [refreshing, setRefreshing] = React.useState(false);
@@ -110,7 +112,11 @@ const HomeScreen = ({ navigation }) => {
   const overdueCount = alertSummary?.totalOverdue || 0;
   const urgentCount = alertSummary?.totalUrgent || 0;
   const expiringDocumentsCount = alertSummary?.totalDocuments || 0;
-  const totalAlerts = overdueCount + urgentCount + expiringDocumentsCount;
+  const totalAlerts =
+    overdueCount +
+    urgentCount +
+    expiringDocumentsCount +
+    (storeUpdateAvailable ? 1 : 0);
   const bellRotate = bellAnimation.interpolate({
     inputRange: [0, 0.2, 0.4, 0.6, 0.8, 1],
     outputRange: ["0deg", "18deg", "-16deg", "13deg", "-8deg", "0deg"],

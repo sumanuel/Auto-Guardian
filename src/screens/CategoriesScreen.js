@@ -477,6 +477,7 @@ const CategoriesScreen = ({ navigation }) => {
           renderItem={renderCategoryItem}
           onDragEnd={handleDragEnd}
           contentContainerStyle={styles.scrollContent}
+          ListFooterComponent={<View style={styles.listFooterSpacer} />}
           showsVerticalScrollIndicator={false}
         />
 
@@ -1106,7 +1107,11 @@ const styles = StyleSheet.create({
     paddingTop: 0,
   },
   scrollContent: {
-    paddingBottom: vs(132),
+    paddingTop: 0,
+    paddingBottom: vs(100),
+  },
+  listFooterSpacer: {
+    height: vs(36),
   },
   header: {
     flexDirection: "row",
