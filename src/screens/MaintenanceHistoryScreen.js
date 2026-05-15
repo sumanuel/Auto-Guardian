@@ -789,7 +789,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
                 { color: activeTab === "inProgress" ? "#fff" : colors.text },
               ]}
             >
-              En curso
+              Programados
             </Text>
           </TouchableOpacity>
           <TouchableOpacity

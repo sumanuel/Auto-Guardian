@@ -1,8 +1,15 @@
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useCallback, useEffect, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { useApp } from "../context/AppContext";
+import { useAppSettings } from "../context/AppSettingsContext";
 import { useTheme } from "../context/ThemeContext";
 import { COLORS } from "../data/constants";
 import {
@@ -16,12 +23,9 @@ import {
 } from "../utils/responsive";
 
 const SummaryHero = ({ summary }) => {
-  const overdueCount =
-    summary?.alerts?.filter((item) => item.type === "overdue").length || 0;
-  const urgentCount =
-    summary?.alerts?.filter((item) => item.type === "urgent").length || 0;
   const totalDocuments = summary?.totalDocuments || 0;
-  const totalAlerts = overdueCount + urgentCount;
+  const totalUpdates = summary?.totalUpdates || 0;
+  const totalAlerts = summary?.totalAlerts || 0;
 
   return (
     <LinearGradient
@@ -62,11 +66,95 @@ const SummaryHero = ({ summary }) => {
                   {totalDocuments} documentos
                 </Text>
               </View>
+              {totalUpdates > 0 && (
+                <View style={styles.heroMetaPill}>
+                  <Ionicons
+                    name="download-outline"
+                    size={iconSize.xs}
+                    color="#D6E7FF"
+                  />
+                  <Text style={styles.heroMetaText}>
+                    {totalUpdates} actualización{totalUpdates !== 1 ? "es" : ""}
+                  </Text>
+                </View>
+              )}
             </View>
           </View>
         </View>
       </View>
     </LinearGradient>
+  );
+};
+
+const UpdateSection = ({ summary }) => {
+  const { colors } = useTheme();
+  const { openStoreUpdate } = useAppSettings();
+  const updateAlerts = summary?.alerts?.filter(
+    (item) => item.type === "app-update",
+  );
+  const latestUpdate = updateAlerts?.[0];
+
+  if (!latestUpdate) {
+    return null;
+  }
+
+  return (
+    <View style={styles.sectionBlock}>
+      <View style={styles.sectionLead}>
+        <Text style={[styles.sectionEyebrow, { color: colors.primaryDark }]}>
+          Aplicación
+        </Text>
+        <Text style={[styles.sectionHeading, { color: colors.text }]}>
+          Nueva versión disponible
+        </Text>
+      </View>
+
+      <View
+        style={[
+          styles.updateCard,
+          {
+            backgroundColor: colors.cardBackground,
+            borderColor: colors.border,
+            shadowColor: colors.shadow,
+          },
+        ]}
+      >
+        <View style={styles.updateHeader}>
+          <View
+            style={[
+              styles.updateIconWrap,
+              { backgroundColor: "rgba(25,118,210,0.14)" },
+            ]}
+          >
+            <Ionicons
+              name="logo-google-playstore"
+              size={iconSize.md}
+              color={colors.primary}
+            />
+          </View>
+
+          <View style={styles.updateContent}>
+            <Text style={[styles.alertVehicle, { color: colors.text }]}>
+              Actualización lista para instalar
+            </Text>
+            <Text style={[styles.alertReason, { color: colors.textSecondary }]}>
+              {latestUpdate.maintenance
+                ? `Ya puedes actualizar a ${latestUpdate.maintenance} desde Play Store.`
+                : "Ya puedes actualizar Auto-Guardian desde Play Store."}
+            </Text>
+          </View>
+        </View>
+
+        <TouchableOpacity
+          style={[styles.updateButton, { backgroundColor: colors.primaryDark }]}
+          onPress={openStoreUpdate}
+          activeOpacity={0.85}
+        >
+          <Ionicons name="download-outline" size={iconSize.sm} color="#fff" />
+          <Text style={styles.updateButtonText}>Actualizar ahora</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 };
 
@@ -382,6 +470,7 @@ const AlertSummaryScreen = ({ route }) => {
         <View style={[styles.header, { backgroundColor: colors.background }]}>
           <SummaryHero summary={summary} />
         </View>
+        <UpdateSection summary={summary} />
         <VehiclesSection summary={summary} />
         <DocumentsSection />
       </ScrollView>
@@ -544,6 +633,44 @@ const styles = StyleSheet.create({
   },
   section: {
     marginBottom: spacing.xl,
+  },
+  updateCard: {
+    borderRadius: borderRadius.md,
+    borderWidth: s(1),
+    padding: spacing.md,
+    elevation: s(2),
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.12,
+    shadowRadius: s(3),
+  },
+  updateHeader: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: spacing.md,
+    marginBottom: spacing.md,
+  },
+  updateIconWrap: {
+    width: s(42),
+    height: s(42),
+    borderRadius: s(21),
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  updateContent: {
+    flex: 1,
+  },
+  updateButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: spacing.xs,
+    paddingVertical: spacing.sm,
+    borderRadius: borderRadius.sm,
+  },
+  updateButtonText: {
+    color: "#fff",
+    fontSize: rf(14),
+    fontWeight: "700",
   },
   sectionHeader: {
     flexDirection: "row",

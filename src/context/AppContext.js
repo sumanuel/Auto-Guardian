@@ -8,10 +8,12 @@ import * as repairService from "../services/repairService";
 import * as vehicleDocumentService from "../services/vehicleDocumentService";
 import * as vehicleService from "../services/vehicleService";
 import { ensurePersistentVehiclePhotoAsync } from "../utils/vehiclePhotoStorage";
+import { useAppSettings } from "./AppSettingsContext";
 
 const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
+  const { storeUpdateAvailable, storeLatestVersion } = useAppSettings();
   const [vehicles, setVehicles] = useState([]);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -325,6 +327,7 @@ export const AppProvider = ({ children }) => {
       let totalOverdue = 0;
       let totalUrgent = 0;
       let totalDocuments = 0;
+      let totalUpdates = 0;
       const alerts = [];
 
       // Contar alertas de mantenimientos
@@ -414,11 +417,24 @@ export const AppProvider = ({ children }) => {
         );
       }
 
+      if (storeUpdateAvailable) {
+        totalUpdates = 1;
+        alerts.push({
+          type: "app-update",
+          vehicle: "Auto-Guardian",
+          maintenance: storeLatestVersion
+            ? `Versión ${storeLatestVersion}`
+            : "Nueva versión disponible",
+          reason: "Hay una actualización disponible para instalar.",
+        });
+      }
+
       return {
         totalOverdue,
         totalUrgent,
         totalDocuments,
-        totalAlerts: totalOverdue + totalUrgent + totalDocuments,
+        totalUpdates,
+        totalAlerts: totalOverdue + totalUrgent + totalDocuments + totalUpdates,
         alerts,
       };
     } catch (error) {
@@ -427,6 +443,7 @@ export const AppProvider = ({ children }) => {
         totalOverdue: 0,
         totalUrgent: 0,
         totalDocuments: 0,
+        totalUpdates: 0,
         totalAlerts: 0,
         alerts: [],
       };
@@ -461,6 +478,7 @@ export const AppProvider = ({ children }) => {
       let totalOverdue = 0;
       let totalUrgent = 0;
       let totalDocuments = 0;
+      let totalUpdates = 0;
       const alerts = [];
       const processedMaintenances = new Set();
 
@@ -570,15 +588,36 @@ export const AppProvider = ({ children }) => {
         totalDocuments = 0;
       }
 
+      if (storeUpdateAvailable) {
+        totalUpdates = 1;
+        alerts.push({
+          type: "app-update",
+          vehicle: "Auto-Guardian",
+          maintenance: storeLatestVersion
+            ? `Versión ${storeLatestVersion}`
+            : "Nueva versión disponible",
+          reason: "Hay una actualización disponible para instalar.",
+        });
+      }
+
       return {
         totalOverdue,
         totalUrgent,
         totalDocuments,
+        totalUpdates,
+        totalAlerts: totalOverdue + totalUrgent + totalDocuments + totalUpdates,
         alerts,
       };
     } catch (error) {
       console.error("Error verificando mantenimientos:", error);
-      return { totalOverdue: 0, totalUrgent: 0, totalDocuments: 0, alerts: [] };
+      return {
+        totalOverdue: 0,
+        totalUrgent: 0,
+        totalDocuments: 0,
+        totalUpdates: 0,
+        totalAlerts: 0,
+        alerts: [],
+      };
     }
   };
 

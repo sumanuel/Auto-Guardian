@@ -436,9 +436,9 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
                   style={styles.infoIcon}
                   onPress={() =>
                     showDialog({
-                      title: "Registro de Mantenimiento",
+                      title: "Programar Mantenimiento",
                       message:
-                        "Aquí puedes registrar mantenimientos realizados. Elige un tipo de mantenimiento de las opciones predefinidas o escribe uno personalizado. Programa el próximo servicio por fecha (útil para servicios periódicos como cambio de aceite) o por kilometraje (ideal para servicios basados en uso).",
+                        "Aquí puedes programar mantenimientos para tus vehículos. Elige un tipo de mantenimiento de las opciones predefinidas o escribe uno personalizado. Programa el próximo servicio por fecha (útil para servicios periódicos como cambio de aceite) o por kilometraje (ideal para servicios basados en uso).",
                       type: "info",
                     })
                   }
@@ -854,7 +854,7 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
             title={
               maintenanceData?.id
                 ? "Actualizar Mantenimiento"
-                : "Guardar Mantenimiento"
+                : "Programar Mantenimiento"
             }
             onPress={handleSubmit}
             loading={loading}

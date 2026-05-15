@@ -77,7 +77,7 @@ const QuickActionCard = ({ icon, label, color, onPress, colors }) => (
       style={[styles.quickActionCaption, { color: colors.textSecondary }]}
       numberOfLines={1}
     >
-      Registrar servicio
+      Programar servicio
     </Text>
   </TouchableOpacity>
 );
@@ -860,7 +860,7 @@ const VehicleDetailScreen = ({ navigation, route }) => {
                   }
                 >
                   <Text style={styles.emptyStateButtonText}>
-                    Registrar mantenimiento
+                    Programar mantenimiento
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -895,7 +895,7 @@ const VehicleDetailScreen = ({ navigation, route }) => {
         >
           <View style={styles.actionDockContent}>
             <Text style={[styles.actionDockTitle, { color: colors.text }]}>
-              Registrar mantenimiento
+              Programar mantenimiento
             </Text>
             <Text
               style={[styles.actionDockText, { color: colors.textSecondary }]}
@@ -905,7 +905,7 @@ const VehicleDetailScreen = ({ navigation, route }) => {
             </Text>
           </View>
           <Button
-            title="Agregar"
+            title="Programar"
             onPress={() => navigation.navigate("AddMaintenance", { vehicleId })}
             style={styles.actionDockButton}
           />

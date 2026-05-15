@@ -9,11 +9,11 @@ import {
   useState,
 } from "react";
 import { Linking, Platform } from "react-native";
+import { sendImmediateNotification } from "../services/notificationService";
 
 let Updates;
 try {
   // expo-updates es opcional; si no está instalado, este import fallará.
-  // eslint-disable-next-line global-require
   Updates = require("expo-updates");
 } catch (_error) {
   Updates = null;
@@ -21,6 +21,7 @@ try {
 
 const STORAGE_KEYS = {
   currencySymbol: "@currency_symbol",
+  storeUpdateNotifiedVersion: "@store_update_notified_version",
 };
 
 const DEFAULT_STORE_CHECK_TIMEOUT_MS = 7000;
@@ -122,6 +123,40 @@ export const AppSettingsProvider = ({ children }) => {
     }
   }, []);
 
+  const notifyStoreUpdateIfNeeded = useCallback(async (latestVersion, url) => {
+    const normalizedVersion = normalizeVersionString(latestVersion);
+    if (!normalizedVersion) return;
+
+    try {
+      const lastNotifiedVersion = await AsyncStorage.getItem(
+        STORAGE_KEYS.storeUpdateNotifiedVersion,
+      );
+      if (lastNotifiedVersion === normalizedVersion) {
+        return;
+      }
+
+      await sendImmediateNotification(
+        "Nueva versión disponible",
+        `Auto-Guardian ${normalizedVersion} ya está disponible para actualizar.`,
+        {
+          type: "store-update",
+          version: normalizedVersion,
+          url: normalizeVersionString(url) || null,
+        },
+      );
+
+      await AsyncStorage.setItem(
+        STORAGE_KEYS.storeUpdateNotifiedVersion,
+        normalizedVersion,
+      );
+    } catch (error) {
+      console.log(
+        "No se pudo registrar la notificación de update:",
+        error?.message || error,
+      );
+    }
+  }, []);
+
   const checkForUpdate = useCallback(async () => {
     // Solo detecta actualizaciones OTA (expo-updates), no updates de Play Store/App Store.
     if (__DEV__) return;
@@ -185,13 +220,16 @@ export const AppSettingsProvider = ({ children }) => {
 
       const isNewer = compareVersions(latest, currentVersion) > 0;
       setStoreUpdateAvailable(Boolean(isNewer));
+      if (isNewer) {
+        await notifyStoreUpdateIfNeeded(latest, url);
+      }
     } catch (error) {
       // No debe romper la app.
       console.log("Store update check skipped:", error?.message || error);
     } finally {
       setIsCheckingStoreUpdate(false);
     }
-  }, []);
+  }, [notifyStoreUpdateIfNeeded]);
 
   const openStoreUpdate = useCallback(async () => {
     const config = getStoreUpdateConfig();

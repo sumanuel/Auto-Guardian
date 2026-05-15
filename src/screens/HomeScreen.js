@@ -110,7 +110,9 @@ const HomeScreen = ({ navigation }) => {
   const overdueCount = alertSummary?.totalOverdue || 0;
   const urgentCount = alertSummary?.totalUrgent || 0;
   const expiringDocumentsCount = alertSummary?.totalDocuments || 0;
-  const totalAlerts = overdueCount + urgentCount + expiringDocumentsCount;
+  const updateAlertsCount = alertSummary?.totalUpdates || 0;
+  const totalAlerts =
+    overdueCount + urgentCount + expiringDocumentsCount + updateAlertsCount;
   const bellRotate = bellAnimation.interpolate({
     inputRange: [0, 0.2, 0.4, 0.6, 0.8, 1],
     outputRange: ["0deg", "18deg", "-16deg", "13deg", "-8deg", "0deg"],

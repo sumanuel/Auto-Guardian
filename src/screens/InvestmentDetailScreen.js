@@ -75,9 +75,13 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
       let vehicleMaintenances = allMaintenances
         .filter((m) => m.vehicleId === vehicleId)
         .sort((a, b) => new Date(b.date) - new Date(a.date));
-      let completedMaintenances = vehicleMaintenances.filter(
-        isCompletedMaintenance,
-      );
+      let completedMaintenances = vehicleMaintenances
+        .filter(isCompletedMaintenance)
+        .sort(
+          (a, b) =>
+            new Date(b.completedAt || b.date) -
+            new Date(a.completedAt || a.date),
+        );
 
       // Obtener movimientos particulares
       let vehicleExpenses = getExpensesByVehicle(vehicleId);
@@ -115,7 +119,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
         vehicleRepairs = vehicleRepairs.filter((r) => isDateInRange(r.date));
       }
 
-      setMaintenances(vehicleMaintenances);
+      setMaintenances(completedMaintenances);
       setExpenses(vehicleExpenses);
       setRepairs(vehicleRepairs);
 
@@ -637,7 +641,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                   <Text
                     style={[styles.emptyText, { color: colors.textSecondary }]}
                   >
-                    No hay mantenimientos registrados
+                    No hay mantenimientos realizados
                   </Text>
                 </View>
               ) : (
