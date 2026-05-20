@@ -140,7 +140,7 @@ const seedMaintenanceTypes = () => {
           type.icon,
         ],
       );
-    } catch (error) {
+    } catch (_error) {
       // Ignorar si ya existe
     }
   });
@@ -498,6 +498,204 @@ export const cleanOrphanedRecords = () => {
     console.error("Error limpiando registros huérfanos:", error);
     return 0;
   }
+};
+
+const SNAPSHOT_TABLES = [
+  {
+    name: "vehicles",
+    columns: [
+      "id",
+      "name",
+      "brand",
+      "model",
+      "year",
+      "color",
+      "plate",
+      "vin",
+      "currentKm",
+      "photo",
+      "createdAt",
+    ],
+    orderBy: "id ASC",
+  },
+  {
+    name: "maintenances",
+    columns: [
+      "id",
+      "vehicleId",
+      "type",
+      "category",
+      "date",
+      "km",
+      "cost",
+      "provider",
+      "notes",
+      "photo",
+      "nextServiceKm",
+      "nextServiceDate",
+      "createdAt",
+      "completedAt",
+    ],
+    orderBy: "id ASC",
+  },
+  {
+    name: "expenses",
+    columns: [
+      "id",
+      "vehicleId",
+      "description",
+      "category",
+      "date",
+      "cost",
+      "notes",
+      "photo",
+      "createdAt",
+    ],
+    orderBy: "id ASC",
+  },
+  {
+    name: "repairs",
+    columns: [
+      "id",
+      "vehicleId",
+      "description",
+      "category",
+      "date",
+      "cost",
+      "workshop",
+      "notes",
+      "photo",
+      "createdAt",
+    ],
+    orderBy: "id ASC",
+  },
+  {
+    name: "maintenance_types",
+    columns: [
+      "id",
+      "name",
+      "category",
+      "defaultIntervalKm",
+      "defaultIntervalTime",
+      "defaultIntervalUnit",
+      "icon",
+      "order",
+    ],
+    orderBy: "`order` ASC, id ASC",
+  },
+  {
+    name: "document_types",
+    columns: ["id", "code", "type_document", "description"],
+    orderBy: "code ASC, id ASC",
+  },
+  {
+    name: "vehicle_documents",
+    columns: [
+      "id",
+      "vehicle_id",
+      "document_type_id",
+      "issue_date",
+      "expiry_date",
+      "created_at",
+      "updated_at",
+    ],
+    orderBy: "id ASC",
+  },
+  {
+    name: "contacts",
+    columns: ["id", "name", "phone", "email", "notes", "createdAt"],
+    orderBy: "id ASC",
+  },
+];
+
+const SNAPSHOT_CLEAR_ORDER = [
+  "vehicle_documents",
+  "maintenances",
+  "expenses",
+  "repairs",
+  "contacts",
+  "document_types",
+  "maintenance_types",
+  "vehicles",
+];
+
+const getTableConfig = (tableName) =>
+  SNAPSHOT_TABLES.find((table) => table.name === tableName);
+
+export const exportDatabaseSnapshot = () => {
+  try {
+    const tables = SNAPSHOT_TABLES.reduce((accumulator, table) => {
+      accumulator[table.name] = db.getAllSync(
+        `SELECT * FROM ${table.name} ORDER BY ${table.orderBy}`,
+      );
+      return accumulator;
+    }, {});
+
+    return {
+      exportedAt: new Date().toISOString(),
+      schemaVersion: 1,
+      tables,
+    };
+  } catch (error) {
+    console.error("Error exportando snapshot de SQLite:", error);
+    throw error;
+  }
+};
+
+export const importDatabaseSnapshot = (snapshot) => {
+  if (!snapshot?.tables || typeof snapshot.tables !== "object") {
+    throw new Error("Snapshot inválido");
+  }
+
+  try {
+    db.execSync("PRAGMA foreign_keys = OFF;");
+    db.execSync("BEGIN TRANSACTION;");
+
+    SNAPSHOT_CLEAR_ORDER.forEach((tableName) => {
+      db.runSync(`DELETE FROM ${tableName}`);
+    });
+
+    SNAPSHOT_TABLES.forEach((table) => {
+      const rows = Array.isArray(snapshot.tables[table.name])
+        ? snapshot.tables[table.name]
+        : [];
+
+      rows.forEach((row) => {
+        const placeholders = table.columns.map(() => "?").join(", ");
+        const values = table.columns.map((column) => row?.[column] ?? null);
+        db.runSync(
+          `INSERT INTO ${table.name} (${table.columns.join(", ")}) VALUES (${placeholders})`,
+          values,
+        );
+      });
+    });
+
+    db.execSync("COMMIT;");
+    db.execSync("PRAGMA foreign_keys = ON;");
+    return true;
+  } catch (error) {
+    db.execSync("ROLLBACK;");
+    db.execSync("PRAGMA foreign_keys = ON;");
+    console.error("Error importando snapshot de SQLite:", error);
+    throw error;
+  }
+};
+
+export const hasMeaningfulSnapshotData = (snapshot) => {
+  if (!snapshot?.tables) return false;
+
+  return [
+    "vehicles",
+    "maintenances",
+    "expenses",
+    "repairs",
+    "vehicle_documents",
+    "contacts",
+  ].some((tableName) => {
+    const table = getTableConfig(tableName);
+    const rows = snapshot.tables?.[tableName];
+    return Boolean(table && Array.isArray(rows) && rows.length > 0);
+  });
 };
 
 export default db;

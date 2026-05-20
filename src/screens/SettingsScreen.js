@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import {
+  Alert,
   ScrollView,
   StyleSheet,
   Switch,
@@ -8,11 +9,33 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { borderRadius, iconSize, rf, s, spacing } from "../utils/responsive";
 
 const SettingsScreen = ({ navigation }) => {
   const { isDarkMode, toggleTheme, colors } = useTheme();
+  const { logout, user } = useAuth();
+
+  const handleLogout = () => {
+    Alert.alert(
+      "Cerrar sesión",
+      "Vas a salir de tu cuenta en este dispositivo.",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        {
+          text: "Salir",
+          style: "destructive",
+          onPress: () => {
+            logout();
+          },
+        },
+      ],
+    );
+  };
 
   const settingsOptions = [
     {
@@ -155,6 +178,48 @@ const SettingsScreen = ({ navigation }) => {
             </TouchableOpacity>
           ))}
         </View>
+
+        <View
+          style={[
+            styles.accountCard,
+            {
+              backgroundColor: colors.cardBackground,
+              borderColor: colors.border,
+            },
+          ]}
+        >
+          <View style={styles.accountHeader}>
+            <View
+              style={[
+                styles.accountIcon,
+                { backgroundColor: "rgba(216, 57, 57, 0.12)" },
+              ]}
+            >
+              <Ionicons
+                name="log-out-outline"
+                size={iconSize.md}
+                color="#D83939"
+              />
+            </View>
+            <View style={styles.accountCopy}>
+              <Text style={[styles.accountTitle, { color: colors.text }]}>
+                Cuenta activa
+              </Text>
+              <Text
+                style={[
+                  styles.accountSubtitle,
+                  { color: colors.textSecondary },
+                ]}
+              >
+                {user?.email || "Sesión actual"}
+              </Text>
+            </View>
+          </View>
+
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <Text style={styles.logoutButtonText}>Cerrar sesión</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </View>
   );
@@ -220,6 +285,36 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.md,
     overflow: "hidden",
   },
+  accountCard: {
+    marginTop: spacing.lg,
+    borderRadius: borderRadius.md,
+    borderWidth: s(1),
+    padding: spacing.md,
+    gap: spacing.md,
+  },
+  accountHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+  },
+  accountIcon: {
+    width: s(44),
+    height: s(44),
+    borderRadius: borderRadius.md,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  accountCopy: {
+    flex: 1,
+    gap: spacing.xxs,
+  },
+  accountTitle: {
+    fontSize: rf(16),
+    fontWeight: "700",
+  },
+  accountSubtitle: {
+    fontSize: rf(13),
+  },
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
@@ -244,6 +339,18 @@ const styles = StyleSheet.create({
   },
   comingSoonBadgeText: {
     fontSize: rf(12),
+  },
+  logoutButton: {
+    borderRadius: borderRadius.md,
+    backgroundColor: "#D83939",
+    paddingVertical: spacing.sm,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  logoutButtonText: {
+    color: "#FFFFFF",
+    fontSize: rf(15),
+    fontWeight: "700",
   },
 });
 

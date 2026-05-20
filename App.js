@@ -7,6 +7,7 @@ import {
   AppSettingsProvider,
   useAppSettings,
 } from "./src/context/AppSettingsContext";
+import { AuthProvider, useAuth } from "./src/context/AuthContext";
 import { ThemeProvider } from "./src/context/ThemeContext";
 import {
   getAllNotifications,
@@ -14,6 +15,7 @@ import {
   insertDefaultNotifications,
 } from "./src/database/notifications";
 import AppNavigator from "./src/navigation/AppNavigator";
+import AuthNavigator from "./src/navigation/AuthNavigator";
 import CurrencySetupScreen from "./src/screens/CurrencySetupScreen";
 import OnboardingScreen from "./src/screens/OnboardingScreen";
 import { initDatabase as initMainDatabase } from "./src/services/database";
@@ -28,6 +30,7 @@ function AppBootstrap() {
     checkForUpdate,
     checkForStoreUpdate,
   } = useAppSettings();
+  const { isLoaded: authLoaded, isAuthenticated } = useAuth();
 
   useEffect(() => {
     initializeApp();
@@ -77,6 +80,14 @@ function AppBootstrap() {
     return null;
   }
 
+  if (!authLoaded) {
+    return null;
+  }
+
+  if (!isAuthenticated) {
+    return <AuthNavigator />;
+  }
+
   // Selección inicial de moneda (solo primera vez)
   if (!currencySymbol) {
     return <CurrencySetupScreen />;
@@ -99,7 +110,9 @@ export default function App() {
     <SafeAreaProvider>
       <ThemeProvider>
         <AppSettingsProvider>
-          <AppBootstrap />
+          <AuthProvider>
+            <AppBootstrap />
+          </AuthProvider>
         </AppSettingsProvider>
       </ThemeProvider>
     </SafeAreaProvider>

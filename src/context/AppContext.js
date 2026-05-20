@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 // import * as contactService from "../services/contactService";
+import { syncCurrentSnapshot } from "../services/cloudSyncService";
 import { cleanOrphanedRecords, initDatabase } from "../services/database";
 import * as expenseService from "../services/expenseService";
 import * as maintenanceService from "../services/maintenanceService";
@@ -9,11 +10,13 @@ import * as vehicleDocumentService from "../services/vehicleDocumentService";
 import * as vehicleService from "../services/vehicleService";
 import { ensurePersistentVehiclePhotoAsync } from "../utils/vehiclePhotoStorage";
 import { useAppSettings } from "./AppSettingsContext";
+import { useAuth } from "./AuthContext";
 
 const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
   const { storeUpdateAvailable, storeLatestVersion } = useAppSettings();
+  const { token } = useAuth();
   const [vehicles, setVehicles] = useState([]);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -86,10 +89,23 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+  const syncRemoteBackup = async () => {
+    if (!token) {
+      return;
+    }
+
+    try {
+      await syncCurrentSnapshot(token);
+    } catch (error) {
+      console.error("Error sincronizando respaldo remoto:", error);
+    }
+  };
+
   const addVehicle = async (vehicleData) => {
     try {
       const id = vehicleService.createVehicle(vehicleData);
       await loadVehicles();
+      await syncRemoteBackup();
       return id;
     } catch (error) {
       console.error("Error agregando vehículo:", error);
@@ -101,6 +117,7 @@ export const AppProvider = ({ children }) => {
     try {
       await vehicleService.updateVehicle(id, vehicleData);
       await loadVehicles();
+      await syncRemoteBackup();
       if (selectedVehicle?.id === id) {
         setSelectedVehicle(vehicleService.getVehicleById(id));
       }
@@ -114,6 +131,7 @@ export const AppProvider = ({ children }) => {
     try {
       await vehicleService.deleteVehicle(id);
       await loadVehicles();
+      await syncRemoteBackup();
       if (selectedVehicle?.id === id) {
         setSelectedVehicle(null);
       }
@@ -127,6 +145,7 @@ export const AppProvider = ({ children }) => {
     try {
       await vehicleService.updateVehicleKm(id, km);
       await loadVehicles(); // Esto actualizará el badge
+      await syncRemoteBackup();
       if (selectedVehicle?.id === id) {
         setSelectedVehicle(vehicleService.getVehicleById(id));
       }
@@ -177,6 +196,7 @@ export const AppProvider = ({ children }) => {
     try {
       const id = maintenanceService.createMaintenance(maintenanceData);
       await loadVehicles(); // Esto actualizará el badge
+      await syncRemoteBackup();
       return id;
     } catch (error) {
       console.error("Error agregando mantenimiento:", error);
@@ -187,6 +207,7 @@ export const AppProvider = ({ children }) => {
     try {
       await maintenanceService.updateMaintenance(id, maintenanceData);
       await loadVehicles(); // Esto actualizará el badge
+      await syncRemoteBackup();
     } catch (error) {
       console.error("Error actualizando mantenimiento:", error);
       throw error;
@@ -197,6 +218,7 @@ export const AppProvider = ({ children }) => {
     try {
       await maintenanceService.deleteMaintenance(id);
       await loadVehicles(); // Esto actualizará el badge
+      await syncRemoteBackup();
     } catch (error) {
       console.error("Error eliminando mantenimiento:", error);
       throw error;
@@ -220,6 +242,7 @@ export const AppProvider = ({ children }) => {
     try {
       const id = repairService.createRepair(repairData);
       await loadVehicles(); // Actualizar el estado
+      await syncRemoteBackup();
       return id;
     } catch (error) {
       console.error("Error agregando reparación:", error);
@@ -231,6 +254,7 @@ export const AppProvider = ({ children }) => {
     try {
       await repairService.updateRepair(id, repairData);
       await loadVehicles(); // Actualizar el estado
+      await syncRemoteBackup();
     } catch (error) {
       console.error("Error actualizando reparación:", error);
       throw error;
@@ -241,6 +265,7 @@ export const AppProvider = ({ children }) => {
     try {
       await repairService.deleteRepair(id);
       await loadVehicles(); // Actualizar el estado
+      await syncRemoteBackup();
     } catch (error) {
       console.error("Error eliminando reparación:", error);
       throw error;
@@ -252,6 +277,7 @@ export const AppProvider = ({ children }) => {
     try {
       const id = expenseService.createExpense(expenseData);
       await loadVehicles(); // Actualizar el estado
+      await syncRemoteBackup();
       return id;
     } catch (error) {
       console.error("Error agregando gasto:", error);
@@ -263,6 +289,7 @@ export const AppProvider = ({ children }) => {
     try {
       await expenseService.updateExpense(id, expenseData);
       await loadVehicles(); // Actualizar el estado
+      await syncRemoteBackup();
     } catch (error) {
       console.error("Error actualizando gasto:", error);
       throw error;
@@ -273,6 +300,7 @@ export const AppProvider = ({ children }) => {
     try {
       await expenseService.deleteExpense(id);
       await loadVehicles(); // Actualizar el estado
+      await syncRemoteBackup();
     } catch (error) {
       console.error("Error eliminando gasto:", error);
       throw error;

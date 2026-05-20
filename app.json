@@ -62,6 +62,7 @@
     },
     "extra": {
       "router": {},
+      "apiBaseUrl": "http://192.168.1.8:4000",
       "eas": {
         "projectId": "1cfe475d-fd7b-4af5-aa6f-d30cad92a24d"
       },
