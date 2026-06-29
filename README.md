@@ -1,50 +1,44 @@
-# Welcome to your Expo app 👋
+# Auto-Guardian
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+App Expo/React Native para gestion personal de vehiculos, mantenimientos, reparaciones, gastos, documentos y alertas.
 
-## Get started
+## Lectura recomendada
 
-1. Install dependencies
+- Contexto funcional y tecnico: CONTEXTO_PROYECTO.md
+- Arranque operativo: ARRANQUE_RAPIDO.md
+- Funcionalidades implementadas: README_FUNCIONALIDADES.md
+- Notas adicionales de app: README_APP.md
 
-   ```bash
-   npm install
-   ```
+## Stack
 
-2. Start the app
+- Expo SDK 54
+- React 19
+- React Native 0.81
+- React Navigation
+- SQLite local
+- expo-notifications
 
-   ```bash
-   npx expo start
-   ```
+## Flujo base
 
-In the output, you'll find options to open the app in a
+La app inicializa onboarding, base de datos, notificaciones y configuracion inicial de moneda antes de montar la navegacion principal.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+Puntos de entrada principales:
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- App.js
+- src/navigation/AppNavigator.js
+- src/context
+- src/services
 
-## Get a fresh project
-
-When you're ready, run:
+## Comandos rapidos
 
 ```bash
-npm run reset-project
+npm install
+npm run start
+npm run android
+npm run web
+npm run lint
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Estado de la documentacion
 
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Este README ya no intenta describir todos los modulos. La fuente principal de contexto vivo del proyecto es CONTEXTO_PROYECTO.md y la guia operativa es ARRANQUE_RAPIDO.md.
