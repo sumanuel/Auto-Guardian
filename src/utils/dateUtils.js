@@ -8,11 +8,7 @@ const toLocalDateOnly = (date) => {
     return null;
   }
 
-  return new Date(
-    dateObj.getFullYear(),
-    dateObj.getMonth(),
-    dateObj.getDate(),
-  );
+  return new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
 };
 
 // Formatear fecha
