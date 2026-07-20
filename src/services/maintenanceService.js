@@ -1,5 +1,11 @@
 import db from "./database";
 
+export const getMaintenanceDueDate = (maintenance) => {
+  if (!maintenance) return null;
+  if (maintenance.nextServiceKm) return null;
+  return maintenance.date || maintenance.nextServiceDate || null;
+};
+
 // Obtener todos los mantenimientos de un vehículo
 export const getMaintenancesByVehicle = (vehicleId) => {
   try {
@@ -119,15 +125,13 @@ export const getUpcomingMaintenances = (vehicleId, currentKm) => {
       const bKmDiff = b.nextServiceKm ? b.nextServiceKm - currentKm : Infinity;
 
       // Calcular urgencia por fecha (días restantes)
-      const aDaysDiff = a.nextServiceDate
-        ? Math.floor(
-            (new Date(a.nextServiceDate) - now) / (1000 * 60 * 60 * 24),
-          )
+      const aDueDate = getMaintenanceDueDate(a);
+      const bDueDate = getMaintenanceDueDate(b);
+      const aDaysDiff = aDueDate
+        ? Math.floor((new Date(aDueDate) - now) / (1000 * 60 * 60 * 24))
         : Infinity;
-      const bDaysDiff = b.nextServiceDate
-        ? Math.floor(
-            (new Date(b.nextServiceDate) - now) / (1000 * 60 * 60 * 24),
-          )
+      const bDaysDiff = bDueDate
+        ? Math.floor((new Date(bDueDate) - now) / (1000 * 60 * 60 * 24))
         : Infinity;
 
       // Tomar el criterio más urgente de cada mantenimiento

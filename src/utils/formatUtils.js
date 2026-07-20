@@ -22,6 +22,7 @@ export const getMaintenanceUrgency = (
   currentKm,
   nextServiceKm,
   nextServiceDate,
+  scheduledDate = null,
 ) => {
   let urgency = "low"; // low, medium, high
 
@@ -34,8 +35,10 @@ export const getMaintenanceUrgency = (
   }
 
   // Verificar por fecha
-  if (nextServiceDate) {
-    const nextDate = new Date(nextServiceDate.split("T")[0]);
+  const dueDate = nextServiceKm ? null : scheduledDate || nextServiceDate;
+
+  if (dueDate) {
+    const nextDate = new Date(String(dueDate).split("T")[0]);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const daysRemaining = Math.floor(
@@ -100,9 +103,9 @@ export const formatDaysRemaining = (nextServiceDate) => {
     }`;
   } else if (daysRemaining === 0) {
     return "Hoy";
-  } else if (daysRemaining <= 7) {
-    return `En ${daysRemaining} día${daysRemaining !== 1 ? "s" : ""}`;
   } else if (daysRemaining <= 30) {
+    return `En ${daysRemaining} día${daysRemaining !== 1 ? "s" : ""}`;
+  } else if (daysRemaining <= 90) {
     const weeks = Math.floor(daysRemaining / 7);
     return `En ${weeks} semana${weeks !== 1 ? "s" : ""}`;
   } else {

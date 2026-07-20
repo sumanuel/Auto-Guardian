@@ -1,4 +1,4 @@
-import { format, parseISO, differenceInDays, addMonths } from "date-fns";
+import { addMonths, differenceInDays, format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 
 // Formatear fecha
@@ -16,6 +16,21 @@ export const formatRelativeDate = (date) => {
   try {
     const dateObj = typeof date === "string" ? parseISO(date) : date;
     const days = differenceInDays(new Date(), dateObj);
+
+    if (days < 0) {
+      const futureDays = Math.abs(days);
+
+      if (futureDays === 1) return "Mañana";
+      if (futureDays < 30) return `En ${futureDays} días`;
+      if (futureDays < 365) {
+        return `En ${Math.floor(futureDays / 30)} mes${
+          Math.floor(futureDays / 30) !== 1 ? "es" : ""
+        }`;
+      }
+      return `En ${Math.floor(futureDays / 365)} año${
+        Math.floor(futureDays / 365) !== 1 ? "s" : ""
+      }`;
+    }
 
     if (days === 0) return "Hoy";
     if (days === 1) return "Ayer";

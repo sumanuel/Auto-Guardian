@@ -10,6 +10,9 @@ import * as vehicleService from "../services/vehicleService";
 import { ensurePersistentVehiclePhotoAsync } from "../utils/vehiclePhotoStorage";
 import { useAppSettings } from "./AppSettingsContext";
 
+const getScheduledMaintenanceDate = (maintenance) =>
+  maintenanceService.getMaintenanceDueDate(maintenance);
+
 const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
@@ -353,10 +356,9 @@ export const AppProvider = ({ children }) => {
           }
 
           // Verificar por fecha
-          if (maintenance.nextServiceDate && !isOverdue && !isUrgent) {
-            const nextDate = new Date(
-              maintenance.nextServiceDate.split("T")[0],
-            );
+          const scheduledDate = getScheduledMaintenanceDate(maintenance);
+          if (scheduledDate && !isOverdue && !isUrgent) {
+            const nextDate = new Date(String(scheduledDate).split("T")[0]);
             const today = new Date(
               now.getFullYear(),
               now.getMonth(),
@@ -516,9 +518,10 @@ export const AppProvider = ({ children }) => {
           }
 
           // Verificar por fecha (prioridad si es más urgente)
-          if (maintenance.nextServiceDate) {
+          const scheduledDate = getScheduledMaintenanceDate(maintenance);
+          if (scheduledDate) {
             // Parsear la fecha correctamente y normalizar a medianoche
-            const nextDateStr = maintenance.nextServiceDate.split("T")[0];
+            const nextDateStr = String(scheduledDate).split("T")[0];
             const nextDate = new Date(nextDateStr + "T00:00:00");
 
             const todayStr = now.toISOString().split("T")[0];
