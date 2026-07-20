@@ -18,7 +18,10 @@ import { useAppSettings } from "../context/AppSettingsContext";
 import { useTheme } from "../context/ThemeContext";
 import { COLORS } from "../data/constants";
 import { useDialog } from "../hooks/useDialog";
-import { getMaintenanceTypes } from "../services/maintenanceService";
+import {
+  getMaintenanceDueDate,
+  getMaintenanceTypes,
+} from "../services/maintenanceService";
 import { formatDate, formatRelativeDate } from "../utils/dateUtils";
 import {
   formatCurrency,
@@ -217,6 +220,7 @@ const VehicleDetailScreen = ({ navigation, route }) => {
       vehicle?.currentKm,
       item.nextServiceKm,
       item.nextServiceDate,
+      item.date,
     );
     const urgencyColor = getUrgencyColor(urgency);
     const maintenanceIcon = getMaintenanceIcon(item.type);
@@ -240,17 +244,18 @@ const VehicleDetailScreen = ({ navigation, route }) => {
         });
       }
     } else if (item.nextServiceDate) {
+      const dueDate = getMaintenanceDueDate(item);
       // Si tiene fecha, mostrar solo fecha
-      const dateInfo = formatDaysRemaining(item.nextServiceDate);
+      const dateInfo = formatDaysRemaining(dueDate);
       if (dateInfo) {
         const daysRemaining = Math.floor(
-          (new Date(item.nextServiceDate) - new Date()) / (1000 * 60 * 60 * 24),
+          (new Date(dueDate) - new Date()) / (1000 * 60 * 60 * 24),
         );
         nextServiceInfo.push({
           icon: "calendar-outline",
           text: dateInfo,
           isOverdue: daysRemaining < 0,
-          color: getDateUrgencyColor(item.nextServiceDate),
+          color: getDateUrgencyColor(dueDate),
         });
       }
     }
@@ -735,7 +740,7 @@ const VehicleDetailScreen = ({ navigation, route }) => {
                     { color: colors.text },
                   ]}
                 >
-                  Próximos mantenimientos
+                  Próximos mantenimientos programados
                 </Text>
                 <Text
                   style={[
@@ -747,28 +752,33 @@ const VehicleDetailScreen = ({ navigation, route }) => {
                   completar o revisar cada uno.
                 </Text>
               </View>
-              <View
-                style={[
-                  styles.panelMetaPill,
-                  { backgroundColor: colors.inputBackground },
-                ]}
+              <TouchableOpacity
+                style={styles.inlineChevronAction}
+                onPress={() => {
+                  navigation.navigate("MaintenanceHistory", {
+                    vehicleId,
+                    initialTab: "inProgress",
+                    sortByUrgency: true,
+                  });
+                }}
               >
                 <Text
-                  style={[
-                    styles.panelMetaText,
-                    { color: colors.textSecondary },
-                  ]}
-                  numberOfLines={1}
+                  style={[styles.inlineChevronText, { color: colors.primary }]}
                 >
-                  {upcomingMaintenances.length} activos
+                  Ver todo
                 </Text>
-              </View>
+                <Ionicons
+                  name="chevron-forward"
+                  size={iconSize.xs}
+                  color={colors.primary}
+                />
+              </TouchableOpacity>
             </View>
             {upcomingMaintenances.slice(0, 3).map(renderMaintenanceItem)}
           </View>
         )}
 
-        {/* Historial reciente */}
+        {/* Historial realizados */}
         {true && (
           <View
             style={[
@@ -794,7 +804,7 @@ const VehicleDetailScreen = ({ navigation, route }) => {
                     { color: colors.text },
                   ]}
                 >
-                  Historial reciente
+                  Historial Realizados
                 </Text>
               </View>
               <TouchableOpacity

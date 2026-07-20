@@ -1,5 +1,6 @@
 import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
+import { getMaintenanceDueDate } from "./maintenanceService";
 
 // Configurar comportamiento de notificaciones
 Notifications.setNotificationHandler({
@@ -218,10 +219,10 @@ export const checkAndNotifyPendingMaintenances = async (
         }
 
         // Verificar por fecha
-        if (maintenance.nextServiceDate) {
+        const dueDate = getMaintenanceDueDate(maintenance);
+        if (dueDate) {
           const daysRemaining = Math.floor(
-            (new Date(maintenance.nextServiceDate) - now) /
-              (1000 * 60 * 60 * 24),
+            (new Date(dueDate) - now) / (1000 * 60 * 60 * 24),
           );
 
           if (daysRemaining < 0) {

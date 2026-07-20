@@ -19,7 +19,10 @@ import { useAppSettings } from "../context/AppSettingsContext";
 import { useTheme } from "../context/ThemeContext";
 import { COLORS } from "../data/constants";
 import { useDialog } from "../hooks/useDialog";
-import { getMaintenanceTypes } from "../services/maintenanceService";
+import {
+  getMaintenanceDueDate,
+  getMaintenanceTypes,
+} from "../services/maintenanceService";
 import { formatDate } from "../utils/dateUtils";
 import {
   formatCurrency,
@@ -177,15 +180,13 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
         const bKmDiff = b.nextServiceKm
           ? b.nextServiceKm - (vehicle?.currentKm || 0)
           : Infinity;
-        const aDaysDiff = a.nextServiceDate
-          ? Math.floor(
-              (new Date(a.nextServiceDate) - now) / (1000 * 60 * 60 * 24),
-            )
+        const aDueDate = getMaintenanceDueDate(a);
+        const bDueDate = getMaintenanceDueDate(b);
+        const aDaysDiff = aDueDate
+          ? Math.floor((new Date(aDueDate) - now) / (1000 * 60 * 60 * 24))
           : Infinity;
-        const bDaysDiff = b.nextServiceDate
-          ? Math.floor(
-              (new Date(b.nextServiceDate) - now) / (1000 * 60 * 60 * 24),
-            )
+        const bDaysDiff = bDueDate
+          ? Math.floor((new Date(bDueDate) - now) / (1000 * 60 * 60 * 24))
           : Infinity;
         const aUrgency = Math.min(
           aKmDiff >= 0 ? aKmDiff / 100 : -1000,
@@ -361,18 +362,20 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
         }
 
         if (selectedMaintenance.nextServiceDate) {
-          // Si tenía fecha programada, sumar los días desde la fecha original
+          // Reprogramar desde la fecha que acaba de realizarse.
           const originalDate = new Date(selectedMaintenance.date);
           const nextDate = new Date(selectedMaintenance.nextServiceDate);
           const daysDiff = Math.floor(
             (nextDate - originalDate) / (1000 * 60 * 60 * 24),
           );
-          const currentDate = new Date();
+          const nextScheduledDate = new Date(
+            selectedMaintenance.nextServiceDate,
+          );
           nextServiceDate = new Date(
-            currentDate.getTime() + daysDiff * 24 * 60 * 60 * 1000,
-          )
-            .toISOString()
-            .split("T")[0];
+            nextScheduledDate.getTime() + daysDiff * 24 * 60 * 60 * 1000,
+          ).toISOString();
+
+          selectedMaintenance.date = nextScheduledDate.toISOString();
         }
 
         // Crear nuevo mantenimiento programado
@@ -380,7 +383,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
           vehicleId: selectedMaintenance.vehicleId,
           type: selectedMaintenance.type,
           category: selectedMaintenance.category,
-          date: new Date().toISOString().split("T")[0], // Fecha actual
+          date: selectedMaintenance.date || new Date().toISOString(),
           km: vehicle?.currentKm || null,
           cost: null, // No tiene costo aún
           provider: null, // No tiene proveedor aún
@@ -527,7 +530,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
               color={colors.primary}
             />
             <Text style={[styles.metaPillText, { color: colors.text }]}>
-              {formatDate(item.date)}
+              {`Fecha programada: ${formatDate(item.date)}`}
             </Text>
           </View>
           {item.km && (
@@ -633,9 +636,9 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
                 style={[styles.footerText, { color: colors.textSecondary }]}
               >
                 {item.completedAt
-                  ? formatDate(item.completedAt)
+                  ? `Fecha realizado: ${formatDate(item.completedAt)}`
                   : item.updatedAt
-                    ? formatDate(item.updatedAt)
+                    ? `Fecha realizado: ${formatDate(item.updatedAt)}`
                     : "-"}
               </Text>
             </View>
@@ -659,7 +662,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
                 <Text
                   style={[styles.footerBadgeText, { color: scheduleColor }]}
                 >
-                  Próximo servicio
+                  Próxima programación
                 </Text>
               </View>
               <Text style={[styles.footerText, { color: scheduleColor }]}>
@@ -667,7 +670,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
                   ? formatKmRemaining(vehicle?.currentKm, item.nextServiceKm) ||
                     `A los ${formatKm(item.nextServiceKm)}`
                   : item.nextServiceDate
-                    ? formatDaysRemaining(item.nextServiceDate)
+                    ? `Fecha próxima: ${formatDaysRemaining(getMaintenanceDueDate(item))}`
                     : "Sin programación"}
               </Text>
             </View>
@@ -994,7 +997,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
                 {/* Date */}
                 <View style={styles.inputGroup}>
                   <Text style={[styles.label, { color: colors.text }]}>
-                    Fecha
+                    Fecha de realización
                   </Text>
                   <TouchableOpacity
                     key={`date-${editFormData.date?.getTime()}`}

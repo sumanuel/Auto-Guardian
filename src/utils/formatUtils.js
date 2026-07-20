@@ -22,6 +22,7 @@ export const getMaintenanceUrgency = (
   currentKm,
   nextServiceKm,
   nextServiceDate,
+  scheduledDate = null,
 ) => {
   let urgency = "low"; // low, medium, high
 
@@ -34,8 +35,10 @@ export const getMaintenanceUrgency = (
   }
 
   // Verificar por fecha
-  if (nextServiceDate) {
-    const nextDate = new Date(nextServiceDate.split("T")[0]);
+  const dueDate = nextServiceKm ? null : scheduledDate || nextServiceDate;
+
+  if (dueDate) {
+    const nextDate = new Date(String(dueDate).split("T")[0]);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const daysRemaining = Math.floor(
@@ -83,12 +86,18 @@ export const getUrgencyText = (urgency) => {
 export const formatDaysRemaining = (nextServiceDate) => {
   if (!nextServiceDate) return null;
 
-  const nextDateStr = nextServiceDate.split("T")[0];
-  const nextDate = new Date(nextDateStr + "T00:00:00");
-
+  const nextDateValue = new Date(nextServiceDate);
+  const nextDate = new Date(
+    nextDateValue.getFullYear(),
+    nextDateValue.getMonth(),
+    nextDateValue.getDate(),
+  );
   const today = new Date();
-  const todayStr = today.toISOString().split("T")[0];
-  const todayDate = new Date(todayStr + "T00:00:00");
+  const todayDate = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate(),
+  );
 
   const daysRemaining = Math.floor(
     (nextDate - todayDate) / (1000 * 60 * 60 * 24),
@@ -100,9 +109,9 @@ export const formatDaysRemaining = (nextServiceDate) => {
     }`;
   } else if (daysRemaining === 0) {
     return "Hoy";
-  } else if (daysRemaining <= 7) {
-    return `En ${daysRemaining} día${daysRemaining !== 1 ? "s" : ""}`;
   } else if (daysRemaining <= 30) {
+    return `En ${daysRemaining} día${daysRemaining !== 1 ? "s" : ""}`;
+  } else if (daysRemaining <= 90) {
     const weeks = Math.floor(daysRemaining / 7);
     return `En ${weeks} semana${weeks !== 1 ? "s" : ""}`;
   } else {
@@ -139,7 +148,12 @@ export const getKmUrgencyColor = (currentKm, nextServiceKm) => {
 export const getDateUrgencyColor = (nextServiceDate) => {
   if (!nextServiceDate) return "#666";
 
-  const nextDate = new Date(nextServiceDate.split("T")[0]);
+  const nextDateValue = new Date(nextServiceDate);
+  const nextDate = new Date(
+    nextDateValue.getFullYear(),
+    nextDateValue.getMonth(),
+    nextDateValue.getDate(),
+  );
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const daysRemaining = Math.floor((nextDate - today) / (1000 * 60 * 60 * 24));

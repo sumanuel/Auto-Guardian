@@ -20,6 +20,7 @@ import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
 import { COLORS } from "../data/constants";
 import { useDialog } from "../hooks/useDialog";
+import { calculateNextServiceDate, formatDate } from "../utils/dateUtils";
 import {
   borderRadius,
   hs,
@@ -76,26 +77,32 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
     nextServiceDate: new Date(),
   });
 
+  const calculateAutoNextServiceDate = useCallback((serviceDate, type) => {
+    if (
+      !serviceDate ||
+      !type?.defaultIntervalTime ||
+      !type?.defaultIntervalUnit
+    ) {
+      return null;
+    }
+
+    const baseDate =
+      serviceDate instanceof Date ? serviceDate : new Date(serviceDate);
+    if (isNaN(baseDate.getTime())) {
+      return null;
+    }
+
+    if (type.defaultIntervalUnit === "days") {
+      return new Date(
+        baseDate.getTime() + type.defaultIntervalTime * 24 * 60 * 60 * 1000,
+      );
+    }
+
+    return calculateNextServiceDate(baseDate, type.defaultIntervalTime);
+  }, []);
+
   const handleTypeSelect = useCallback(
     (type) => {
-      let nextServiceDate = null;
-
-      if (type.defaultIntervalTime && type.defaultIntervalUnit) {
-        const currentDate = new Date();
-        if (type.defaultIntervalUnit === "days") {
-          nextServiceDate = new Date(
-            currentDate.getTime() +
-              type.defaultIntervalTime * 24 * 60 * 60 * 1000,
-          );
-        } else if (type.defaultIntervalUnit === "months") {
-          nextServiceDate = new Date(
-            currentDate.getFullYear(),
-            currentDate.getMonth() + type.defaultIntervalTime,
-            currentDate.getDate(),
-          );
-        }
-      }
-
       setFormData((prev) => ({
         ...prev,
         type: type.name,
@@ -106,10 +113,10 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
               type.defaultIntervalKm
             ).toString()
           : "",
-        nextServiceDate: nextServiceDate,
+        nextServiceDate: calculateAutoNextServiceDate(prev.date, type),
       }));
     },
-    [vehicle?.currentKm],
+    [calculateAutoNextServiceDate, vehicle?.currentKm],
   );
 
   useEffect(() => {
@@ -187,7 +194,24 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
   }, [maintenanceData]);
 
   const handleInputChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData((prev) => {
+      const nextFormData = { ...prev, [field]: value };
+
+      if (field === "date" && maintenanceMode === "date") {
+        const selectedType = maintenanceTypes.find(
+          (item) => item.name === nextFormData.type,
+        );
+
+        if (selectedType) {
+          nextFormData.nextServiceDate = calculateAutoNextServiceDate(
+            value,
+            selectedType,
+          );
+        }
+      }
+
+      return nextFormData;
+    });
   };
 
   const handleSaveEdit = () => {
@@ -316,7 +340,7 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
         const result = await showDialog({
           title: "Advertencia",
           message:
-            "La fecha de servicio y la fecha del próximo servicio son iguales. ¿Deseas continuar de todas formas?",
+            "La fecha de programación y la fecha del próximo servicio son iguales. ¿Deseas continuar de todas formas?",
           type: "confirm",
         });
         return result;
@@ -438,7 +462,7 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
                     showDialog({
                       title: "Programar Mantenimiento",
                       message:
-                        "Aquí puedes programar mantenimientos para tus vehículos. Elige un tipo de mantenimiento de las opciones predefinidas o escribe uno personalizado. Programa el próximo servicio por fecha (útil para servicios periódicos como cambio de aceite) o por kilometraje (ideal para servicios basados en uso).",
+                        "Aquí puedes programar mantenimientos para tus vehículos. Define la fecha real en la que quieres hacer el servicio. Si el mantenimiento se controla por fecha, la fecha próxima se calcula automáticamente desde esa programación.",
                       type: "info",
                     })
                   }
@@ -616,34 +640,47 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
 
             {maintenanceMode === "date" && (
               <>
-                {/* Fecha del servicio */}
+                {/* Fecha de programación */}
                 <DatePicker
                   key={`date-${
                     maintenanceData?.id || "new"
                   }-${formData.date?.getTime()}`}
-                  label="Fecha del servicio"
+                  label="Fecha programación"
                   value={formData.date}
                   onChange={(date) => handleInputChange("date", date)}
                 />
 
                 {/* Próxima fecha de servicio */}
                 <View style={styles.inputGroup}>
-                  <DatePicker
-                    key={`nextDate-${
-                      maintenanceData?.id || "new"
-                    }-${formData.nextServiceDate?.getTime()}`}
-                    label="Próximo servicio (fecha)"
-                    value={formData.nextServiceDate}
-                    onChange={(date) =>
-                      handleInputChange("nextServiceDate", date)
-                    }
-                    minimumDate={new Date()}
-                  />
+                  <Text style={[styles.label, { color: colors.text }]}>
+                    Fecha próximo (Autocalculada)
+                  </Text>
+                  <View
+                    style={[
+                      styles.input,
+                      styles.autoDateField,
+                      {
+                        backgroundColor: colors.inputBackground,
+                        borderColor: colors.border,
+                      },
+                    ]}
+                  >
+                    <Ionicons
+                      name="calendar-outline"
+                      size={iconSize.sm}
+                      color={colors.primary}
+                    />
+                    <Text style={[styles.autoDateText, { color: colors.text }]}>
+                      {formData.nextServiceDate
+                        ? formatDate(formData.nextServiceDate)
+                        : "Se calculará al elegir el tipo"}
+                    </Text>
+                  </View>
                   <Text
                     style={[styles.helperText, { color: colors.textSecondary }]}
                   >
-                    Útil para servicios por tiempo (ej: cambio de aceite cada 6
-                    meses)
+                    Se calcula según el intervalo del tipo de mantenimiento a
+                    partir de la fecha de programación.
                   </Text>
                 </View>
               </>
@@ -1166,6 +1203,15 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.sm,
     padding: spacing.md,
     fontSize: rf(16),
+  },
+  autoDateField: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: hs(10),
+  },
+  autoDateText: {
+    fontSize: rf(16),
+    fontWeight: "600",
   },
   textArea: {
     minHeight: s(100),
