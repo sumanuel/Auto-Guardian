@@ -530,9 +530,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
               color={colors.primary}
             />
             <Text style={[styles.metaPillText, { color: colors.text }]}>
-              {completed
-                ? `Fecha programada: ${formatDate(item.date)}`
-                : formatDate(item.date)}
+              {`Fecha programada: ${formatDate(item.date)}`}
             </Text>
           </View>
           {item.km && (
@@ -672,7 +670,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
                   ? formatKmRemaining(vehicle?.currentKm, item.nextServiceKm) ||
                     `A los ${formatKm(item.nextServiceKm)}`
                   : item.nextServiceDate
-                    ? formatDaysRemaining(getMaintenanceDueDate(item))
+                    ? `Fecha próxima: ${formatDaysRemaining(getMaintenanceDueDate(item))}`
                     : "Sin programación"}
               </Text>
             </View>
@@ -999,7 +997,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
                 {/* Date */}
                 <View style={styles.inputGroup}>
                   <Text style={[styles.label, { color: colors.text }]}>
-                    Fecha
+                    Fecha de realización
                   </Text>
                   <TouchableOpacity
                     key={`date-${editFormData.date?.getTime()}`}

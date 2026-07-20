@@ -86,12 +86,18 @@ export const getUrgencyText = (urgency) => {
 export const formatDaysRemaining = (nextServiceDate) => {
   if (!nextServiceDate) return null;
 
-  const nextDateStr = nextServiceDate.split("T")[0];
-  const nextDate = new Date(nextDateStr + "T00:00:00");
-
+  const nextDateValue = new Date(nextServiceDate);
+  const nextDate = new Date(
+    nextDateValue.getFullYear(),
+    nextDateValue.getMonth(),
+    nextDateValue.getDate(),
+  );
   const today = new Date();
-  const todayStr = today.toISOString().split("T")[0];
-  const todayDate = new Date(todayStr + "T00:00:00");
+  const todayDate = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate(),
+  );
 
   const daysRemaining = Math.floor(
     (nextDate - todayDate) / (1000 * 60 * 60 * 24),
@@ -142,7 +148,12 @@ export const getKmUrgencyColor = (currentKm, nextServiceKm) => {
 export const getDateUrgencyColor = (nextServiceDate) => {
   if (!nextServiceDate) return "#666";
 
-  const nextDate = new Date(nextServiceDate.split("T")[0]);
+  const nextDateValue = new Date(nextServiceDate);
+  const nextDate = new Date(
+    nextDateValue.getFullYear(),
+    nextDateValue.getMonth(),
+    nextDateValue.getDate(),
+  );
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const daysRemaining = Math.floor((nextDate - today) / (1000 * 60 * 60 * 24));

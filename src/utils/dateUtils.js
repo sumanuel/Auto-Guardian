@@ -1,6 +1,20 @@
 import { addMonths, differenceInDays, format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 
+const toLocalDateOnly = (date) => {
+  const dateObj = typeof date === "string" ? parseISO(date) : date;
+
+  if (!(dateObj instanceof Date) || Number.isNaN(dateObj.getTime())) {
+    return null;
+  }
+
+  return new Date(
+    dateObj.getFullYear(),
+    dateObj.getMonth(),
+    dateObj.getDate(),
+  );
+};
+
 // Formatear fecha
 export const formatDate = (date, formatStr = "dd/MM/yyyy") => {
   try {
@@ -14,8 +28,9 @@ export const formatDate = (date, formatStr = "dd/MM/yyyy") => {
 // Formatear fecha relativa
 export const formatRelativeDate = (date) => {
   try {
-    const dateObj = typeof date === "string" ? parseISO(date) : date;
-    const days = differenceInDays(new Date(), dateObj);
+    const dateOnly = toLocalDateOnly(date);
+    const today = toLocalDateOnly(new Date());
+    const days = differenceInDays(today, dateOnly);
 
     if (days < 0) {
       const futureDays = Math.abs(days);
@@ -57,11 +72,9 @@ export const calculateNextServiceDate = (lastDate, intervalMonths) => {
 // Días hasta el próximo servicio
 export const daysUntilService = (nextServiceDate) => {
   try {
-    const dateObj =
-      typeof nextServiceDate === "string"
-        ? parseISO(nextServiceDate)
-        : nextServiceDate;
-    return differenceInDays(dateObj, new Date());
+    const dateOnly = toLocalDateOnly(nextServiceDate);
+    const today = toLocalDateOnly(new Date());
+    return differenceInDays(dateOnly, today);
   } catch (error) {
     return null;
   }
