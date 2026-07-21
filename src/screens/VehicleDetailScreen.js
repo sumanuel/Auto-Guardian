@@ -227,6 +227,8 @@ const VehicleDetailScreen = ({ navigation, route }) => {
     const maintenanceColor =
       maintenanceTypeColorMap[item.type] || colors.primary;
 
+    const dueDate = item.nextServiceDate ? getMaintenanceDueDate(item) : null;
+
     // Calcular información de próximo servicio
     const nextServiceInfo = [];
 
@@ -318,7 +320,9 @@ const VehicleDetailScreen = ({ navigation, route }) => {
             <Text
               style={[styles.maintenanceDate, { color: colors.textSecondary }]}
             >
-              {formatRelativeDate(item.date)}
+              {dueDate
+                ? formatDaysRemaining(dueDate)
+                : formatRelativeDate(item.date)}
             </Text>
             {item.km && (
               <View style={styles.maintenanceMetaDot}>
