@@ -104,20 +104,21 @@ export const formatDaysRemaining = (nextServiceDate) => {
   );
 
   if (daysRemaining < 0) {
-    return `Vencido hace ${Math.abs(daysRemaining)} día${
-      Math.abs(daysRemaining) !== 1 ? "s" : ""
-    }`;
-  } else if (daysRemaining === 0) {
-    return "Hoy";
-  } else if (daysRemaining <= 30) {
-    return `En ${daysRemaining} día${daysRemaining !== 1 ? "s" : ""}`;
-  } else if (daysRemaining <= 90) {
-    const weeks = Math.floor(daysRemaining / 7);
-    return `En ${weeks} semana${weeks !== 1 ? "s" : ""}`;
-  } else {
-    const months = Math.floor(daysRemaining / 30);
-    return `En ${months} mes${months !== 1 ? "es" : ""}`;
+    const absDays = Math.abs(daysRemaining);
+    return `Vencido hace ${absDays} día${absDays !== 1 ? "s" : ""}`;
   }
+
+  if (daysRemaining === 0) return "Hoy";
+
+  // Mostrar siempre en semanas y días cuando sea posible
+  const weeks = Math.floor(daysRemaining / 7);
+  const days = daysRemaining % 7;
+
+  const parts = [];
+  if (weeks > 0) parts.push(`${weeks} semana${weeks !== 1 ? "s" : ""}`);
+  if (days > 0) parts.push(`${days} día${days !== 1 ? "s" : ""}`);
+
+  return `En ${parts.join(" y ")}`;
 };
 
 // Formatear kilometraje restante hasta el próximo servicio

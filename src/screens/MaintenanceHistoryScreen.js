@@ -23,7 +23,7 @@ import {
   getMaintenanceDueDate,
   getMaintenanceTypes,
 } from "../services/maintenanceService";
-import { formatDate } from "../utils/dateUtils";
+import { daysUntilService, formatDate } from "../utils/dateUtils";
 import {
   formatCurrency,
   formatDaysRemaining,
@@ -422,11 +422,22 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
     const maintenanceColor =
       maintenanceTypeColorMap[item.type] || colors.primary;
     const maintenanceIcon = getMaintenanceIcon(item.type);
-    const scheduleColor = item.nextServiceKm
-      ? getKmUrgencyColor(vehicle?.currentKm, item.nextServiceKm)
-      : item.nextServiceDate
-        ? getDateUrgencyColor(item.nextServiceDate)
-        : COLORS.success;
+
+    // Determinar color de la programación: si no está vencida, mostrar verde
+    let scheduleColor = COLORS.success;
+    if (item.nextServiceKm) {
+      scheduleColor = getKmUrgencyColor(vehicle?.currentKm, item.nextServiceKm);
+    } else if (item.nextServiceDate) {
+      const dueDate = getMaintenanceDueDate(item);
+      const days = daysUntilService(dueDate);
+      if (days > 0) {
+        scheduleColor = "#00C851"; // Verde si falta tiempo
+      } else {
+        scheduleColor = getDateUrgencyColor(item.nextServiceDate);
+      }
+    } else {
+      scheduleColor = COLORS.success;
+    }
 
     return (
       <View
@@ -670,7 +681,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
                   ? formatKmRemaining(vehicle?.currentKm, item.nextServiceKm) ||
                     `A los ${formatKm(item.nextServiceKm)}`
                   : item.nextServiceDate
-                    ? `Fecha próxima: ${formatDaysRemaining(getMaintenanceDueDate(item))}`
+                    ? `${formatDaysRemaining(getMaintenanceDueDate(item))}`
                     : "Sin programación"}
               </Text>
             </View>
