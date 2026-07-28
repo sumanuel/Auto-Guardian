@@ -1431,6 +1431,7 @@ const styles = StyleSheet.create({
     borderRadius: s(19),
     alignItems: "center",
     justifyContent: "center",
+    alignSelf: "center",
     marginRight: hs(12),
   },
   maintenanceContent: {
