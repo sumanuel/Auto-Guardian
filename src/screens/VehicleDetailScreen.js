@@ -316,14 +316,51 @@ const VehicleDetailScreen = ({ navigation, route }) => {
               </Text>
             </View>
           </View>
-          <View style={styles.maintenanceMetaRow}>
-            <Text
-              style={[styles.maintenanceDate, { color: colors.textSecondary }]}
-            >
-              {dueDate
-                ? formatDaysRemaining(dueDate)
-                : formatRelativeDate(item.date)}
-            </Text>
+
+          <View
+            style={[styles.maintenanceMetaRow, { alignItems: "flex-start" }]}
+          >
+            <View style={{ flexDirection: "column", alignItems: "flex-start" }}>
+              <Text style={[styles.metaLabel, { color: colors.textSecondary }]}>
+                Fecha programada
+              </Text>
+              <Text style={[styles.maintenanceDate, { color: colors.text }]}>
+                {formatDate(item.date)}
+              </Text>
+              {dueDate && (
+                <View
+                  style={[
+                    styles.nextServiceItem,
+                    {
+                      marginTop: 6,
+                      paddingHorizontal: 8,
+                      paddingVertical: 6,
+                      alignSelf: "flex-start",
+                      backgroundColor: colors.cardBackground,
+                    },
+                  ]}
+                >
+                  <Ionicons
+                    name="calendar-outline"
+                    size={iconSize.xs}
+                    color={getDateUrgencyColor(dueDate)}
+                  />
+                  <Text
+                    style={[
+                      styles.nextServiceText,
+                      {
+                        color: getDateUrgencyColor(dueDate),
+                        fontWeight: "600",
+                        marginLeft: 8,
+                      },
+                    ]}
+                  >
+                    {formatDaysRemaining(dueDate)}
+                  </Text>
+                </View>
+              )}
+            </View>
+
             {item.km && (
               <View style={styles.maintenanceMetaDot}>
                 <Text
@@ -337,33 +374,37 @@ const VehicleDetailScreen = ({ navigation, route }) => {
               </View>
             )}
           </View>
+          {/* duplicate date block removed */}
 
           {/* Información de próximo servicio */}
-          {nextServiceInfo.length > 0 && (
+          {nextServiceInfo.filter((i) => i.icon !== "calendar-outline").length >
+            0 && (
             <View style={styles.nextServiceContainer}>
-              {nextServiceInfo.map((info, index) => (
-                <View
-                  key={index}
-                  style={[
-                    styles.nextServiceItem,
-                    { backgroundColor: colors.cardBackground },
-                  ]}
-                >
-                  <Ionicons
-                    name={info.icon}
-                    size={iconSize.xs}
-                    color={info.color}
-                  />
-                  <Text
+              {nextServiceInfo
+                .filter((i) => i.icon !== "calendar-outline")
+                .map((info, index) => (
+                  <View
+                    key={index}
                     style={[
-                      styles.nextServiceText,
-                      { color: info.color, fontWeight: "600" },
+                      styles.nextServiceItem,
+                      { backgroundColor: colors.cardBackground },
                     ]}
                   >
-                    {info.text}
-                  </Text>
-                </View>
-              ))}
+                    <Ionicons
+                      name={info.icon}
+                      size={iconSize.xs}
+                      color={info.color}
+                    />
+                    <Text
+                      style={[
+                        styles.nextServiceText,
+                        { color: info.color, fontWeight: "600" },
+                      ]}
+                    >
+                      {info.text}
+                    </Text>
+                  </View>
+                ))}
             </View>
           )}
         </View>
