@@ -125,6 +125,14 @@ const HomeScreen = ({ navigation }) => {
     inputRange: [0, 0.5, 1],
     outputRange: [0, 0.18, 0.04],
   });
+  const redIconOpacity = alertGlowAnimation.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [0, 1, 0],
+  });
+  const whiteIconOpacity = alertGlowAnimation.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [1, 0, 1],
+  });
   const alertGlowScale = alertGlowAnimation.interpolate({
     inputRange: [0, 0.5, 1],
     outputRange: [0.96, 1.03, 1],
@@ -317,11 +325,14 @@ const HomeScreen = ({ navigation }) => {
                     transform: [{ rotate: bellRotate }, { scale: bellScale }],
                   }}
                 >
-                  <Ionicons
-                    name="notifications"
-                    size={iconSize.sm}
-                    color="#fff"
-                  />
+                  <View style={{ width: iconSize.sm, height: iconSize.sm, alignItems: "center", justifyContent: "center" }}>
+                    <Animated.View style={{ position: "absolute", opacity: whiteIconOpacity }}>
+                      <Ionicons name="notifications" size={iconSize.sm} color="#fff" />
+                    </Animated.View>
+                    <Animated.View style={{ position: "absolute", opacity: redIconOpacity }}>
+                      <Ionicons name="notifications" size={iconSize.sm} color="#ff4444" />
+                    </Animated.View>
+                  </View>
                 </Animated.View>
                 <Text style={styles.alertPillText}>
                   {totalAlerts} alerta{totalAlerts !== 1 ? "s" : ""}
