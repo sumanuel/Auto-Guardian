@@ -325,12 +325,34 @@ const HomeScreen = ({ navigation }) => {
                     transform: [{ rotate: bellRotate }, { scale: bellScale }],
                   }}
                 >
-                  <View style={{ width: iconSize.sm, height: iconSize.sm, alignItems: "center", justifyContent: "center" }}>
-                    <Animated.View style={{ position: "absolute", opacity: whiteIconOpacity }}>
-                      <Ionicons name="notifications" size={iconSize.sm} color="#fff" />
+                  <View
+                    style={{
+                      width: iconSize.sm,
+                      height: iconSize.sm,
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Animated.View
+                      style={{
+                        position: "absolute",
+                        opacity: whiteIconOpacity,
+                      }}
+                    >
+                      <Ionicons
+                        name="notifications"
+                        size={iconSize.sm}
+                        color="#fff"
+                      />
                     </Animated.View>
-                    <Animated.View style={{ position: "absolute", opacity: redIconOpacity }}>
-                      <Ionicons name="notifications" size={iconSize.sm} color="#ff4444" />
+                    <Animated.View
+                      style={{ position: "absolute", opacity: redIconOpacity }}
+                    >
+                      <Ionicons
+                        name="notifications"
+                        size={iconSize.sm}
+                        color="#ff4444"
+                      />
                     </Animated.View>
                   </View>
                 </Animated.View>
