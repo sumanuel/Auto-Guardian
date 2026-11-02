@@ -41,3 +41,13 @@ app-example
 # generated native folders
 /ios
 /android
+
+# secretos y credenciales
+.env
+.env.*
+!.env.example
+server/
+credentials.json
+
+# respaldos de edición
+*.bak
