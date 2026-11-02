@@ -44,10 +44,6 @@ function AppBootstrap() {
     checkForStoreUpdate,
   } = useAppSettings();
 
-  useEffect(() => {
-    initializeApp();
-  }, []);
-
   // Vuelve a bloquear si la app estuvo en segundo plano más de un minuto
   useEffect(() => {
     const subscription = AppState.addEventListener("change", async (state) => {
@@ -105,6 +101,10 @@ function AppBootstrap() {
       setIsReady(true); // Continuar aunque haya error
     }
   };
+
+  useEffect(() => {
+    initializeApp();
+  }, []);
 
   if (!isReady) {
     return null; // O un loading screen
