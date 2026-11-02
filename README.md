@@ -4,10 +4,10 @@ App Expo/React Native para gestion personal de vehiculos, mantenimientos, repara
 
 ## Lectura recomendada
 
-- Contexto funcional y tecnico: CONTEXTO_PROYECTO.md
-- Arranque operativo: ARRANQUE_RAPIDO.md
-- Funcionalidades implementadas: README_FUNCIONALIDADES.md
-- Notas adicionales de app: README_APP.md
+- Contexto funcional y tecnico: docs/CONTEXTO_PROYECTO.md
+- Arranque operativo: docs/ARRANQUE_RAPIDO.md
+- Funcionalidades implementadas: docs/README_FUNCIONALIDADES.md
+- Notas adicionales de app: docs/README_APP.md
 
 ## Stack
 
@@ -41,4 +41,4 @@ npm run lint
 
 ## Estado de la documentacion
 
-Este README ya no intenta describir todos los modulos. La fuente principal de contexto vivo del proyecto es CONTEXTO_PROYECTO.md y la guia operativa es ARRANQUE_RAPIDO.md.
+Este README ya no intenta describir todos los modulos. La fuente principal de contexto vivo del proyecto es docs/CONTEXTO_PROYECTO.md y la guia operativa es ARRANQUE_RAPIDO.md.
