@@ -1,10 +1,10 @@
+import type { CategoryTotal, Expense, ExpenseInput } from "../types/models";
 import db from "./database";
 
 // Obtener todos los gastos de un vehículo
-export const getExpensesByVehicle = (vehicleId) => {
+export const getExpensesByVehicle = (vehicleId: number) => {
   try {
-    const expenses = db.getAllSync(
-      "SELECT * FROM expenses WHERE vehicleId = ? ORDER BY date DESC",
+    const expenses = db.getAllSync<Expense>("SELECT * FROM expenses WHERE vehicleId = ? ORDER BY date DESC",
       [vehicleId]
     );
     return expenses;
@@ -17,7 +17,7 @@ export const getExpensesByVehicle = (vehicleId) => {
 // Obtener todos los gastos
 export const getAllExpenses = () => {
   try {
-    const expenses = db.getAllSync("SELECT * FROM expenses ORDER BY date DESC");
+    const expenses = db.getAllSync<Expense>("SELECT * FROM expenses ORDER BY date DESC");
     return expenses;
   } catch (error) {
     console.error("Error obteniendo todos los gastos:", error);
@@ -26,7 +26,7 @@ export const getAllExpenses = () => {
 };
 
 // Crear nuevo gasto
-export const createExpense = (expenseData) => {
+export const createExpense = (expenseData: ExpenseInput) => {
   try {
     const result = db.runSync(
       `INSERT INTO expenses (vehicleId, description, category, date, cost, notes, photo) 
@@ -49,7 +49,7 @@ export const createExpense = (expenseData) => {
 };
 
 // Actualizar gasto
-export const updateExpense = (id, expenseData) => {
+export const updateExpense = (id: number, expenseData: ExpenseInput) => {
   try {
     db.runSync(
       `UPDATE expenses 
@@ -73,7 +73,7 @@ export const updateExpense = (id, expenseData) => {
 };
 
 // Eliminar gasto
-export const deleteExpense = (id) => {
+export const deleteExpense = (id: number) => {
   try {
     db.runSync("DELETE FROM expenses WHERE id = ?", [id]);
     return true;
@@ -84,9 +84,9 @@ export const deleteExpense = (id) => {
 };
 
 // Obtener gasto por ID
-export const getExpenseById = (id) => {
+export const getExpenseById = (id: number) => {
   try {
-    const expense = db.getFirstSync("SELECT * FROM expenses WHERE id = ?", [
+    const expense = db.getFirstSync<Expense>("SELECT * FROM expenses WHERE id = ?", [
       id,
     ]);
     return expense;
@@ -97,9 +97,9 @@ export const getExpenseById = (id) => {
 };
 
 // Obtener total de gastos por vehículo
-export const getTotalExpensesByVehicle = (vehicleId) => {
+export const getTotalExpensesByVehicle = (vehicleId: number) => {
   try {
-    const result = db.getFirstSync(
+    const result = db.getFirstSync<{ total: number | null }>(
       "SELECT SUM(cost) as total FROM expenses WHERE vehicleId = ?",
       [vehicleId]
     );
@@ -111,9 +111,9 @@ export const getTotalExpensesByVehicle = (vehicleId) => {
 };
 
 // Obtener gastos agrupados por categoría
-export const getExpensesByCategory = (vehicleId) => {
+export const getExpensesByCategory = (vehicleId: number) => {
   try {
-    const expenses = db.getAllSync(
+    const expenses = db.getAllSync<CategoryTotal>(
       `SELECT category, SUM(cost) as total, COUNT(*) as count 
        FROM expenses 
        WHERE vehicleId = ? 

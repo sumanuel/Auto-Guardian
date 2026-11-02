@@ -1,10 +1,10 @@
+import type { Vehicle, VehicleInput } from "../types/models";
 import db from "./database";
 
 // Obtener todos los vehículos
 export const getAllVehicles = () => {
   try {
-    const vehicles = db.getAllSync(
-      "SELECT * FROM vehicles ORDER BY createdAt DESC",
+    const vehicles = db.getAllSync<Vehicle>("SELECT * FROM vehicles ORDER BY createdAt DESC",
     );
     return vehicles;
   } catch (error) {
@@ -14,9 +14,9 @@ export const getAllVehicles = () => {
 };
 
 // Obtener un vehículo por ID
-export const getVehicleById = (id) => {
+export const getVehicleById = (id: number) => {
   try {
-    const vehicle = db.getFirstSync("SELECT * FROM vehicles WHERE id = ?", [
+    const vehicle = db.getFirstSync<Vehicle>("SELECT * FROM vehicles WHERE id = ?", [
       id,
     ]);
     return vehicle;
@@ -27,7 +27,7 @@ export const getVehicleById = (id) => {
 };
 
 // Crear nuevo vehículo
-export const createVehicle = (vehicleData) => {
+export const createVehicle = (vehicleData: VehicleInput) => {
   try {
     const result = db.runSync(
       `INSERT INTO vehicles (name, brand, model, year, color, plate, vin, currentKm, photo) 
@@ -52,7 +52,7 @@ export const createVehicle = (vehicleData) => {
 };
 
 // Actualizar vehículo
-export const updateVehicle = (id, vehicleData) => {
+export const updateVehicle = (id: number, vehicleData: VehicleInput) => {
   try {
     db.runSync(
       `UPDATE vehicles 
@@ -78,7 +78,7 @@ export const updateVehicle = (id, vehicleData) => {
   }
 };
 
-export const updateVehiclePhoto = (id, photo) => {
+export const updateVehiclePhoto = (id: number, photo?: string | null) => {
   try {
     db.runSync("UPDATE vehicles SET photo = ? WHERE id = ?", [
       photo || null,
@@ -92,7 +92,7 @@ export const updateVehiclePhoto = (id, photo) => {
 };
 
 // Eliminar vehículo
-export const deleteVehicle = (id) => {
+export const deleteVehicle = (id: number) => {
   try {
     // Aunque ON DELETE CASCADE debería manejar esto automáticamente,
     // nos aseguramos explícitamente de eliminar todos los registros relacionados
@@ -108,7 +108,7 @@ export const deleteVehicle = (id) => {
 };
 
 // Actualizar solo el kilometraje
-export const updateVehicleKm = (id, km) => {
+export const updateVehicleKm = (id: number, km: number) => {
   try {
     db.runSync("UPDATE vehicles SET currentKm = ? WHERE id = ?", [km, id]);
     return true;

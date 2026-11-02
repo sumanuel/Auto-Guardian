@@ -1,10 +1,10 @@
+import type { CategoryTotal, Repair, RepairInput } from "../types/models";
 import db from "./database";
 
 // Obtener todas las reparaciones de un vehículo
-export const getRepairsByVehicle = (vehicleId) => {
+export const getRepairsByVehicle = (vehicleId: number) => {
   try {
-    const repairs = db.getAllSync(
-      "SELECT * FROM repairs WHERE vehicleId = ? ORDER BY date DESC",
+    const repairs = db.getAllSync<Repair>("SELECT * FROM repairs WHERE vehicleId = ? ORDER BY date DESC",
       [vehicleId]
     );
     return repairs;
@@ -17,7 +17,7 @@ export const getRepairsByVehicle = (vehicleId) => {
 // Obtener todas las reparaciones
 export const getAllRepairs = () => {
   try {
-    const repairs = db.getAllSync("SELECT * FROM repairs ORDER BY date DESC");
+    const repairs = db.getAllSync<Repair>("SELECT * FROM repairs ORDER BY date DESC");
     return repairs;
   } catch (error) {
     console.error("Error obteniendo todas las reparaciones:", error);
@@ -26,7 +26,7 @@ export const getAllRepairs = () => {
 };
 
 // Crear nueva reparación
-export const createRepair = (repairData) => {
+export const createRepair = (repairData: RepairInput) => {
   try {
     const result = db.runSync(
       `INSERT INTO repairs (vehicleId, description, category, date, cost, workshop, notes, photo) 
@@ -50,7 +50,7 @@ export const createRepair = (repairData) => {
 };
 
 // Actualizar reparación
-export const updateRepair = (id, repairData) => {
+export const updateRepair = (id: number, repairData: RepairInput) => {
   try {
     db.runSync(
       `UPDATE repairs 
@@ -75,7 +75,7 @@ export const updateRepair = (id, repairData) => {
 };
 
 // Eliminar reparación
-export const deleteRepair = (id) => {
+export const deleteRepair = (id: number) => {
   try {
     db.runSync("DELETE FROM repairs WHERE id = ?", [id]);
     return true;
@@ -86,9 +86,13 @@ export const deleteRepair = (id) => {
 };
 
 // Estadísticas de reparaciones
-export const getRepairStats = (vehicleId) => {
+export const getRepairStats = (vehicleId: number) => {
   try {
-    const stats = db.getFirstSync(
+    const stats = db.getFirstSync<{
+      totalRepairs: number;
+      totalCost: number | null;
+      avgCost: number | null;
+    }>(
       `SELECT 
         COUNT(*) as totalRepairs,
         SUM(cost) as totalCost,
@@ -105,9 +109,9 @@ export const getRepairStats = (vehicleId) => {
 };
 
 // Obtener reparaciones por categoría
-export const getRepairsByCategory = (vehicleId) => {
+export const getRepairsByCategory = (vehicleId: number) => {
   try {
-    const repairs = db.getAllSync(
+    const repairs = db.getAllSync<CategoryTotal>(
       `SELECT 
         category,
         COUNT(*) as count,
