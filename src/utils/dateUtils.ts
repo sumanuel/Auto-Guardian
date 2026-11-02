@@ -1,7 +1,7 @@
 import { addMonths, differenceInDays, format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 
-const toLocalDateOnly = (date) => {
+const toLocalDateOnly = (date: Date | string): Date | null => {
   const dateObj = typeof date === "string" ? parseISO(date) : date;
 
   if (!(dateObj instanceof Date) || Number.isNaN(dateObj.getTime())) {
@@ -12,7 +12,10 @@ const toLocalDateOnly = (date) => {
 };
 
 // Formatear fecha
-export const formatDate = (date, formatStr = "dd/MM/yyyy") => {
+export const formatDate = (
+  date: Date | string,
+  formatStr = "dd/MM/yyyy",
+) => {
   try {
     const dateObj = typeof date === "string" ? parseISO(date) : date;
     return format(dateObj, formatStr, { locale: es });
@@ -22,11 +25,11 @@ export const formatDate = (date, formatStr = "dd/MM/yyyy") => {
 };
 
 // Formatear fecha relativa
-export const formatRelativeDate = (date) => {
+export const formatRelativeDate = (date: Date | string) => {
   try {
     const dateOnly = toLocalDateOnly(date);
     const today = toLocalDateOnly(new Date());
-    const days = differenceInDays(today, dateOnly);
+    const days = differenceInDays(today as Date, dateOnly as Date);
 
     if (days < 0) {
       const futureDays = Math.abs(days);
@@ -55,7 +58,10 @@ export const formatRelativeDate = (date) => {
 };
 
 // Calcular próxima fecha de servicio
-export const calculateNextServiceDate = (lastDate, intervalMonths) => {
+export const calculateNextServiceDate = (
+  lastDate: Date | string,
+  intervalMonths: number,
+) => {
   try {
     const dateObj =
       typeof lastDate === "string" ? parseISO(lastDate) : lastDate;
@@ -66,11 +72,11 @@ export const calculateNextServiceDate = (lastDate, intervalMonths) => {
 };
 
 // Días hasta el próximo servicio
-export const daysUntilService = (nextServiceDate) => {
+export const daysUntilService = (nextServiceDate: Date | string) => {
   try {
     const dateOnly = toLocalDateOnly(nextServiceDate);
     const today = toLocalDateOnly(new Date());
-    return differenceInDays(dateOnly, today);
+    return differenceInDays(dateOnly as Date, today as Date);
   } catch (error) {
     return null;
   }
