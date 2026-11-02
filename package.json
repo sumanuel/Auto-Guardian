@@ -1,7 +1,7 @@
 {
   "name": "auto-guardian",
   "main": "index.js",
-  "version": "1.0.0",
+  "version": "0.1.1.260728",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
