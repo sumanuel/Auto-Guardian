@@ -3,7 +3,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useState } from "react";
 import {
   ActivityIndicator,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -27,6 +26,7 @@ import {
   s,
   spacing,
 } from "../utils/responsive";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const DataManagementScreen = ({ navigation }) => {
   const { colors } = useTheme();
