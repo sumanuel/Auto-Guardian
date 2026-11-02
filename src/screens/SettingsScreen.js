@@ -1,6 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import { useEffect, useState } from "react";
 import {
+  Alert,
   ScrollView,
   StyleSheet,
   Switch,
@@ -9,10 +11,37 @@ import {
   View,
 } from "react-native";
 import { useTheme } from "../context/ThemeContext";
+import {
+  authenticate,
+  canUseLock,
+  isLockEnabled,
+  setLockEnabled,
+} from "../services/appLockService";
 import { borderRadius, iconSize, rf, s, spacing } from "../utils/responsive";
 
 const SettingsScreen = ({ navigation }) => {
   const { isDarkMode, toggleTheme, colors } = useTheme();
+  const [lockEnabled, setLockEnabledState] = useState(false);
+
+  useEffect(() => {
+    isLockEnabled().then(setLockEnabledState);
+  }, []);
+
+  const toggleLock = async (enable) => {
+    if (enable) {
+      if (!(await canUseLock())) {
+        Alert.alert(
+          "Bloqueo no disponible",
+          "Configura una huella, rostro, PIN o patrón en tu dispositivo para usar el bloqueo.",
+        );
+        return;
+      }
+      // Confirma que el usuario puede autenticarse antes de activarlo
+      if (!(await authenticate("Confirma para activar el bloqueo"))) return;
+    }
+    await setLockEnabled(enable);
+    setLockEnabledState(enable);
+  };
 
   const settingsOptions = [
     {
@@ -52,6 +81,14 @@ const SettingsScreen = ({ navigation }) => {
       title: "Moneda",
       icon: "cash-outline",
       screen: "CurrencySettings",
+    },
+    {
+      id: 7,
+      title: "Bloqueo con huella o PIN",
+      icon: "lock-closed-outline",
+      type: "switch",
+      value: lockEnabled,
+      onValueChange: toggleLock,
     },
   ];
 
