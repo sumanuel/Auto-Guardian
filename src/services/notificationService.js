@@ -220,6 +220,7 @@ export const checkAndNotifyPendingMaintenances = async (
         }
 
         // Verificar por fecha
+        if (maintenance.completedAt) continue;
         const dueDate = getMaintenanceDueDate(maintenance);
         if (dueDate) {
           const daysRemaining = Math.floor(
@@ -331,8 +332,12 @@ export const cancelAllNotifications = async () => {
 // Programar todas las notificaciones activas
 export const scheduleAllNotifications = async (getAllNotifications) => {
   try {
-    // Cancelar todas las notificaciones programadas anteriores
-    await Notifications.cancelAllScheduledNotificationsAsync();
+    // Cancelar las programadas anteriores, salvo los avisos de vencimiento
+    const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+    for (const notif of scheduled) {
+      if (notif.content?.data?.type === DUE_NOTIFICATION_TYPE) continue;
+      await Notifications.cancelScheduledNotificationAsync(notif.identifier);
+    }
 
     // Obtener todas las notificaciones
     const allNotifications = await getAllNotifications();
@@ -378,5 +383,87 @@ export const scheduleAllNotifications = async (getAllNotifications) => {
     logger.log("✅ Todas las notificaciones reprogramadas");
   } catch (error) {
     console.error("Error programando notificaciones:", error);
+  }
+};
+
+const DUE_NOTIFICATION_TYPE = "maintenance-due";
+const DUE_REMINDER_DAYS_BEFORE = 3;
+const DUE_NOTIFICATION_HOUR = 9;
+// Android/iOS limitan las notificaciones locales pendientes
+const MAX_DUE_NOTIFICATIONS = 40;
+
+const atNineAm = (date, daysOffset = 0) => {
+  const d = new Date(date);
+  d.setDate(d.getDate() + daysOffset);
+  d.setHours(DUE_NOTIFICATION_HOUR, 0, 0, 0);
+  return d;
+};
+
+// Programa avisos puntuales en la fecha real de vencimiento de cada
+// mantenimiento (y 3 días antes), en lugar de depender solo del resumen semanal.
+export const scheduleMaintenanceDueNotifications = async (
+  vehicles,
+  getUpcomingMaintenances,
+  now = new Date(),
+) => {
+  try {
+    const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+    for (const notif of scheduled) {
+      if (notif.content?.data?.type === DUE_NOTIFICATION_TYPE) {
+        await Notifications.cancelScheduledNotificationAsync(notif.identifier);
+      }
+    }
+
+    const pending = [];
+    for (const vehicle of vehicles || []) {
+      for (const maintenance of getUpcomingMaintenances(
+        vehicle.id,
+        vehicle.currentKm,
+      )) {
+        if (maintenance.completedAt) continue;
+        const dueDate = getMaintenanceDueDate(maintenance);
+        if (!dueDate) continue;
+        const due = new Date(dueDate);
+        if (Number.isNaN(due.getTime())) continue;
+
+        const label = `${maintenance.type || "Mantenimiento"} · ${vehicle.name}`;
+        pending.push(
+          {
+            date: atNineAm(due, -DUE_REMINDER_DAYS_BEFORE),
+            title: "Mantenimiento próximo",
+            body: `${label} vence en ${DUE_REMINDER_DAYS_BEFORE} días.`,
+          },
+          {
+            date: atNineAm(due),
+            title: "Mantenimiento vence hoy",
+            body: `${label} vence hoy.`,
+          },
+        );
+      }
+    }
+
+    const upcoming = pending
+      .filter((item) => item.date > now)
+      .sort((a, b) => a.date - b.date)
+      .slice(0, MAX_DUE_NOTIFICATIONS);
+
+    for (const item of upcoming) {
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: item.title,
+          body: item.body,
+          data: { type: DUE_NOTIFICATION_TYPE },
+          sound: true,
+        },
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.DATE,
+          date: item.date,
+        },
+      });
+    }
+    return upcoming.length;
+  } catch (error) {
+    console.error("Error programando avisos de vencimiento:", error);
+    return 0;
   }
 };

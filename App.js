@@ -19,7 +19,12 @@ import CurrencySetupScreen from "./src/screens/CurrencySetupScreen";
 import OnboardingScreen from "./src/screens/OnboardingScreen";
 import { runAutoBackupIfDue } from "./src/services/backup/backupService";
 import { initDatabase as initMainDatabase } from "./src/services/database";
-import { scheduleAllNotifications } from "./src/services/notificationService";
+import {
+  scheduleAllNotifications,
+  scheduleMaintenanceDueNotifications,
+} from "./src/services/notificationService";
+import { getUpcomingMaintenances } from "./src/services/maintenanceService";
+import { getAllVehicles } from "./src/services/vehicleService";
 
 function AppBootstrap() {
   const [isReady, setIsReady] = useState(false);
@@ -64,6 +69,10 @@ function AppBootstrap() {
 
       // Programar todas las notificaciones
       await scheduleAllNotifications(getAllNotifications);
+      await scheduleMaintenanceDueNotifications(
+        getAllVehicles(),
+        getUpcomingMaintenances,
+      );
 
       setIsReady(true);
     } catch (error) {
