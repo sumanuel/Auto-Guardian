@@ -5,7 +5,7 @@
 import { getMaintenanceTypes } from "../services/maintenanceService";
 
 // Cache para los iconos
-let iconCache = null;
+let iconCache: Record<string, string> | null = null;
 
 // Cargar iconos desde la base de datos
 const loadIconsFromDatabase = () => {
@@ -13,7 +13,7 @@ const loadIconsFromDatabase = () => {
 
   try {
     const types = getMaintenanceTypes();
-    const icons = {};
+    const icons: Record<string, string> = {};
 
     types.forEach((type) => {
       if (type.name && type.icon) {
@@ -30,7 +30,7 @@ const loadIconsFromDatabase = () => {
 };
 
 // Iconos de respaldo si falla la carga desde BD
-const getFallbackIcons = () => ({
+const getFallbackIcons = (): Record<string, string> => ({
   // Motor
   "Cambio de aceite": "water-outline",
   "Filtro de aceite": "funnel-outline",
@@ -65,9 +65,9 @@ const getFallbackIcons = () => ({
 });
 
 // Obtener icono para un tipo de mantenimiento
-export const getMaintenanceIcon = (type) => {
+export const getMaintenanceIcon = (type?: string | null) => {
   const icons = loadIconsFromDatabase();
-  return icons[type] || "construct-outline";
+  return (type && icons[type]) || "construct-outline";
 };
 
 // Forzar recarga de iconos (útil después de crear tipos personalizados)
@@ -77,8 +77,8 @@ export const reloadMaintenanceIcons = () => {
 };
 
 // Iconos para categorías
-export const getCategoryIcon = (category) => {
-  const icons = {
+export const getCategoryIcon = (category?: string | null) => {
+  const icons: Record<string, string> = {
     Motor: "cog-outline",
     Frenos: "hardware-chip-outline",
     Neumáticos: "ellipse-outline",
@@ -91,5 +91,5 @@ export const getCategoryIcon = (category) => {
     General: "search-outline",
   };
 
-  return icons[category] || "construct-outline";
+  return (category && icons[category]) || "construct-outline";
 };

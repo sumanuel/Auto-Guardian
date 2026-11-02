@@ -1,8 +1,8 @@
 import { logger } from "./logger";
-import * as Localization from "expo-localization";
+import { getCalendars, getLocales } from "expo-localization";
 
 // Mapeo de códigos de país ISO a códigos telefónicos internacionales
-const COUNTRY_PHONE_CODES = {
+const COUNTRY_PHONE_CODES: Record<string, string> = {
   AR: "54", // Argentina
   BO: "591", // Bolivia
   BR: "55", // Brasil
@@ -29,7 +29,7 @@ const COUNTRY_PHONE_CODES = {
 };
 
 // Mapeo de timezones a códigos de país (para detección alternativa)
-const TIMEZONE_TO_COUNTRY = {
+const TIMEZONE_TO_COUNTRY: Record<string, string> = {
   "America/Caracas": "VE",
   "America/Bogota": "CO",
   "America/Mexico_City": "MX",
@@ -58,19 +58,26 @@ const TIMEZONE_TO_COUNTRY = {
  * Detecta el código de país del usuario usando múltiples métodos
  * @returns {string} Código ISO del país (ej: 'VE', 'CO', 'MX')
  */
-const detectCountryCode = () => {
+// expo-localization 17 eliminó Localization.region/locale/timezone
+const getDeviceLocale = () => getLocales()[0];
+const getDeviceTimezone = (): string | null => getCalendars()[0]?.timeZone ?? null;
+
+const detectCountryCode = (): string => {
+  const locale = getDeviceLocale();
+  const timezone = getDeviceTimezone();
+
   // Método 1: Usar Localization.region (más confiable cuando funciona)
-  if (Localization.region) {
+  if (locale?.regionCode) {
     logger.log(
       "[PhoneUtils] Método 1 - Region detectada:",
-      Localization.region
+      locale.regionCode
     );
-    return Localization.region;
+    return locale.regionCode;
   }
 
   // Método 2: Extraer del locale (ej: 'es-VE' -> 'VE')
-  if (Localization.locale && Localization.locale.includes("-")) {
-    const countryFromLocale = Localization.locale.split("-")[1];
+  if (locale?.languageTag && locale.languageTag.includes("-")) {
+    const countryFromLocale = locale.languageTag.split("-")[1];
     logger.log(
       "[PhoneUtils] Método 2 - País desde locale:",
       countryFromLocale
@@ -79,8 +86,8 @@ const detectCountryCode = () => {
   }
 
   // Método 3: Usar timezone como fallback
-  if (Localization.timezone) {
-    const countryFromTimezone = TIMEZONE_TO_COUNTRY[Localization.timezone];
+  if (timezone) {
+    const countryFromTimezone = TIMEZONE_TO_COUNTRY[timezone];
     if (countryFromTimezone) {
       logger.log(
         "[PhoneUtils] Método 3 - País desde timezone:",
@@ -105,8 +112,8 @@ export const getCountryPhoneCode = () => {
     const regionCode = detectCountryCode();
 
     logger.log("[PhoneUtils] Código de país final:", regionCode);
-    logger.log("[PhoneUtils] Locale completo:", Localization.locale);
-    logger.log("[PhoneUtils] Timezone:", Localization.timezone);
+    logger.log("[PhoneUtils] Locale completo:", getDeviceLocale()?.languageTag);
+    logger.log("[PhoneUtils] Timezone:", getDeviceTimezone());
 
     // Buscar el código telefónico correspondiente
     const phoneCode = COUNTRY_PHONE_CODES[regionCode];
@@ -126,7 +133,7 @@ export const getCountryPhoneCode = () => {
  * @param {string} phoneNumber - Número telefónico a formatear
  * @returns {string} Número formateado con código de país
  */
-export const formatPhoneForWhatsApp = (phoneNumber) => {
+export const formatPhoneForWhatsApp = (phoneNumber?: string | null) => {
   if (!phoneNumber) return "";
 
   // Limpiar el número (remover espacios, guiones, paréntesis, +)
@@ -157,7 +164,7 @@ export const formatPhoneForWhatsApp = (phoneNumber) => {
  * @param {string} phoneNumber - Número telefónico a limpiar
  * @returns {string} Número limpio
  */
-export const cleanPhoneNumber = (phoneNumber) => {
+export const cleanPhoneNumber = (phoneNumber?: string | null) => {
   if (!phoneNumber) return "";
   return phoneNumber.replace(/[\s\-\(\)]/g, "");
 };
@@ -170,7 +177,7 @@ export const getCurrentCountryInfo = () => {
   try {
     const regionCode = detectCountryCode();
     const phoneCode = COUNTRY_PHONE_CODES[regionCode] || "57";
-    const locale = Localization.locale; // Ej: 'es-CO', 'en-US'
+    const locale = getDeviceLocale()?.languageTag; // Ej: 'es-CO', 'en-US'
 
     logger.log(
       "[getCurrentCountryInfo] Region:",

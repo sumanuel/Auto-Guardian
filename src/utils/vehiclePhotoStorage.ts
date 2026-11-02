@@ -2,10 +2,10 @@ import * as FileSystem from "expo-file-system/legacy";
 
 const VEHICLE_PHOTOS_DIR = `${FileSystem.documentDirectory}vehicle_photos/`;
 
-const isOwnedVehiclePhoto = (uri) =>
-  Boolean(uri) && uri.startsWith(VEHICLE_PHOTOS_DIR);
+const isOwnedVehiclePhoto = (uri?: string | null): uri is string =>
+  Boolean(uri) && (uri as string).startsWith(VEHICLE_PHOTOS_DIR);
 
-const guessExtension = (uri) => {
+const guessExtension = (uri?: string | null): string => {
   const cleanUri = (uri || "").split("?")[0];
   const match = cleanUri.match(/\.([a-zA-Z0-9]+)$/);
   if (!match) return "jpg";
@@ -14,7 +14,9 @@ const guessExtension = (uri) => {
   return ext;
 };
 
-export const persistVehiclePhotoAsync = async (sourceUri) => {
+export const persistVehiclePhotoAsync = async (
+  sourceUri?: string | null,
+): Promise<string | null> => {
   if (!sourceUri) return null;
 
   try {
@@ -37,7 +39,9 @@ export const persistVehiclePhotoAsync = async (sourceUri) => {
   }
 };
 
-export const ensurePersistentVehiclePhotoAsync = async (sourceUri) => {
+export const ensurePersistentVehiclePhotoAsync = async (
+  sourceUri?: string | null,
+): Promise<string | null> => {
   if (!sourceUri) return null;
   if (isOwnedVehiclePhoto(sourceUri)) return sourceUri;
 
@@ -54,7 +58,9 @@ export const ensurePersistentVehiclePhotoAsync = async (sourceUri) => {
   }
 };
 
-export const deleteVehiclePhotoIfOwnedAsync = async (uri) => {
+export const deleteVehiclePhotoIfOwnedAsync = async (
+  uri?: string | null,
+): Promise<void> => {
   try {
     if (!uri) return;
     if (!isOwnedVehiclePhoto(uri)) return;
