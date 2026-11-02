@@ -1,3 +1,4 @@
+import { logger } from "../utils/logger";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
 import {
@@ -150,7 +151,7 @@ export const AppSettingsProvider = ({ children }) => {
         normalizedVersion,
       );
     } catch (error) {
-      console.log(
+      logger.log(
         "No se pudo registrar la notificación de update:",
         error?.message || error,
       );
@@ -168,7 +169,7 @@ export const AppSettingsProvider = ({ children }) => {
       setUpdateAvailable(Boolean(result?.isAvailable));
     } catch (error) {
       // En algunos entornos puede fallar; no debe romper la app.
-      console.log("Update check skipped:", error?.message || error);
+      logger.log("Update check skipped:", error?.message || error);
     } finally {
       setIsCheckingUpdate(false);
     }
@@ -225,7 +226,7 @@ export const AppSettingsProvider = ({ children }) => {
       }
     } catch (error) {
       // No debe romper la app.
-      console.log("Store update check skipped:", error?.message || error);
+      logger.log("Store update check skipped:", error?.message || error);
     } finally {
       setIsCheckingStoreUpdate(false);
     }
@@ -269,7 +270,7 @@ export const AppSettingsProvider = ({ children }) => {
       try {
         await Linking.openURL(httpsUrl);
       } catch (error) {
-        console.log("No se pudo abrir Play Store:", error?.message || error);
+        logger.log("No se pudo abrir Play Store:", error?.message || error);
       }
     }
   }, [storeUpdateUrl]);
@@ -281,7 +282,7 @@ export const AppSettingsProvider = ({ children }) => {
       await Updates.fetchUpdateAsync();
       await Updates.reloadAsync();
     } catch (error) {
-      console.log(
+      logger.log(
         "No se pudo aplicar la actualización:",
         error?.message || error,
       );

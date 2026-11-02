@@ -1,3 +1,4 @@
+import { logger } from "../utils/logger";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import {
@@ -116,7 +117,7 @@ const ContactsScreen = ({ navigation }) => {
           return;
         }
       } catch (_error) {
-        console.log("WhatsApp app no disponible, intentando con web API");
+        logger.log("WhatsApp app no disponible, intentando con web API");
       }
 
       // Si falla, usar la API web de WhatsApp como fallback

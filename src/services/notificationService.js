@@ -1,3 +1,4 @@
+import { logger } from "../utils/logger";
 import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
 import { getMaintenanceDueDate } from "./maintenanceService";
@@ -26,7 +27,7 @@ export const requestNotificationPermissions = async () => {
     }
 
     if (finalStatus !== "granted") {
-      console.log("ℹ️ Permisos de notificación denegados");
+      logger.log("ℹ️ Permisos de notificación denegados");
       return false;
     }
 
@@ -163,11 +164,11 @@ export const scheduleAlertNotifications = async (getAlertSummary) => {
         });
       }
 
-      console.log(
+      logger.log(
         "✅ Notificaciones de alertas programadas para lunes y miércoles",
       );
     } else {
-      console.log(
+      logger.log(
         "ℹ️ No hay alertas pendientes, no se programan notificaciones",
       );
     }
@@ -311,7 +312,7 @@ export const updateBadgeCount = async (count) => {
 export const clearBadge = async () => {
   try {
     await Notifications.setBadgeCountAsync(0);
-    console.log("✅ Badge limpiado");
+    logger.log("✅ Badge limpiado");
   } catch (error) {
     console.error("Error limpiando badge:", error);
   }
@@ -321,7 +322,7 @@ export const clearBadge = async () => {
 export const cancelAllNotifications = async () => {
   try {
     await Notifications.cancelAllScheduledNotificationsAsync();
-    console.log("✅ Todas las notificaciones canceladas");
+    logger.log("✅ Todas las notificaciones canceladas");
   } catch (error) {
     console.error("Error cancelando notificaciones:", error);
   }
@@ -374,7 +375,7 @@ export const scheduleAllNotifications = async (getAllNotifications) => {
       });
     }
 
-    console.log("✅ Todas las notificaciones reprogramadas");
+    logger.log("✅ Todas las notificaciones reprogramadas");
   } catch (error) {
     console.error("Error programando notificaciones:", error);
   }
