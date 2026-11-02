@@ -7,13 +7,26 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import DecimalsSelector from "../components/common/DecimalsSelector";
 import { useAppSettings } from "../context/AppSettingsContext";
 import { useTheme } from "../context/ThemeContext";
-import { borderRadius, iconSize, rf, s, spacing } from "../utils/responsive";
+import {
+  borderRadius,
+  iconSize,
+  rf,
+  s,
+  spacing,
+  vs,
+} from "../utils/responsive";
 
 const CurrencySettingsScreen = () => {
   const { colors } = useTheme();
-  const { currencySymbol, setCurrencySymbol } = useAppSettings();
+  const {
+    currencySymbol,
+    setCurrencySymbol,
+    currencyDecimals,
+    setCurrencyDecimals,
+  } = useAppSettings();
 
   const Option = ({ symbol, label }) => {
     const selected = currencySymbol === symbol;
@@ -100,10 +113,22 @@ const CurrencySettingsScreen = () => {
         <Option symbol="$" label="Dólar" />
         <Option symbol="€" label="Euro" />
 
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>
+          Decimales
+        </Text>
+        <Text style={[styles.sectionHint, { color: colors.textSecondary }]}>
+          Cantidad de decimales en montos y cálculos. Algunos países, como
+          Portugal, usan 3.
+        </Text>
+        <DecimalsSelector
+          value={currencyDecimals}
+          onChange={setCurrencyDecimals}
+        />
+
         <View style={styles.note}>
           <Text style={[styles.noteText, { color: colors.textSecondary }]}>
-            Esto cambia sólo el símbolo mostrado y no modifica los valores ya
-            registrados.
+            Esto cambia sólo cómo se muestran los montos y no modifica los
+            valores ya registrados.
           </Text>
         </View>
       </ScrollView>
@@ -112,6 +137,17 @@ const CurrencySettingsScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  sectionTitle: {
+    marginTop: vs(16),
+    fontSize: rf(17),
+    fontWeight: "700",
+  },
+  sectionHint: {
+    marginTop: vs(4),
+    marginBottom: vs(12),
+    fontSize: rf(13),
+    lineHeight: rf(18),
+  },
   container: {
     flex: 1,
   },

@@ -1,3 +1,4 @@
+import { moneyPlaceholder } from "../utils/currencyConfig";
 import { logger } from "../utils/logger";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
@@ -795,7 +796,7 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
                   ]}
                   value={formData.cost}
                   onChangeText={(value) => handleInputChange("cost", value)}
-                  placeholder="0.00"
+                  placeholder={moneyPlaceholder()}
                   placeholderTextColor={colors.textSecondary}
                   keyboardType="decimal-pad"
                 />
@@ -958,7 +959,7 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
                   onChangeText={(value) =>
                     setEditFormData((prev) => ({ ...prev, cost: value }))
                   }
-                  placeholder="0.00"
+                  placeholder={moneyPlaceholder()}
                   placeholderTextColor={colors.textSecondary}
                   keyboardType="decimal-pad"
                 />

@@ -1,3 +1,5 @@
+import { roundMoney } from "./currencyConfig";
+
 // Detalle por ítems de mantenimientos, gastos y reparaciones.
 // En pantalla se editan como texto (DraftItem); en la base se guardan como JSON
 // con números (LineItem) en la columna `items`.
@@ -23,13 +25,11 @@ export const parseNumber = (value: string | number | null | undefined) => {
   return Number.isFinite(parsed) ? parsed : 0;
 };
 
-const round2 = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
-
 export const itemSubtotal = (item: Pick<DraftItem, "quantity" | "unitCost">) =>
-  round2(parseNumber(item.quantity) * parseNumber(item.unitCost));
+  roundMoney(parseNumber(item.quantity) * parseNumber(item.unitCost));
 
 export const itemsTotal = (items: DraftItem[]) =>
-  round2(items.reduce((sum, item) => sum + itemSubtotal(item), 0));
+  roundMoney(items.reduce((sum, item) => sum + itemSubtotal(item), 0));
 
 let counter = 0;
 export const newDraftItem = (name: string): DraftItem => ({

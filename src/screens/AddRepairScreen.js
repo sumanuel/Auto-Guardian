@@ -20,6 +20,7 @@ import { useApp } from "../context/AppContext";
 import { useAppSettings } from "../context/AppSettingsContext";
 import { useTheme } from "../context/ThemeContext";
 import { useDialog } from "../hooks/useDialog";
+import { getCurrencyDecimals, moneyPlaceholder } from "../utils/currencyConfig";
 import {
   fromStoredItems,
   itemsTotal,
@@ -359,10 +360,10 @@ const AddRepairScreen = ({ route, navigation }) => {
                   color: colors.text,
                 },
               ]}
-              value={hasItems ? itemsCost.toFixed(2) : formData.cost}
+              value={hasItems ? itemsCost.toFixed(getCurrencyDecimals()) : formData.cost}
               onChangeText={(value) => handleInputChange("cost", value)}
               editable={!hasItems}
-              placeholder="0.00"
+              placeholder={moneyPlaceholder()}
               placeholderTextColor={colors.textSecondary}
               keyboardType="decimal-pad"
               returnKeyType="next"
