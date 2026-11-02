@@ -5,6 +5,47 @@ import * as Sharing from "expo-sharing";
 import db from "../database";
 
 const BACKUP_DIR = `${FileSystem.documentDirectory}backups/`;
+const VEHICLE_PHOTOS_DIR = `${FileSystem.documentDirectory}vehicle_photos/`;
+
+// Las fotos propias de la app se guardan en el respaldo como base64 para que
+// sobrevivan a un cambio de teléfono (el URI absoluto cambia entre equipos).
+const exportVehiclePhotos = async (vehicleRows) => {
+  const photos = {};
+  for (const row of vehicleRows) {
+    if (!row.photo || !row.photo.startsWith(VEHICLE_PHOTOS_DIR)) continue;
+    const fileName = row.photo.slice(VEHICLE_PHOTOS_DIR.length);
+    try {
+      photos[fileName] = await FileSystem.readAsStringAsync(row.photo, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+    } catch (error) {
+      logger.log("Foto omitida en el respaldo:", fileName, error?.message);
+    }
+  }
+  return photos;
+};
+
+const restoreVehiclePhotos = async (photos, vehicleRows) => {
+  if (!photos || Object.keys(photos).length === 0) return;
+  await FileSystem.makeDirectoryAsync(VEHICLE_PHOTOS_DIR, {
+    intermediates: true,
+  });
+  for (const [fileName, data] of Object.entries(photos)) {
+    // Evita rutas fuera de la carpeta de fotos
+    if (fileName.includes("/") || fileName.includes("..")) continue;
+    await FileSystem.writeAsStringAsync(`${VEHICLE_PHOTOS_DIR}${fileName}`, data, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+  }
+  // Reapuntar cada foto al directorio de este dispositivo
+  for (const row of vehicleRows) {
+    if (!row.photo) continue;
+    const match = row.photo.match(/vehicle_photos\/([^/]+)$/);
+    if (match && photos[match[1]] !== undefined) {
+      row.photo = `${VEHICLE_PHOTOS_DIR}${match[1]}`;
+    }
+  }
+};
 
 const nowStamp = () => {
   const d = new Date();
@@ -86,11 +127,16 @@ export const exportDatabaseBackup = async () => {
       version: "1.0",
       app: "Auto Guardian",
       tables: {},
+      vehiclePhotos: {},
     };
 
     for (const tableName of orderedTables) {
       backupData.tables[tableName] = await exportTable(tableName);
     }
+
+    backupData.vehiclePhotos = await exportVehiclePhotos(
+      backupData.tables.vehicles?.rows || []
+    );
 
     const backupFileName = `autoguardian-backup-${nowStamp()}.json`;
     const backupPath = `${BACKUP_DIR}${backupFileName}`;
@@ -169,6 +215,11 @@ export const importDatabaseBackupFromUri = async (uri) => {
         throw new Error(`Datos inválidos en la tabla ${tableName}`);
       }
     }
+
+    await restoreVehiclePhotos(
+      backupData.vehiclePhotos,
+      backupData.tables.vehicles?.rows || []
+    );
 
     // Las llaves foráneas no se pueden cambiar dentro de una transacción
     const fkState = db.getFirstSync("PRAGMA foreign_keys");
