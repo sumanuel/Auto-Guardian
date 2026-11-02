@@ -41,3 +41,12 @@ Estado: ✅ hecho en rama · ⏳ pendiente.
 ## Hallazgos adicionales
 
 - `phoneUtils` usaba `Localization.region/locale/timezone`, eliminados en expo-localization 17: la detección de país siempre caía en Colombia (+57). Corregido con `getLocales()`/`getCalendars()` y probado (rama `refactor/typescript-utils-2`).
+
+## Actualización a Expo SDK 58 (rama `chore/sdk-58`)
+
+- Expo 54 → 58, React Native 0.81 → 0.88, React 19.1 → 19.3, Reanimated 4.7, Gesture Handler 3.3, Jest 30.
+- `expo-doctor` 20/20, `tsc` sin errores, 22 pruebas en verde, `expo export` para Android compila.
+- `app.json`: se quitaron `newArchEnabled` y `android.edgeToEdgeEnabled` (ya son obligatorios) y `android.queries` pasó al plugin `expo-build-properties` (`manifestQueries`), con los mismos esquemas (`tel`, `sms`, `mailto`, `whatsapp`) y el intent de `api.whatsapp.com`.
+- Se eliminó `@react-navigation/material-top-tabs` (no se usaba) y se agregó `@react-native/jest-preset`.
+- ESLint 58 trae reglas del React Compiler que el código actual incumple (62 avisos: `set-state-in-effect`, `refs`, `immutability`, `static-components`). Quedaron como aviso; conviene corregirlas poco a poco.
+- **Probar en dispositivo antes de publicar:** reordenar tipos en `CategoriesScreen` (`react-native-draggable-flatlist` 4.0.3 con Gesture Handler 3), notificaciones, WhatsApp/llamadas (queries del manifiesto), bloqueo biométrico, y el aspecto con edge-to-edge. Requiere un build nuevo con EAS.
