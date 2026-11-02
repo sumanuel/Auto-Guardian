@@ -51,3 +51,4 @@ credentials.json
 
 # respaldos de edición
 *.bak
+google-service-account.json
