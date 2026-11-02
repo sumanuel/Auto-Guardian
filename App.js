@@ -17,6 +17,7 @@ import {
 import AppNavigator from "./src/navigation/AppNavigator";
 import CurrencySetupScreen from "./src/screens/CurrencySetupScreen";
 import OnboardingScreen from "./src/screens/OnboardingScreen";
+import { runAutoBackupIfDue } from "./src/services/backup/backupService";
 import { initDatabase as initMainDatabase } from "./src/services/database";
 import { scheduleAllNotifications } from "./src/services/notificationService";
 
@@ -57,6 +58,7 @@ function AppBootstrap() {
         logger.log("Permiso de notificaciones denegado");
       }
       await initMainDatabase();
+      runAutoBackupIfDue(); // en segundo plano, no bloquea el arranque
       await initNotificationsDatabase();
       await insertDefaultNotifications();
 

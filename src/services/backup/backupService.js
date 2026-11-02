@@ -1,4 +1,5 @@
 import { logger } from "../../utils/logger";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system/legacy";
 import * as Sharing from "expo-sharing";
@@ -115,7 +116,7 @@ const importTable = (tableName, rows) => {
   }
 };
 
-export const exportDatabaseBackup = async () => {
+export const exportDatabaseBackup = async (prefix = "autoguardian-backup") => {
   try {
     await ensureBackupDir();
 
@@ -138,7 +139,7 @@ export const exportDatabaseBackup = async () => {
       backupData.tables.vehicles?.rows || []
     );
 
-    const backupFileName = `autoguardian-backup-${nowStamp()}.json`;
+    const backupFileName = `${prefix}-${nowStamp()}.json`;
     const backupPath = `${BACKUP_DIR}${backupFileName}`;
 
     await FileSystem.writeAsStringAsync(
@@ -243,5 +244,37 @@ export const importDatabaseBackupFromUri = async (uri) => {
   } catch (error) {
     console.error("Error importing backup:", error);
     throw new Error(`Error al importar el respaldo: ${error.message}`);
+  }
+};
+
+const AUTO_BACKUP_KEY = "lastAutoBackupAt";
+const AUTO_BACKUP_PREFIX = "autoguardian-auto";
+const AUTO_BACKUP_INTERVAL_MS = 7 * 24 * 60 * 60 * 1000;
+const AUTO_BACKUP_KEEP = 5;
+
+const pruneAutoBackups = async () => {
+  const files = await FileSystem.readDirectoryAsync(BACKUP_DIR);
+  const autoFiles = files
+    .filter((name) => name.startsWith(`${AUTO_BACKUP_PREFIX}-`))
+    .sort(); // el sello de fecha ordena cronológicamente
+  for (const name of autoFiles.slice(0, -AUTO_BACKUP_KEEP)) {
+    await FileSystem.deleteAsync(`${BACKUP_DIR}${name}`, { idempotent: true });
+  }
+};
+
+// Crea un respaldo local si pasó más de una semana desde el último.
+// Nunca lanza: un fallo aquí no debe impedir abrir la app.
+export const runAutoBackupIfDue = async (now = Date.now()) => {
+  try {
+    const last = Number(await AsyncStorage.getItem(AUTO_BACKUP_KEY)) || 0;
+    if (now - last < AUTO_BACKUP_INTERVAL_MS) return false;
+
+    await exportDatabaseBackup(AUTO_BACKUP_PREFIX);
+    await AsyncStorage.setItem(AUTO_BACKUP_KEY, String(now));
+    await pruneAutoBackups();
+    return true;
+  } catch (error) {
+    logger.log("Respaldo automático omitido:", error?.message);
+    return false;
   }
 };
