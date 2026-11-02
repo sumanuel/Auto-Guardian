@@ -7,7 +7,6 @@
     "icon": "./assets/icon.png",
     "scheme": "autoguardian",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true
     },
@@ -17,21 +16,8 @@
         "backgroundColor": "#0F5FD2",
         "foregroundImage": "./assets/adaptive-icon.png"
       },
-      "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.trenkit.autoguardian",
-      "queries": {
-        "schemes": ["tel", "sms", "mailto", "whatsapp"],
-        "intents": [
-          {
-            "action": "android.intent.action.VIEW",
-            "data": {
-              "scheme": "https",
-              "host": "api.whatsapp.com"
-            }
-          }
-        ]
-      }
+      "package": "com.trenkit.autoguardian"
     },
     "web": {
       "output": "single",
@@ -59,7 +45,58 @@
           "faceIDPermission": "Auto Guardian usa Face ID para proteger tus vehículos y documentos."
         }
       ],
-      "expo-font"
+      "expo-font",
+      "@react-native-community/datetimepicker",
+      "expo-image",
+      "expo-sharing",
+      "expo-sqlite",
+      "expo-status-bar",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "manifestQueries": {
+              "intent": [
+                {
+                  "action": "android.intent.action.VIEW",
+                  "category": ["android.intent.category.BROWSABLE"],
+                  "data": {
+                    "scheme": "tel"
+                  }
+                },
+                {
+                  "action": "android.intent.action.VIEW",
+                  "category": ["android.intent.category.BROWSABLE"],
+                  "data": {
+                    "scheme": "sms"
+                  }
+                },
+                {
+                  "action": "android.intent.action.VIEW",
+                  "category": ["android.intent.category.BROWSABLE"],
+                  "data": {
+                    "scheme": "mailto"
+                  }
+                },
+                {
+                  "action": "android.intent.action.VIEW",
+                  "category": ["android.intent.category.BROWSABLE"],
+                  "data": {
+                    "scheme": "whatsapp"
+                  }
+                },
+                {
+                  "action": "android.intent.action.VIEW",
+                  "data": {
+                    "scheme": "https",
+                    "host": "api.whatsapp.com"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
     ],
     "experiments": {
       "reactCompiler": true
