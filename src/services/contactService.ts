@@ -1,10 +1,10 @@
+import type { Contact, ContactInput } from "../types/models";
 import db from "./database";
 
 // Obtener todos los contactos
 export const getAllContacts = () => {
   try {
-    const contacts = db.getAllSync(
-      "SELECT * FROM contacts ORDER BY createdAt DESC"
+    const contacts = db.getAllSync<Contact>("SELECT * FROM contacts ORDER BY createdAt DESC"
     );
     return contacts;
   } catch (error) {
@@ -14,9 +14,9 @@ export const getAllContacts = () => {
 };
 
 // Obtener un contacto por ID
-export const getContactById = (id) => {
+export const getContactById = (id: number) => {
   try {
-    const contact = db.getFirstSync("SELECT * FROM contacts WHERE id = ?", [
+    const contact = db.getFirstSync<Contact>("SELECT * FROM contacts WHERE id = ?", [
       id,
     ]);
     return contact;
@@ -27,7 +27,7 @@ export const getContactById = (id) => {
 };
 
 // Crear nuevo contacto
-export const createContact = (contactData) => {
+export const createContact = (contactData: ContactInput) => {
   try {
     const result = db.runSync(
       `INSERT INTO contacts (name, phone, email, notes)
@@ -47,7 +47,7 @@ export const createContact = (contactData) => {
 };
 
 // Actualizar contacto
-export const updateContact = (id, contactData) => {
+export const updateContact = (id: number, contactData: ContactInput) => {
   try {
     db.runSync(
       `UPDATE contacts
@@ -69,7 +69,7 @@ export const updateContact = (id, contactData) => {
 };
 
 // Eliminar contacto
-export const deleteContact = (id) => {
+export const deleteContact = (id: number) => {
   try {
     db.runSync("DELETE FROM contacts WHERE id = ?", [id]);
     return true;
