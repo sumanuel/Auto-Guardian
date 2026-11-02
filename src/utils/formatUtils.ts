@@ -1,5 +1,9 @@
+// Fecha como string ISO, Date o timestamp
+type DateInput = string | number | Date | null | undefined;
+type Urgency = "low" | "medium" | "high";
+
 // Formatear moneda
-export const formatCurrency = (amount, currencySymbol = "$") => {
+export const formatCurrency = (amount: number | string | null | undefined, currencySymbol = "$") => {
   if (!amount && amount !== 0) return "-";
 
   const numeric = Number(amount);
@@ -12,19 +16,19 @@ export const formatCurrency = (amount, currencySymbol = "$") => {
 };
 
 // Formatear kilometraje
-export const formatKm = (km) => {
+export const formatKm = (km: number | null | undefined) => {
   if (!km && km !== 0) return "-";
   return new Intl.NumberFormat("es-MX").format(km) + " km";
 };
 
 // Determinar urgencia del mantenimiento
 export const getMaintenanceUrgency = (
-  currentKm,
-  nextServiceKm,
-  nextServiceDate,
-  scheduledDate = null,
-) => {
-  let urgency = "low"; // low, medium, high
+  currentKm?: number | null,
+  nextServiceKm?: number | null,
+  nextServiceDate?: DateInput,
+  scheduledDate: DateInput = null,
+): Urgency => {
+  let urgency: Urgency = "low";
 
   // Verificar por kilometraje
   if (nextServiceKm && currentKm) {
@@ -42,7 +46,7 @@ export const getMaintenanceUrgency = (
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const daysRemaining = Math.floor(
-      (nextDate - today) / (1000 * 60 * 60 * 24),
+      (nextDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
     );
     if (daysRemaining <= 0) urgency = "high";
     else if (daysRemaining <= 7) urgency = "high";
@@ -55,7 +59,7 @@ export const getMaintenanceUrgency = (
 };
 
 // Obtener color según urgencia
-export const getUrgencyColor = (urgency) => {
+export const getUrgencyColor = (urgency: string) => {
   switch (urgency) {
     case "high":
       return "#ff4444";
@@ -69,7 +73,7 @@ export const getUrgencyColor = (urgency) => {
 };
 
 // Obtener texto de urgencia
-export const getUrgencyText = (urgency) => {
+export const getUrgencyText = (urgency: string) => {
   switch (urgency) {
     case "high":
       return "Urgente";
@@ -83,7 +87,7 @@ export const getUrgencyText = (urgency) => {
 };
 
 // Formatear días restantes hasta la próxima fecha de servicio
-export const formatDaysRemaining = (nextServiceDate) => {
+export const formatDaysRemaining = (nextServiceDate?: DateInput) => {
   if (!nextServiceDate) return null;
 
   const nextDateValue = new Date(nextServiceDate);
@@ -100,7 +104,7 @@ export const formatDaysRemaining = (nextServiceDate) => {
   );
 
   const daysRemaining = Math.floor(
-    (nextDate - todayDate) / (1000 * 60 * 60 * 24),
+    (nextDate.getTime() - todayDate.getTime()) / (1000 * 60 * 60 * 24),
   );
 
   if (daysRemaining < 0) {
@@ -114,7 +118,7 @@ export const formatDaysRemaining = (nextServiceDate) => {
   const weeks = Math.floor(daysRemaining / 7);
   const days = daysRemaining % 7;
 
-  const parts = [];
+  const parts: string[] = [];
   if (weeks > 0) parts.push(`${weeks} semana${weeks !== 1 ? "s" : ""}`);
   if (days > 0) parts.push(`${days} día${days !== 1 ? "s" : ""}`);
 
@@ -122,7 +126,10 @@ export const formatDaysRemaining = (nextServiceDate) => {
 };
 
 // Formatear kilometraje restante hasta el próximo servicio
-export const formatKmRemaining = (currentKm, nextServiceKm) => {
+export const formatKmRemaining = (
+  currentKm?: number | null,
+  nextServiceKm?: number | null,
+) => {
   if (!nextServiceKm || !currentKm) return null;
 
   const kmRemaining = nextServiceKm - currentKm;
@@ -133,7 +140,10 @@ export const formatKmRemaining = (currentKm, nextServiceKm) => {
 };
 
 // Obtener color de urgencia por kilometraje
-export const getKmUrgencyColor = (currentKm, nextServiceKm) => {
+export const getKmUrgencyColor = (
+  currentKm?: number | null,
+  nextServiceKm?: number | null,
+) => {
   if (!nextServiceKm || !currentKm) return "#666";
 
   const kmRemaining = nextServiceKm - currentKm;
@@ -146,7 +156,7 @@ export const getKmUrgencyColor = (currentKm, nextServiceKm) => {
 };
 
 // Obtener color de urgencia por fecha
-export const getDateUrgencyColor = (nextServiceDate) => {
+export const getDateUrgencyColor = (nextServiceDate?: DateInput) => {
   if (!nextServiceDate) return "#666";
 
   const nextDateValue = new Date(nextServiceDate);
@@ -157,7 +167,9 @@ export const getDateUrgencyColor = (nextServiceDate) => {
   );
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const daysRemaining = Math.floor((nextDate - today) / (1000 * 60 * 60 * 24));
+  const daysRemaining = Math.floor(
+    (nextDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
+  );
 
   if (daysRemaining < 0) return "#ff4444"; // Vencido - Rojo
   if (daysRemaining === 0) return "#ff4444"; // Hoy - Rojo
@@ -169,13 +181,15 @@ export const getDateUrgencyColor = (nextServiceDate) => {
 };
 
 // Obtener color de urgencia para documentos por fecha de vencimiento
-export const getDocumentExpiryColor = (expiryDate) => {
+export const getDocumentExpiryColor = (expiryDate?: string | null) => {
   if (!expiryDate) return "#666";
 
   const expiry = new Date(expiryDate + "T00:00:00");
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const daysRemaining = Math.floor((expiry - today) / (1000 * 60 * 60 * 24));
+  const daysRemaining = Math.floor(
+    (expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
+  );
 
   if (daysRemaining < 0) return "#ff4444"; // Vencido - Rojo
   if (daysRemaining === 0) return "#ff4444"; // Vence hoy - Rojo
