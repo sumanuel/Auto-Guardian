@@ -21,7 +21,7 @@ Estado: ✅ hecho en rama · ⏳ pendiente.
 7. Pantallas muy grandes: `VehicleDetailScreen` (1721 líneas), `MaintenanceHistoryScreen` (1716), `AddMaintenanceScreen` (1442), `CategoriesScreen` (1422), `InvestmentDetailScreen` (1419). 🟡 Parcial: los estilos de `VehicleDetailScreen` y `MaintenanceHistoryScreen` (~1100 líneas) pasaron a archivos `.styles.js` (rama `refactor/extraer-estilos`). Falta dividir la lógica y el JSX en subcomponentes.
 8. Rendimiento de listas: solo 24 de 102 usos son `FlatList`; pocos `useMemo`/`useCallback`. ✅ Revisado: las listas con datos sin límite ya usan `FlatList`; los `ScrollView` son formularios o listas acotadas (`slice(0, 3)`). No requiere cambios.
 9. Sin pruebas automáticas (ni Jest ni script de test). Empezar por `maintenanceService`, `dateUtils` y el respaldo. ✅ Jest con `jest-expo` y 10 pruebas (`npm test`, rama `test/jest-base`). Falta ampliar cobertura.
-10. Todo en JavaScript con `tsconfig` estricto; migrar a TypeScript gradualmente. 🟡 Parcial: `logger`, `dateUtils` y `formatUtils` migrados a TypeScript, `tsc --noEmit` sin errores (rama `refactor/typescript-utils`). El resto sigue en JS.
+10. Todo en JavaScript con `tsconfig` estricto; migrar a TypeScript gradualmente. 🟡 Parcial: `logger`, `dateUtils`, `formatUtils`, `phoneUtils`, `maintenanceIcons`, `vehiclePhotoStorage` y `appLockService` en TypeScript, `tsc --noEmit` sin errores (ramas `refactor/typescript-utils`, `refactor/typescript-utils-2`). Servicios, contextos y pantallas siguen en JS.
 11. Código de plantilla de Expo sin usar (`app/`, `components/`, `hooks/`, `constants/theme.ts`) y `expo-router` duplicando React Navigation.  ✅ Eliminado (rama `chore/limpiar-plantilla-expo`); `expo-router` también eliminado (rama `chore/quitar-expo-router`).
 12. Notificaciones: mensaje aleatorio y programación fija (lunes y miércoles 9 AM); programar con la fecha real de vencimiento y probar permisos en Android 13+. ✅ Avisos puntuales 3 días antes y el día del vencimiento, a las 9:00 (rama `feat/notificaciones-vencimiento`). Falta probar en Android 13+ real.
 
@@ -32,8 +32,12 @@ Estado: ✅ hecho en rama · ⏳ pendiente.
 15. `console.log` sueltos (`database.js`, `phoneUtils.js`, `responsive.js`); usar logger con `__DEV__`. ✅ Logger solo en desarrollo (rama `chore/logger-dev`).
 16. Versiones desalineadas: `package.json` 1.0.0 vs `app.json` 0.1.1.260728.  ✅ `package.json` alineado (rama `chore/alinear-version`).
 17. `eas.json` con `submit.production` vacío. ✅ `submit.production` apunta a `google-service-account.json` (ignorado en git; hay que crearlo en Play Console) (rama `chore/eas-submit`).
-18. Funcionalidad: respaldo automático periódico, cifrado del respaldo, PIN o biometría para documentos. 🟡 Parcial: respaldo automático semanal con 5 copias (rama `feat/respaldo-automatico`). Siguen pendientes cifrado del respaldo y PIN/biometría (requiere `expo-local-authentication` y nuevo build nativo).
+18. Funcionalidad: respaldo automático periódico, cifrado del respaldo, PIN o biometría para documentos. 🟡 Parcial: respaldo automático semanal con 5 copias (rama `feat/respaldo-automatico`) y bloqueo opcional con huella, rostro o PIN del dispositivo (rama `feat/bloqueo-app`; agrega `expo-local-authentication`, **requiere nuevo build nativo**). Pendiente: cifrado del respaldo (necesita una librería AES y definir cómo el usuario guarda la contraseña).
 
 ## Orden sugerido
 
 1 → 2 y 3 → 9 y 6 → resto.
+
+## Hallazgos adicionales
+
+- `phoneUtils` usaba `Localization.region/locale/timezone`, eliminados en expo-localization 17: la detección de país siempre caía en Colombia (+57). Corregido con `getLocales()`/`getCalendars()` y probado (rama `refactor/typescript-utils-2`).
