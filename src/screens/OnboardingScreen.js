@@ -3,7 +3,6 @@ import { useRef, useState } from "react";
 import {
   Dimensions,
   Image,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -12,6 +11,7 @@ import {
 } from "react-native";
 import { useTheme } from "../context/ThemeContext";
 import { ms, rf } from "../utils/responsive";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
 
