@@ -1,3 +1,4 @@
+import { logger } from "../utils/logger";
 import { openDatabaseSync } from "expo-sqlite";
 
 const db = openDatabaseSync("notifications.db");
@@ -23,7 +24,7 @@ export const initDatabase = async () => {
       // Column already exists, ignore
     }
   } catch (error) {
-    console.log("Error creating table:", error);
+    logger.log("Error creating table:", error);
   }
 };
 
@@ -142,6 +143,6 @@ export const insertDefaultNotifications = async () => {
       }
     }
   } catch (error) {
-    console.log("Error inserting defaults:", error);
+    logger.log("Error inserting defaults:", error);
   }
 };

@@ -1,3 +1,4 @@
+import { logger } from "./src/utils/logger";
 ﻿import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from "expo-notifications";
 import { useEffect, useState } from "react";
@@ -53,7 +54,7 @@ function AppBootstrap() {
       // Inicializar base de datos y notificaciones
       const { status } = await Notifications.requestPermissionsAsync();
       if (status !== "granted") {
-        console.log("Permiso de notificaciones denegado");
+        logger.log("Permiso de notificaciones denegado");
       }
       await initMainDatabase();
       await initNotificationsDatabase();

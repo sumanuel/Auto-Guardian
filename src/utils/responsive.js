@@ -1,3 +1,4 @@
+import { logger } from "./logger";
 import { Dimensions, PixelRatio, Platform } from "react-native";
 
 // Base dimensions (iPhone 12/13 mini - common baseline)
@@ -174,13 +175,13 @@ export const iconSize = {
  * Debug function to log current scaling info
  */
 export const logScalingInfo = () => {
-  console.log("=== Responsive Scaling Info ===");
-  console.log(`Screen: ${screenWidth}x${screenHeight}`);
-  console.log(`Width Scale: ${getWidthScale().toFixed(2)}x`);
-  console.log(`Height Scale: ${getHeightScale().toFixed(2)}x`);
-  console.log(`Combined Scale: ${getScale().toFixed(2)}x`);
-  console.log(`Is Tablet: ${isTablet()}`);
-  console.log(`Is Small Device: ${isSmallDevice()}`);
-  console.log(`Is Large Device: ${isLargeDevice()}`);
-  console.log("===============================");
+  logger.log("=== Responsive Scaling Info ===");
+  logger.log(`Screen: ${screenWidth}x${screenHeight}`);
+  logger.log(`Width Scale: ${getWidthScale().toFixed(2)}x`);
+  logger.log(`Height Scale: ${getHeightScale().toFixed(2)}x`);
+  logger.log(`Combined Scale: ${getScale().toFixed(2)}x`);
+  logger.log(`Is Tablet: ${isTablet()}`);
+  logger.log(`Is Small Device: ${isSmallDevice()}`);
+  logger.log(`Is Large Device: ${isLargeDevice()}`);
+  logger.log("===============================");
 };

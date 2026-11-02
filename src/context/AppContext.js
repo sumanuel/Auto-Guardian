@@ -1,3 +1,4 @@
+import { logger } from "../utils/logger";
 import { createContext, useContext, useEffect, useState } from "react";
 // import * as contactService from "../services/contactService";
 import { cleanOrphanedRecords, initDatabase } from "../services/database";
@@ -50,7 +51,7 @@ export const AppProvider = ({ children }) => {
           // cuando se carguen los vehículos (ver updateAppBadge)
         }
       } catch (_notifError) {
-        console.log(
+        logger.log(
           "⚠️ Notificaciones no disponibles en Expo Go. Funcionarán en build de producción.",
         );
         setNotificationsEnabled(false);

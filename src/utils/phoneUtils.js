@@ -1,3 +1,4 @@
+import { logger } from "./logger";
 import * as Localization from "expo-localization";
 
 // Mapeo de códigos de país ISO a códigos telefónicos internacionales
@@ -60,7 +61,7 @@ const TIMEZONE_TO_COUNTRY = {
 const detectCountryCode = () => {
   // Método 1: Usar Localization.region (más confiable cuando funciona)
   if (Localization.region) {
-    console.log(
+    logger.log(
       "[PhoneUtils] Método 1 - Region detectada:",
       Localization.region
     );
@@ -70,7 +71,7 @@ const detectCountryCode = () => {
   // Método 2: Extraer del locale (ej: 'es-VE' -> 'VE')
   if (Localization.locale && Localization.locale.includes("-")) {
     const countryFromLocale = Localization.locale.split("-")[1];
-    console.log(
+    logger.log(
       "[PhoneUtils] Método 2 - País desde locale:",
       countryFromLocale
     );
@@ -81,7 +82,7 @@ const detectCountryCode = () => {
   if (Localization.timezone) {
     const countryFromTimezone = TIMEZONE_TO_COUNTRY[Localization.timezone];
     if (countryFromTimezone) {
-      console.log(
+      logger.log(
         "[PhoneUtils] Método 3 - País desde timezone:",
         countryFromTimezone
       );
@@ -89,7 +90,7 @@ const detectCountryCode = () => {
     }
   }
 
-  console.log(
+  logger.log(
     "[PhoneUtils] No se pudo detectar país, usando Colombia por defecto"
   );
   return "CO"; // Colombia por defecto
@@ -103,14 +104,14 @@ export const getCountryPhoneCode = () => {
   try {
     const regionCode = detectCountryCode();
 
-    console.log("[PhoneUtils] Código de país final:", regionCode);
-    console.log("[PhoneUtils] Locale completo:", Localization.locale);
-    console.log("[PhoneUtils] Timezone:", Localization.timezone);
+    logger.log("[PhoneUtils] Código de país final:", regionCode);
+    logger.log("[PhoneUtils] Locale completo:", Localization.locale);
+    logger.log("[PhoneUtils] Timezone:", Localization.timezone);
 
     // Buscar el código telefónico correspondiente
     const phoneCode = COUNTRY_PHONE_CODES[regionCode];
 
-    console.log("[PhoneUtils] Código telefónico encontrado:", phoneCode);
+    logger.log("[PhoneUtils] Código telefónico encontrado:", phoneCode);
 
     // Si no se encuentra, usar Colombia como predeterminado
     return phoneCode || "57";
@@ -171,7 +172,7 @@ export const getCurrentCountryInfo = () => {
     const phoneCode = COUNTRY_PHONE_CODES[regionCode] || "57";
     const locale = Localization.locale; // Ej: 'es-CO', 'en-US'
 
-    console.log(
+    logger.log(
       "[getCurrentCountryInfo] Region:",
       regionCode,
       "PhoneCode:",

@@ -1,3 +1,4 @@
+import { logger } from "../../utils/logger";
 import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system/legacy";
 import * as Sharing from "expo-sharing";
@@ -187,7 +188,7 @@ export const importDatabaseBackupFromUri = async (uri) => {
       db.execSync(`PRAGMA foreign_keys = ${fkState?.foreign_keys ? "ON" : "OFF"}`);
     }
 
-    console.log("Backup imported successfully");
+    logger.log("Backup imported successfully");
   } catch (error) {
     console.error("Error importing backup:", error);
     throw new Error(`Error al importar el respaldo: ${error.message}`);

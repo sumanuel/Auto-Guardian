@@ -1,3 +1,4 @@
+import { logger } from "../utils/logger";
 import * as SQLite from "expo-sqlite";
 
 const db = SQLite.openDatabaseSync("autoguardian.db");
@@ -177,7 +178,7 @@ const migrateMaintenanceTypeIcons = () => {
       ]);
     });
   } catch (error) {
-    console.log("Error migrando iconos:", error);
+    logger.log("Error migrando iconos:", error);
   }
 };
 
@@ -291,7 +292,7 @@ export const initDatabase = () => {
     const hasCompletedAt = columns.some((col) => col.name === "completedAt");
     if (!hasCompletedAt) {
       db.execSync("ALTER TABLE maintenances ADD COLUMN completedAt TEXT;");
-      console.log("Columna completedAt agregada a maintenances");
+      logger.log("Columna completedAt agregada a maintenances");
     }
 
     // Tabla de gastos particulares
@@ -394,7 +395,7 @@ const migrateDatabase = () => {
     const hasOrderColumn = tableInfo.some((column) => column.name === "order");
 
     if (!hasOrderColumn) {
-      console.log(
+      logger.log(
         "🔄 Migrando tabla maintenance_types: agregando campo 'order'",
       );
 
@@ -414,7 +415,7 @@ const migrateDatabase = () => {
         ]);
       });
 
-      console.log(
+      logger.log(
         "✅ Migración completada: campo 'order' agregado a maintenance_types",
       );
     }
@@ -431,7 +432,7 @@ const migrateDatabase = () => {
     );
 
     if (hasMonthsColumn && !hasTimeColumn) {
-      console.log(
+      logger.log(
         "🔄 Migrando tabla maintenance_types: renombrando defaultIntervalMonths a defaultIntervalTime y agregando defaultIntervalUnit",
       );
 
@@ -445,11 +446,11 @@ const migrateDatabase = () => {
         "ALTER TABLE maintenance_types ADD COLUMN defaultIntervalUnit TEXT DEFAULT 'months'",
       );
 
-      console.log(
+      logger.log(
         "✅ Migración completada: defaultIntervalMonths renombrado a defaultIntervalTime y defaultIntervalUnit agregado",
       );
     } else if (!hasUnitColumn) {
-      console.log(
+      logger.log(
         "🔄 Migrando tabla maintenance_types: agregando campo 'defaultIntervalUnit'",
       );
 
@@ -458,7 +459,7 @@ const migrateDatabase = () => {
         "ALTER TABLE maintenance_types ADD COLUMN defaultIntervalUnit TEXT DEFAULT 'months'",
       );
 
-      console.log(
+      logger.log(
         "✅ Migración completada: campo 'defaultIntervalUnit' agregado a maintenance_types",
       );
     }

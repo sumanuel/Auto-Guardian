@@ -1,3 +1,4 @@
+import { logger } from "../utils/logger";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { LinearGradient } from "expo-linear-gradient";
@@ -134,7 +135,7 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     if (maintenanceData) {
-      console.log("Loading maintenance data for editing:", maintenanceData);
+      logger.log("Loading maintenance data for editing:", maintenanceData);
 
       // Convert date strings to Date objects with validation
       let dateValue = new Date();
@@ -142,7 +143,7 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
         const parsedDate = new Date(maintenanceData.date);
         if (!isNaN(parsedDate.getTime())) {
           dateValue = parsedDate;
-          console.log("Parsed date:", dateValue);
+          logger.log("Parsed date:", dateValue);
         }
       }
 
@@ -151,7 +152,7 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
         const parsedNextDate = new Date(maintenanceData.nextServiceDate);
         if (!isNaN(parsedNextDate.getTime())) {
           nextServiceDateValue = parsedNextDate;
-          console.log("Parsed nextServiceDate:", nextServiceDateValue);
+          logger.log("Parsed nextServiceDate:", nextServiceDateValue);
         }
       }
 
@@ -171,7 +172,7 @@ const AddMaintenanceScreen = ({ navigation, route }) => {
         nextServiceDate: nextServiceDateValue,
       };
 
-      console.log("Setting form data:", updatedFormData);
+      logger.log("Setting form data:", updatedFormData);
       setFormData(updatedFormData);
 
       // Determinar el modo de mantenimiento basado en los datos existentes
