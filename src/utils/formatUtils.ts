@@ -1,3 +1,5 @@
+import { getCurrencyDecimals } from "./currencyConfig";
+
 // Fecha como string ISO, Date o timestamp
 type DateInput = string | number | Date | null | undefined;
 type Urgency = "low" | "medium" | "high";
@@ -7,9 +9,10 @@ export const formatCurrency = (amount: number | string | null | undefined, curre
   if (!amount && amount !== 0) return "-";
 
   const numeric = Number(amount);
+  const decimals = getCurrencyDecimals();
   const formatted = new Intl.NumberFormat("es-MX", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
   }).format(Number.isFinite(numeric) ? numeric : 0);
 
   return `${currencySymbol}${formatted}`;

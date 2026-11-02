@@ -11,6 +11,11 @@ import {
 } from "react";
 import { Linking, Platform } from "react-native";
 import { sendImmediateNotification } from "../services/notificationService";
+import {
+  DEFAULT_DECIMALS,
+  normalizeDecimals,
+  setCurrencyDecimalsConfig,
+} from "../utils/currencyConfig";
 
 let Updates;
 try {
@@ -22,6 +27,7 @@ try {
 
 const STORAGE_KEYS = {
   currencySymbol: "@currency_symbol",
+  currencyDecimals: "@currency_decimals",
   storeUpdateNotifiedVersion: "@store_update_notified_version",
 };
 
@@ -87,6 +93,8 @@ const AppSettingsContext = createContext(null);
 export const AppSettingsProvider = ({ children }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [currencySymbol, setCurrencySymbolState] = useState(null);
+  const [currencyDecimals, setCurrencyDecimalsState] =
+    useState(DEFAULT_DECIMALS);
 
   const [updateAvailable, setUpdateAvailable] = useState(false);
   const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
@@ -102,6 +110,14 @@ export const AppSettingsProvider = ({ children }) => {
         const saved = await AsyncStorage.getItem(STORAGE_KEYS.currencySymbol);
         if (saved === "$" || saved === "€") {
           setCurrencySymbolState(saved);
+        }
+
+        const savedDecimals = normalizeDecimals(
+          await AsyncStorage.getItem(STORAGE_KEYS.currencyDecimals),
+        );
+        if (savedDecimals !== null) {
+          setCurrencyDecimalsConfig(savedDecimals);
+          setCurrencyDecimalsState(savedDecimals);
         }
       } catch (error) {
         console.error("Error loading settings:", error);
@@ -121,6 +137,23 @@ export const AppSettingsProvider = ({ children }) => {
       await AsyncStorage.setItem(STORAGE_KEYS.currencySymbol, symbol);
     } catch (error) {
       console.error("Error saving currency symbol:", error);
+    }
+  }, []);
+
+  const setCurrencyDecimals = useCallback(async (decimals) => {
+    const normalized = normalizeDecimals(decimals);
+    if (normalized === null) return;
+
+    try {
+      // La configuración global debe cambiar antes del re-render
+      setCurrencyDecimalsConfig(normalized);
+      setCurrencyDecimalsState(normalized);
+      await AsyncStorage.setItem(
+        STORAGE_KEYS.currencyDecimals,
+        String(normalized),
+      );
+    } catch (error) {
+      console.error("Error saving currency decimals:", error);
     }
   }, []);
 
@@ -294,6 +327,8 @@ export const AppSettingsProvider = ({ children }) => {
       isLoaded,
       currencySymbol,
       setCurrencySymbol,
+      currencyDecimals,
+      setCurrencyDecimals,
       updateAvailable,
       isCheckingUpdate,
       checkForUpdate,
@@ -308,6 +343,8 @@ export const AppSettingsProvider = ({ children }) => {
       isLoaded,
       currencySymbol,
       setCurrencySymbol,
+      currencyDecimals,
+      setCurrencyDecimals,
       updateAvailable,
       isCheckingUpdate,
       checkForUpdate,

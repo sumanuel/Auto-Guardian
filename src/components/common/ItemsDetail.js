@@ -2,6 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useTheme } from "../../context/ThemeContext";
+import { moneyPlaceholder } from "../../utils/currencyConfig";
 import { formatCurrency } from "../../utils/formatUtils";
 import { itemSubtotal, itemsTotal, newDraftItem } from "../../utils/itemsUtils";
 import { borderRadius, iconSize, rf, s, spacing, vs } from "../../utils/responsive";
@@ -111,7 +112,7 @@ const ItemsDetail = ({ items, onChange, currencySymbol = "$" }) => {
                 style={[...inputStyle, styles.numberInput]}
                 value={item.unitCost}
                 onChangeText={(v) => updateItem(item.id, "unitCost", v)}
-                placeholder="0.00"
+                placeholder={moneyPlaceholder()}
                 placeholderTextColor={colors.textSecondary}
                 keyboardType="decimal-pad"
               />

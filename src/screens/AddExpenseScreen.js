@@ -20,6 +20,7 @@ import { useApp } from "../context/AppContext";
 import { useAppSettings } from "../context/AppSettingsContext";
 import { useTheme } from "../context/ThemeContext";
 import { formatDate } from "../utils/dateUtils";
+import { getCurrencyDecimals, moneyPlaceholder } from "../utils/currencyConfig";
 import {
   fromStoredItems,
   itemsTotal,
@@ -274,10 +275,10 @@ const AddExpenseScreen = ({ route, navigation }) => {
                 borderColor: colors.border,
               },
             ]}
-            value={hasItems ? itemsCost.toFixed(2) : cost}
+            value={hasItems ? itemsCost.toFixed(getCurrencyDecimals()) : cost}
             onChangeText={setCost}
             editable={!hasItems}
-            placeholder="0.00"
+            placeholder={moneyPlaceholder()}
             placeholderTextColor={colors.textSecondary}
             keyboardType="decimal-pad"
             returnKeyType="next"

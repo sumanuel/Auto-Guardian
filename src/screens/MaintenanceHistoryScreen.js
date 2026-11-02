@@ -23,6 +23,7 @@ import {
   getMaintenanceTypes,
 } from "../services/maintenanceService";
 import { daysUntilService, formatDate } from "../utils/dateUtils";
+import { getCurrencyDecimals, moneyPlaceholder } from "../utils/currencyConfig";
 import {
   fromStoredItems,
   itemsTotal,
@@ -1059,13 +1060,13 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
                       },
                     ]}
                     value={
-                      editHasItems ? editItemsCost.toFixed(2) : editFormData.cost
+                      editHasItems ? editItemsCost.toFixed(getCurrencyDecimals()) : editFormData.cost
                     }
                     onChangeText={(value) =>
                       setEditFormData((prev) => ({ ...prev, cost: value }))
                     }
                     editable={!editHasItems}
-                    placeholder="0.00"
+                    placeholder={moneyPlaceholder()}
                     placeholderTextColor={colors.textSecondary}
                     keyboardType="decimal-pad"
                     returnKeyType="next"

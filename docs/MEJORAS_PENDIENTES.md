@@ -50,3 +50,9 @@ Estado: ✅ hecho en rama · ⏳ pendiente.
 - Se eliminó `@react-navigation/material-top-tabs` (no se usaba) y se agregó `@react-native/jest-preset`.
 - ESLint 58 trae reglas del React Compiler que el código actual incumple (62 avisos: `set-state-in-effect`, `refs`, `immutability`, `static-components`). Quedaron como aviso; conviene corregirlas poco a poco.
 - **Probar en dispositivo antes de publicar:** reordenar tipos en `CategoriesScreen` (`react-native-draggable-flatlist` 4.0.3 con Gesture Handler 3), notificaciones, WhatsApp/llamadas (queries del manifiesto), bloqueo biométrico, y el aspecto con edge-to-edge. Requiere un build nuevo con EAS.
+
+## Decimales de moneda (rama `feat/decimales-moneda`)
+
+- El usuario elige 0 a 3 decimales al iniciar la app (junto al símbolo) y luego en Configuración → Moneda. Por defecto 2; quienes ya usaban la app conservan 2.
+- Se guarda en AsyncStorage (`@currency_decimals`) y se aplica en `formatCurrency`, en el cálculo del detalle por ítems y en los campos de costo.
+- Solo cambia cómo se muestran y calculan los montos: los valores ya registrados no se modifican.
