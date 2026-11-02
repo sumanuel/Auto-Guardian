@@ -51,31 +51,25 @@ const exportTable = async (tableName) => {
   return { tableName, rows };
 };
 
-const importTable = async (tableData) => {
-  const { tableName, rows } = tableData;
+// Conserva los id originales para no romper las relaciones (vehicleId, etc.)
+const importTable = (tableName, rows) => {
+  if (!rows || rows.length === 0) return;
 
-  if (rows.length === 0) return;
+  const columnNames = db
+    .getAllSync(`PRAGMA table_info("${tableName}")`)
+    .map((col) => col.name);
 
-  // Obtener columnas de la tabla
-  const columns = await db.getAllSync(`PRAGMA table_info(${tableName})`);
-  const columnNames = columns
-    .map((col) => col.name)
-    .filter((col) => col !== "id");
-
-  // Función para escapar nombres de columnas
-  const escapeColumnName = (name) => `"${name}"`;
-
-  // Crear placeholders para los valores
-  const escapedColumnNames = columnNames.map(escapeColumnName);
+  const escapedColumnNames = columnNames.map((name) => `"${name}"`);
   const placeholders = columnNames.map(() => "?").join(", ");
-  const insertSQL = `INSERT OR REPLACE INTO ${tableName} (${escapedColumnNames.join(
+  const insertSQL = `INSERT OR REPLACE INTO "${tableName}" (${escapedColumnNames.join(
     ", "
   )}) VALUES (${placeholders})`;
 
-  // Insertar filas
   for (const row of rows) {
-    const values = columnNames.map((col) => row[col]);
-    await db.runSync(insertSQL, values);
+    db.runSync(
+      insertSQL,
+      columnNames.map((col) => (row[col] === undefined ? null : row[col]))
+    );
   }
 };
 
@@ -159,20 +153,38 @@ export const importDatabaseBackupFromUri = async (uri) => {
       );
     }
 
-    // Limpiar tablas existentes (excepto las del sistema)
-    const tables = await getUserTables();
-    for (const tableName of tables) {
-      await db.runSync(`DELETE FROM ${tableName}`);
-      // Resetear autoincrement si es necesario
-      await db.runSync(`DELETE FROM sqlite_sequence WHERE name='${tableName}'`);
+    if (!backupData.tables || typeof backupData.tables !== "object") {
+      throw new Error("El respaldo no contiene datos de tablas");
     }
 
-    // Importar datos en orden correcto
-    const orderedTables = toInsertOrder(Object.keys(backupData.tables));
-    for (const tableName of orderedTables) {
-      if (backupData.tables[tableName]) {
-        await importTable(backupData.tables[tableName]);
+    // Solo se importan tablas que existen en la base actual (valida nombres
+    // antes de tocar nada)
+    const existingTables = await getUserTables();
+    const tablesToImport = toInsertOrder(Object.keys(backupData.tables)).filter(
+      (t) => existingTables.includes(t) && backupData.tables[t]
+    );
+    for (const tableName of tablesToImport) {
+      if (!Array.isArray(backupData.tables[tableName].rows)) {
+        throw new Error(`Datos inválidos en la tabla ${tableName}`);
       }
+    }
+
+    // Las llaves foráneas no se pueden cambiar dentro de una transacción
+    const fkState = db.getFirstSync("PRAGMA foreign_keys");
+    db.execSync("PRAGMA foreign_keys = OFF");
+    try {
+      // Transacción: si algo falla, la base original queda intacta
+      db.withTransactionSync(() => {
+        for (const tableName of existingTables) {
+          db.runSync(`DELETE FROM "${tableName}"`);
+          db.runSync("DELETE FROM sqlite_sequence WHERE name = ?", [tableName]);
+        }
+        for (const tableName of tablesToImport) {
+          importTable(tableName, backupData.tables[tableName].rows);
+        }
+      });
+    } finally {
+      db.execSync(`PRAGMA foreign_keys = ${fkState?.foreign_keys ? "ON" : "OFF"}`);
     }
 
     console.log("Backup imported successfully");
