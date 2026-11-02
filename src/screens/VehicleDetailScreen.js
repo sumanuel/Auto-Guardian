@@ -12,6 +12,9 @@ import {
 } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import Button from "../components/common/Button";
+import QuickActionCard, {
+  QUICK_ACTION_COLORS,
+} from "../components/maintenance/QuickActionCard";
 import { useApp } from "../context/AppContext";
 import { useAppSettings } from "../context/AppSettingsContext";
 import { useTheme } from "../context/ThemeContext";
@@ -39,53 +42,6 @@ import {
   ms,
 } from "../utils/responsive";
 import { styles } from "./VehicleDetailScreen.styles";
-
-const QuickActionCard = ({ icon, label, color, onPress, colors }) => (
-  <TouchableOpacity
-    style={[
-      styles.quickActionCard,
-      {
-        backgroundColor: colors.inputBackground,
-        borderColor: colors.border,
-      },
-    ]}
-    onPress={onPress}
-    activeOpacity={0.85}
-  >
-    <View style={styles.quickActionTopRow}>
-      <View
-        style={[styles.quickActionIconWrap, { backgroundColor: `${color}20` }]}
-      >
-        <Ionicons name={icon} size={iconSize.sm} color={color} />
-      </View>
-      <Ionicons
-        name="chevron-forward"
-        size={iconSize.xs}
-        color={colors.textSecondary}
-      />
-    </View>
-    <Text
-      style={[styles.quickActionLabel, { color: colors.text }]}
-      numberOfLines={2}
-    >
-      {label}
-    </Text>
-    <Text
-      style={[styles.quickActionCaption, { color: colors.textSecondary }]}
-      numberOfLines={1}
-    >
-      Programar servicio
-    </Text>
-  </TouchableOpacity>
-);
-
-const QUICK_ACTION_COLORS = [
-  "#FF9800",
-  "#4CAF50",
-  "#F44336",
-  "#9C27B0",
-  "#1976D2",
-];
 
 const VehicleDetailScreen = ({ navigation, route }) => {
   const { vehicleId } = route.params;

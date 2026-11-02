@@ -37,14 +37,7 @@ import {
   ms,
 } from "../utils/responsive";
 import { styles } from "./MaintenanceHistoryScreen.styles";
-
-const QUICK_ACTION_COLORS = [
-  "#FF9800",
-  "#4CAF50",
-  "#F44336",
-  "#9C27B0",
-  "#1976D2",
-];
+import { QUICK_ACTION_COLORS } from "../components/maintenance/QuickActionCard";
 
 const MaintenanceHistoryScreen = ({ route, navigation }) => {
   const {
