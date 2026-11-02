@@ -189,38 +189,6 @@ export const styles = StyleSheet.create({
     paddingTop: vs(2),
     paddingRight: hs(10),
   },
-  quickActionTopRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: vs(14),
-  },
-  quickActionCard: {
-    width: ms(148),
-    borderWidth: 1,
-    borderRadius: borderRadius.md,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
-    minHeight: vs(124),
-    marginRight: hs(12),
-  },
-  quickActionIconWrap: {
-    width: s(44),
-    height: s(44),
-    borderRadius: s(22),
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  quickActionLabel: {
-    fontSize: rf(15),
-    fontWeight: "700",
-    marginBottom: vs(4),
-    lineHeight: rf(20),
-  },
-  quickActionCaption: {
-    fontSize: rf(12),
-    fontWeight: "600",
-  },
   statsSection: {
     marginHorizontal: hs(16),
     marginBottom: vs(16),
