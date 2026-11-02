@@ -394,7 +394,17 @@ export const initDatabase = () => {
 // Migraciones numeradas. Las anteriores a este sistema son las comprobaciones
 // de columnas de migrateDatabase (versión 1). Para un cambio nuevo de esquema,
 // agregar una función al final de la lista; se ejecuta una sola vez por base.
-const VERSIONED_MIGRATIONS = [];
+const VERSIONED_MIGRATIONS = [
+  // v2: detalle por ítems (JSON) en mantenimientos, gastos y reparaciones
+  (database) => {
+    ["maintenances", "expenses", "repairs"].forEach((table) => {
+      const columns = database.getAllSync(`PRAGMA table_info(${table})`);
+      if (!columns.some((column) => column.name === "items")) {
+        database.execSync(`ALTER TABLE ${table} ADD COLUMN items TEXT`);
+      }
+    });
+  },
+];
 
 const runVersionedMigrations = () => {
   const current = db.getFirstSync("PRAGMA user_version;")?.user_version ?? 0;

@@ -1,4 +1,5 @@
 import type { CategoryTotal, Expense, ExpenseInput } from "../types/models";
+import { itemsToDb } from "../utils/itemsUtils";
 import db from "./database";
 
 // Obtener todos los gastos de un vehículo
@@ -29,8 +30,8 @@ export const getAllExpenses = () => {
 export const createExpense = (expenseData: ExpenseInput) => {
   try {
     const result = db.runSync(
-      `INSERT INTO expenses (vehicleId, description, category, date, cost, notes, photo) 
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO expenses (vehicleId, description, category, date, cost, notes, photo, items) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         expenseData.vehicleId,
         expenseData.description,
@@ -39,6 +40,7 @@ export const createExpense = (expenseData: ExpenseInput) => {
         expenseData.cost,
         expenseData.notes || null,
         expenseData.photo || null,
+        itemsToDb(expenseData.items),
       ]
     );
     return result.lastInsertRowId;
@@ -53,7 +55,8 @@ export const updateExpense = (id: number, expenseData: ExpenseInput) => {
   try {
     db.runSync(
       `UPDATE expenses 
-       SET description = ?, category = ?, date = ?, cost = ?, notes = ?, photo = ?
+       SET description = ?, category = ?, date = ?, cost = ?, notes = ?, photo = ?,
+           items = CASE WHEN ? = 1 THEN ? ELSE items END
        WHERE id = ?`,
       [
         expenseData.description,
@@ -62,6 +65,8 @@ export const updateExpense = (id: number, expenseData: ExpenseInput) => {
         expenseData.cost,
         expenseData.notes || null,
         expenseData.photo || null,
+        expenseData.items === undefined ? 0 : 1,
+        itemsToDb(expenseData.items),
         id,
       ]
     );

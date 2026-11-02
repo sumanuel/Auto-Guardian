@@ -1,4 +1,5 @@
 import type { CategoryTotal, Repair, RepairInput } from "../types/models";
+import { itemsToDb } from "../utils/itemsUtils";
 import db from "./database";
 
 // Obtener todas las reparaciones de un vehículo
@@ -29,8 +30,8 @@ export const getAllRepairs = () => {
 export const createRepair = (repairData: RepairInput) => {
   try {
     const result = db.runSync(
-      `INSERT INTO repairs (vehicleId, description, category, date, cost, workshop, notes, photo) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO repairs (vehicleId, description, category, date, cost, workshop, notes, photo, items) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         repairData.vehicleId,
         repairData.description,
@@ -40,6 +41,7 @@ export const createRepair = (repairData: RepairInput) => {
         repairData.workshop || null,
         repairData.notes || null,
         repairData.photo || null,
+        itemsToDb(repairData.items),
       ]
     );
     return result.lastInsertRowId;
@@ -54,7 +56,8 @@ export const updateRepair = (id: number, repairData: RepairInput) => {
   try {
     db.runSync(
       `UPDATE repairs 
-       SET description = ?, category = ?, date = ?, cost = ?, workshop = ?, notes = ?, photo = ?
+       SET description = ?, category = ?, date = ?, cost = ?, workshop = ?, notes = ?, photo = ?,
+           items = CASE WHEN ? = 1 THEN ? ELSE items END
        WHERE id = ?`,
       [
         repairData.description,
@@ -64,6 +67,8 @@ export const updateRepair = (id: number, repairData: RepairInput) => {
         repairData.workshop || null,
         repairData.notes || null,
         repairData.photo || null,
+        repairData.items === undefined ? 0 : 1,
+        itemsToDb(repairData.items),
         id,
       ]
     );
