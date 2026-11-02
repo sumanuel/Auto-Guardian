@@ -1,7 +1,8 @@
 import { logger } from "./src/utils/logger";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from "expo-notifications";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { AppState } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AppProvider } from "./src/context/AppContext";
 import {
@@ -16,7 +17,12 @@ import {
 } from "./src/database/notifications";
 import AppNavigator from "./src/navigation/AppNavigator";
 import CurrencySetupScreen from "./src/screens/CurrencySetupScreen";
+import LockScreen from "./src/screens/LockScreen";
 import OnboardingScreen from "./src/screens/OnboardingScreen";
+import {
+  isLockEnabled,
+  RELOCK_AFTER_MS,
+} from "./src/services/appLockService";
 import { runAutoBackupIfDue } from "./src/services/backup/backupService";
 import { initDatabase as initMainDatabase } from "./src/services/database";
 import {
@@ -29,6 +35,8 @@ import { getAllVehicles } from "./src/services/vehicleService";
 function AppBootstrap() {
   const [isReady, setIsReady] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [locked, setLocked] = useState(false);
+  const backgroundedAt = useRef(null);
   const {
     isLoaded: settingsLoaded,
     currencySymbol,
@@ -38,6 +46,22 @@ function AppBootstrap() {
 
   useEffect(() => {
     initializeApp();
+  }, []);
+
+  // Vuelve a bloquear si la app estuvo en segundo plano más de un minuto
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", async (state) => {
+      if (state === "background") {
+        backgroundedAt.current = Date.now();
+      } else if (state === "active" && backgroundedAt.current) {
+        const elapsed = Date.now() - backgroundedAt.current;
+        backgroundedAt.current = null;
+        if (elapsed >= RELOCK_AFTER_MS && (await isLockEnabled())) {
+          setLocked(true);
+        }
+      }
+    });
+    return () => subscription.remove();
   }, []);
 
   useEffect(() => {
@@ -56,6 +80,7 @@ function AppBootstrap() {
         "onboardingCompleted",
       );
       setShowOnboarding(!onboardingCompleted);
+      if (await isLockEnabled()) setLocked(true);
 
       // Inicializar base de datos y notificaciones
       const { status } = await Notifications.requestPermissionsAsync();
@@ -87,6 +112,10 @@ function AppBootstrap() {
 
   if (!settingsLoaded) {
     return null;
+  }
+
+  if (locked) {
+    return <LockScreen onUnlock={() => setLocked(false)} />;
   }
 
   // Selección inicial de moneda (solo primera vez)

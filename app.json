@@ -53,6 +53,12 @@
       "expo-web-browser",
       "expo-localization",
       "expo-notifications",
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Auto Guardian usa Face ID para proteger tus vehículos y documentos."
+        }
+      ],
       "expo-font"
     ],
     "experiments": {
