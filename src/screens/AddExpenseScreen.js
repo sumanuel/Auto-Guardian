@@ -15,9 +15,16 @@ import {
   View,
 } from "react-native";
 import Button from "../components/common/Button";
+import ItemsDetail from "../components/common/ItemsDetail";
 import { useApp } from "../context/AppContext";
+import { useAppSettings } from "../context/AppSettingsContext";
 import { useTheme } from "../context/ThemeContext";
 import { formatDate } from "../utils/dateUtils";
+import {
+  fromStoredItems,
+  itemsTotal,
+  serializeItems,
+} from "../utils/itemsUtils";
 import {
   borderRadius,
   iconSize,
@@ -31,6 +38,7 @@ const AddExpenseScreen = ({ route, navigation }) => {
   const { vehicleId, expense } = route.params || {};
   const { colors } = useTheme();
   const { addExpense, updateExpense, vehicles } = useApp();
+  const { currencySymbol } = useAppSettings();
   const isEditing = !!expense;
 
   const vehicle = vehicles.find((v) => v.id === vehicleId);
@@ -47,6 +55,9 @@ const AddExpenseScreen = ({ route, navigation }) => {
     expense?.cost ? expense.cost.toString() : "",
   );
   const [notes, setNotes] = useState(expense?.notes || "");
+  const [items, setItems] = useState(() => fromStoredItems(expense?.items));
+  const hasItems = items.length > 0;
+  const itemsCost = itemsTotal(items);
   const [loading, setLoading] = useState(false);
 
   // Referencias para navegación entre campos
@@ -67,8 +78,14 @@ const AddExpenseScreen = ({ route, navigation }) => {
       return;
     }
 
-    if (!cost || isNaN(parseFloat(cost))) {
-      Alert.alert("Error", "Por favor ingresa un costo válido");
+    const finalCost = hasItems ? itemsCost : parseFloat(cost);
+    if (hasItems ? itemsCost <= 0 : !cost || isNaN(finalCost)) {
+      Alert.alert(
+        "Error",
+        hasItems
+          ? "Ingresa cantidad y costo unitario de los ítems"
+          : "Por favor ingresa un costo válido",
+      );
       return;
     }
 
@@ -79,9 +96,10 @@ const AddExpenseScreen = ({ route, navigation }) => {
         description: description.trim(),
         category: null,
         date: date.toISOString().split("T")[0],
-        cost: parseFloat(cost),
+        cost: finalCost,
         notes: notes.trim() || null,
         photo: null,
+        items: serializeItems(items),
       };
 
       if (isEditing) {
@@ -234,9 +252,18 @@ const AddExpenseScreen = ({ route, navigation }) => {
           )}
         </View>
 
+        {/* Detalle por ítems */}
+        <ItemsDetail
+          items={items}
+          onChange={setItems}
+          currencySymbol={currencySymbol || "$"}
+        />
+
         {/* Costo */}
         <View style={styles.section}>
-          <Text style={[styles.label, { color: colors.text }]}>Costo *</Text>
+          <Text style={[styles.label, { color: colors.text }]}>
+            Costo *{hasItems ? " (calculado del detalle)" : ""}
+          </Text>
           <TextInput
             ref={costRef}
             style={[
@@ -247,8 +274,9 @@ const AddExpenseScreen = ({ route, navigation }) => {
                 borderColor: colors.border,
               },
             ]}
-            value={cost}
+            value={hasItems ? itemsCost.toFixed(2) : cost}
             onChangeText={setCost}
+            editable={!hasItems}
             placeholder="0.00"
             placeholderTextColor={colors.textSecondary}
             keyboardType="decimal-pad"

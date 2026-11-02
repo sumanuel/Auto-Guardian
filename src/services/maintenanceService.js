@@ -1,3 +1,4 @@
+import { itemsToDb } from "../utils/itemsUtils";
 import db from "./database";
 
 export const getMaintenanceDueDate = (maintenance) => {
@@ -42,8 +43,8 @@ export const getRecentMaintenances = (vehicleId, limit = 5) => {
 export const createMaintenance = (maintenanceData) => {
   try {
     const result = db.runSync(
-      `INSERT INTO maintenances (vehicleId, type, category, date, km, cost, provider, notes, photo, nextServiceKm, nextServiceDate, completedAt) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO maintenances (vehicleId, type, category, date, km, cost, provider, notes, photo, nextServiceKm, nextServiceDate, completedAt, items) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         maintenanceData.vehicleId,
         maintenanceData.type,
@@ -57,6 +58,7 @@ export const createMaintenance = (maintenanceData) => {
         maintenanceData.nextServiceKm || null,
         maintenanceData.nextServiceDate || null,
         maintenanceData.completedAt || null,
+        itemsToDb(maintenanceData.items),
       ],
     );
     return result.lastInsertRowId;
@@ -71,7 +73,8 @@ export const updateMaintenance = (id, maintenanceData) => {
   try {
     db.runSync(
       `UPDATE maintenances 
-       SET type = ?, category = ?, date = ?, km = ?, cost = ?, provider = ?, notes = ?, photo = ?, nextServiceKm = ?, nextServiceDate = ?, completedAt = ?
+       SET type = ?, category = ?, date = ?, km = ?, cost = ?, provider = ?, notes = ?, photo = ?, nextServiceKm = ?, nextServiceDate = ?, completedAt = ?,
+           items = CASE WHEN ? = 1 THEN ? ELSE items END
        WHERE id = ?`,
       [
         maintenanceData.type,
@@ -85,6 +88,8 @@ export const updateMaintenance = (id, maintenanceData) => {
         maintenanceData.nextServiceKm || null,
         maintenanceData.nextServiceDate || null,
         maintenanceData.completedAt || null,
+        maintenanceData.items === undefined ? 0 : 1,
+        itemsToDb(maintenanceData.items),
         id,
       ],
     );

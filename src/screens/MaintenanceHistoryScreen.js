@@ -24,6 +24,11 @@ import {
 } from "../services/maintenanceService";
 import { daysUntilService, formatDate } from "../utils/dateUtils";
 import {
+  fromStoredItems,
+  itemsTotal,
+  serializeItems,
+} from "../utils/itemsUtils";
+import {
   formatCurrency,
   formatDaysRemaining,
   formatKm,
@@ -37,6 +42,7 @@ import {
   ms,
 } from "../utils/responsive";
 import { styles } from "./MaintenanceHistoryScreen.styles";
+import ItemsDetail from "../components/common/ItemsDetail";
 import { QUICK_ACTION_COLORS } from "../components/maintenance/QuickActionCard";
 
 const MaintenanceHistoryScreen = ({ route, navigation }) => {
@@ -83,6 +89,9 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
     notes: "",
     photo: null,
   });
+  const [editItems, setEditItems] = useState([]);
+  const editHasItems = editItems.length > 0;
+  const editItemsCost = itemsTotal(editItems);
 
   // Referencias para navegación en modal de edición
   const costRef = useRef(null);
@@ -262,6 +271,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
           notes: maintenanceToEdit.notes || "",
           photo: maintenanceToEdit.photo || null,
         });
+        setEditItems(fromStoredItems(maintenanceToEdit.items));
         setEditModalVisible(true);
       } else {
         // For in-progress maintenances, navigate to AddMaintenance screen
@@ -281,10 +291,15 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
       const updatedData = {
         ...selectedMaintenance,
         completedAt: editFormData.date.toISOString(), // Update completedAt with the edited date
-        cost: editFormData.cost ? parseFloat(editFormData.cost) : null,
+        cost: editHasItems
+          ? editItemsCost
+          : editFormData.cost
+            ? parseFloat(editFormData.cost)
+            : null,
         provider: editFormData.provider || null,
         notes: editFormData.notes || null,
         photo: editFormData.photo || null,
+        items: serializeItems(editItems),
       };
 
       await updateMaintenance(selectedMaintenance.id, updatedData);
@@ -1021,10 +1036,17 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
                   </TouchableOpacity>
                 </View>
 
+                {/* Detalle por ítems */}
+                <ItemsDetail
+                  items={editItems}
+                  onChange={setEditItems}
+                  currencySymbol={currencySymbol || "$"}
+                />
+
                 {/* Cost */}
                 <View style={[styles.inputGroup, styles.costInputGroup]}>
                   <Text style={[styles.label, { color: colors.text }]}>
-                    Costo
+                    Costo{editHasItems ? " (calculado del detalle)" : ""}
                   </Text>
                   <TextInput
                     ref={costRef}
@@ -1036,10 +1058,13 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
                         color: colors.text,
                       },
                     ]}
-                    value={editFormData.cost}
+                    value={
+                      editHasItems ? editItemsCost.toFixed(2) : editFormData.cost
+                    }
                     onChangeText={(value) =>
                       setEditFormData((prev) => ({ ...prev, cost: value }))
                     }
+                    editable={!editHasItems}
                     placeholder="0.00"
                     placeholderTextColor={colors.textSecondary}
                     keyboardType="decimal-pad"

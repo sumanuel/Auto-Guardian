@@ -27,6 +27,7 @@ export interface Expense {
   cost: number;
   notes: string | null;
   photo: string | null;
+  items: string | null;
   createdAt: string;
 }
 
@@ -34,7 +35,9 @@ export type ExpenseInput = Pick<
   Expense,
   "vehicleId" | "description" | "date" | "cost"
 > &
-  Partial<Pick<Expense, "category" | "notes" | "photo">>;
+  Partial<Pick<Expense, "category" | "notes" | "photo">> & {
+    items?: string | null;
+  };
 
 export interface Repair {
   id: number;
@@ -46,6 +49,7 @@ export interface Repair {
   workshop: string | null;
   notes: string | null;
   photo: string | null;
+  items: string | null;
   createdAt: string;
 }
 
@@ -53,7 +57,9 @@ export type RepairInput = Pick<
   Repair,
   "vehicleId" | "description" | "date" | "cost"
 > &
-  Partial<Pick<Repair, "category" | "workshop" | "notes" | "photo">>;
+  Partial<Pick<Repair, "category" | "workshop" | "notes" | "photo">> & {
+    items?: string | null;
+  };
 
 export interface Contact {
   id: number;

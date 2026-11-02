@@ -15,15 +15,23 @@ import {
 } from "react-native";
 import Button from "../components/common/Button";
 import DatePicker from "../components/common/DatePicker";
+import ItemsDetail from "../components/common/ItemsDetail";
 import { useApp } from "../context/AppContext";
+import { useAppSettings } from "../context/AppSettingsContext";
 import { useTheme } from "../context/ThemeContext";
 import { useDialog } from "../hooks/useDialog";
+import {
+  fromStoredItems,
+  itemsTotal,
+  serializeItems,
+} from "../utils/itemsUtils";
 import { borderRadius, rf, s, spacing, vs } from "../utils/responsive";
 
 const AddRepairScreen = ({ route, navigation }) => {
   const { vehicleId, repair } = route.params || {};
   const { colors } = useTheme();
   const { addRepair, updateRepair, vehicles } = useApp();
+  const { currencySymbol } = useAppSettings();
   const { DialogComponent, showDialog } = useDialog();
   const isEditing = !!repair;
 
@@ -40,6 +48,10 @@ const AddRepairScreen = ({ route, navigation }) => {
     notes: repair?.notes || "",
     photo: repair?.photo || null,
   });
+
+  const [items, setItems] = useState(() => fromStoredItems(repair?.items));
+  const hasItems = items.length > 0;
+  const itemsCost = itemsTotal(items);
 
   const [loading, setLoading] = useState(false);
 
@@ -153,7 +165,16 @@ const AddRepairScreen = ({ route, navigation }) => {
       return false;
     }
 
-    if (!formData.cost || isNaN(parseFloat(formData.cost))) {
+    if (hasItems && itemsCost <= 0) {
+      showDialog({
+        title: "Error",
+        message: "Ingresa cantidad y costo unitario de los ítems",
+        type: "error",
+      });
+      return false;
+    }
+
+    if (!hasItems && (!formData.cost || isNaN(parseFloat(formData.cost)))) {
       showDialog({
         title: "Error",
         message: "Por favor ingresa un costo válido",
@@ -174,10 +195,11 @@ const AddRepairScreen = ({ route, navigation }) => {
         vehicleId,
         description: formData.description.trim(),
         date: formData.date.toISOString(),
-        cost: parseFloat(formData.cost),
+        cost: hasItems ? itemsCost : parseFloat(formData.cost),
         workshop: formData.workshop.trim() || null,
         notes: formData.notes.trim() || null,
         photo: formData.photo || null,
+        items: serializeItems(items),
       };
 
       if (isEditing) {
@@ -315,9 +337,18 @@ const AddRepairScreen = ({ route, navigation }) => {
             onChange={(date) => handleInputChange("date", date)}
           />
 
+          {/* Detalle por ítems */}
+          <ItemsDetail
+            items={items}
+            onChange={setItems}
+            currencySymbol={currencySymbol || "$"}
+          />
+
           {/* Costo */}
           <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.text }]}>Costo *</Text>
+            <Text style={[styles.label, { color: colors.text }]}>
+              Costo *{hasItems ? " (calculado del detalle)" : ""}
+            </Text>
             <TextInput
               ref={costRef}
               style={[
@@ -328,8 +359,9 @@ const AddRepairScreen = ({ route, navigation }) => {
                   color: colors.text,
                 },
               ]}
-              value={formData.cost}
+              value={hasItems ? itemsCost.toFixed(2) : formData.cost}
               onChangeText={(value) => handleInputChange("cost", value)}
+              editable={!hasItems}
               placeholder="0.00"
               placeholderTextColor={colors.textSecondary}
               keyboardType="decimal-pad"
