@@ -250,6 +250,9 @@ const migrateDocumentTypeNames = () => {
 // Inicializar la base de datos
 export const initDatabase = () => {
   try {
+    // Hace efectivos los ON DELETE CASCADE (SQLite los ignora por defecto)
+    db.execSync("PRAGMA foreign_keys = ON;");
+
     // Tabla de vehículos
     db.execSync(`
       CREATE TABLE IF NOT EXISTS vehicles (
@@ -382,8 +385,34 @@ export const initDatabase = () => {
     seedMaintenanceTypes();
     seedDocumentTypes();
     migrateDatabase();
+    runVersionedMigrations();
   } catch (error) {
     console.error("❌ Error inicializando base de datos:", error);
+  }
+};
+
+// Migraciones numeradas. Las anteriores a este sistema son las comprobaciones
+// de columnas de migrateDatabase (versión 1). Para un cambio nuevo de esquema,
+// agregar una función al final de la lista; se ejecuta una sola vez por base.
+const VERSIONED_MIGRATIONS = [];
+
+const runVersionedMigrations = () => {
+  const current = db.getFirstSync("PRAGMA user_version;")?.user_version ?? 0;
+  // Bases existentes quedan en la versión 1 (esquema previo a este sistema)
+  const baseline = 1;
+  let version = Math.max(current, baseline);
+
+  VERSIONED_MIGRATIONS.forEach((migrate, index) => {
+    const target = baseline + index + 1;
+    if (version >= target) return;
+    db.withTransactionSync(() => migrate(db));
+    version = target;
+    db.execSync(`PRAGMA user_version = ${target};`);
+    logger.log(`Migración a versión ${target} aplicada`);
+  });
+
+  if (current < version || current === 0) {
+    db.execSync(`PRAGMA user_version = ${version};`);
   }
 };
 
