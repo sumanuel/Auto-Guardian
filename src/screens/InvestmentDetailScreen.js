@@ -782,7 +782,17 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                       >
                         {formatCurrency(repair.cost, currencySymbol)}
                       </Text>
-                      <View style={styles.actionsColumn}>
+                    </View>
+                    <View style={styles.footerRow}>
+                      <Text
+                        style={[
+                          styles.maintenanceDate,
+                          { color: colors.textSecondary },
+                        ]}
+                      >
+                        {formatDate(repair.date)}
+                      </Text>
+                      <View style={styles.actionsRow}>
                         <TouchableOpacity
                           onPress={() =>
                             handleDeleteRepair(repair.id, repair.description)
@@ -812,14 +822,6 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                         </TouchableOpacity>
                       </View>
                     </View>
-                    <Text
-                      style={[
-                        styles.maintenanceDate,
-                        { color: colors.textSecondary },
-                      ]}
-                    >
-                      {formatDate(repair.date)}
-                    </Text>
                     {repair.notes && (
                       <Text
                         style={[
@@ -910,7 +912,17 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                       >
                         {formatCurrency(expense.cost, currencySymbol)}
                       </Text>
-                      <View style={styles.actionsColumn}>
+                    </View>
+                    <View style={styles.footerRow}>
+                      <Text
+                        style={[
+                          styles.maintenanceDate,
+                          { color: colors.textSecondary },
+                        ]}
+                      >
+                        {formatDate(expense.date)}
+                      </Text>
+                      <View style={styles.actionsRow}>
                         <TouchableOpacity
                           onPress={() =>
                             handleDeleteExpense(expense.id, expense.description)
@@ -940,14 +952,6 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                         </TouchableOpacity>
                       </View>
                     </View>
-                    <Text
-                      style={[
-                        styles.maintenanceDate,
-                        { color: colors.textSecondary },
-                      ]}
-                    >
-                      {formatDate(expense.date)}
-                    </Text>
                     {expense.notes && (
                       <Text
                         style={[
@@ -1368,13 +1372,18 @@ const styles = StyleSheet.create({
     marginTop: spacing.xxs,
     textTransform: "capitalize",
   },
-  actionsColumn: {
+  footerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
-    gap: spacing.md,
-    marginLeft: spacing.sm,
+  },
+  actionsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xl,
   },
   actionButton: {
-    padding: spacing.xs,
+    padding: spacing.sm,
   },
   fab: {
     position: "absolute",
