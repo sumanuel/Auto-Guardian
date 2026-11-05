@@ -326,6 +326,29 @@ const AddRepairScreen = ({ route, navigation }) => {
               placeholder="Ej: Cambio de embrague, reparación..."
               placeholderTextColor={colors.textSecondary}
               returnKeyType="next"
+              onSubmitEditing={() => workshopRef.current?.focus()}
+              blurOnSubmit={false}
+            />
+          </View>
+
+          {/* Taller */}
+          <View style={styles.inputGroup}>
+            <Text style={[styles.label, { color: colors.text }]}>Taller</Text>
+            <TextInput
+              ref={workshopRef}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: colors.inputBackground,
+                  borderColor: colors.border,
+                  color: colors.text,
+                },
+              ]}
+              value={formData.workshop}
+              onChangeText={(value) => handleInputChange("workshop", value)}
+              placeholder="Nombre del taller"
+              placeholderTextColor={colors.textSecondary}
+              returnKeyType="next"
               onSubmitEditing={() => costRef.current?.focus()}
               blurOnSubmit={false}
             />
@@ -366,29 +389,6 @@ const AddRepairScreen = ({ route, navigation }) => {
               placeholder={moneyPlaceholder()}
               placeholderTextColor={colors.textSecondary}
               keyboardType="decimal-pad"
-              returnKeyType="next"
-              onSubmitEditing={() => workshopRef.current?.focus()}
-              blurOnSubmit={false}
-            />
-          </View>
-
-          {/* Taller */}
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.text }]}>Taller</Text>
-            <TextInput
-              ref={workshopRef}
-              style={[
-                styles.input,
-                {
-                  backgroundColor: colors.inputBackground,
-                  borderColor: colors.border,
-                  color: colors.text,
-                },
-              ]}
-              value={formData.workshop}
-              onChangeText={(value) => handleInputChange("workshop", value)}
-              placeholder="Nombre del taller"
-              placeholderTextColor={colors.textSecondary}
               returnKeyType="next"
               onSubmitEditing={() => notesRef.current?.focus()}
               onFocus={() => scrollToEnd()}
