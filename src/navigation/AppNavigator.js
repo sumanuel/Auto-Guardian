@@ -24,6 +24,8 @@ import CategoriesScreen from "../screens/CategoriesScreen";
 import CurrencySettingsScreen from "../screens/CurrencySettingsScreen";
 import DataManagementScreen from "../screens/DataManagementScreen";
 import DocumentsScreen from "../screens/DocumentsScreen";
+import GettingStartedScreen from "../screens/GettingStartedScreen";
+import HelpCenterScreen from "../screens/HelpCenterScreen";
 import HomeScreen from "../screens/HomeScreen";
 import InvestmentDetailScreen from "../screens/InvestmentDetailScreen";
 import LearnCarScreen from "../screens/LearnCarScreen";
@@ -251,6 +253,16 @@ const MoreStack = () => {
         name="CurrencySettings"
         component={CurrencySettingsScreen}
         options={{ title: "Moneda" }}
+      />
+      <Stack.Screen
+        name="GettingStarted"
+        component={GettingStartedScreen}
+        options={{ title: "Primeros pasos" }}
+      />
+      <Stack.Screen
+        name="HelpCenter"
+        component={HelpCenterScreen}
+        options={{ title: "Centro de ayuda" }}
       />
       <Stack.Screen
         name="LearnMore"

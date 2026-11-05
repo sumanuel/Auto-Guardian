@@ -18,6 +18,7 @@ import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
 import { COLORS } from "../data/constants";
 import { useDialog } from "../hooks/useDialog";
+import { useGuide } from "../hooks/useGuide";
 import {
   borderRadius,
   hs,
@@ -102,6 +103,7 @@ const HomeScreen = ({ navigation }) => {
   } = useApp();
   const { DialogComponent, showDialog } = useDialog();
   const { colors } = useTheme();
+  const guide = useGuide();
   const [refreshing, setRefreshing] = React.useState(false);
   const [alertSummary, setAlertSummary] = React.useState(null);
   const bellAnimation = React.useRef(new Animated.Value(0)).current;
@@ -405,6 +407,52 @@ const HomeScreen = ({ navigation }) => {
         </View>
       </LinearGradient>
 
+      {guide.showCard && (
+        <View
+          style={[
+            styles.guideCard,
+            {
+              backgroundColor: colors.cardBackground,
+              borderColor: colors.primary,
+            },
+          ]}
+        >
+          <View style={styles.guideCardHeader}>
+            <Ionicons
+              name="rocket-outline"
+              size={iconSize.md}
+              color={colors.primary}
+            />
+            <Text style={[styles.guideCardTitle, { color: colors.text }]}>
+              Primeros pasos · {guide.doneCount} de {guide.total}
+            </Text>
+            <TouchableOpacity
+              onPress={guide.dismiss}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              accessibilityLabel="Cerrar guía"
+            >
+              <Ionicons
+                name="close"
+                size={iconSize.sm}
+                color={colors.textSecondary}
+              />
+            </TouchableOpacity>
+          </View>
+          <Text style={[styles.guideCardText, { color: colors.textSecondary }]}>
+            Te guiamos para sacarle provecho a la app.
+          </Text>
+          <TouchableOpacity
+            style={[styles.guideCardButton, { backgroundColor: colors.primaryDark }]}
+            onPress={() =>
+              navigation.navigate("Más", { screen: "GettingStarted" })
+            }
+            activeOpacity={0.85}
+          >
+            <Text style={styles.guideCardButtonText}>Continuar la guía</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
       {showSearchSection && (
         <View
           style={[
@@ -540,6 +588,38 @@ const HomeScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  guideCard: {
+    marginHorizontal: hs(20),
+    marginTop: spacing.md,
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
+    borderWidth: s(1),
+    gap: spacing.sm,
+  },
+  guideCardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+  },
+  guideCardTitle: {
+    flex: 1,
+    fontSize: rf(15),
+    fontWeight: "800",
+  },
+  guideCardText: {
+    fontSize: rf(13),
+  },
+  guideCardButton: {
+    minHeight: vs(44),
+    borderRadius: borderRadius.sm,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  guideCardButtonText: {
+    color: "#fff",
+    fontSize: rf(14),
+    fontWeight: "700",
   },
   loadingContainer: {
     flex: 1,

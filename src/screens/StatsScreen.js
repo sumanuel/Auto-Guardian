@@ -13,6 +13,7 @@ import { useAppSettings } from "../context/AppSettingsContext";
 import { useTheme } from "../context/ThemeContext";
 import { COLORS } from "../data/constants";
 import { useDialog } from "../hooks/useDialog";
+import { useGuide } from "../hooks/useGuide";
 import { getAllExpenses } from "../services/expenseService";
 import { getAllRepairs } from "../services/repairService";
 import { formatCurrency } from "../utils/formatUtils";
@@ -31,6 +32,7 @@ const StatsScreen = ({ navigation }) => {
   const { DialogComponent, showDialog } = useDialog();
   const { vehicles, getAllMaintenances } = useApp();
   const { currencySymbol } = useAppSettings();
+  const { markStatsVisited } = useGuide();
   const [totalInvestment, setTotalInvestment] = useState(0);
   const [vehicleStats, setVehicleStats] = useState([]);
 
@@ -119,6 +121,12 @@ const StatsScreen = ({ navigation }) => {
   useEffect(() => {
     calculateInvestment();
   }, [calculateInvestment]);
+
+  // Abrir esta pantalla completa el último paso de la guía de primeros pasos
+  useEffect(() => {
+    markStatsVisited();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleVehiclePress = (vehicleId) => {
     navigation.navigate("InvestmentDetail", { vehicleId });

@@ -83,6 +83,20 @@ const MoreScreen = () => {
     //   screen: "Contacts",
     // },
     {
+      id: 6,
+      title: "Primeros pasos",
+      icon: "rocket-outline",
+      comingSoon: false,
+      screen: "GettingStarted",
+    },
+    {
+      id: 7,
+      title: "Centro de ayuda",
+      icon: "help-buoy-outline",
+      comingSoon: false,
+      screen: "HelpCenter",
+    },
+    {
       id: 3,
       title: "Tips & Guías",
       icon: "help-circle-outline",
