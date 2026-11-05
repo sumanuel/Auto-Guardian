@@ -40,6 +40,8 @@ function AppBootstrap() {
   const {
     isLoaded: settingsLoaded,
     currencySymbol,
+    onboardingReplay,
+    setOnboardingReplay,
     checkForUpdate,
     checkForStoreUpdate,
   } = useAppSettings();
@@ -124,8 +126,15 @@ function AppBootstrap() {
   }
 
   // Mostrar onboarding si no se ha completado
-  if (showOnboarding) {
-    return <OnboardingScreen onComplete={() => setShowOnboarding(false)} />;
+  if (showOnboarding || onboardingReplay) {
+    return (
+      <OnboardingScreen
+        onComplete={() => {
+          setShowOnboarding(false);
+          setOnboardingReplay(false);
+        }}
+      />
+    );
   }
 
   return (

@@ -95,6 +95,8 @@ export const AppSettingsProvider = ({ children }) => {
   const [currencySymbol, setCurrencySymbolState] = useState(null);
   const [currencyDecimals, setCurrencyDecimalsState] =
     useState(DEFAULT_DECIMALS);
+  // Permite volver a ver el onboarding desde Más aunque ya se haya completado
+  const [onboardingReplay, setOnboardingReplay] = useState(false);
 
   const [updateAvailable, setUpdateAvailable] = useState(false);
   const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
@@ -329,6 +331,8 @@ export const AppSettingsProvider = ({ children }) => {
       setCurrencySymbol,
       currencyDecimals,
       setCurrencyDecimals,
+      onboardingReplay,
+      setOnboardingReplay,
       updateAvailable,
       isCheckingUpdate,
       checkForUpdate,
@@ -345,6 +349,8 @@ export const AppSettingsProvider = ({ children }) => {
       setCurrencySymbol,
       currencyDecimals,
       setCurrencyDecimals,
+      onboardingReplay,
+      setOnboardingReplay,
       updateAvailable,
       isCheckingUpdate,
       checkForUpdate,

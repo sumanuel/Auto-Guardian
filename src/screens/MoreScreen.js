@@ -31,6 +31,7 @@ const MoreScreen = () => {
     openStoreUpdate,
     updateAvailable,
     applyUpdate,
+    setOnboardingReplay,
   } = useAppSettings();
 
   useEffect(() => {
@@ -95,6 +96,13 @@ const MoreScreen = () => {
       icon: "help-buoy-outline",
       comingSoon: false,
       screen: "HelpCenter",
+    },
+    {
+      id: 8,
+      title: "Ver introducción",
+      icon: "play-circle-outline",
+      comingSoon: false,
+      onPress: () => setOnboardingReplay(true),
     },
     {
       id: 3,
