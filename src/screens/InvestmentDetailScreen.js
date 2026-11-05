@@ -784,15 +784,27 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                       </Text>
                     </View>
                     <View style={styles.footerRow}>
-                      <Text
-                        style={[
-                          styles.maintenanceDate,
-                          { color: colors.textSecondary },
-                        ]}
-                      >
-                        {formatDate(repair.date)}
-                      </Text>
-                      <View style={styles.actionsRow}>
+                      <View style={{ flex: 1 }}>
+                        <Text
+                          style={[
+                            styles.maintenanceDate,
+                            { color: colors.textSecondary },
+                          ]}
+                        >
+                          {formatDate(repair.date)}
+                        </Text>
+                        {repair.notes && (
+                          <Text
+                            style={[
+                              styles.maintenanceDescription,
+                              { color: colors.textSecondary },
+                            ]}
+                          >
+                            {repair.notes}
+                          </Text>
+                        )}
+                      </View>
+                      <View style={styles.actionsColumn}>
                         <TouchableOpacity
                           onPress={() =>
                             handleDeleteRepair(repair.id, repair.description)
@@ -822,16 +834,6 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                         </TouchableOpacity>
                       </View>
                     </View>
-                    {repair.notes && (
-                      <Text
-                        style={[
-                          styles.maintenanceDescription,
-                          { color: colors.textSecondary },
-                        ]}
-                      >
-                        {repair.notes}
-                      </Text>
-                    )}
                   </View>
                 ))
               )}
@@ -914,15 +916,27 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                       </Text>
                     </View>
                     <View style={styles.footerRow}>
-                      <Text
-                        style={[
-                          styles.maintenanceDate,
-                          { color: colors.textSecondary },
-                        ]}
-                      >
-                        {formatDate(expense.date)}
-                      </Text>
-                      <View style={styles.actionsRow}>
+                      <View style={{ flex: 1 }}>
+                        <Text
+                          style={[
+                            styles.maintenanceDate,
+                            { color: colors.textSecondary },
+                          ]}
+                        >
+                          {formatDate(expense.date)}
+                        </Text>
+                        {expense.notes && (
+                          <Text
+                            style={[
+                              styles.maintenanceDescription,
+                              { color: colors.textSecondary },
+                            ]}
+                          >
+                            {expense.notes}
+                          </Text>
+                        )}
+                      </View>
+                      <View style={styles.actionsColumn}>
                         <TouchableOpacity
                           onPress={() =>
                             handleDeleteExpense(expense.id, expense.description)
@@ -952,16 +966,6 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                         </TouchableOpacity>
                       </View>
                     </View>
-                    {expense.notes && (
-                      <Text
-                        style={[
-                          styles.maintenanceDescription,
-                          { color: colors.textSecondary },
-                        ]}
-                      >
-                        {expense.notes}
-                      </Text>
-                    )}
                   </View>
                 ))
               )}
@@ -1374,13 +1378,12 @@ const styles = StyleSheet.create({
   },
   footerRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    alignItems: "flex-end",
+    gap: spacing.md,
   },
-  actionsRow: {
-    flexDirection: "row",
+  actionsColumn: {
     alignItems: "center",
-    gap: spacing.xl,
+    gap: spacing.md,
   },
   actionButton: {
     padding: spacing.sm,
