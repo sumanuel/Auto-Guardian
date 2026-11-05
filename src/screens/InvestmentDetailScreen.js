@@ -775,6 +775,29 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                           )}
                         </View>
                       </View>
+                      <Text
+                        style={[
+                          styles.maintenanceCost,
+                          { color: colors.primary },
+                        ]}
+                      >
+                        {formatCurrency(repair.cost, currencySymbol)}
+                      </Text>
+                      <TouchableOpacity
+                        onPress={() =>
+                          navigation.navigate("AddRepair", {
+                            vehicleId,
+                            repair,
+                          })
+                        }
+                        style={styles.actionButton}
+                      >
+                        <Ionicons
+                          name="create-outline"
+                          size={iconSize.sm}
+                          color={colors.primary}
+                        />
+                      </TouchableOpacity>
                       <TouchableOpacity
                         onPress={() =>
                           handleDeleteRepair(repair.id, repair.description)
@@ -787,14 +810,6 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                           color={COLORS.danger}
                         />
                       </TouchableOpacity>
-                      <Text
-                        style={[
-                          styles.maintenanceCost,
-                          { color: colors.primary },
-                        ]}
-                      >
-                        {formatCurrency(repair.cost, currencySymbol)}
-                      </Text>
                     </View>
                     <Text
                       style={[
@@ -887,6 +902,29 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                           )}
                         </View>
                       </View>
+                      <Text
+                        style={[
+                          styles.maintenanceCost,
+                          { color: colors.primary },
+                        ]}
+                      >
+                        {formatCurrency(expense.cost, currencySymbol)}
+                      </Text>
+                      <TouchableOpacity
+                        onPress={() =>
+                          navigation.navigate("AddExpense", {
+                            vehicleId,
+                            expense,
+                          })
+                        }
+                        style={styles.actionButton}
+                      >
+                        <Ionicons
+                          name="create-outline"
+                          size={iconSize.sm}
+                          color={colors.primary}
+                        />
+                      </TouchableOpacity>
                       <TouchableOpacity
                         onPress={() =>
                           handleDeleteExpense(expense.id, expense.description)
@@ -899,14 +937,6 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                           color={COLORS.danger}
                         />
                       </TouchableOpacity>
-                      <Text
-                        style={[
-                          styles.maintenanceCost,
-                          { color: colors.primary },
-                        ]}
-                      >
-                        {formatCurrency(expense.cost, currencySymbol)}
-                      </Text>
                     </View>
                     <Text
                       style={[
@@ -1337,9 +1367,12 @@ const styles = StyleSheet.create({
     marginTop: spacing.xxs,
     textTransform: "capitalize",
   },
+  actionButton: {
+    padding: spacing.xs,
+    marginLeft: spacing.xs,
+  },
   deleteButton: {
     padding: spacing.xs,
-    marginRight: spacing.xs,
   },
   fab: {
     position: "absolute",

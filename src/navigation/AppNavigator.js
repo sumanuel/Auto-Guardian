@@ -166,12 +166,16 @@ const StatsStack = () => {
       <Stack.Screen
         name="AddExpense"
         component={AddExpenseScreen}
-        options={{ title: "Agregar otro" }}
+        options={({ route }) => ({
+          title: route.params?.expense ? "Editar movimiento" : "Agregar otro",
+        })}
       />
       <Stack.Screen
         name="AddRepair"
         component={AddRepairScreen}
-        options={{ title: "Agregar Reparación" }}
+        options={({ route }) => ({
+          title: route.params?.repair ? "Editar reparación" : "Agregar Reparación",
+        })}
       />
       <Stack.Screen
         name="MaintenanceHistory"
