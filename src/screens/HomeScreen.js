@@ -283,7 +283,7 @@ const HomeScreen = ({ navigation }) => {
             onPress={() => navigation.navigate("GettingStarted")}
             accessibilityLabel="Guía de primeros pasos"
           >
-            <Ionicons name="rocket-outline" size={iconSize.lg} color="#fff" />
+            <Ionicons name="rocket-outline" size={iconSize.md} color="#fff" />
           </TouchableOpacity>
 
           <TouchableOpacity
