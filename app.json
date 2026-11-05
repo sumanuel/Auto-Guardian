@@ -6,6 +6,13 @@
     "orientation": "default",
     "icon": "./assets/icon.png",
     "scheme": "autoguardian",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/1cfe475d-fd7b-4af5-aa6f-d30cad92a24d",
+      "checkAutomatically": "ON_ERROR_RECOVERY"
+    },
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true
