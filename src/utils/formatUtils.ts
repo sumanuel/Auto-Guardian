@@ -112,10 +112,10 @@ export const formatDaysRemaining = (nextServiceDate?: DateInput) => {
 
   if (daysRemaining < 0) {
     const absDays = Math.abs(daysRemaining);
-    return `Vencido hace ${absDays} día${absDays !== 1 ? "s" : ""}`;
+    return `Debió hacerse hace ${absDays} día${absDays !== 1 ? "s" : ""}`;
   }
 
-  if (daysRemaining === 0) return "Hoy";
+  if (daysRemaining === 0) return "Es hoy";
 
   // Mostrar siempre en semanas y días cuando sea posible
   const weeks = Math.floor(daysRemaining / 7);
@@ -125,7 +125,7 @@ export const formatDaysRemaining = (nextServiceDate?: DateInput) => {
   if (weeks > 0) parts.push(`${weeks} semana${weeks !== 1 ? "s" : ""}`);
   if (days > 0) parts.push(`${days} día${days !== 1 ? "s" : ""}`);
 
-  return `En ${parts.join(" y ")}`;
+  return `Faltan ${parts.join(" y ")}`;
 };
 
 // Formatear kilometraje restante hasta el próximo servicio
@@ -137,9 +137,9 @@ export const formatKmRemaining = (
 
   const kmRemaining = nextServiceKm - currentKm;
   if (kmRemaining <= 0) {
-    return `Vencido (${formatKm(Math.abs(kmRemaining))})`;
+    return `Te pasaste por ${formatKm(Math.abs(kmRemaining))}`;
   }
-  return `En ${formatKm(kmRemaining)}`;
+  return `Faltan ${formatKm(kmRemaining)}`;
 };
 
 // Obtener color de urgencia por kilometraje

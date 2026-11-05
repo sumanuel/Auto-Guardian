@@ -442,6 +442,12 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
       scheduleColor = COLORS.success;
     }
 
+    const isScheduleOverdue = item.nextServiceKm
+      ? scheduleColor === "#ff4444"
+      : item.nextServiceDate
+        ? daysUntilService(getMaintenanceDueDate(item)) < 0
+        : false;
+
     return (
       <View
         style={[
@@ -676,7 +682,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
                 <Text
                   style={[styles.footerBadgeText, { color: scheduleColor }]}
                 >
-                  Próxima programación
+                  {isScheduleOverdue ? "Atrasado" : "Programado"}
                 </Text>
               </View>
               <Text style={[styles.footerText, { color: scheduleColor }]}>
