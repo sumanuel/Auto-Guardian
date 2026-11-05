@@ -486,7 +486,7 @@ const InvestmentDetailScreen = ({ route, navigation }) => {
                           ]}
                         >
                           {category.count}{" "}
-                          {category.count === 1 ? "servicio" : "servicios"}
+                          {category.count === 1 ? "registro" : "registros"}
                         </Text>
                       </View>
                     </View>

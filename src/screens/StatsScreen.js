@@ -209,22 +209,25 @@ const StatsScreen = ({ navigation }) => {
             <View style={styles.totalBreakdownRow}>
               <View style={styles.totalBreakdownPill}>
                 <Text style={styles.totalBreakdownText}>
-                  {vehicles.length} vehículos
+                  {vehicles.length}{" "}
+                  {vehicles.length === 1 ? "vehículo" : "vehículos"}
                 </Text>
               </View>
               <View style={styles.totalBreakdownPill}>
                 <Text style={styles.totalBreakdownText}>
-                  {totalMaintenances} servicios
+                  {totalMaintenances}{" "}
+                  {totalMaintenances === 1 ? "mantenimiento" : "mantenimientos"}
                 </Text>
               </View>
               <View style={styles.totalBreakdownPill}>
                 <Text style={styles.totalBreakdownText}>
-                  {totalRepairs} reparaciones
+                  {totalRepairs}{" "}
+                  {totalRepairs === 1 ? "reparación" : "reparaciones"}
                 </Text>
               </View>
               <View style={styles.totalBreakdownPill}>
                 <Text style={styles.totalBreakdownText}>
-                  {totalExtras} otros
+                  {totalExtras} {totalExtras === 1 ? "otro" : "otros"}
                 </Text>
               </View>
             </View>
@@ -315,8 +318,8 @@ const StatsScreen = ({ navigation }) => {
                       >
                         {vehicle.maintenanceCount}{" "}
                         {vehicle.maintenanceCount === 1
-                          ? "servicio"
-                          : "servicios"}
+                          ? "mantenimiento"
+                          : "mantenimientos"}
                       </Text>
                     </View>
                     <View
