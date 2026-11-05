@@ -62,11 +62,9 @@ export const useGuide = () => {
     doneCount,
     total: steps.length,
     firstPending: steps.find((s) => !s.done) || null,
-    // La tarjeta de Inicio solo se muestra mientras falten pasos y no se haya cerrado
-    showCard: loaded && !prefs.dismissed && !basicsDone,
-    showDot: loaded && !prefs.seen && !basicsDone,
+    // La bienvenida se ofrece una sola vez, y solo a quien aún no domina lo básico
+    showWelcome: loaded && !prefs.seen && !basicsDone,
     markSeen: () => update({ seen: true }),
-    dismiss: () => update({ dismissed: true }),
     markStatsVisited: () => update({ statsVisited: true }),
   };
 };

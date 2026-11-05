@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import Button from "../components/common/Button";
+import GuideWelcomeModal from "../components/common/GuideWelcomeModal";
 import VehicleCard from "../components/vehicles/VehicleCard";
 import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
@@ -279,6 +280,14 @@ const HomeScreen = ({ navigation }) => {
 
           <TouchableOpacity
             style={styles.helpButtonHeader}
+            onPress={() => navigation.navigate("GettingStarted")}
+            accessibilityLabel="Guía de primeros pasos"
+          >
+            <Ionicons name="rocket-outline" size={iconSize.lg} color="#fff" />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.helpButtonHeader}
             onPress={() =>
               showDialog({
                 title: "Inicio",
@@ -407,52 +416,6 @@ const HomeScreen = ({ navigation }) => {
         </View>
       </LinearGradient>
 
-      {guide.showCard && (
-        <View
-          style={[
-            styles.guideCard,
-            {
-              backgroundColor: colors.cardBackground,
-              borderColor: colors.primary,
-            },
-          ]}
-        >
-          <View style={styles.guideCardHeader}>
-            <Ionicons
-              name="rocket-outline"
-              size={iconSize.md}
-              color={colors.primary}
-            />
-            <Text style={[styles.guideCardTitle, { color: colors.text }]}>
-              Primeros pasos · {guide.doneCount} de {guide.total}
-            </Text>
-            <TouchableOpacity
-              onPress={guide.dismiss}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              accessibilityLabel="Cerrar guía"
-            >
-              <Ionicons
-                name="close"
-                size={iconSize.sm}
-                color={colors.textSecondary}
-              />
-            </TouchableOpacity>
-          </View>
-          <Text style={[styles.guideCardText, { color: colors.textSecondary }]}>
-            Te guiamos para sacarle provecho a la app.
-          </Text>
-          <TouchableOpacity
-            style={[styles.guideCardButton, { backgroundColor: colors.primaryDark }]}
-            onPress={() =>
-              navigation.navigate("Más", { screen: "GettingStarted" })
-            }
-            activeOpacity={0.85}
-          >
-            <Text style={styles.guideCardButtonText}>Continuar la guía</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
       {showSearchSection && (
         <View
           style={[
@@ -557,6 +520,14 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <DialogComponent>
+      <GuideWelcomeModal
+        visible={guide.showWelcome}
+        onClose={guide.markSeen}
+        onStart={() => {
+          guide.markSeen();
+          navigation.navigate("GettingStarted");
+        }}
+      />
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         {vehicles.length === 0 ? (
           <ScrollView
@@ -588,38 +559,6 @@ const HomeScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  guideCard: {
-    marginHorizontal: hs(20),
-    marginTop: spacing.md,
-    padding: spacing.md,
-    borderRadius: borderRadius.md,
-    borderWidth: s(1),
-    gap: spacing.sm,
-  },
-  guideCardHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.sm,
-  },
-  guideCardTitle: {
-    flex: 1,
-    fontSize: rf(15),
-    fontWeight: "800",
-  },
-  guideCardText: {
-    fontSize: rf(13),
-  },
-  guideCardButton: {
-    minHeight: vs(44),
-    borderRadius: borderRadius.sm,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  guideCardButtonText: {
-    color: "#fff",
-    fontSize: rf(14),
-    fontWeight: "700",
   },
   loadingContainer: {
     flex: 1,

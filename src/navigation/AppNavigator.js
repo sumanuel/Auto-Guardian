@@ -110,6 +110,16 @@ const HomeStack = () => {
         component={AlertSummaryScreen}
         options={{ title: "Resumen de Alertas" }}
       />
+      <Stack.Screen
+        name="GettingStarted"
+        component={GettingStartedScreen}
+        options={{ title: "Primeros pasos" }}
+      />
+      <Stack.Screen
+        name="HelpCenter"
+        component={HelpCenterScreen}
+        options={{ title: "Centro de ayuda" }}
+      />
     </Stack.Navigator>
   );
 };
