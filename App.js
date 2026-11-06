@@ -4,6 +4,7 @@ import * as Notifications from "expo-notifications";
 import { useEffect, useRef, useState } from "react";
 import { AppState } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import UpdatePromptModal from "./src/components/common/UpdatePromptModal";
 import { AppProvider } from "./src/context/AppContext";
 import {
   AppSettingsProvider,
@@ -150,6 +151,7 @@ export default function App() {
       <ThemeProvider>
         <AppSettingsProvider>
           <AppBootstrap />
+          <UpdatePromptModal />
         </AppSettingsProvider>
       </ThemeProvider>
     </SafeAreaProvider>

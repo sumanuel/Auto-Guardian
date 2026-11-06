@@ -16,6 +16,7 @@ import {
   normalizeDecimals,
   setCurrencyDecimalsConfig,
 } from "../utils/currencyConfig";
+import { evaluateStoreUpdate, normalizeVersionString } from "../utils/versionUtils";
 
 let Updates;
 try {
@@ -32,38 +33,6 @@ const STORAGE_KEYS = {
 };
 
 const DEFAULT_STORE_CHECK_TIMEOUT_MS = 7000;
-
-const normalizeVersionString = (value) => {
-  if (value === null || value === undefined) return "";
-  return String(value).trim();
-};
-
-const parseVersionParts = (versionString) => {
-  // Soporta: 1.2.3 | 0.1.1.260131 | 1.2.3-beta (ignora sufijos)
-  const v = normalizeVersionString(versionString);
-  if (!v) return [];
-
-  const main = v.split("-")[0];
-  return main.split(".").map((part) => {
-    const numeric = String(part).replace(/[^0-9]/g, "");
-    if (!numeric) return 0;
-    const n = Number.parseInt(numeric, 10);
-    return Number.isFinite(n) ? n : 0;
-  });
-};
-
-const compareVersions = (a, b) => {
-  const pa = parseVersionParts(a);
-  const pb = parseVersionParts(b);
-  const len = Math.max(pa.length, pb.length);
-  for (let i = 0; i < len; i += 1) {
-    const va = pa[i] ?? 0;
-    const vb = pb[i] ?? 0;
-    if (va > vb) return 1;
-    if (va < vb) return -1;
-  }
-  return 0;
-};
 
 const getStoreUpdateConfig = () => {
   // En Expo SDK recientes, expoConfig existe en runtime.
@@ -102,6 +71,7 @@ export const AppSettingsProvider = ({ children }) => {
   const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
 
   const [storeUpdateAvailable, setStoreUpdateAvailable] = useState(false);
+  const [storeForceUpdate, setStoreForceUpdate] = useState(false);
   const [storeLatestVersion, setStoreLatestVersion] = useState(null);
   const [storeUpdateUrl, setStoreUpdateUrl] = useState(null);
   const [isCheckingStoreUpdate, setIsCheckingStoreUpdate] = useState(false);
@@ -241,23 +211,15 @@ export const AppSettingsProvider = ({ children }) => {
       }
       const data = await response.json();
 
-      const latest = normalizeVersionString(data?.latestVersion);
-      const url = normalizeVersionString(data?.url);
+      const info = evaluateStoreUpdate(data, currentVersion);
 
-      if (!latest) {
-        setStoreUpdateAvailable(false);
-        setStoreLatestVersion(null);
-        setStoreUpdateUrl(null);
-        return;
-      }
+      setStoreLatestVersion(info.latestVersion);
+      setStoreUpdateUrl(info.url);
+      setStoreUpdateAvailable(info.updateAvailable);
+      setStoreForceUpdate(info.forceUpdate);
 
-      setStoreLatestVersion(latest);
-      setStoreUpdateUrl(url || null);
-
-      const isNewer = compareVersions(latest, currentVersion) > 0;
-      setStoreUpdateAvailable(Boolean(isNewer));
-      if (isNewer) {
-        await notifyStoreUpdateIfNeeded(latest, url);
+      if (info.updateAvailable && info.latestVersion) {
+        await notifyStoreUpdateIfNeeded(info.latestVersion, info.url);
       }
     } catch (error) {
       // No debe romper la app.
@@ -338,6 +300,7 @@ export const AppSettingsProvider = ({ children }) => {
       checkForUpdate,
       applyUpdate,
       storeUpdateAvailable,
+      storeForceUpdate,
       storeLatestVersion,
       isCheckingStoreUpdate,
       checkForStoreUpdate,
@@ -356,6 +319,7 @@ export const AppSettingsProvider = ({ children }) => {
       checkForUpdate,
       applyUpdate,
       storeUpdateAvailable,
+      storeForceUpdate,
       storeLatestVersion,
       isCheckingStoreUpdate,
       checkForStoreUpdate,
