@@ -16,6 +16,7 @@ import {
 import Button from "../components/common/Button";
 import DatePicker from "../components/common/DatePicker";
 import ItemsDetail from "../components/common/ItemsDetail";
+import KmField from "../components/common/KmField";
 import { useApp } from "../context/AppContext";
 import { useAppSettings } from "../context/AppSettingsContext";
 import { useTheme } from "../context/ThemeContext";
@@ -27,11 +28,13 @@ import {
   serializeItems,
 } from "../utils/itemsUtils";
 import { borderRadius, rf, s, spacing, vs } from "../utils/responsive";
+import { checkKmUpdate, kmErrorMessage } from "../utils/kmUtils";
 
 const AddRepairScreen = ({ route, navigation }) => {
   const { vehicleId, repair } = route.params || {};
   const { colors } = useTheme();
-  const { addRepair, updateRepair, vehicles } = useApp();
+  const { addRepair, updateRepair, updateVehicleKilometers, vehicles } =
+    useApp();
   const { currencySymbol } = useAppSettings();
   const { DialogComponent, showDialog } = useDialog();
   const isEditing = !!repair;
@@ -50,6 +53,9 @@ const AddRepairScreen = ({ route, navigation }) => {
     photo: repair?.photo || null,
   });
 
+  const [km, setKm] = useState(
+    vehicle?.currentKm != null ? String(vehicle.currentKm) : "",
+  );
   const [items, setItems] = useState(() => fromStoredItems(repair?.items));
   const hasItems = items.length > 0;
   const itemsCost = itemsTotal(items);
@@ -61,6 +67,7 @@ const AddRepairScreen = ({ route, navigation }) => {
   const costRef = useRef(null);
   const workshopRef = useRef(null);
   const notesRef = useRef(null);
+  const kmRef = useRef(null);
   const scrollViewRef = useRef(null);
 
   const scrollToEnd = () => {
@@ -190,6 +197,13 @@ const AddRepairScreen = ({ route, navigation }) => {
   const handleSubmit = async () => {
     if (!validateForm()) return;
 
+    const kmCheck = checkKmUpdate(km, vehicle?.currentKm);
+    const kmError = kmErrorMessage(kmCheck, vehicle?.currentKm);
+    if (kmError) {
+      showDialog({ title: "Error", message: kmError, type: "error" });
+      return;
+    }
+
     setLoading(true);
     try {
       const repairData = {
@@ -205,6 +219,9 @@ const AddRepairScreen = ({ route, navigation }) => {
 
       if (isEditing) {
         await updateRepair(repair.id, repairData);
+        if (kmCheck.status === "update") {
+          await updateVehicleKilometers(vehicleId, kmCheck.km);
+        }
         showDialog({
           title: "Éxito",
           message: "Reparación actualizada correctamente",
@@ -212,6 +229,9 @@ const AddRepairScreen = ({ route, navigation }) => {
         });
       } else {
         await addRepair(repairData);
+        if (kmCheck.status === "update") {
+          await updateVehicleKilometers(vehicleId, kmCheck.km);
+        }
         showDialog({
           title: "Éxito",
           message: "Reparación registrada correctamente",
@@ -383,18 +403,32 @@ const AddRepairScreen = ({ route, navigation }) => {
                   color: colors.text,
                 },
               ]}
-              value={hasItems ? itemsCost.toFixed(getCurrencyDecimals()) : formData.cost}
+              value={
+                hasItems
+                  ? itemsCost.toFixed(getCurrencyDecimals())
+                  : formData.cost
+              }
               onChangeText={(value) => handleInputChange("cost", value)}
               editable={!hasItems}
               placeholder={moneyPlaceholder()}
               placeholderTextColor={colors.textSecondary}
               keyboardType="decimal-pad"
               returnKeyType="next"
-              onSubmitEditing={() => notesRef.current?.focus()}
+              onSubmitEditing={() => kmRef.current?.focus()}
               onFocus={() => scrollToEnd()}
               blurOnSubmit={false}
             />
           </View>
+
+          {/* Kilometraje */}
+          <KmField
+            inputRef={kmRef}
+            value={km}
+            onChangeText={setKm}
+            currentKm={vehicle?.currentKm}
+            onFocus={() => scrollToEnd()}
+            onSubmitEditing={() => notesRef.current?.focus()}
+          />
 
           {/* Notas */}
           <View style={styles.inputGroup}>

@@ -38,12 +38,11 @@ import {
   getKmUrgencyColor,
 } from "../utils/formatUtils";
 import { getMaintenanceIcon } from "../utils/maintenanceIcons";
-import {
-  iconSize,
-  ms,
-} from "../utils/responsive";
+import { checkKmUpdate, kmErrorMessage } from "../utils/kmUtils";
+import { iconSize, ms } from "../utils/responsive";
 import { styles } from "./MaintenanceHistoryScreen.styles";
 import ItemsDetail from "../components/common/ItemsDetail";
+import KmField from "../components/common/KmField";
 import { QUICK_ACTION_COLORS } from "../components/maintenance/QuickActionCard";
 
 const MaintenanceHistoryScreen = ({ route, navigation }) => {
@@ -59,6 +58,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
     getAllMaintenances,
     updateMaintenance,
     addMaintenance,
+    updateVehicleKilometers,
   } = useApp();
   const { DialogComponent, showDialog } = useDialog();
   const { colors } = useTheme();
@@ -91,12 +91,17 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
     photo: null,
   });
   const [editItems, setEditItems] = useState([]);
+  const [editKm, setEditKm] = useState("");
+  const editVehicle = selectedMaintenance
+    ? vehicles.find((v) => v.id === selectedMaintenance.vehicleId)
+    : null;
   const editHasItems = editItems.length > 0;
   const editItemsCost = itemsTotal(editItems);
 
   // Referencias para navegación en modal de edición
   const costRef = useRef(null);
   const providerRef = useRef(null);
+  const kmRef = useRef(null);
   const notesRef = useRef(null);
 
   const openImageModal = (imageUri) => {
@@ -273,6 +278,14 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
           photo: maintenanceToEdit.photo || null,
         });
         setEditItems(fromStoredItems(maintenanceToEdit.items));
+        const maintenanceVehicle = vehicles.find(
+          (v) => v.id === maintenanceToEdit.vehicleId,
+        );
+        setEditKm(
+          maintenanceVehicle?.currentKm != null
+            ? String(maintenanceVehicle.currentKm)
+            : "",
+        );
         setEditModalVisible(true);
       } else {
         // For in-progress maintenances, navigate to AddMaintenance screen
@@ -287,6 +300,13 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
 
   const handleSaveEdit = async () => {
     if (!selectedMaintenance) return;
+
+    const kmCheck = checkKmUpdate(editKm, editVehicle?.currentKm);
+    const kmError = kmErrorMessage(kmCheck, editVehicle?.currentKm);
+    if (kmError) {
+      showDialog({ title: "Error", message: kmError, type: "error" });
+      return;
+    }
 
     try {
       const updatedData = {
@@ -304,6 +324,12 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
       };
 
       await updateMaintenance(selectedMaintenance.id, updatedData);
+      if (kmCheck.status === "update") {
+        await updateVehicleKilometers(
+          selectedMaintenance.vehicleId,
+          kmCheck.km,
+        );
+      }
       setEditModalVisible(false);
       setSelectedMaintenance(null);
       loadMaintenances();
@@ -1066,7 +1092,9 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
                       },
                     ]}
                     value={
-                      editHasItems ? editItemsCost.toFixed(getCurrencyDecimals()) : editFormData.cost
+                      editHasItems
+                        ? editItemsCost.toFixed(getCurrencyDecimals())
+                        : editFormData.cost
                     }
                     onChangeText={(value) =>
                       setEditFormData((prev) => ({ ...prev, cost: value }))
@@ -1076,10 +1104,19 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
                     placeholderTextColor={colors.textSecondary}
                     keyboardType="decimal-pad"
                     returnKeyType="next"
-                    onSubmitEditing={() => providerRef.current?.focus()}
+                    onSubmitEditing={() => kmRef.current?.focus()}
                     blurOnSubmit={false}
                   />
                 </View>
+
+                {/* Kilometraje */}
+                <KmField
+                  inputRef={kmRef}
+                  value={editKm}
+                  onChangeText={setEditKm}
+                  currentKm={editVehicle?.currentKm}
+                  onSubmitEditing={() => providerRef.current?.focus()}
+                />
 
                 {/* Provider */}
                 <View style={styles.inputGroup}>

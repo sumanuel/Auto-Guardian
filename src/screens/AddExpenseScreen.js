@@ -16,10 +16,12 @@ import {
 } from "react-native";
 import Button from "../components/common/Button";
 import ItemsDetail from "../components/common/ItemsDetail";
+import KmField from "../components/common/KmField";
 import { useApp } from "../context/AppContext";
 import { useAppSettings } from "../context/AppSettingsContext";
 import { useTheme } from "../context/ThemeContext";
 import { formatDate } from "../utils/dateUtils";
+import { checkKmUpdate, kmErrorMessage } from "../utils/kmUtils";
 import { getCurrencyDecimals, moneyPlaceholder } from "../utils/currencyConfig";
 import {
   fromStoredItems,
@@ -38,7 +40,8 @@ import {
 const AddExpenseScreen = ({ route, navigation }) => {
   const { vehicleId, expense } = route.params || {};
   const { colors } = useTheme();
-  const { addExpense, updateExpense, vehicles } = useApp();
+  const { addExpense, updateExpense, updateVehicleKilometers, vehicles } =
+    useApp();
   const { currencySymbol } = useAppSettings();
   const isEditing = !!expense;
 
@@ -56,6 +59,9 @@ const AddExpenseScreen = ({ route, navigation }) => {
     expense?.cost ? expense.cost.toString() : "",
   );
   const [notes, setNotes] = useState(expense?.notes || "");
+  const [km, setKm] = useState(
+    vehicle?.currentKm != null ? String(vehicle.currentKm) : "",
+  );
   const [items, setItems] = useState(() => fromStoredItems(expense?.items));
   const hasItems = items.length > 0;
   const itemsCost = itemsTotal(items);
@@ -65,6 +71,7 @@ const AddExpenseScreen = ({ route, navigation }) => {
   const descriptionRef = useRef(null);
   const costRef = useRef(null);
   const notesRef = useRef(null);
+  const kmRef = useRef(null);
   const scrollViewRef = useRef(null);
 
   const scrollToEnd = () => {
@@ -90,6 +97,13 @@ const AddExpenseScreen = ({ route, navigation }) => {
       return;
     }
 
+    const kmCheck = checkKmUpdate(km, vehicle?.currentKm);
+    const kmError = kmErrorMessage(kmCheck, vehicle?.currentKm);
+    if (kmError) {
+      Alert.alert("Error", kmError);
+      return;
+    }
+
     setLoading(true);
     try {
       const expenseData = {
@@ -107,6 +121,10 @@ const AddExpenseScreen = ({ route, navigation }) => {
         await updateExpense(expense.id, expenseData);
       } else {
         await addExpense(expenseData);
+      }
+
+      if (kmCheck.status === "update") {
+        await updateVehicleKilometers(vehicleId, kmCheck.km);
       }
 
       navigation.goBack();
@@ -282,11 +300,21 @@ const AddExpenseScreen = ({ route, navigation }) => {
             placeholderTextColor={colors.textSecondary}
             keyboardType="decimal-pad"
             returnKeyType="next"
-            onSubmitEditing={() => notesRef.current?.focus()}
+            onSubmitEditing={() => kmRef.current?.focus()}
             onFocus={() => scrollToEnd()}
             blurOnSubmit={false}
           />
         </View>
+
+        {/* Kilometraje */}
+        <KmField
+          inputRef={kmRef}
+          value={km}
+          onChangeText={setKm}
+          currentKm={vehicle?.currentKm}
+          onFocus={() => scrollToEnd()}
+          onSubmitEditing={() => notesRef.current?.focus()}
+        />
 
         {/* Notas */}
         <View style={styles.section}>
