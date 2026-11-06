@@ -166,6 +166,23 @@ const EditMaintenanceScreen = ({ route, navigation }) => {
           maximumDate={new Date()}
         />
 
+        <View style={styles.inputGroup}>
+          <Text style={[styles.label, { color: colors.text }]}>
+            Taller/Proveedor
+          </Text>
+          <TextInput
+            ref={providerRef}
+            style={inputStyle}
+            value={provider}
+            onChangeText={setProvider}
+            placeholder="Nombre del taller"
+            placeholderTextColor={colors.textSecondary}
+            returnKeyType="next"
+            onSubmitEditing={() => costRef.current?.focus()}
+            blurOnSubmit={false}
+          />
+        </View>
+
         <ItemsDetail
           items={items}
           onChange={setItems}
@@ -196,25 +213,8 @@ const EditMaintenanceScreen = ({ route, navigation }) => {
           value={km}
           onChangeText={setKm}
           currentKm={vehicle?.currentKm}
-          onSubmitEditing={() => providerRef.current?.focus()}
+          onSubmitEditing={() => notesRef.current?.focus()}
         />
-
-        <View style={styles.inputGroup}>
-          <Text style={[styles.label, { color: colors.text }]}>
-            Taller/Proveedor
-          </Text>
-          <TextInput
-            ref={providerRef}
-            style={inputStyle}
-            value={provider}
-            onChangeText={setProvider}
-            placeholder="Nombre del taller"
-            placeholderTextColor={colors.textSecondary}
-            returnKeyType="next"
-            onSubmitEditing={() => notesRef.current?.focus()}
-            blurOnSubmit={false}
-          />
-        </View>
 
         <View style={styles.inputGroup}>
           <Text style={[styles.label, { color: colors.text }]}>Notas</Text>
