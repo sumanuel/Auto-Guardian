@@ -24,6 +24,7 @@ import CategoriesScreen from "../screens/CategoriesScreen";
 import CurrencySettingsScreen from "../screens/CurrencySettingsScreen";
 import DataManagementScreen from "../screens/DataManagementScreen";
 import DocumentsScreen from "../screens/DocumentsScreen";
+import EditMaintenanceScreen from "../screens/EditMaintenanceScreen";
 import GettingStartedScreen from "../screens/GettingStartedScreen";
 import HelpCenterScreen from "../screens/HelpCenterScreen";
 import HomeScreen from "../screens/HomeScreen";
@@ -106,6 +107,11 @@ const HomeStack = () => {
         options={{ title: "Historial de Mantenimientos" }}
       />
       <Stack.Screen
+        name="EditMaintenance"
+        component={EditMaintenanceScreen}
+        options={{ title: "Editar mantenimiento" }}
+      />
+      <Stack.Screen
         name="AlertSummary"
         component={AlertSummaryScreen}
         options={{ title: "Resumen de Alertas" }}
@@ -144,6 +150,11 @@ const HistoryStack = () => {
         name="HistoryMain"
         component={MaintenanceHistoryScreen}
         options={{ title: "Historial de Mantenimientos" }}
+      />
+      <Stack.Screen
+        name="EditMaintenance"
+        component={EditMaintenanceScreen}
+        options={{ title: "Editar mantenimiento" }}
       />
     </Stack.Navigator>
   );
@@ -193,6 +204,11 @@ const StatsStack = () => {
         name="MaintenanceHistory"
         component={MaintenanceHistoryScreen}
         options={{ title: "Historial de Mantenimientos" }}
+      />
+      <Stack.Screen
+        name="EditMaintenance"
+        component={EditMaintenanceScreen}
+        options={{ title: "Editar mantenimiento" }}
       />
     </Stack.Navigator>
   );

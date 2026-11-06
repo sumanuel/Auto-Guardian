@@ -1,15 +1,11 @@
 import { Ionicons } from "@expo/vector-icons";
-import DateTimePicker from "@react-native-community/datetimepicker";
 import { LinearGradient } from "expo-linear-gradient";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   FlatList,
   Image,
   Modal,
-  Platform,
-  ScrollView,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -23,12 +19,6 @@ import {
   getMaintenanceTypes,
 } from "../services/maintenanceService";
 import { daysUntilService, formatDate } from "../utils/dateUtils";
-import { getCurrencyDecimals, moneyPlaceholder } from "../utils/currencyConfig";
-import {
-  fromStoredItems,
-  itemsTotal,
-  serializeItems,
-} from "../utils/itemsUtils";
 import {
   formatCurrency,
   formatDaysRemaining,
@@ -38,11 +28,8 @@ import {
   getKmUrgencyColor,
 } from "../utils/formatUtils";
 import { getMaintenanceIcon } from "../utils/maintenanceIcons";
-import { checkKmUpdate, kmErrorMessage } from "../utils/kmUtils";
 import { iconSize, ms } from "../utils/responsive";
 import { styles } from "./MaintenanceHistoryScreen.styles";
-import ItemsDetail from "../components/common/ItemsDetail";
-import KmField from "../components/common/KmField";
 import { QUICK_ACTION_COLORS } from "../components/maintenance/QuickActionCard";
 
 const MaintenanceHistoryScreen = ({ route, navigation }) => {
@@ -58,7 +45,6 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
     getAllMaintenances,
     updateMaintenance,
     addMaintenance,
-    updateVehicleKilometers,
   } = useApp();
   const { DialogComponent, showDialog } = useDialog();
   const { colors } = useTheme();
@@ -81,28 +67,7 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
   const [approveModalVisible, setApproveModalVisible] = useState(false);
   const [selectedMaintenance, setSelectedMaintenance] = useState(null);
   const [scheduleNext, setScheduleNext] = useState(false);
-  const [editModalVisible, setEditModalVisible] = useState(false);
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [editFormData, setEditFormData] = useState({
-    date: new Date(),
-    cost: "",
-    provider: "",
-    notes: "",
-    photo: null,
-  });
-  const [editItems, setEditItems] = useState([]);
-  const [editKm, setEditKm] = useState("");
-  const editVehicle = selectedMaintenance
-    ? vehicles.find((v) => v.id === selectedMaintenance.vehicleId)
-    : null;
-  const editHasItems = editItems.length > 0;
-  const editItemsCost = itemsTotal(editItems);
 
-  // Referencias para navegación en modal de edición
-  const costRef = useRef(null);
-  const providerRef = useRef(null);
-  const kmRef = useRef(null);
-  const notesRef = useRef(null);
 
   const openImageModal = (imageUri) => {
     setSelectedImage(imageUri);
@@ -258,35 +223,10 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
     const maintenanceToEdit = maintenances.find((item) => item.id === id);
     if (maintenanceToEdit) {
       if (isCompleted(maintenanceToEdit)) {
-        // For completed maintenances, open edit modal
-        setSelectedMaintenance(maintenanceToEdit);
-
-        // Parse completedAt date correctly (this is the date shown in the list)
-        let dateValue = new Date();
-        if (maintenanceToEdit.completedAt) {
-          const parsedDate = new Date(maintenanceToEdit.completedAt);
-          if (!isNaN(parsedDate.getTime())) {
-            dateValue = parsedDate;
-          }
-        }
-
-        setEditFormData({
-          date: dateValue,
-          cost: maintenanceToEdit.cost ? maintenanceToEdit.cost.toString() : "",
-          provider: maintenanceToEdit.provider || "",
-          notes: maintenanceToEdit.notes || "",
-          photo: maintenanceToEdit.photo || null,
+        // Los mantenimientos realizados se editan en su propia pantalla
+        navigation.navigate("EditMaintenance", {
+          maintenance: maintenanceToEdit,
         });
-        setEditItems(fromStoredItems(maintenanceToEdit.items));
-        const maintenanceVehicle = vehicles.find(
-          (v) => v.id === maintenanceToEdit.vehicleId,
-        );
-        setEditKm(
-          maintenanceVehicle?.currentKm != null
-            ? String(maintenanceVehicle.currentKm)
-            : "",
-        );
-        setEditModalVisible(true);
       } else {
         // For in-progress maintenances, navigate to AddMaintenance screen
         navigation.navigate("AddMaintenance", {
@@ -295,56 +235,6 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
           maintenanceData: maintenanceToEdit, // Pass the full maintenance data for editing
         });
       }
-    }
-  };
-
-  const handleSaveEdit = async () => {
-    if (!selectedMaintenance) return;
-
-    const kmCheck = checkKmUpdate(editKm, editVehicle?.currentKm);
-    const kmError = kmErrorMessage(kmCheck, editVehicle?.currentKm);
-    if (kmError) {
-      showDialog({ title: "Error", message: kmError, type: "error" });
-      return;
-    }
-
-    try {
-      const updatedData = {
-        ...selectedMaintenance,
-        completedAt: editFormData.date.toISOString(), // Update completedAt with the edited date
-        cost: editHasItems
-          ? editItemsCost
-          : editFormData.cost
-            ? parseFloat(editFormData.cost)
-            : null,
-        provider: editFormData.provider || null,
-        notes: editFormData.notes || null,
-        photo: editFormData.photo || null,
-        items: serializeItems(editItems),
-      };
-
-      await updateMaintenance(selectedMaintenance.id, updatedData);
-      if (kmCheck.status === "update") {
-        await updateVehicleKilometers(
-          selectedMaintenance.vehicleId,
-          kmCheck.km,
-        );
-      }
-      setEditModalVisible(false);
-      setSelectedMaintenance(null);
-      loadMaintenances();
-      showDialog({
-        title: "Actualizado",
-        message: "Los datos del mantenimiento han sido actualizados.",
-        type: "success",
-      });
-    } catch (error) {
-      console.error("Error updating maintenance:", error);
-      showDialog({
-        title: "Error",
-        message: "No se pudieron actualizar los datos.",
-        type: "error",
-      });
     }
   };
 
@@ -1013,282 +903,6 @@ const MaintenanceHistoryScreen = ({ route, navigation }) => {
       </View>
 
       {/* Edit Modal for completed maintenances */}
-      <Modal
-        visible={editModalVisible}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setEditModalVisible(false)}
-      >
-        <View style={styles.editModalOverlay}>
-          <View
-            style={[
-              styles.editModalContent,
-              { backgroundColor: colors.background },
-            ]}
-          >
-            <View style={styles.editModalHeader}>
-              <Text style={[styles.editModalTitle, { color: colors.text }]}>
-                Editar mantenimiento
-              </Text>
-              <TouchableOpacity onPress={() => setEditModalVisible(false)}>
-                <Ionicons name="close" size={iconSize.md} color={colors.text} />
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.editModalBody}>
-              <ScrollView
-                style={styles.editModalScroll}
-                contentContainerStyle={styles.editModalScrollContent}
-              >
-                {/* Date */}
-                <View style={styles.inputGroup}>
-                  <Text style={[styles.label, { color: colors.text }]}>
-                    Fecha de realización
-                  </Text>
-                  <TouchableOpacity
-                    key={`date-${editFormData.date?.getTime()}`}
-                    style={[
-                      styles.dateButton,
-                      {
-                        backgroundColor: colors.inputBackground,
-                        borderColor: colors.border,
-                      },
-                    ]}
-                    onPress={() => setShowDatePicker(true)}
-                  >
-                    <Ionicons
-                      name="calendar-outline"
-                      size={iconSize.md}
-                      color={colors.primary}
-                    />
-                    <Text
-                      style={[styles.dateButtonText, { color: colors.text }]}
-                    >
-                      {formatDate(editFormData.date)}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-
-                {/* Detalle por ítems */}
-                <ItemsDetail
-                  items={editItems}
-                  onChange={setEditItems}
-                  currencySymbol={currencySymbol || "$"}
-                />
-
-                {/* Cost */}
-                <View style={[styles.inputGroup, styles.costInputGroup]}>
-                  <Text style={[styles.label, { color: colors.text }]}>
-                    Costo{editHasItems ? " (calculado del detalle)" : ""}
-                  </Text>
-                  <TextInput
-                    ref={costRef}
-                    style={[
-                      styles.input,
-                      {
-                        backgroundColor: colors.inputBackground,
-                        borderColor: colors.border,
-                        color: colors.text,
-                      },
-                    ]}
-                    value={
-                      editHasItems
-                        ? editItemsCost.toFixed(getCurrencyDecimals())
-                        : editFormData.cost
-                    }
-                    onChangeText={(value) =>
-                      setEditFormData((prev) => ({ ...prev, cost: value }))
-                    }
-                    editable={!editHasItems}
-                    placeholder={moneyPlaceholder()}
-                    placeholderTextColor={colors.textSecondary}
-                    keyboardType="decimal-pad"
-                    returnKeyType="next"
-                    onSubmitEditing={() => kmRef.current?.focus()}
-                    blurOnSubmit={false}
-                  />
-                </View>
-
-                {/* Kilometraje */}
-                <KmField
-                  inputRef={kmRef}
-                  value={editKm}
-                  onChangeText={setEditKm}
-                  currentKm={editVehicle?.currentKm}
-                  onSubmitEditing={() => providerRef.current?.focus()}
-                />
-
-                {/* Provider */}
-                <View style={styles.inputGroup}>
-                  <Text style={[styles.label, { color: colors.text }]}>
-                    Taller/Proveedor
-                  </Text>
-                  <TextInput
-                    ref={providerRef}
-                    style={[
-                      styles.input,
-                      {
-                        backgroundColor: colors.inputBackground,
-                        borderColor: colors.border,
-                        color: colors.text,
-                      },
-                    ]}
-                    value={editFormData.provider}
-                    onChangeText={(value) =>
-                      setEditFormData((prev) => ({ ...prev, provider: value }))
-                    }
-                    placeholder="Nombre del taller"
-                    placeholderTextColor={colors.textSecondary}
-                    returnKeyType="next"
-                    onSubmitEditing={() => notesRef.current?.focus()}
-                    blurOnSubmit={false}
-                  />
-                </View>
-
-                {/* Notes */}
-                <View style={styles.inputGroup}>
-                  <Text style={[styles.label, { color: colors.text }]}>
-                    Notas
-                  </Text>
-                  <TextInput
-                    ref={notesRef}
-                    style={[
-                      styles.input,
-                      styles.textArea,
-                      {
-                        backgroundColor: colors.inputBackground,
-                        borderColor: colors.border,
-                        color: colors.text,
-                      },
-                    ]}
-                    value={editFormData.notes}
-                    onChangeText={(value) =>
-                      setEditFormData((prev) => ({ ...prev, notes: value }))
-                    }
-                    placeholder="Notas adicionales"
-                    placeholderTextColor={colors.textSecondary}
-                    multiline
-                    numberOfLines={4}
-                    returnKeyType="done"
-                  />
-                </View>
-
-                {/* Photo - Temporarily hidden */}
-                {/*
-                <View style={styles.inputGroup}>
-                  <Text style={[styles.label, { color: colors.text }]}>
-                    Foto del recibo
-                  </Text>
-                  {editFormData.photo && (
-                    <Image
-                      source={{ uri: editFormData.photo }}
-                      style={styles.photoPreview}
-                    />
-                  )}
-                  <View style={styles.photoActions}>
-                    <TouchableOpacity
-                      style={styles.photoButton}
-                      onPress={async () => {
-                        const { status } =
-                          await ImagePicker.requestCameraPermissionsAsync();
-                        if (status !== "granted") {
-                          showDialog({
-                            title: "Permiso denegado",
-                            message:
-                              "Necesitamos permiso para acceder a la cámara",
-                            type: "warning",
-                          });
-                          return;
-                        }
-                        const result = await ImagePicker.launchCameraAsync({
-                          allowsEditing: true,
-                          quality: 0.8,
-                        });
-                        if (!result.canceled) {
-                          setEditFormData((prev) => ({
-                            ...prev,
-                            photo: result.assets[0].uri,
-                          }));
-                        }
-                      }}
-                    >
-                      <Button title="Tomar foto" variant="secondary" />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={styles.photoButton}
-                      onPress={async () => {
-                        const { status } =
-                          await ImagePicker.requestMediaLibraryPermissionsAsync();
-                        if (status !== "granted") {
-                          showDialog({
-                            title: "Permiso denegado",
-                            message:
-                              "Necesitamos permiso para acceder a tus fotos",
-                            type: "warning",
-                          });
-                          return;
-                        }
-                        const result =
-                          await ImagePicker.launchImageLibraryAsync({
-                            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-                            allowsEditing: true,
-                            quality: 0.8,
-                          });
-                        if (!result.canceled) {
-                          setEditFormData((prev) => ({
-                            ...prev,
-                            photo: result.assets[0].uri,
-                          }));
-                        }
-                      }}
-                    >
-                      <Button title="Elegir de galería" variant="secondary" />
-                    </TouchableOpacity>
-                  </View>
-                </View>
-                */}
-              </ScrollView>
-            </View>
-
-            <View style={styles.editModalFooter}>
-              <TouchableOpacity
-                style={styles.editModalCancelButton}
-                onPress={() => setEditModalVisible(false)}
-              >
-                <Text
-                  style={[
-                    styles.editModalCancelText,
-                    { color: colors.primary },
-                  ]}
-                >
-                  Cancelar
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.editModalSaveButton}
-                onPress={handleSaveEdit}
-              >
-                <Text style={styles.editModalSaveText}>Guardar</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
-
-      {/* DateTimePicker separado para evitar conflictos con el modal */}
-      {showDatePicker && (
-        <DateTimePicker
-          value={editFormData.date}
-          mode="date"
-          display={Platform.OS === "ios" ? "spinner" : "default"}
-          onChange={(event, selectedDate) => {
-            setShowDatePicker(Platform.OS === "ios");
-            if (selectedDate) {
-              setEditFormData((prev) => ({ ...prev, date: selectedDate }));
-            }
-          }}
-        />
-      )}
     </DialogComponent>
   );
 };
