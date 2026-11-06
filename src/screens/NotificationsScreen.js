@@ -4,10 +4,8 @@ import { useEffect, useState } from "react";
 import {
   Alert,
   FlatList,
-  Modal,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -18,7 +16,6 @@ import {
   getAllNotifications,
   getNotifications,
   initDatabase,
-  insertNotification,
 } from "../database/notifications";
 import { scheduleAllNotifications } from "../services/notificationService";
 import {
@@ -31,16 +28,10 @@ import {
   vs,
 } from "../utils/responsive";
 
-const NotificationsScreen = () => {
+const NotificationsScreen = ({ navigation }) => {
   const { colors } = useTheme();
   const { notificationsEnabled, getAlertSummary, updateAppBadge } = useApp();
   const [notifications, setNotifications] = useState([]);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [title, setTitle] = useState("");
-  const [body, setBody] = useState("");
-  const [selectedHour, setSelectedHour] = useState(12);
-  const [selectedMinute, setSelectedMinute] = useState(0);
-  const [selectedDays, setSelectedDays] = useState([]);
   const [alertNotificationsEnabled, setAlertNotificationsEnabled] =
     useState(false);
 
@@ -62,6 +53,11 @@ const NotificationsScreen = () => {
     };
     setup();
   }, [notificationsEnabled]);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", loadNotifications);
+    return unsubscribe;
+  }, [navigation]);
 
   const toggleAlertNotifications = async () => {
     try {
@@ -108,32 +104,6 @@ const NotificationsScreen = () => {
     }
   };
 
-  const handleAddNotification = async () => {
-    if (!title || !body || selectedDays.length === 0) {
-      Alert.alert("Error", "Completa todos los campos");
-      return;
-    }
-    const time = `${selectedHour}:${selectedMinute
-      .toString()
-      .padStart(2, "0")}`;
-    try {
-      await insertNotification(title, body, selectedDays.join(","), time);
-
-      // Reprogramar todas las notificaciones
-      await scheduleAllNotifications(getAllNotifications);
-
-      setModalVisible(false);
-      setTitle("");
-      setBody("");
-      setSelectedHour(12);
-      setSelectedMinute(0);
-      setSelectedDays([]);
-      loadNotifications();
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   const handleDelete = async (id) => {
     try {
       await deleteNotification(id);
@@ -143,12 +113,6 @@ const NotificationsScreen = () => {
     } catch (error) {
       console.error(error);
     }
-  };
-
-  const toggleDay = (day) => {
-    setSelectedDays((prev) =>
-      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day],
-    );
   };
 
   const renderNotification = ({ item }) => (
@@ -283,142 +247,10 @@ const NotificationsScreen = () => {
       </View>
       <TouchableOpacity
         style={[styles.addButton, { backgroundColor: colors.primaryDark }]}
-        onPress={() => setModalVisible(true)}
+        onPress={() => navigation.navigate("NotificationForm")}
       >
         <Ionicons name="add" size={iconSize.md} color="white" />
       </TouchableOpacity>
-
-      <Modal visible={modalVisible} animationType="slide" transparent>
-        <View style={styles.modalContainer}>
-          <View
-            style={[
-              styles.modalContent,
-              { backgroundColor: colors.cardBackground },
-            ]}
-          >
-            <Text style={[styles.modalTitle, { color: colors.text }]}>
-              Agregar Notificación
-            </Text>
-            <TextInput
-              style={[
-                styles.input,
-                { borderColor: colors.textTertiary, color: colors.text },
-              ]}
-              placeholder="Título"
-              placeholderTextColor={colors.textSecondary}
-              value={title}
-              onChangeText={setTitle}
-            />
-            <TextInput
-              style={[
-                styles.input,
-                { borderColor: colors.textTertiary, color: colors.text },
-              ]}
-              placeholder="Cuerpo"
-              placeholderTextColor={colors.textSecondary}
-              value={body}
-              onChangeText={setBody}
-            />
-            <Text style={[styles.timeLabel, { color: colors.text }]}>
-              Hora:
-            </Text>
-            <View style={styles.timeContainer}>
-              <View style={styles.pickerContainer}>
-                <Text style={[styles.pickerLabel, { color: colors.text }]}>
-                  Hora (1-24)
-                </Text>
-                <TextInput
-                  style={[
-                    styles.input,
-                    { borderColor: colors.textTertiary, color: colors.text },
-                  ]}
-                  value={selectedHour.toString()}
-                  onChangeText={(value) => {
-                    const num = parseInt(value);
-                    if (!isNaN(num) && num >= 1 && num <= 24) {
-                      setSelectedHour(num);
-                    } else if (value === "") {
-                      setSelectedHour(12);
-                    }
-                  }}
-                  keyboardType="number-pad"
-                  maxLength={2}
-                  placeholder="12"
-                  placeholderTextColor={colors.textSecondary}
-                />
-              </View>
-              <View style={styles.pickerContainer}>
-                <Text style={[styles.pickerLabel, { color: colors.text }]}>
-                  Minuto (0-59)
-                </Text>
-                <TextInput
-                  style={[
-                    styles.input,
-                    { borderColor: colors.textTertiary, color: colors.text },
-                  ]}
-                  value={selectedMinute.toString().padStart(2, "0")}
-                  onChangeText={(value) => {
-                    const num = parseInt(value);
-                    if (!isNaN(num) && num >= 0 && num <= 59) {
-                      setSelectedMinute(num);
-                    } else if (value === "") {
-                      setSelectedMinute(0);
-                    }
-                  }}
-                  keyboardType="number-pad"
-                  maxLength={2}
-                  placeholder="00"
-                  placeholderTextColor={colors.textSecondary}
-                />
-              </View>
-            </View>
-            <Text style={[styles.daysLabel, { color: colors.text }]}>
-              Días de la semana:
-            </Text>
-            <View style={styles.daysContainer}>
-              {daysOfWeek.map((day) => (
-                <TouchableOpacity
-                  key={day.key}
-                  style={[
-                    styles.dayButton,
-                    {
-                      backgroundColor: selectedDays.includes(day.key)
-                        ? colors.primaryDark
-                        : colors.cardBackground,
-                      borderColor: colors.textTertiary,
-                    },
-                  ]}
-                  onPress={() => toggleDay(day.key)}
-                >
-                  <Text
-                    style={{
-                      color: selectedDays.includes(day.key)
-                        ? "white"
-                        : colors.text,
-                    }}
-                  >
-                    {day.label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={[styles.button, { backgroundColor: colors.disabled }]}
-                onPress={() => setModalVisible(false)}
-              >
-                <Text style={{ color: colors.textSecondary }}>Cancelar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.button, { backgroundColor: colors.primaryDark }]}
-                onPress={handleAddNotification}
-              >
-                <Text style={{ color: "white" }}>Agregar</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 };

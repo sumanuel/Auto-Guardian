@@ -23,6 +23,7 @@ import CategoriesScreen from "../screens/CategoriesScreen";
 // import ContactsScreen from "../screens/ContactsScreen";
 import CurrencySettingsScreen from "../screens/CurrencySettingsScreen";
 import DataManagementScreen from "../screens/DataManagementScreen";
+import DocumentTypeFormScreen from "../screens/DocumentTypeFormScreen";
 import DocumentsScreen from "../screens/DocumentsScreen";
 import EditMaintenanceScreen from "../screens/EditMaintenanceScreen";
 import GettingStartedScreen from "../screens/GettingStartedScreen";
@@ -32,7 +33,9 @@ import InvestmentDetailScreen from "../screens/InvestmentDetailScreen";
 import LearnCarScreen from "../screens/LearnCarScreen";
 import LearnMoreScreen from "../screens/LearnMoreScreen";
 import MaintenanceHistoryScreen from "../screens/MaintenanceHistoryScreen";
+import MaintenanceTypeFormScreen from "../screens/MaintenanceTypeFormScreen";
 import MoreScreen from "../screens/MoreScreen";
+import NotificationFormScreen from "../screens/NotificationFormScreen";
 import NotificationsScreen from "../screens/NotificationsScreen";
 import RecommendationsScreen from "../screens/RecommendationsScreen";
 import SettingsScreen from "../screens/SettingsScreen";
@@ -316,9 +319,23 @@ const MoreStack = () => {
         options={{ title: "Tipos de Mantenimientos" }}
       />
       <Stack.Screen
+        name="MaintenanceTypeForm"
+        component={MaintenanceTypeFormScreen}
+        options={({ route }) => ({
+          title: route.params?.type ? "Editar tipo" : "Nuevo tipo",
+        })}
+      />
+      <Stack.Screen
         name="DocumentTypes"
         component={require("../screens/DocumentTypesScreen").default}
         options={{ title: "Tipos de Documentos" }}
+      />
+      <Stack.Screen
+        name="DocumentTypeForm"
+        component={DocumentTypeFormScreen}
+        options={({ route }) => ({
+          title: route.params?.type ? "Editar tipo" : "Nuevo tipo",
+        })}
       />
       {/*
       <Stack.Screen
@@ -336,6 +353,11 @@ const MoreStack = () => {
         name="NotificationsScreen"
         component={NotificationsScreen}
         options={{ title: "Notificaciones" }}
+      />
+      <Stack.Screen
+        name="NotificationForm"
+        component={NotificationFormScreen}
+        options={{ title: "Agregar notificación" }}
       />
       <Stack.Screen
         name="DataManagement"

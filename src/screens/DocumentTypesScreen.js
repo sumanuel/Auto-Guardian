@@ -1,23 +1,19 @@
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   FlatList,
-  Modal,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 import { useTheme } from "../context/ThemeContext";
 import { useDialog } from "../hooks/useDialog";
 import {
-  createDocumentType,
   deleteDocumentType,
   getDocumentTypes,
   isDocumentTypeInUse,
-  updateDocumentType,
 } from "../services/documentService";
 import {
   borderRadius,
@@ -33,23 +29,11 @@ const DocumentTypesScreen = ({ navigation }) => {
   const { colors } = useTheme();
   const { DialogComponent, showDialog } = useDialog();
   const [documentTypes, setDocumentTypes] = useState([]);
-  const [editModalVisible, setEditModalVisible] = useState(false);
-  const [addModalVisible, setAddModalVisible] = useState(false);
-  const [selectedType, setSelectedType] = useState(null);
-  const [editTypeDocument, setEditTypeDocument] = useState("");
-  const [editDescription, setEditDescription] = useState("");
-  const [newTypeDocument, setNewTypeDocument] = useState("");
-  const [newTypeDescription, setNewTypeDescription] = useState("");
-  const [editError, setEditError] = useState("");
-  const [addError, setAddError] = useState("");
-
-  // Referencias para navegación en modal de nuevo tipo
-  const newTypeDocumentRef = useRef(null);
-  const newTypeDescriptionRef = useRef(null);
-
   useEffect(() => {
     loadDocumentTypes();
-  }, []);
+    const unsubscribe = navigation.addListener("focus", loadDocumentTypes);
+    return unsubscribe;
+  }, [navigation]);
 
   const loadDocumentTypes = () => {
     const types = getDocumentTypes();
@@ -109,61 +93,7 @@ const DocumentTypesScreen = ({ navigation }) => {
   );
 
   const handleEditType = (type) => {
-    setSelectedType(type);
-    setEditTypeDocument(type.type_document);
-    setEditDescription(type.description || "");
-    setEditError(""); // Limpiar error al abrir
-    setEditModalVisible(true);
-  };
-
-  const handleSaveType = async () => {
-    if (!editTypeDocument.trim()) {
-      setEditError("El nombre del documento es obligatorio");
-      return;
-    }
-
-    try {
-      await updateDocumentType(selectedType.id, {
-        type_document: editTypeDocument.trim(),
-        description: editDescription.trim(),
-      });
-
-      setEditModalVisible(false);
-      loadDocumentTypes();
-      showDialog({
-        title: "Éxito",
-        message: "Tipo de documento actualizado correctamente",
-        type: "success",
-      });
-    } catch (error) {
-      setEditError(error.message || "Error al actualizar el tipo de documento");
-    }
-  };
-
-  const handleAddType = async () => {
-    if (!newTypeDocument.trim()) {
-      setAddError("El nombre del documento es obligatorio");
-      return;
-    }
-
-    try {
-      await createDocumentType({
-        type_document: newTypeDocument.trim(),
-        description: newTypeDescription.trim(),
-      });
-
-      setAddModalVisible(false);
-      setNewTypeDocument("");
-      setNewTypeDescription("");
-      loadDocumentTypes();
-      showDialog({
-        title: "Éxito",
-        message: "Tipo de documento creado correctamente",
-        type: "success",
-      });
-    } catch (error) {
-      setAddError(error.message || "Error al crear el tipo de documento");
-    }
+    navigation.navigate("DocumentTypeForm", { type });
   };
 
   const handleDeleteType = async (type) => {
@@ -286,219 +216,10 @@ const DocumentTypesScreen = ({ navigation }) => {
             styles.floatingAddButton,
             { backgroundColor: colors.primaryDark },
           ]}
-          onPress={() => {
-            setAddError("");
-            setAddModalVisible(true);
-          }}
+          onPress={() => navigation.navigate("DocumentTypeForm")}
         >
           <Ionicons name="add" size={iconSize.md} color="white" />
         </TouchableOpacity>
-
-        {/* Modal para editar tipo de documento */}
-        <Modal
-          visible={editModalVisible}
-          animationType="slide"
-          transparent={true}
-          onRequestClose={() => setEditModalVisible(false)}
-        >
-          <View style={styles.modalOverlay}>
-            <View
-              style={[
-                styles.modalContent,
-                { backgroundColor: colors.cardBackground },
-              ]}
-            >
-              <View style={styles.modalHeader}>
-                <Text style={[styles.modalTitle, { color: colors.text }]}>
-                  Editar Tipo de Documento
-                </Text>
-                <TouchableOpacity onPress={() => setEditModalVisible(false)}>
-                  <Ionicons
-                    name="close"
-                    size={iconSize.md}
-                    color={colors.text}
-                  />
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.modalBody}>
-                <Text style={[styles.label, { color: colors.text }]}>
-                  Tipo de Documento *
-                </Text>
-                <TextInput
-                  style={[
-                    styles.input,
-                    {
-                      backgroundColor: colors.inputBackground,
-                      borderColor: colors.border,
-                      color: colors.text,
-                    },
-                  ]}
-                  value={editTypeDocument}
-                  onChangeText={setEditTypeDocument}
-                  placeholder="Ej: Licencia de Conducir"
-                  placeholderTextColor={colors.textSecondary}
-                />
-
-                <Text style={[styles.label, { color: colors.text }]}>
-                  Descripción
-                </Text>
-                <TextInput
-                  style={[
-                    styles.input,
-                    styles.textArea,
-                    {
-                      backgroundColor: colors.inputBackground,
-                      borderColor: colors.border,
-                      color: colors.text,
-                    },
-                  ]}
-                  value={editDescription}
-                  onChangeText={setEditDescription}
-                  placeholder="Descripción opcional..."
-                  placeholderTextColor={colors.textSecondary}
-                  multiline
-                  numberOfLines={3}
-                  textAlignVertical="top"
-                />
-
-                {editError ? (
-                  <Text style={styles.errorText}>{editError}</Text>
-                ) : null}
-
-                <View style={styles.modalButtons}>
-                  <TouchableOpacity
-                    style={[styles.button, styles.cancelButton]}
-                    onPress={() => setEditModalVisible(false)}
-                  >
-                    <Text
-                      style={{ color: colors.textSecondary, fontSize: rf(16) }}
-                    >
-                      Cancelar
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[
-                      styles.button,
-                      { backgroundColor: colors.primaryDark },
-                    ]}
-                    onPress={handleSaveType}
-                  >
-                    <Text style={{ color: "white", fontSize: rf(16) }}>
-                      Guardar
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>
-          </View>
-        </Modal>
-
-        {/* Modal para agregar tipo de documento */}
-        <Modal
-          visible={addModalVisible}
-          animationType="slide"
-          transparent={true}
-          onRequestClose={() => setAddModalVisible(false)}
-        >
-          <View style={styles.modalOverlay}>
-            <View
-              style={[
-                styles.modalContent,
-                { backgroundColor: colors.cardBackground },
-              ]}
-            >
-              <View style={styles.modalHeader}>
-                <Text style={[styles.modalTitle, { color: colors.text }]}>
-                  Nuevo Tipo de Documento
-                </Text>
-                <TouchableOpacity onPress={() => setAddModalVisible(false)}>
-                  <Ionicons
-                    name="close"
-                    size={iconSize.md}
-                    color={colors.text}
-                  />
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.modalBody}>
-                <Text style={[styles.label, { color: colors.text }]}>
-                  Tipo de Documento *
-                </Text>
-                <TextInput
-                  ref={newTypeDocumentRef}
-                  style={[
-                    styles.input,
-                    {
-                      backgroundColor: colors.inputBackground,
-                      borderColor: colors.border,
-                      color: colors.text,
-                    },
-                  ]}
-                  value={newTypeDocument}
-                  onChangeText={setNewTypeDocument}
-                  placeholder="Ej: Seguro de Vida"
-                  placeholderTextColor={colors.textSecondary}
-                  returnKeyType="next"
-                  onSubmitEditing={() => newTypeDescriptionRef.current?.focus()}
-                  blurOnSubmit={false}
-                />
-
-                <Text style={[styles.label, { color: colors.text }]}>
-                  Descripción
-                </Text>
-                <TextInput
-                  ref={newTypeDescriptionRef}
-                  style={[
-                    styles.input,
-                    styles.textArea,
-                    {
-                      backgroundColor: colors.inputBackground,
-                      borderColor: colors.border,
-                      color: colors.text,
-                    },
-                  ]}
-                  value={newTypeDescription}
-                  onChangeText={setNewTypeDescription}
-                  placeholder="Descripción opcional..."
-                  placeholderTextColor={colors.textSecondary}
-                  multiline
-                  numberOfLines={3}
-                  textAlignVertical="top"
-                  returnKeyType="done"
-                />
-
-                {addError ? (
-                  <Text style={styles.errorText}>{addError}</Text>
-                ) : null}
-
-                <View style={styles.modalButtons}>
-                  <TouchableOpacity
-                    style={[styles.button, styles.cancelButton]}
-                    onPress={() => setAddModalVisible(false)}
-                  >
-                    <Text
-                      style={{ color: colors.textSecondary, fontSize: rf(16) }}
-                    >
-                      Cancelar
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[
-                      styles.button,
-                      { backgroundColor: colors.primaryDark },
-                    ]}
-                    onPress={handleAddType}
-                  >
-                    <Text style={{ color: "white", fontSize: rf(16) }}>
-                      Crear
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>
-          </View>
-        </Modal>
       </View>
     </DialogComponent>
   );
